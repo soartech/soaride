@@ -1,0 +1,46 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: time</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd70">NAME</a> · <a href="#SECTid81abde8">SYNOPSIS</a> · <a href="#SECTid81abeb0">DESCRIPTION</a> · <a href="#SECTid81ac018">EXAMPLE</a> · <a href="#SECTid81ac0e0">SEE ALSO</a> · <a href="#SECTid81ac130">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd70">NAME</a></h2><p class="namesection">
+<b class="names">time - </b><br>Time the execution of a script</p>
+<h2><a name="SECTid81abde8">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">time</b> <i class="m">script</i> ?<i class="m">count</i>?
+</pre>
+
+
+<h2><a name="SECTid81abeb0">DESCRIPTION</a></h2><p>This command will call the Tcl interpreter <i>count</i>
+times to evaluate <i>script</i> (or once if <i>count</i> isn't
+specified).  It will then return a string of the form
+</p><pre class="example">
+<b>503 microseconds per iteration</b>
+</pre><p>which indicates the average amount of time required per iteration,
+in microseconds.
+Time is measured in elapsed time, not CPU time.
+</p>
+<h2><a name="SECTid81ac018">EXAMPLE</a></h2><p>Estimate how long it takes for a simple Tcl <b class="cmd">for</b> loop to count to
+a thousand:
+</p><pre class="example">
+time {
+    for {set i 0} {$i&lt;1000} {incr i} {
+        # empty body
+    }
+}
+</pre>
+<h2><a name="SECTid81ac0e0">SEE ALSO</a></h2><p class="seealso">clock(n)</p>
+<h2><a name="SECTid81ac130">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-script">script</a>, <a class="keyword" href="keyword-index.html#KW-time">time</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

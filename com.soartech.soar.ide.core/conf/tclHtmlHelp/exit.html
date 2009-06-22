@@ -1,0 +1,54 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: exit</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81a70c0">NAME</a> · <a href="#SECTid81a7138">SYNOPSIS</a> · <a href="#SECTid81a71d8">DESCRIPTION</a> · <a href="#SECTid81a72a0">EXAMPLE</a> · <a href="#SECTid81a7390">SEE ALSO</a> · <a href="#SECTid81a73e0">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81a70c0">NAME</a></h2><p class="namesection">
+<b class="names">exit - </b><br>End the application</p>
+<h2><a name="SECTid81a7138">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">exit</b> ?<i class="m">returnCode</i>?
+</pre>
+
+
+<h2><a name="SECTid81a71d8">DESCRIPTION</a></h2><p>Terminate the process, returning <i>returnCode</i> to the
+system as the exit status.
+If <i>returnCode</i> isn't specified then it defaults
+to 0.
+</p>
+<h2><a name="SECTid81a72a0">EXAMPLE</a></h2><p>Since non-zero exit codes are usually interpreted as error cases by
+the calling process, the <b class="cmd">exit</b> command is an important part of
+signaling that something fatal has gone wrong. This code fragment is
+useful in scripts to act as a general problem trap:
+</p><pre class="example">
+proc main {} {
+    # ... put the real main code in here ...
+}
+
+if {[catch {main} msg options]} {
+    puts stderr "unexpected script error: $msg"
+    if {[info exist env(DEBUG)]} {
+        puts stderr "---- BEGIN TRACE ----"
+        puts stderr [dict get $options -errorinfo]
+        puts stderr "---- END TRACE ----"
+    }
+
+    # Reserve code 1 for "expected" error exits...
+    <b class="cmd">exit</b> 2
+}
+</pre>
+<h2><a name="SECTid81a7390">SEE ALSO</a></h2><p class="seealso">exec(n)</p>
+<h2><a name="SECTid81a73e0">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-exit">exit</a>, <a class="keyword" href="keyword-index.html#KW-process">process</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

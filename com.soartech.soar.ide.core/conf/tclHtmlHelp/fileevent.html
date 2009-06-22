@@ -1,0 +1,118 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: fileevent</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd40">NAME</a> · <a href="#SECTid81abdb8">SYNOPSIS</a> · <a href="#SECTid81abf48">DESCRIPTION</a> · <a href="#SECTid81ac6f0">EXAMPLE</a> · <a href="#SECTid81ac7e0">CREDITS</a> · <a href="#SECTid81ac8a8">SEE ALSO</a> · <a href="#SECTid81ac9c0">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd40">NAME</a></h2><p class="namesection">
+<b class="names">fileevent - </b><br>Execute a script when a channel becomes readable or writable</p>
+<h2><a name="SECTid81abdb8">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">fileevent</b> <i class="m">channelId</i> <b>readable</b> ?<i class="m">script</i>?
+
+<b class="cmd">fileevent</b> <i class="m">channelId</i> <b>writable</b> ?<i class="m">script</i>?
+</pre>
+
+
+<h2><a name="SECTid81abf48">DESCRIPTION</a></h2><p>This command is used to create <i>file event handlers</i>.  A file event
+handler is a binding between a channel and a script, such that the script
+is evaluated whenever the channel becomes readable or writable.  File event
+handlers are most commonly used to allow data to be received from another
+process on an event-driven basis, so that the receiver can continue to
+interact with the user while waiting for the data to arrive.  If an
+application invokes <b class="cmd">gets</b> or <b>read</b> on a blocking channel when
+there is no input data available, the process will block; until the input
+data arrives, it will not be able to service other events, so it will
+appear to the user to ``freeze up''.  With <b class="cmd">fileevent</b>, the process can
+tell when data is present and only invoke <b class="cmd">gets</b> or <b>read</b> when
+they won't block.
+</p><p>The <i>channelId</i> argument to <b class="cmd">fileevent</b> refers to an open
+channel such as a Tcl standard channel (<b>stdin</b>, <b>stdout</b>,
+or <b>stderr</b>), the return value from an invocation of <b>open</b>
+or <b class="cmd">socket</b>, or the result of a channel creation command provided
+by a Tcl extension.
+</p><p>If the <i>script</i> argument is specified, then <b class="cmd">fileevent</b>
+creates a new event handler:  <i>script</i> will be evaluated
+whenever the channel becomes readable or writable (depending on the
+second argument to <b class="cmd">fileevent</b>).
+In this case <b class="cmd">fileevent</b> returns an empty string.
+The <b>readable</b> and <b>writable</b> event handlers for a file
+are independent, and may be created and deleted separately.
+However, there may be at most one <b>readable</b> and one <b>writable</b>
+handler for a file at a given time in a given interpreter.
+If <b class="cmd">fileevent</b> is called when the specified handler already
+exists in the invoking interpreter, the new script replaces the old one.
+</p><p>If the <i>script</i> argument is not specified, <b class="cmd">fileevent</b>
+returns the current script for <i>channelId</i>, or an empty string
+if there is none.
+If the <i>script</i> argument is specified as an empty string
+then the event handler is deleted, so that no script will be invoked.
+A file event handler is also deleted automatically whenever
+its channel is closed or its interpreter is deleted.
+</p><p>A channel is considered to be readable if there is unread data
+available on the underlying device.
+A channel is also considered to be readable if there is unread
+data in an input buffer, except in the special case where the
+most recent attempt to read from the channel was a <b class="cmd">gets</b>
+call that could not find a complete line in the input buffer.
+This feature allows a file to be read a line at a time in nonblocking mode
+using events.
+A channel is also considered to be readable if an end of file or
+error condition is present on the underlying file or device.
+It is important for <i>script</i> to check for these conditions
+and handle them appropriately;  for example, if there is no special
+check for end of file, an infinite loop may occur where <i>script</i>
+reads no data, returns, and is immediately invoked again.
+</p><p>A channel is considered to be writable if at least one byte of data
+can be written to the underlying file or device without blocking,
+or if an error condition is present on the underlying file or device.
+</p><p>Event-driven I/O works best for channels that have been
+placed into nonblocking mode with the <b class="cmd">fconfigure</b> command.
+In blocking mode, a <b class="cmd">puts</b> command may block if you give it
+more data than the underlying file or device can accept, and a
+<b class="cmd">gets</b> or <b>read</b> command will block if you attempt to read
+more data than is ready;  no events will be processed while the
+commands block.
+In nonblocking mode <b class="cmd">puts</b>, <b>read</b>, and <b class="cmd">gets</b> never block.
+See the documentation for the individual commands for information
+on how they handle blocking and nonblocking channels.
+</p><p>The script for a file event is executed at global level (outside the
+context of any Tcl procedure) in the interpreter in which the
+<b class="cmd">fileevent</b> command was invoked.
+If an error occurs while executing the script then the
+command registered with <b>interp bgerror</b> is used to report the error.
+In addition, the file event handler is deleted if it ever returns
+an error;  this is done in order to prevent infinite loops due to
+buggy handlers.
+</p>
+<h2><a name="SECTid81ac6f0">EXAMPLE</a></h2><p>In this setup <b>GetData</b> will be called with the channel as an
+argument whenever $chan becomes readable.
+</p><pre class="example">
+proc GetData {chan} {
+    if {![eof $chan]} {
+        puts [gets $chan]
+    }
+}
+
+<b class="cmd">fileevent</b> $chan readable [list GetData $chan]
+</pre>
+<h2><a name="SECTid81ac7e0">CREDITS</a></h2><p>
+<b class="cmd">fileevent</b> is based on the <b>addinput</b> command created
+by Mark Diekhans.
+
+</p>
+<h2><a name="SECTid81ac8a8">SEE ALSO</a></h2><p class="seealso">fconfigure(n), gets(n), interp(n), puts(n), read(n), <a href="StdChannels.html">Tcl_StandardChannels(3)</a>
+</p>
+<h2><a name="SECTid81ac9c0">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-asynchronousI/O">asynchronous I/O</a>, <a class="keyword" href="keyword-index.html#KW-blocking">blocking</a>, <a class="keyword" href="keyword-index.html#KW-channel">channel</a>, <a class="keyword" href="keyword-index.html#KW-eventhandler">event handler</a>, <a class="keyword" href="keyword-index.html#KW-nonblocking">nonblocking</a>, <a class="keyword" href="keyword-index.html#KW-readable">readable</a>, <a class="keyword" href="keyword-index.html#KW-script">script</a>, <a class="keyword" href="keyword-index.html#KW-writable.">writable.</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,10 @@
+##!
+# @file
+#
+# @created ray 20071024
+
+sp "test
+    (state <s> ^$path <path>)
+-->
+    (interrupt)
+"

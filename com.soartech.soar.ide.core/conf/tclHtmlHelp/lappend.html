@@ -1,0 +1,49 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: lappend</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd78">NAME</a> · <a href="#SECTid81abdf0">SYNOPSIS</a> · <a href="#SECTid81abeb8">DESCRIPTION</a> · <a href="#SECTid81ac0c0">EXAMPLE</a> · <a href="#SECTid81ac1d8">SEE ALSO</a> · <a href="#SECTid81ac318">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd78">NAME</a></h2><p class="namesection">
+<b class="names">lappend - </b><br>Append list elements onto a variable</p>
+<h2><a name="SECTid81abdf0">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">lappend</b> <i class="m">varName</i> ?<i class="m">value value value ...</i>?
+</pre>
+
+
+<h2><a name="SECTid81abeb8">DESCRIPTION</a></h2><p>This command treats the variable given by <i>varName</i> as a list
+and appends each of the <i>value</i> arguments to that list as a separate
+element, with spaces between elements.
+If <i>varName</i> doesn't exist, it is created as a list with elements
+given by the <i>value</i> arguments.
+<b>Lappend</b> is similar to <b class="cmd">append</b> except that the <i>value</i>s
+are appended as list elements rather than raw text.
+This command provides a relatively efficient way to build up
+large lists.  For example, ``<b>lappend a $b</b>'' is much
+more efficient than ``<b>set a [concat $a [list $b]]</b>'' when
+<b>$a</b> is long.
+</p>
+<h2><a name="SECTid81ac0c0">EXAMPLE</a></h2><p>Using <b class="cmd">lappend</b> to build up a list of numbers.
+</p><pre class="example">
+% set var 1
+1
+% <b class="cmd">lappend</b> var 2
+1 2
+% <b class="cmd">lappend</b> var 3 4 5
+1 2 3 4 5
+</pre>
+<h2><a name="SECTid81ac1d8">SEE ALSO</a></h2><p class="seealso">list(n), lindex(n), linsert(n), llength(n), lset(n), lsort(n), lrange(n)</p>
+<h2><a name="SECTid81ac318">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-append">append</a>, <a class="keyword" href="keyword-index.html#KW-element">element</a>, <a class="keyword" href="keyword-index.html#KW-list">list</a>, <a class="keyword" href="keyword-index.html#KW-variable">variable</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

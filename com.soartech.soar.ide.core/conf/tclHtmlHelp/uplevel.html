@@ -1,0 +1,95 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: uplevel</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81ac740">NAME</a> · <a href="#SECTid81ac7b8">SYNOPSIS</a> · <a href="#SECTid81ac8a8">DESCRIPTION</a> · <a href="#SECTid81ad348">EXAMPLE</a> · <a href="#SECTid81ad4b0">SEE ALSO</a> · <a href="#SECTid81ad550">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81ac740">NAME</a></h2><p class="namesection">
+<b class="names">uplevel - </b><br>Execute a script in a different stack frame</p>
+<h2><a name="SECTid81ac7b8">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">uplevel</b> ?<i class="m">level</i>? <i class="m">arg</i> ?<i class="m">arg ...</i>?
+</pre>
+
+
+<h2><a name="SECTid81ac8a8">DESCRIPTION</a></h2><p>All of the <i>arg</i> arguments are concatenated as if they had
+been passed to <b class="cmd">concat</b>; the result is then evaluated in the
+variable context indicated by <i>level</i>.  <b>Uplevel</b> returns
+the result of that evaluation.
+</p><p>If <i>level</i> is an integer then
+it gives a distance (up the procedure calling stack) to move before
+executing the command.  If <i>level</i> consists of <b>#</b> followed by
+a number then the number gives an absolute level number.  If <i>level</i>
+is omitted then it defaults to <b>1</b>.  <i>Level</i> cannot be
+defaulted if the first <i>command</i> argument starts with a digit or <b>#</b>.
+</p><p>For example, suppose that procedure <b>a</b> was invoked
+from top-level, and that it called <b>b</b>, and that <b>b</b> called <b>c</b>.
+Suppose that <b>c</b> invokes the <b class="cmd">uplevel</b> command.  If <i>level</i>
+is <b>1</b> or <b>#2</b>  or omitted, then the command will be executed
+in the variable context of <b>b</b>.  If <i>level</i> is <b>2</b> or <b>#1</b>
+then the command will be executed in the variable context of <b>a</b>.
+If <i>level</i> is <b>3</b> or <b>#0</b> then the command will be executed
+at top-level (only global variables will be visible).
+</p><p>The <b class="cmd">uplevel</b> command causes the invoking procedure to disappear
+from the procedure calling stack while the command is being executed.
+In the above example, suppose <b>c</b> invokes the command
+</p><pre class="example">
+<b class="cmd">uplevel</b> 1 {set x 43; d}
+</pre><p>where <b>d</b> is another Tcl procedure.  The <b>set</b> command will
+modify the variable <b>x</b> in <b>b</b>'s context, and <b>d</b> will execute
+at level 3, as if called from <b>b</b>.  If it in turn executes
+the command
+</p><pre class="example">
+<b class="cmd">uplevel</b> {set x 42}
+</pre><p>then the <b>set</b> command will modify the same variable <b>x</b> in <b>b</b>'s
+context:  the procedure <b>c</b> does not appear to be on the call stack
+when <b>d</b> is executing.  The command ``<b>info level</b>'' may
+be used to obtain the level of the current procedure.
+</p><p>
+<b>Uplevel</b> makes it possible to implement new control
+constructs as Tcl procedures (for example, <b class="cmd">uplevel</b> could
+be used to implement the <b class="cmd">while</b> construct as a Tcl procedure).
+</p><p>The <b>namespace eval</b> and <b>apply</b> commands offer other ways
+(besides procedure calls) that the Tcl naming context can change.
+They add a call frame to the stack to represent the namespace context.
+This means each <b>namespace eval</b> command
+counts as another call level for <b class="cmd">uplevel</b> and <b class="cmd">upvar</b> commands.
+For example, <b>info level 1</b> will return a list
+describing a command that is either
+the outermost procedure call or the outermost <b>namespace eval</b> command.
+Also, <b>uplevel #0</b> evaluates a script
+at top-level in the outermost namespace (the global namespace).
+</p>
+<h2><a name="SECTid81ad348">EXAMPLE</a></h2><p>As stated above, the <b class="cmd">uplevel</b> command is useful for creating new
+control constructs.  This example shows how (without error handling)
+it can be used to create a <b>do</b> command that is the counterpart of
+<b class="cmd">while</b> except for always performing the test after running the
+loop body:
+</p><pre class="example">
+proc do {body while condition} {
+    if {$while ne "while"} {
+        error "required word missing"
+    }
+    set conditionCmd [list expr $condition]
+    while {1} {
+        <b class="cmd">uplevel</b> 1 $body
+        if {![<b class="cmd">uplevel</b> 1 $conditionCmd]} {
+            break
+        }
+    }
+}
+</pre>
+<h2><a name="SECTid81ad4b0">SEE ALSO</a></h2><p class="seealso">apply(n), namespace(n), upvar(n)</p>
+<h2><a name="SECTid81ad550">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-context">context</a>, <a class="keyword" href="keyword-index.html#KW-level">level</a>, <a class="keyword" href="keyword-index.html#KW-namespace">namespace</a>, <a class="keyword" href="keyword-index.html#KW-stackframe">stack frame</a>, <a class="keyword" href="keyword-index.html#KW-variables">variables</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

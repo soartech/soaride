@@ -1,0 +1,41 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: pwd</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81a70c0">NAME</a> · <a href="#SECTid81a7138">SYNOPSIS</a> · <a href="#SECTid81a71b0">DESCRIPTION</a> · <a href="#SECTid81a7228">EXAMPLE</a> · <a href="#SECTid81a7318">SEE ALSO</a> · <a href="#SECTid81a73e0">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81a70c0">NAME</a></h2><p class="namesection">
+<b class="names">pwd - </b><br>Return the absolute path of the current working directory</p>
+<h2><a name="SECTid81a7138">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">pwd</b>
+</pre>
+
+
+<h2><a name="SECTid81a71b0">DESCRIPTION</a></h2><p>Returns the absolute path name of the current working directory.
+</p>
+<h2><a name="SECTid81a7228">EXAMPLE</a></h2><p>Sometimes it is useful to change to a known directory when running
+some external command using <b class="cmd">exec</b>, but it is important to keep
+the application usually running in the directory that it was started
+in (unless the user specifies otherwise) since that minimizes user
+confusion. The way to do this is to save the current directory while
+the external command is being run:
+</p><pre class="example">
+set tarFile [file normalize somefile.tar]
+set savedDir [<b class="cmd">pwd</b>]
+cd /tmp
+exec tar -xf $tarFile
+cd $savedDir
+</pre>
+<h2><a name="SECTid81a7318">SEE ALSO</a></h2><p class="seealso">file(n), cd(n), glob(n), filename(n)</p>
+<h2><a name="SECTid81a73e0">KEYWORDS</a></h2><p class="keywords"><a class="keyword" href="keyword-index.html#KW-workingdirectory">working directory</a></p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

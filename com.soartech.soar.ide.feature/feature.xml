@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.soartech.soar.ide.feature"
+      label="Soar IDE"
+      version="1.0.2"
+      provider-name="Soar Technology, Inc.">
+
+   <description url="http://www.soartech.com/downloads.soar-ide.php">
+      Soar IDE
+   </description>
+
+   <copyright url="http://www.soartech.com/copyright">
+      2007 Soar Technology, Inc. All rights reserved.
+   </copyright>
+
+   <license url="http://www.soartech.com/download/soardev/SoarIDE_Academic_License.txt">
+      Important!
+Do not download, use, copy, transmit, distribute, or install
+the source, object, or executable code or any related documentation
+associated with this software unless you have read, fully understand,
+and agree to be bound by the following Master License Agreement
+and Schedule.
+By downloading, using, copying, transmitting, distributing or
+installing the source, object, or executable code or any related
+documentation for the software (the &quot;Licensed Product&quot;), you
+agree to all of the terms of this agreement (&quot;Agreement&quot;).
+SOAR TECHNOLOGY, INC.
+MASTER LICENSE AGREEMENT
+Soar Technology, Inc. (“SoarTech”)
+3600 Green Court, Suite 600
+Ann Arbor, MI  48105
+Tel:  (734) 327-8000
+Fax: (734) 913-8537
+This License Agreement (this “Agreement”) is by and between SoarTech
+and the individual or organization (“Customer”) downloading,
+using, copying, transmitting, distributing, or installing the
+software, and is made effective as of the date of download, copying,
+transmission, distribution, or installation, whichever is sooner
+(the “Effective Date”).  The specific software and types of license
+(e.g., Evaluation License, Proof of Concept License, Partner
+License, Developer’s License, Research License, Production License,
+or End User License Agreement) licensed under this Agreement
+will be set forth in one or more agreed Schedules.  For good
+and valuable consideration, the receipt and sufficiency of which
+are hereby acknowledged, the parties agree as follows:  
+1.  License.
+(a) Subject to the terms and conditions of this Agreement, SoarTech
+grants Customer the limited right to use, in object code form
+only, the software described on the applicable Schedule (“Software”)
+and any operating instructions delivered with the Software (“Documentation”).
+The Software and Documentation and any and all copies or modifications
+thereto are referred to collectively as the “Licensed Product”.
+Customer agrees to pay SoarTech the license fee in accordance
+with the terms set forth in the applicable Schedule. 
+(b) The licenses granted herein shall be nonexclusive. 
+(c) Except as set forth in the attached schedule, the licenses
+granted herein shall be non-transferable except in the event
+that the Customer is acquired or merges with another entity.
+In the event of a merger or acquisition, all license terms and
+schedules are transferred and remain in effect.
+2.  Limitations on License.
+EXCEPT AS SET FORTH IN THE ATTACHED SCHEDULE
+(a) The Licensed Product shall be used only by Customer for Customer’s
+sole and exclusive benefit and shall not be used to provide time-sharing
+or other similar services unless terms and conditions for such
+services are expressly stated on the applicable Schedule.  
+(b) Customer shall not reverse engineer, decompile, modify or
+change any portion of the Software or attempt to do any of the
+foregoing.  
+(c) Customer shall not transfer, distribute, or sublicense the
+Licensed Product to others, and Customer’s license shall automatically
+terminate in the event of such a transfer or distribution.
+(d) The license in this Agreement is subject to any additional
+rights, restrictions and conditions set forth in the applicable
+schedule. 
+3.  Term.  The license term will begin on the Effective Date
+of the applicable Schedule and will expire at the end of the
+term specified on the applicable Schedule. Either party may terminate
+this Agreement if the other party materially breaches any of
+the terms and conditions of this Agreement and such breach is
+not cured after ten (10) days written notice.  In addition, any
+party may terminate this Agreement for convenience.  Upon termination
+or expiration of this Agreement for any reason, Customer shall
+promptly return the Licensed Product to SoarTech, or destroy
+all copies of the Licensed Product, at SoarTech’s sole option.
+Sections [9, 12, 13, 14, and 15] of this Agreement shall survive
+termination or expiration of Customer’s license and this Agreement.
+4.  Payment.  
+(a) For acquisitions of this Licensed Product by or for the U.S.
+Federal Government, all payments shall be made in accordance
+with the Prompt Payment Act (Title 31 U.S.C. Chapter 39).
+(b) For all acquisitions not applicable to section 4(a), all
+payments under this Agreement, shall be made in United States
+dollars, and if not paid when within net 30 days, or in accordance
+with terms agreed upon in the attached Schedule, will be subject
+to interest at the rate of eighteen percent (18%) annually, or
+the maximum amount allowed by applicable law if lower, calculated
+from the date when payment becomes overdue until payment is received.
+Customer agrees to pay all federal, state, local and other taxes
+based on this Agreement, the Licensed Product or its use or for
+any related services, excluding taxes based on SoarTech’s net
+income. 
+5. Federal Acquisitions of Commercial Software.  If indicated
+on the applicable Schedule, the Licensed Product qualifies as
+“Commercial” computer software within the meaning of the acquisition
+regulation(s) applicable to this procurement  For acquisitions
+of this Software by or for the U.S. Federal Government, or by
+any prime contractor or subcontractor (at any tier) under any
+contract, grant, cooperative agreement or other activity with
+the U.S. Federal Government, by accepting delivery of this Software,
+the Customer herby agrees that this software qualifies as “Commercial”
+computer software within the meaning of the acquisition regulation(s)
+applicable to this procurement.  The terms and conditions of
+this License shall pertain to the government’s use and disclosure
+of this Software, and shall supersede any conflicting contractual
+terms or conditions.  If this License fails to meet the government’s
+needs or is inconsistent in any respect with Federal law, the
+Customer agrees to return this Software, unused, to SoarTech.
+6.  Professional Services
+(a) SoarTech shall provide the implementation, training, project
+management, programming and other services (if any) set forth
+in the applicable Schedule (the “Professional Services”).  
+(b) Customer agrees to pay SoarTech for Professional Services
+in accordance with the terms set forth in the applicable Schedule.
+(c) Customer shall provide SoarTech with timely access to information,
+personnel, facilities, supplies, computers, passwords, and other
+items reasonably requested by SoarTech in connection with the
+performance of the terms specified in the applicable Schedule.
+Any delay resulting from Customer’s failure to provide any such
+items, or any delay resulting from Customer’s failure to provide
+timely decisions and approvals, shall correspondingly extend
+any schedule that may be specified in the applicable Schedule.
+(d) Either party may request a change to the Professional Services
+set forth in the applicable Schedule by submitting a written
+statement describing in detail the requested change and the reasons
+for the change (“Change Request”).  After receipt of the Change
+Request, the parties shall discuss the availability of personnel,
+equipment, resources, and facilities necessary to fulfill such
+Change Request and the resulting adjustments to the applicable
+Schedule (including changes to fees and schedules).  SoarTech’s
+time spent evaluating a Change Request may result in additional
+billable hours.  No change to the applicable Schedule shall be
+effective unless both parties have agreed in writing to a modified
+Schedule.
+(e) Customer shall reimburse SoarTech for all reasonable out-of-pocket
+expenses incurred by SoarTech in connection with the Professional
+Services, including but not limited to travel, living, meals,
+long distance telephone and mailing expenses.  
+7.  Maintenance Services.
+Only Maintenance Services listed in the Schedule will be provided
+with this license and Customer agrees to pay the fee set forth
+in the applicable Schedule for maintenance services.  Such services
+are subject to the following Terms and Conditions:
+(a) SoarTech will provide telephone support for the Software
+on regular working days between 9:00 a.m. and 4:00 p.m., Eastern
+Time.  SoarTech’s assistance will consist of providing general
+advice on the installation, operation and use of the Software
+and assistance with suspected problems with the Software.  
+(b) For all reported problems, SoarTech will work to determine
+the source of the problem.  SoarTech will attempt to correct
+all documented problems reported to SoarTech by Customer that
+SoarTech is able to recreate at SoarTech’s site, and will deliver
+any bug fixes to Customer.  SoarTech may identify errors as arising
+from non-SoarTech hardware or software, or from unauthorized
+modifications to SoarTech Products.  In such a case, SoarTech
+reserves the right to charge Customer for correcting such errors
+per the billing charge on the applicable schedule.  In the event
+that no billing charges are indicated on the applicable Schedule,
+SoarTech reserves the right to charge Customer for correcting
+such errors per SoarTech’s then-current hourly rates for Maintenance
+Services provided.
+(c) SoarTech will provide new releases and/or upgrades to Software
+for no additional charge to Customers under the Maintenance Services
+contract and Customer will implement them as soon as is reasonably
+practical.  SoarTech will have no responsibility to provide Maintenance
+Services for any versions of the Software other than the current
+and immediately prior version.  Releases and/or upgrades do not
+include new products which provide significant new features and
+functions not provided in the current product line, which port
+existing Software to new hardware or software platforms, which
+provide significant new functionality on new hardware or software
+platforms, or which SoarTech designates with a new product number.
+(d) Before contacting SoarTech with a question, Customer shall
+take reasonable steps to resolve the question.  For example,
+Customer shall recreate and verify the alleged problem and review
+the Documentation before contacting SoarTech.  
+(e) Customer shall perform tasks as reasonably requested by SoarTech
+to aid in the resolution of problems, and shall implement all
+reasonable workarounds to problems as directed by SoarTech. 
+Upon request of SoarTech as necessary to resolve a Customer problem,
+Customer will provide SoarTech with a copy of requested Customer
+data in the machine-readable format reasonably requested by SoarTech.
+Customer shall be responsible for maintaining adequate back-ups
+of all data used in connection with the Software.  
+(f) If Customer terminates Maintenance Services and subsequently
+wishes to reinstate maintenance service on any Software, it must
+immediately upgrade to the most recent release of Software, at
+their expense.  SoarTech will not be obligated to provide Maintenance
+Services in the event that the License Agreement is terminated
+or Customer does not pay the License Fee, Maintenance Fees, or
+any other amount due to SoarTech.  
+8.  Limited Warranty.  
+(a) If agreed by the parties in the applicable Schedule, SoarTech
+will warrant that the Licensed Product will perform substantially
+in accordance with the accompanying specifications for a period
+of one year from the Effective Date as indicated in the attached
+Schedule.  SoarTech agrees to repair or replace defective Licensed
+Product, provided the defect is discovered within a reasonable
+period of time after acceptance.   Any liability of SoarTech
+will be limited exclusively to refund of the price, if any, Customer
+paid to SoarTech for the particular copy of the Software.  Under
+no circumstances will SoarTech or any of its principals, shareholders,
+officers, employees, affiliates, contractors, subsidiaries, or
+parent organizations, be liable for any indirect, incidental,
+consequential, or punitive damages whatsoever relating to the
+use of the Software, even if SoarTech has notice of the possibility
+of such damages.  
+(b) EXCEPT FOR THE WARRANTY SET FORTH IN THE PRECEDING PARAGRAPH,
+THE SOFTWARE, AND ALL ACCOMPANYING FILES, DATA AND MATERIALS,
+ARE DISTRIBUTED AND PROVIDED “AS IS” AND WITH NO WARRANTIES OF
+ANY KIND, WHETHER EXPRESS OR IMPLIED.  The Software is provided
+with all faults, and the entire risk as to satisfactory quality,
+performance, accuracy, and effort is with the user.  Further,
+there is no warranty against interference with the Customer’s
+enjoyment of the Software or against infringement.  Without limiting
+the foregoing, SoarTech makes no warranty that the Software is
+free of viruses.  Customer acknowledges that reasonably prudent
+procedure requires that any means of data processing, including
+the Software, be thoroughly tested with non-critical data before
+you rely on it, and Customer assumes the entire risk of using
+the Software.  
+9.  Proprietary Rights. 
+(a) All rights to and in the Licensed Product – including, but
+not limited to, copyright, patent, trademark and trade secret
+rights—belong to SoarTech and/or its licensors, and SoarTech
+holds title to each copy of the Licensed Product.  SoarTech reserves
+all rights to the Licensed Product not specifically granted herein.
+(b) Customer agrees to reproduce all copyright and other notices
+in each copy of the Software made by Customer.  
+(c) All customizations, enhancements, modifications and new code
+delivered to Customer pursuant to this Agreement shall be deemed
+“Software” and hereunder and shall be owned by SoarTech.  
+10.  Public Relations/Marketing.  SoarTech may elect to use Customer’s
+name in Public Relations, Marketing, or required reports to U.S.
+Government agencies.  Additionally, SoarTech may elect to use
+Customer’s name in refereed conference publications stemming
+from U.S. Government Funded efforts to research or develop the
+Licensed Product.  Customer may elect to use SoarTech’s name
+in required reports to U.S. Government agencies.  Additionally,
+Customer may elect to use SoarTech’s name in refereed conference
+publications stemming from research involving the Licensed Product.
+Customer agrees to notify SoarTech prior to such use.  SoarTech
+will be provided with a review and editing opportunity at least
+one week (five business days) prior to anticipated submission
+deadline.  All requests to SoarTech should be submitted to “Attention:
+Soar Technology Contracts” to the SoarTech address or fax number
+indicated in the header of this document.
+11.  Security; Inspection.  Certain Software may be designed
+to be used and accessed over a browser via either the Internet
+or a Customer Intranet.  In connection with such Software, Customer
+agrees to use industry-standard security measures to minimize
+the risk of unauthorized access to and use of such Software.
+Upon the request of SoarTech from time to time, but not more
+than one time per year, Customer will certify to SoarTech in
+writing the extent of its use of the Software and distribution
+to employees, as well as the security measures it has implemented
+in connection with the Software.  In addition, for Production
+Licenses only, Customer grants to SoarTech, or a SoarTech agent,
+the right to inspect Customer’s computer operations and Customer’s
+system reports upon reasonable notice and not more than one time
+per year to determine if Customer is in compliance with all the
+terms and conditions of this Agreement. SoarTech agrees that
+it shall act reasonably in the exercise of this right and shall
+cooperate with Customer to avoid disruption of Customer’s computer
+operations and to preserve the confidentiality of any of Customer’s
+files.  
+12.  Indemnification.  Customer agrees to indemnify, defend,
+and hold harmless SoarTech, its principals, shareholders, officers,
+employees, affiliates, contractors, subsidiaries, and parent
+organizations against all losses of any kind (including reasonable
+attorney fees) in connection with any suit, action, or claim
+arising out of your use, downloading, copying, transmittal, distribution,
+or installation of the Software.
+13.  Limitation of Liability.  Customer alone shall be responsible
+for: (a) the accuracy and adequacy of information and data furnished
+for processing; and (b) any use made by Customer of the output
+of the Software or any reliance thereon.  Customer shall also
+be responsible for the continued operation and maintenance of
+the computer equipment and third-party software used with the
+Software, and shall comply with all operational, environmental
+and maintenance recommendations and requirements of the applicable
+licensors, vendors and manufacturers.  CUSTOMER AGREES THAT ANY
+LIABILITY OF SOARTECH, REGARDING THE LICENSED PRODUCT OR THE
+SERVICES IN QUESTION RELATING TO THIS AGREEMENT AND THE LICENSED
+PRODUCT, SHALL BE LIMITED TO THE AMOUNT OF LICENSE FEES ACTUALLY
+RECEIVED BY SOARTECH FROM CUSTOMER UNDER THIS AGREEMENT.  IN
+NO EVENT SHALL SOARTECH BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
+INDIRECT, COVER, CONSEQUENTIAL, EXEMPLARY OR PUNITIVE DAMAGES;
+ANY DAMAGES BASED ON INJURY TO PERSON OR PROPERTY; OR ANY LOST
+SALES, PROFITS OR DATA, EVEN IF SOARTECH IS TOLD THAT ANY OF
+SUCH DAMAGES MAY OCCUR.  THE SOFTWARE IS NOT DESIGNED OR LICENSED
+FOR USE IN HAZARDOUS ENVIRONMENTS SUCH AS OPERATION OF NUCLEAR
+FACILITIES, AIRCRAFT NAVIGATION OR CONTROL, OR LIFE-CRITICAL
+APPLICATIONS.  SOARTECH, TO THE FULLEST EXTENT PERMITTED UNDER
+APPLICABLE LAW, EXPRESSLY DISCLAIMS ANY LIABILITY RESULTING FROM
+USE OF THE SOFTWARE IN ANY SUCH HAZARDOUS ENVIRONMENTS AND ACCEPTS
+NO LIABILITY IN RESPECT OF ANY ACTIONS OR CLAIMS BASED ON THE
+USE OF THE SOFTWARE IN ANY SUCH HAZARDOUS ENVIRONMENTS.  FOR
+PURPOSES OF THIS PARAGRAPH, THE TERM “LIFE-CRITICAL APPLICATION”
+MEANS AN APPLICATION IN WHICH THE FUNCTIONING OR MALFUNCTIONING
+OF THE SOFTWARE MAY RESULT DIRECTLY OR INDIRECTLY IN PHYSICAL
+INJURY OR LOSS OF HUMAN LIFE. 
+14.  Confidentiality.  All information and data delivered or
+disclosed by a party to the other party pursuant to this Agreement,
+including but not limited to SoarTech’s Licensed Product, SoarTech’s
+License fee, SoarTech’s Professional Services and/or Maintenance
+fees (the “Information”), is the proprietary and confidential
+information of the disclosing party.  Each party agrees to protect
+the Information and not to distribute or allow access to the
+Information to any other party without the prior written consent
+of the disclosing party.  The obligations in this paragraph shall
+not apply to data or information which: (a) is generally available
+to the public through no breach of this or any other confidentiality
+obligation, or (b) was lawfully in the possession of the receiving
+party prior to the receipt of such data or information from the
+disclosing party.  In addition, either party may disclose information
+of the other party as required by law or court order; in such
+event, such party shall use its best efforts to inform the other
+party prior to any such required disclosure.  Notwithstanding
+the above, Customer and SoarTech may disclose information to
+U.S. Government employees on a need to know basis.  
+15.  Miscellaneous.  
+(a) The Licensed Product shall not be exported or re-exported
+by Customer in violation of any export provisions of the United
+States or any or applicable jurisdiction.  
+(b) This Agreement constitutes the entire, final and exclusive
+Agreement between the parties and supersedes any and all other
+prior or contemporaneous oral or written representations or agreements
+between the parties relating to the subject matter hereof.  No
+amendments or modifications of this Agreement may be made except
+in writing, signed by both parties.  
+(c) Neither Customer nor SoarTech shall have the right to assign
+this Agreement or any of its related obligations hereunder. 
+(d) The failure by any party to exercise any right provided herein
+shall not be deemed a waiver or forfeiture of any such right.
+(e) For acquisitions of the Licensed Product by or for the U.S.
+Federal Government, this Agreement is governed by the U.S. Code
+and the Contract Disputes Act of 1978.
+(f) Except for acquisitions of the Licensed Product by or for
+the U.S. Federal Government, this Agreement is governed by the
+laws of the State of Michigan, without regard to its choice of
+law provisions.  The parties each consent to jurisdiction and
+sole venue in a state or federal court in Washtenaw County, Michigan.
+(g) Each party shall be excused from performance and shall not
+be liable for any delay caused by the occurrence of any contingency
+beyond the reasonable control either of the excused party or
+its subcontractors or suppliers.  These contingencies include,
+but are not limited to, war, sabotage, insurrection, riot or
+other act of civil disobedience, labor disturbance or shortage,
+act of public enemy, failure or delay in transportation, act
+of any government affecting the terms hereof, accident, fire,
+explosion, flood, severe weather or other act of God.  
+(h) This Agreement does not designate either party as the agent,
+employee, legal representative, partner or joint venturer of
+the other party for any purpose whatsoever.  
+SOAR TECHNOLOGY, INC.
+SCHEDULE A
+ACADEMIC LICENSE AND SERVICES
+This Schedule incorporates the Master License Agreement between
+Soar Technology, Inc. (“SoarTech”) and “Customer”.
+Software License:
+Name/Version/Application:   SOAR IDE
+Term of License:  Perpetual, Academic
+Fee:  0 U.S.D.
+Maintenance Services:  No Maintenance Services are Provided
+Professional Services:  No Professional Services are Provided
+Professional Services:  No Training Services are Provided
+Warranties:  THE LICENSED PRODUCT, AND ALL ACCOMPANYING FILES,
+DATA AND MATERIALS, ARE DISTRIBUTED AND PROVIDED “AS IS” AND
+WITH NO WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED.
+Commercial Software Designation:  The Licensed Product is “Non-Commercial”
+Computer Software
+Additional Payment Terms:  None
+Additional License Restrictions and Terms:
+1. Customer agrees that the license in this Schedule is solely
+for academic purposes, and that the Customer has no right under
+this Schedule or License Agreement to use, transfer, or sell
+the Licensed Product, Derivative Works, or Professional Services
+that utilize the Licensed Product to any third party.
+2. Number of Installations Permitted:  1 Installation (Seat)
+   </license>
+
+   <url>
+      <update url="http://www.soartech.com/download/soaride/updates"/>
+   </url>
+
+   <requires>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.debug.core"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.ui.console"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.debug.ui"/>
+      <import plugin="org.eclipse.search"/>
+   </requires>
+
+   <plugin
+         id="com.soartech.soar.ide"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.soartech.soar.ide.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.soartech.soar.ide.help"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+</feature>

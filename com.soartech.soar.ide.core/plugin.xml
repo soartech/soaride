@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         id="nature"
+         name="Soar Project Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run class="com.soartech.soar.ide.core.SoarProjectNature"/>
+      </runtime>
+      <builder id="com.soartech.soar.ide.builder"/>
+   </extension>
+
+    <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+      <image
+            icon="icons/soar_nature.gif"
+            id="com.soartech.soar.ide.ui.soarNatureImage"
+            natureId="com.soartech.soar.ide.nature"/>
+   </extension>
+    <extension
+          id="builder"
+          name="Soar Builder"
+          point="org.eclipse.core.resources.builders">
+       <builder
+             hasNature="true"
+             isConfigurable="false">
+          <run class="com.soartech.soar.ide.core.builder.SoarBuilder"/>
+       </builder>
+    </extension>
+    <extension
+          id="problemmarker"
+          name="Soar Problem Marker"
+          point="org.eclipse.core.resources.markers">
+       <super type="org.eclipse.core.resources.problemmarker"/>
+       <super type="org.eclipse.core.resources.textmarker"/>
+       <persistent value="true"/>
+    </extension>
+    <extension
+          id="tclpreprocessorproblemmarker"
+          name="Soar Tcl Preprocessor Problem Marker"
+          point="org.eclipse.core.resources.markers">
+       <super type="org.eclipse.core.resources.problemmarker"/>
+       <super type="org.eclipse.core.resources.textmarker"/>
+       <persistent value="true"/>
+    </extension>
+    <extension
+          id="taskmarker"
+          name="Soar Task Marker"
+          point="org.eclipse.core.resources.markers">
+       <super type="org.eclipse.core.resources.taskmarker"/>
+       <super type="org.eclipse.core.resources.textmarker"/>
+       <persistent value="true"/>
+    </extension>
+    <extension
+          point="org.eclipse.ltk.core.refactoring.renameParticipants">
+       <renameParticipant
+             class="com.soartech.soar.ide.core.refactoring.SoarRename"
+             id="com.soartech.soar.ide.core.refactoring.SoarRename"
+             name="com.soartech.soar.ide.core.refactoring.SoarRename">
+          <enablement>
+             <with variable="element">
+                <instanceof
+                      value="org.eclipse.core.resources.IFile">
+                </instanceof>
+             </with>
+          </enablement>
+       </renameParticipant>
+    </extension>
+</plugin>

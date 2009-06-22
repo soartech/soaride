@@ -1,0 +1,87 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: split</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd78">NAME</a> · <a href="#SECTid81abdf0">SYNOPSIS</a> · <a href="#SECTid81abeb8">DESCRIPTION</a> · <a href="#SECTid81ac0e8">EXAMPLES</a> · <a href="#SECTid81ac520">SEE ALSO</a> · <a href="#SECTid81ac5c0">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd78">NAME</a></h2><p class="namesection">
+<b class="names">split - </b><br>Split a string into a proper Tcl list</p>
+<h2><a name="SECTid81abdf0">SYNOPSIS</a></h2><pre class="syntax">
+<b>split</b> <i class="m">string</i> ?<i class="m">splitChars</i>?
+</pre>
+
+
+<h2><a name="SECTid81abeb8">DESCRIPTION</a></h2><p>Returns a list created by splitting <i>string</i> at each character
+that is in the <i>splitChars</i> argument.
+Each element of the result list will consist of the
+characters from <i>string</i> that lie between instances of the
+characters in <i>splitChars</i>.
+Empty list elements will be generated if <i>string</i> contains
+adjacent characters in <i>splitChars</i>, or if the first or last
+character of <i>string</i> is in <i>splitChars</i>.
+If <i>splitChars</i> is an empty string then each character of
+<i>string</i> becomes a separate element of the result list.
+<i>SplitChars</i> defaults to the standard white-space characters.
+</p>
+<h2><a name="SECTid81ac0e8">EXAMPLES</a></h2><p>Divide up a USENET group name into its hierarchical components:
+</p><pre class="example">
+<b>split</b> "comp.lang.tcl.announce" .
+     <i>=&gt; comp lang tcl announce</i>
+</pre><p>See how the <b>split</b> command splits on <i>every</i> character in
+<i>splitChars</i>, which can result in information loss if you are not
+careful:
+</p><pre class="example">
+<b>split</b> "alpha beta gamma" "temp"
+     <i>=&gt; al {ha b} {} {a ga} {} a</i>
+</pre><p>Extract the list words from a string that is not a well-formed list:
+</p><pre class="example">
+<b>split</b> "Example with {unbalanced brace character"
+     <i>=&gt; Example with \{unbalanced brace character</i>
+</pre><p>Split a string into its constituent characters
+</p><pre class="example">
+<b>split</b> "Hello world" {}
+     <i>=&gt; H e l l o { } w o r l d</i>
+</pre>
+<h3><a name="SECTid81ac430">PARSING RECORD-ORIENTED FILES</a></h3>
+<p>Parse a Unix /etc/passwd file, which consists of one entry per line,
+with each line consisting of a colon-separated list of fields:
+</p>
+<pre class="example">
+## Read the file
+set fid [open /etc/passwd]
+set content [read $fid]
+close $fid
+
+## Split into records on newlines
+set records [<b>split</b> $content "\n"]
+
+## Iterate over the records
+foreach rec $records {
+
+   ## Split into fields on colons
+   set fields [<b>split</b> $rec ":"]
+
+   ## Assign fields to variables and print some out...
+   lassign $fields \
+         userName password uid grp longName homeDir shell
+   puts "$longName uses [file tail $shell] for a login shell"
+}
+</pre>
+
+
+
+<h2><a name="SECTid81ac520">SEE ALSO</a></h2><p class="seealso">join(n), list(n), string(n)</p>
+<h2><a name="SECTid81ac5c0">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-list">list</a>, <a class="keyword" href="keyword-index.html#KW-split">split</a>, <a class="keyword" href="keyword-index.html#KW-string">string</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

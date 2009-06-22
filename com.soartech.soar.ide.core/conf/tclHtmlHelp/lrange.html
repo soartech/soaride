@@ -1,0 +1,68 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: lrange</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd70">NAME</a> · <a href="#SECTid81abde8">SYNOPSIS</a> · <a href="#SECTid81abe88">DESCRIPTION</a> · <a href="#SECTid81ac1f8">EXAMPLES</a> · <a href="#SECTid81ac478">SEE ALSO</a> · <a href="#SECTid81ac630">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd70">NAME</a></h2><p class="namesection">
+<b class="names">lrange - </b><br>Return one or more adjacent elements from a list</p>
+<h2><a name="SECTid81abde8">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">lrange</b> <i class="m">list first last</i>
+</pre>
+
+
+<h2><a name="SECTid81abe88">DESCRIPTION</a></h2><p>
+<i>List</i> must be a valid Tcl list.  This command will
+return a new list consisting of elements
+<i>first</i> through <i>last</i>, inclusive.
+The index values <i>first</i> and <i>last</i> are interpreted
+the same as index values for the command <b>string index</b>,
+supporting simple index arithmetic and indices relative to the
+end of the list.
+If <i>first</i> is less than zero, it is treated as if it were zero.
+If <i>last</i> is greater than or equal to the number of elements
+in the list, then it is treated as if it were <b>end</b>.
+If <i>first</i> is greater than <i>last</i> then an empty string
+is returned.
+Note: ``<b class="cmd">lrange</b> <i>list first first</i>'' does not always produce the
+same result as ``<b class="cmd">lindex</b> <i>list first</i>'' (although it often does
+for simple fields that aren't enclosed in braces); it does, however,
+produce exactly the same results as ``<b>list [lindex</b> <i>list first</i><b>]</b>''
+</p>
+<h2><a name="SECTid81ac1f8">EXAMPLES</a></h2><p>Selecting the first two elements:
+</p><pre class="example">
+% <b class="cmd">lrange</b> {a b c d e} 0 1
+a b
+</pre><p>Selecting the last three elements:
+</p><pre class="example">
+% <b class="cmd">lrange</b> {a b c d e} end-2 end
+c d e
+</pre><p>Selecting everything except the first and last element:
+</p><pre class="example">
+% <b class="cmd">lrange</b> {a b c d e} 1 end-1
+b c d
+</pre><p>Selecting a single element with <b class="cmd">lrange</b> is not the same as doing
+so with <b class="cmd">lindex</b>:
+</p><pre class="example">
+% set var {some {elements to} select}
+some {elements to} select
+% lindex $var 1
+elements to
+% <b class="cmd">lrange</b> $var 1 1
+{elements to}
+</pre>
+<h2><a name="SECTid81ac478">SEE ALSO</a></h2><p class="seealso">list(n), lappend(n), lindex(n), linsert(n), llength(n), lsearch(n), lset(n), lreplace(n), lsort(n), string(n)</p>
+<h2><a name="SECTid81ac630">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-element">element</a>, <a class="keyword" href="keyword-index.html#KW-list">list</a>, <a class="keyword" href="keyword-index.html#KW-range">range</a>, <a class="keyword" href="keyword-index.html#KW-sublist">sublist</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

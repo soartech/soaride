@@ -1,0 +1,63 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: eof</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd70">NAME</a> · <a href="#SECTid81abde8">SYNOPSIS</a> · <a href="#SECTid81abe88">DESCRIPTION</a> · <a href="#SECTid81ac068">EXAMPLES</a> · <a href="#SECTid81ac1a8">SEE ALSO</a> · <a href="#SECTid81ac298">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd70">NAME</a></h2><p class="namesection">
+<b class="names">eof - </b><br>Check for end of file condition on channel</p>
+<h2><a name="SECTid81abde8">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">eof</b> <i class="m">channelId</i>
+</pre>
+
+
+<h2><a name="SECTid81abe88">DESCRIPTION</a></h2><p>Returns 1 if an end of file condition occurred during the most
+recent input operation on <i>channelId</i> (such as <b class="cmd">gets</b>),
+0 otherwise.
+</p><p>
+<i>ChannelId</i> must be an identifier for an open channel such as a
+Tcl standard channel (<b>stdin</b>, <b>stdout</b>, or <b>stderr</b>),
+the return value from an invocation of <b>open</b> or <b class="cmd">socket</b>, or
+the result of a channel creation command provided by a Tcl extension.
+</p>
+<h2><a name="SECTid81ac068">EXAMPLES</a></h2><p>Read and print out the contents of a file line-by-line:
+</p><pre class="example">
+set f [open somefile.txt]
+while {1} {
+    set line [gets $f]
+    if {[<b class="cmd">eof</b> $f]} {
+        close $f
+        break
+    }
+    puts "Read line: $line"
+}
+</pre><p>Read and print out the contents of a file by fixed-size records:
+</p><pre class="example">
+set f [open somefile.dat]
+fconfigure $f -translation binary
+set recordSize 40
+while {1} {
+    set record [read $f $recordSize]
+    if {[<b class="cmd">eof</b> $f]} {
+        close $f
+        break
+    }
+    puts "Read record: $record"
+}
+</pre>
+<h2><a name="SECTid81ac1a8">SEE ALSO</a></h2><p class="seealso">file(n), open(n), close(n), fblocked(n), <a href="StdChannels.html">Tcl_StandardChannels(3)</a>
+</p>
+<h2><a name="SECTid81ac298">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-channel">channel</a>, <a class="keyword" href="keyword-index.html#KW-endoffile">end of file</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

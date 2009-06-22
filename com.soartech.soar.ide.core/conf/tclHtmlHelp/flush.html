@@ -1,0 +1,49 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: flush</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd78">NAME</a> · <a href="#SECTid81abdf0">SYNOPSIS</a> · <a href="#SECTid81abe90">DESCRIPTION</a> · <a href="#SECTid81ac048">EXAMPLE</a> · <a href="#SECTid81ac110">SEE ALSO</a> · <a href="#SECTid81ac1d8">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd78">NAME</a></h2><p class="namesection">
+<b class="names">flush - </b><br>Flush buffered output for a channel</p>
+<h2><a name="SECTid81abdf0">SYNOPSIS</a></h2><pre class="syntax">
+<b>flush</b> <i class="m">channelId</i>
+</pre>
+
+
+<h2><a name="SECTid81abe90">DESCRIPTION</a></h2><p>Flushes any output that has been buffered for <i>channelId</i>.
+</p><p>
+<i>ChannelId</i> must be an identifier for an open channel such as a
+Tcl standard channel (<b>stdout</b> or <b>stderr</b>), the return
+value from an invocation of <b>open</b> or <b class="cmd">socket</b>, or the result
+of a channel creation command provided by a Tcl extension.  The
+channel must have been opened for writing.
+</p><p>If the channel is in blocking mode the command does not return until all the
+buffered output has been flushed to the channel. If the channel is in
+nonblocking mode, the command may return before all buffered output has been
+flushed; the remainder will be flushed in the background as fast as the
+underlying file or device is able to absorb it.
+</p>
+<h2><a name="SECTid81ac048">EXAMPLE</a></h2><p>Prompt for the user to type some information in on the console:
+</p><pre class="example">
+puts -nonewline "Please type your name: "
+<b>flush</b> stdout
+gets stdin name
+puts "Hello there, $name!"
+</pre>
+<h2><a name="SECTid81ac110">SEE ALSO</a></h2><p class="seealso">file(n), open(n), socket(n), <a href="StdChannels.html">Tcl_StandardChannels(3)</a>
+</p>
+<h2><a name="SECTid81ac1d8">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-blocking">blocking</a>, <a class="keyword" href="keyword-index.html#KW-buffer">buffer</a>, <a class="keyword" href="keyword-index.html#KW-channel">channel</a>, <a class="keyword" href="keyword-index.html#KW-flush">flush</a>, <a class="keyword" href="keyword-index.html#KW-nonblocking">nonblocking</a>, <a class="keyword" href="keyword-index.html#KW-output">output</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,18 @@
+##!
+# @file
+#
+# @created ray 20071024
+
+
+sp " test-good
+    [lhs]
+-->
+    (interrupt)
+"
+
+
+sp " test-bad
+    [lhs-with-error]
+-->
+    (interrupt)
+"

@@ -1,0 +1,92 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: foreach</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81a6fd0">NAME</a> · <a href="#SECTid81a7048">SYNOPSIS</a> · <a href="#SECTid81a7188">DESCRIPTION</a> · <a href="#SECTid81a75c0">EXAMPLES</a> · <a href="#SECTid81a7818">SEE ALSO</a> · <a href="#SECTid81a78e0">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81a6fd0">NAME</a></h2><p class="namesection">
+<b class="names">foreach - </b><br>Iterate over all elements in one or more lists</p>
+<h2><a name="SECTid81a7048">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">foreach</b> <i class="m">varname list body</i>
+
+<b class="cmd">foreach</b> <i class="m">varlist1 list1</i> ?<i class="m">varlist2 list2 ...</i>? <i class="m">body</i>
+</pre>
+
+
+<h2><a name="SECTid81a7188">DESCRIPTION</a></h2><p>The <b class="cmd">foreach</b> command implements a loop where the loop
+variable(s) take on values from one or more lists.
+In the simplest case there is one loop variable, <i>varname</i>,
+and one list, <i>list</i>, that is a list of values to assign to <i>varname</i>.
+The <i>body</i> argument is a Tcl script.
+For each element of <i>list</i> (in order
+from first to last), <b class="cmd">foreach</b> assigns the contents of the
+element to <i>varname</i> as if the <b class="cmd">lindex</b> command had been used
+to extract the element, then calls the Tcl interpreter to execute
+<i>body</i>.
+</p><p>In the general case there can be more than one value list
+(e.g., <i>list1</i> and <i>list2</i>),
+and each value list can be associated with a list of loop variables
+(e.g., <i>varlist1</i> and <i>varlist2</i>).
+During each iteration of the loop
+the variables of each <i>varlist</i> are assigned
+consecutive values from the corresponding <i>list</i>.
+Values in each <i>list</i> are used in order from first to last,
+and each value is used exactly once.
+The total number of loop iterations is large enough to use
+up all the values from all the value lists.
+If a value list does not contain enough
+elements for each of its loop variables in each iteration,
+empty values are used for the missing elements.
+</p><p>The <b class="cmd">break</b> and <b class="cmd">continue</b> statements may be
+invoked inside <i>body</i>, with the same effect as in the <b class="cmd">for</b>
+command.  <b>Foreach</b> returns an empty string.
+</p>
+<h2><a name="SECTid81a75c0">EXAMPLES</a></h2><p>This loop prints every value in a list together with the square and
+cube of the value:
+</p><pre class="example">
+set values {1 3 5 7 2 4 6 8}	;# Odd numbers first, for fun!
+puts "Value\tSquare\tCube"	;# Neat-looking header
+<b class="cmd">foreach</b> x $values {	;# Now loop and print...
+    puts " $x\t [expr {$x**2}]\t [expr {$x**3}]"
+}
+</pre><p>The following loop uses i and j as loop variables to iterate over
+pairs of elements of a single list.
+</p><pre class="example">
+set x {}
+<b class="cmd">foreach</b> {i j} {a b c d e f} {
+    lappend x $j $i
+}
+# The value of x is "b a d c f e"
+# There are 3 iterations of the loop.
+</pre><p>The next loop uses i and j to iterate over two lists in parallel.
+</p><pre class="example">
+set x {}
+<b class="cmd">foreach</b> i {a b c} j {d e f g} {
+    lappend x $i $j
+}
+# The value of x is "a d b e c f {} g"
+# There are 4 iterations of the loop.
+</pre><p>The two forms are combined in the following example.
+</p><pre class="example">
+set x {}
+<b class="cmd">foreach</b> i {a b c} {j k} {d e f g} {
+    lappend x $i $j $k
+}
+# The value of x is "a d e b f g c {} {}"
+# There are 3 iterations of the loop.
+</pre>
+<h2><a name="SECTid81a7818">SEE ALSO</a></h2><p class="seealso">for(n), while(n), break(n), continue(n)</p>
+<h2><a name="SECTid81a78e0">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-foreach">foreach</a>, <a class="keyword" href="keyword-index.html#KW-iteration">iteration</a>, <a class="keyword" href="keyword-index.html#KW-list">list</a>, <a class="keyword" href="keyword-index.html#KW-looping">looping</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

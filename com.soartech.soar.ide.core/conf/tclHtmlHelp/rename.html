@@ -1,0 +1,49 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: rename</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd70">NAME</a> · <a href="#SECTid81abde8">SYNOPSIS</a> · <a href="#SECTid81abe88">DESCRIPTION</a> · <a href="#SECTid81ac018">EXAMPLE</a> · <a href="#SECTid81ac130">SEE ALSO</a> · <a href="#SECTid81ac1a8">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd70">NAME</a></h2><p class="namesection">
+<b class="names">rename - </b><br>Rename or delete a command</p>
+<h2><a name="SECTid81abde8">SYNOPSIS</a></h2><pre class="syntax">
+<b>rename</b> <i class="m">oldName newName</i>
+</pre>
+
+
+<h2><a name="SECTid81abe88">DESCRIPTION</a></h2><p>Rename the command that used to be called <i>oldName</i> so that it
+is now called <i>newName</i>.
+If <i>newName</i> is an empty string then <i>oldName</i> is deleted.
+<i>oldName</i> and <i>newName</i> may include namespace qualifiers
+(names of containing namespaces).
+If a command is renamed into a different namespace,
+future invocations of it will execute in the new namespace.
+The <b>rename</b> command returns an empty string as result.
+</p>
+<h2><a name="SECTid81ac018">EXAMPLE</a></h2><p>The <b>rename</b> command can be used to wrap the standard Tcl commands
+with your own monitoring machinery.  For example, you might wish to
+count how often the <b>source</b> command is called:
+</p><pre class="example">
+<b>rename</b> ::source ::theRealSource
+set sourceCount 0
+proc ::source args {
+    global sourceCount
+    puts "called source for the [incr sourceCount]'th time"
+    uplevel 1 ::theRealSource $args
+}
+</pre>
+<h2><a name="SECTid81ac130">SEE ALSO</a></h2><p class="seealso">namespace(n), proc(n)</p>
+<h2><a name="SECTid81ac1a8">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-command">command</a>, <a class="keyword" href="keyword-index.html#KW-delete">delete</a>, <a class="keyword" href="keyword-index.html#KW-namespace">namespace</a>, <a class="keyword" href="keyword-index.html#KW-rename">rename</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: append</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd70">NAME</a> · <a href="#SECTid81abde8">SYNOPSIS</a> · <a href="#SECTid81abeb0">DESCRIPTION</a> · <a href="#SECTid81ac068">EXAMPLE</a> · <a href="#SECTid81ac130">SEE ALSO</a> · <a href="#SECTid81ac1a8">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd70">NAME</a></h2><p class="namesection">
+<b class="names">append - </b><br>Append to variable</p>
+<h2><a name="SECTid81abde8">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">append</b> <i class="m">varName</i> ?<i class="m">value value value ...</i>?
+</pre>
+
+
+<h2><a name="SECTid81abeb0">DESCRIPTION</a></h2><p>Append all of the <i>value</i> arguments to the current value
+of variable <i>varName</i>.  If <i>varName</i> doesn't exist,
+it is given a value equal to the concatenation of all the
+<i>value</i> arguments.
+The result of this command is the new value stored in variable
+<i>varName</i>.
+This command provides an efficient way to build up long
+variables incrementally.
+For example, ``<b>append a $b</b>'' is much more efficient than
+``<b>set a $a$b</b>'' if <b>$a</b> is long.
+</p>
+<h2><a name="SECTid81ac068">EXAMPLE</a></h2><p>Building a string of comma-separated numbers piecemeal using a loop.
+</p><pre class="example">
+set var 0
+for {set i 1} {$i&lt;=10} {incr i} {
+   <b class="cmd">append</b> var "," $i
+}
+puts $var
+# Prints 0,1,2,3,4,5,6,7,8,9,10
+</pre>
+<h2><a name="SECTid81ac130">SEE ALSO</a></h2><p class="seealso">concat(n), lappend(n)</p>
+<h2><a name="SECTid81ac1a8">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-append">append</a>, <a class="keyword" href="keyword-index.html#KW-variable">variable</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

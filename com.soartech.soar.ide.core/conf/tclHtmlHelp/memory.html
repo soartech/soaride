@@ -1,0 +1,135 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: memory</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd70">NAME</a> · <a href="#SECTid81abde8">SYNOPSIS</a> · <a href="#SECTid81abeb0">DESCRIPTION</a> · <a href="#SECTid81acab8">SEE ALSO</a> · <a href="#SECTid81acba8">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd70">NAME</a></h2><p class="namesection">
+<b class="names">memory - </b><br>Control Tcl memory debugging capabilities</p>
+<h2><a name="SECTid81abde8">SYNOPSIS</a></h2><pre class="syntax">
+<b>memory</b> <i class="m">option</i> ?<i class="m">arg arg ...</i>?
+</pre>
+
+
+<h2><a name="SECTid81abeb0">DESCRIPTION</a></h2><p>The <b>memory</b> command gives the Tcl developer control of Tcl's memory
+debugging capabilities.  The memory command has several suboptions, which are
+described below.  It is only available when Tcl has been compiled with
+memory debugging enabled (when <b>TCL_MEM_DEBUG</b> is defined at
+compile time), and after <b class="fun"><a href="DumpActiveMemory.html">Tcl_InitMemory</a></b> has been called.
+</p><dl>
+
+<dt>
+<b>memory active</b> <i class="m">file</i>
+</dt>
+<dd>Write a list of all currently allocated memory to the specified <i>file</i>.
+</dd>
+
+
+<dt>
+<b>memory break_on_malloc</b> <i class="m">count</i>
+</dt>
+<dd>After the <i>count</i> allocations have been performed, <b class="fun"><a href="Alloc.html">ckalloc</a></b>
+outputs a message to this effect and that it is now attempting to enter
+the C debugger.  Tcl will then issue a <i>SIGINT</i> signal against itself.
+If you are running Tcl under a C debugger, it should then enter the debugger
+command mode.
+</dd>
+
+
+<dt><b>memory info</b></dt>
+<dd>Returns a report containing the total allocations and frees since 
+Tcl began, the current packets allocated (the current
+number of calls to <b class="fun"><a href="Alloc.html">ckalloc</a></b> not met by a corresponding call 
+to <b class="fun"><a href="Alloc.html">ckfree</a></b>), the current bytes allocated, and the maximum number
+of packets and bytes allocated.
+</dd>
+
+
+<dt> <b>memory init [on|off]</b>
+</dt>
+<dd>Turn on or off the pre-initialization of all allocated memory
+with bogus bytes.  Useful for detecting the use of uninitialized values.
+</dd>
+
+
+<dt>
+<b>memory onexit</b> <i class="m">file</i>
+</dt>
+<dd>Causes a list of all allocated memory to be written to the specified <i>file</i>
+during the finalization of Tcl's memory subsystem.  Useful for checking
+that memory is properly cleaned up during process exit.
+</dd>
+
+
+<dt>
+<b>memory tag</b> <i class="m">string</i>
+</dt>
+<dd>Each packet of memory allocated by <b class="fun"><a href="Alloc.html">ckalloc</a></b> can have associated
+with it a string-valued tag.  In the lists of allocated memory generated
+by <b>memory active</b> and <b>memory onexit</b>, the tag for each packet
+is printed along with other information about the packet.  The
+<b>memory tag</b> command sets the tag value for subsequent calls
+to <b class="fun"><a href="Alloc.html">ckalloc</a></b> to be <i>string</i>.  
+</dd>
+
+
+<dt><b>memory trace [on|off]</b></dt>
+<dd>
+<p>Turns memory tracing on or off.  When memory tracing is on, every call
+to <b class="fun"><a href="Alloc.html">ckalloc</a></b> causes a line of trace information to be written to
+<i>stderr</i>, consisting of the word <i>ckalloc</i>, followed by the
+address returned, the amount of memory allocated, and the C filename
+and line number of the code performing the allocation.  For example:
+</p><pre class="example">
+ckalloc 40e478 98 tclProc.c 1406
+</pre><p>Calls to <b class="fun"><a href="Alloc.html">ckfree</a></b> are traced in the same manner.
+</p>
+</dd>
+
+
+<dt>
+<b>memory trace_on_at_malloc</b> <i class="m">count</i>
+</dt>
+<dd>Enable memory tracing after <i>count</i> <b class="fun"><a href="Alloc.html">ckalloc</a></b>'s have been performed.
+For example, if you enter <b>memory trace_on_at_malloc 100</b>,
+after the 100th call to <b class="fun"><a href="Alloc.html">ckalloc</a></b>, memory trace information will begin
+being displayed for all allocations and frees.  Since there can be a lot
+of memory activity before a problem occurs, judicious use of this option
+can reduce the slowdown caused by tracing (and the amount of trace information
+produced), if you can identify a number of allocations that occur before
+the problem sets in.  The current number of memory allocations that have 
+occurred since Tcl started is printed on a guard zone failure.
+</dd>
+
+
+<dt><b>memory validate [on|off]</b></dt>
+<dd>Turns memory validation on or off. When memory validation is enabled,
+on every call to <b class="fun"><a href="Alloc.html">ckalloc</a></b> or <b class="fun"><a href="Alloc.html">ckfree</a></b>, the guard zones are
+checked for every piece of memory currently in existence that was
+allocated by <b class="fun"><a href="Alloc.html">ckalloc</a></b>.  This has a large performance impact and
+should only be used when overwrite problems are strongly suspected.
+The advantage of enabling memory validation is that a guard zone
+overwrite can be detected on the first call to <b class="fun"><a href="Alloc.html">ckalloc</a></b> or
+<b class="fun"><a href="Alloc.html">ckfree</a></b> after the overwrite occurred, rather than when the
+specific memory with the overwritten guard zone(s) is freed, which may
+occur long after the overwrite occurred.
+
+</dd>
+
+</dl>
+<h2><a name="SECTid81acab8">SEE ALSO</a></h2><p class="seealso">
+<a href="Alloc.html">ckalloc</a>, <a href="Alloc.html">ckfree</a>, <a href="DumpActiveMemory.html">Tcl_ValidateAllMemory</a>, <a href="DumpActiveMemory.html">Tcl_DumpActiveMemory</a>, TCL_MEM_DEBUG</p>
+<h2><a name="SECTid81acba8">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-memory">memory</a>, <a class="keyword" href="keyword-index.html#KW-debug">debug</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

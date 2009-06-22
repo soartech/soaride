@@ -1,0 +1,10 @@
+##!
+# @file
+#
+# @created JFETS 20071206
+
+sp "single-production
+   (state <s> ^superstate nil)
+-->
+   (halt)
+"

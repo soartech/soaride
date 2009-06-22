@@ -1,0 +1,178 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: switch</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81a3e78">NAME</a> · <a href="#SECTid81a3ef0">SYNOPSIS</a> · <a href="#SECTid81a40a8">DESCRIPTION</a> · <a href="#SECTid81a4d28">EXAMPLES</a> · <a href="#SECTid81a5098">SEE ALSO</a> · <a href="#SECTid81a5138">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81a3e78">NAME</a></h2><p class="namesection">
+<b class="names">switch - </b><br>Evaluate one of several scripts, depending on a given value</p>
+<h2><a name="SECTid81a3ef0">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">switch</b> ?<i class="m">options</i>? <i class="m">string pattern body</i> ?<i class="m">pattern body</i> ...?
+
+<b class="cmd">switch</b> ?<i class="m">options</i>? <i class="m">string</i> {<i class="m">pattern body</i> ?<i class="m">pattern body</i> ...?}
+</pre>
+
+
+<h2><a name="SECTid81a40a8">DESCRIPTION</a></h2><p>The <b class="cmd">switch</b> command matches its <i>string</i> argument against each of
+the <i>pattern</i> arguments in order.
+As soon as it finds a <i>pattern</i> that matches <i>string</i> it
+evaluates the following <i>body</i> argument by passing it recursively
+to the Tcl interpreter and returns the result of that evaluation.
+If the last <i>pattern</i> argument is <b>default</b> then it matches
+anything.
+If no <i>pattern</i> argument
+matches <i>string</i> and no default is given, then the <b class="cmd">switch</b>
+command returns an empty string.
+</p><p>If the initial arguments to <b class="cmd">switch</b> start with <b>-</b> then
+they are treated as options.  The following options are
+currently supported:
+</p><dl>
+
+<dt><b>-exact</b></dt>
+<dd>Use exact matching when comparing <i>string</i> to a pattern.  This
+is the default.
+</dd>
+
+
+<dt><b>-glob</b></dt>
+<dd>When matching <i>string</i> to the patterns, use glob-style matching
+(i.e. the same as implemented by the <b>string match</b> command).
+</dd>
+
+
+<dt><b>-regexp</b></dt>
+<dd>When matching <i>string</i> to the patterns, use regular
+expression matching
+(as described in the <b>re_syntax</b> reference page).
+</dd>
+
+
+<dt><b>-nocase</b></dt>
+<dd>Causes comparisons to be handled in a case-insensitive manner.
+</dd>
+
+
+<dt>
+<b>-matchvar</b> <i class="m">varName</i>
+</dt>
+<dd>This option (only legal when <b>-regexp</b> is also specified)
+specifies the name of a variable into which the list of matches
+found by the regular expression engine will be written.  The first
+element of the list written will be the overall substring of the input
+string (i.e. the <i>string</i> argument to <b class="cmd">switch</b>) matched, the
+second element of the list will be the substring matched by the first
+capturing parenthesis in the regular expression that matched, and so
+on.  When a <b>default</b> branch is taken, the variable will have the
+empty list written to it.  This option may be specified at the same
+time as the <b>-indexvar</b> option.
+</dd>
+
+
+<dt>
+<b>-indexvar</b> <i class="m">varName</i>
+</dt>
+<dd>This option (only legal when <b>-regexp</b> is also specified)
+specifies the name of a variable into which the list of indices
+referring to matching substrings
+found by the regular expression engine will be written.  The first
+element of the list written will be a two-element list specifying the
+index of the start and index of the first character after the end of
+the overall substring of the input
+string (i.e. the <i>string</i> argument to <b class="cmd">switch</b>) matched, in a
+similar way to the <b>-indices</b> option to the <b class="cmd">regexp</b> can
+obtain.  Similarly, the second element of the list refers to the first
+capturing parenthesis in the regular expression that matched, and so
+on.  When a <b>default</b> branch is taken, the variable will have the
+empty list written to it.  This option may be specified at the same
+time as the <b>-matchvar</b> option.
+</dd>
+
+
+<dt><b>--</b></dt>
+<dd>Marks the end of options.  The argument following this one will
+be treated as <i>string</i> even if it starts with a <b>-</b>.
+</dd>
+
+</dl><p>Two syntaxes are provided for the <i>pattern</i> and <i>body</i> arguments.
+The first uses a separate argument for each of the patterns and commands;
+this form is convenient if substitutions are desired on some of the
+patterns or commands.
+The second form places all of the patterns and commands together into
+a single argument; the argument must have proper list structure, with
+the elements of the list being the patterns and commands.
+The second form makes it easy to construct multi-line switch commands,
+since the braces around the whole list make it unnecessary to include a
+backslash at the end of each line.
+Since the <i>pattern</i> arguments are in braces in the second form,
+no command or variable substitutions are performed on them;  this makes
+the behavior of the second form different than the first form in some
+cases.
+</p><p>If a <i>body</i> is specified as ``<b>-</b>'' it means that the <i>body</i>
+for the next pattern should also be used as the body for this
+pattern (if the next pattern also has a body of ``<b>-</b>''
+then the body after that is used, and so on).
+This feature makes it possible to share a single <i>body</i> among
+several patterns.
+</p><p>Beware of how you place comments in <b class="cmd">switch</b> commands.  Comments
+should only be placed <b>inside</b> the execution body of one of the
+patterns, and not intermingled with the patterns.
+</p>
+<h2><a name="SECTid81a4d28">EXAMPLES</a></h2><p>The <b class="cmd">switch</b> command can match against variables and not just
+literals, as shown here (the result is <i>2</i>):
+</p><pre class="example">
+set foo "abc"
+<b class="cmd">switch</b> abc a - b {expr {1}} $foo {expr {2}} default {expr {3}}
+</pre><p>Using glob matching and the fall-through body is an alternative to
+writing regular expressions with alternations, as can be seen here
+(this returns <i>1</i>):
+</p><pre class="example">
+<b class="cmd">switch</b> -glob aaab {
+   a*b     -
+   b       {expr {1}}
+   a*      {expr {2}}
+   default {expr {3}}
+}
+</pre><p>Whenever nothing matches, the <b>default</b> clause (which must be
+last) is taken.  This example has a result of <i>3</i>:
+</p><pre class="example">
+<b class="cmd">switch</b> xyz {
+   a  -
+   b {
+      # Correct Comment Placement
+      expr {1}
+   }
+   c {
+      expr {2}
+   }
+   default {
+      expr {3}
+   }
+}
+</pre><p>When matching against regular expressions, information about what
+exactly matched is easily obtained using the <b>-matchvar</b> option:
+</p><pre class="example">
+<b class="cmd">switch</b> -regexp -matchvar foo -- $bar {
+   a(b*)c {
+      puts "Found [string length [lindex $foo 1]] 'b's"
+   }
+   d(e*)f(g*)h {
+      puts "Found [string length [lindex $foo 1]] 'e's and\
+            [string length [lindex $foo 2]] 'g's"
+   }
+}
+</pre>
+<h2><a name="SECTid81a5098">SEE ALSO</a></h2><p class="seealso">for(n), if(n), regexp(n)</p>
+<h2><a name="SECTid81a5138">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-switch">switch</a>, <a class="keyword" href="keyword-index.html#KW-match">match</a>, <a class="keyword" href="keyword-index.html#KW-regularexpression">regular expression</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

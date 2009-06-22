@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Soar IDE Features" link_to="toc.xml#features"> 
+	<topic label="Soar Editor" href="html/soar_editor.html">
+		<topic label="Syntax Highlighting" href="html/soar_editor.html#syntax_highlighting"/>
+		<topic label="Error Marking" href="html/soar_editor.html#error_marking"/>
+		<topic label="Agent Membership" href="html/soar_editor.html#agent_membership"/>
+		<topic label="Content Assist" href="html/soar_editor.html#content_assist"/>
+		<topic label="Templates" href="html/soar_editor.html#templates"/>
+		<topic label="Code Folding" href="html/soar_editor.html#code_folding"/>
+		<topic label="Code Formatting" href="html/soar_editor.html#code_formatting"/>
+		<topic label="Hover Help" href="html/soar_editor.html#hover_help"/>
+		<topic label="Hyperlinking" href="html/soar_editor.html#hyperlinking"/>
+		<topic label="Hotkeys" href="html/soar_editor.html#hotkeys"/>
+	</topic>
+    <topic label="Soar Agents and the Agent Editor" href="html/agent_editor.html"/>
+    <topic label="Soar Datamap" href="html/soar_datamap.html"/>
+	<topic label="Soar Outline" href="html/soar_outline.html"/>
+	<topic label="Soar Explorer" href="html/soar_explorer.html"/>
+	<topic label="Soar Source Viewer" href="html/source_viewer.html"/>
+	<topic label="Soar Preferences Menu" href="html/soar_preferences.html"/>
+</toc>

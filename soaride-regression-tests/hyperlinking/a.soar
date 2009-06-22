@@ -1,0 +1,17 @@
+##!
+# @file
+#
+# @created ray 20071024
+
+
+proc test-procedure {} {
+}
+
+proc another-test-procedure {} {
+}
+
+proc rhs-macro { v } {
+    return "($v ^done *yes)"
+}
+
+source multi.soar

@@ -1,0 +1,555 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension point="org.eclipse.ui.perspectives">
+   		<perspective
+           class="com.soartech.soar.ide.ui.perspectives.SoarPerspective"
+           icon="icons/soar.gif"
+           id="com.soartech.soar.ide.ui.perspectives.SoarPerspective"
+           name="Soar Perspective">
+    	</perspective>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.ui.resourcePerspective">
+         <perspectiveShortcut
+               id="com.soartech.soar.ide.ui.perspectives.SoarPerspective">
+         </perspectiveShortcut>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <perspectiveShortcut
+               id="com.soartech.soar.ide.ui.perspectives.SoarPerspective">
+         </perspectiveShortcut>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="com.soartech.soar.ide.ui.perspectives.SoarPerspective">
+         <perspectiveShortcut
+               id="org.eclipse.jdt.ui.JavaPerspective">
+         </perspectiveShortcut>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="com.soartech.soar.ide.ui.perspectives.SoarPerspective">
+         <perspectiveShortcut
+               id="org.eclipse.debug.ui.DebugPerspective">
+         </perspectiveShortcut>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="org.eclipse.debug.ui.DebugPerspective">
+         <perspectiveShortcut
+               id="com.soartech.soar.ide.ui.perspectives.SoarPerspective">
+         </perspectiveShortcut>
+      </perspectiveExtension>
+   </extension>   
+   
+   
+   <extension
+        point="org.eclipse.ui.editors">
+     <editor
+           class="com.soartech.soar.ide.ui.editors.text.SoarEditor"
+           contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+           extensions="soar,tcl"
+           icon="icons/soar_file_16.gif"
+           id="com.soartech.soar.editor.editors.SoarEditor"
+           name="Soar Editor"/>
+     <editor
+           class="com.soartech.soar.ide.ui.editors.agent.SoarAgentEditor"
+           contributorClass="com.soartech.soar.ide.ui.editors.agent.SoarAgentEditorActionBarContributor"
+           extensions="soaragent"
+           icon="icons/soaragentfile.gif"
+           id="com.soartech.soar.ide.ui.editors.agent.SoarAgentEditor"
+           name="Soar Agent Editor"/>
+  </extension>
+  <extension
+        point="org.eclipse.ui.commands">
+     <command
+           categoryId="com.soartech.soar.ide.ui.source"
+           description="%ActionDefinition.toggleComment.description"
+           id="com.soartech.soar.ide.ui.toggle.comment"
+           name="%ActionDefinition.toggleComment.name"/>
+     <category
+           description="Commands for editing Soar source code."
+           id="com.soartech.soar.ide.ui.source"
+           name="Soar Source"/>
+     <command
+           categoryId="com.soartech.soar.ide.ui.source"
+           description="%ActionDefinition.comment.description"
+           id="com.soartech.soar.ide.ui.comment"
+           name="%ActionDefinition.comment.name"/>
+     <command
+           categoryId="com.soartech.soar.ide.ui.source"
+           description="%ActionDefinition.uncomment.description"
+           id="com.soartech.soar.ide.ui.uncomment"
+           name="%ActionDefinition.uncomment.name"/>
+     <command
+           categoryId="com.soartech.soar.ide.ui.source"
+           description="Format the Soar document according to current tab settings."
+           id="com.soartech.soar.ide.ui.editor.command.FormatSoarDocument"
+           name="Format Soar Document"/>
+     <command
+           categoryId="com.soartech.soar.ide.ui.source"
+           description="Open Soar files that reference this file"
+           id="com.soartech.soar.ide.ui.editor.command.OpenReferencingFiles"
+           name="Open Referencing Files"/>
+     <command
+           categoryId="com.soartech.soar.ide.ui.source"
+           description="Duplicate the production"
+           id="com.soartech.soar.ide.ui.editor.command.DuplicateProduction"
+           name="Duplicate Production">
+     </command>
+  </extension>
+  <extension
+        point="org.eclipse.ui.contexts">
+     <context
+           description="Editing Soar Source Context"
+           id="com.soartech.soar.editor.ui.soarEditorScope"
+           name="Editing Soar Source"
+           parentId="org.eclipse.ui.textEditorScope"/>
+  </extension>
+  <extension
+        point="org.eclipse.ui.bindings">
+      <!--  win32:  M1=CTRL,    M2=SHIFT, M3=ALT, M4=-
+            carbon: M1=COMMAND, M2=SHIFT, M3=ALT, M4=CTRL -->
+     <key
+           commandId="com.soartech.soar.ide.ui.toggle.comment"
+           contextId="com.soartech.soar.editor.ui.soarEditorScope"
+           schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+           sequence="M1+/"/>
+     <key
+           commandId="com.soartech.soar.ide.ui.toggle.comment"
+           contextId="com.soartech.soar.editor.ui.soarEditorScope"
+           schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+           sequence="M1+#"/>
+     <key
+           commandId="com.soartech.soar.ide.ui.toggle.comment"
+           contextId="com.soartech.soar.editor.ui.soarEditorScope"
+           schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+           sequence="M1+M2+C"/>
+     <key
+           commandId="com.soartech.soar.ide.ui.toggle.comment"
+           contextId="com.soartech.soar.editor.ui.soarEditorScope"
+           platform="gtk"
+           schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+           sequence="ESC CTRL+C"/>
+     <key
+           commandId="com.soartech.soar.ide.ui.editor.command.FormatSoarDocument"
+           contextId="com.soartech.soar.editor.ui.soarEditorScope"
+           schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+           sequence="CTRL+SHIFT+F"/>
+     <key
+           commandId="com.soartech.soar.ide.ui.editor.command.OpenReferencingFiles"
+           contextId="com.soartech.soar.editor.ui.soarEditorScope"
+           schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+           sequence="CTRL+G"/>
+     <key
+           commandId="com.soartech.soar.ide.ui.editor.command.DuplicateProduction"
+           contextId="com.soartech.soar.editor.ui.soarEditorScope"
+           schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+           sequence="CTRL+SHIFT+D">
+     </key>
+  </extension>
+  <extension
+        point="org.eclipse.ui.actionSets">
+     <actionSet
+           description="Actions on Soar files."
+           id="com.soartech.soar.ide.ui.soarActionSet"
+           label="Soar Actions"
+           visible="true">
+        <menu
+              id="com.soartech.soar.ide.ui.soarMenu"
+              label="Soar"
+              path="additions">
+           <separator name="soarMenuGroup"/>
+        </menu>
+        <action
+              class="com.soartech.soar.ide.ui.actions.EditSoarAgentPrioritiesActionDelegate"
+              icon="icons/thisagent.gif"
+              id="com.soartech.soar.ide.ui.EditSoarAgentPrioritiesAction"
+              label="Edit Agent Priorities..."
+              menubarPath="com.soartech.soar.ide.ui.soarMenu/soarMenuGroup"
+              style="push"
+              tooltip="Edit agent priorities for Soar files shared between multiple agents."/>
+        <action
+              class="com.soartech.soar.ide.ui.actions.NewSoarFolderWizardActionDelegate"
+              icon="icons/newsoarfolder.gif"
+              id="com.soartech.soar.ide.ui.NewSoarFolderWizardAction"
+              label="New Soar Folder"
+              menubarPath="com.soartech.soar.ide.ui.soarMenu/soarMenuGroup"
+              style="push"
+              tooltip="Create a new Soar folder with the wizard."/>
+        <action
+              class="com.soartech.soar.ide.ui.actions.NewSoarFileWizardActionDelegate"
+              icon="icons/soar_file_16.gif"
+              id="com.soartech.soar.ide.ui.NewSoarFileWizardAction"
+              label="New Soar File"
+              menubarPath="com.soartech.soar.ide.ui.soarMenu/soarMenuGroup"
+              style="push"
+              tooltip="Create a new Soar file with the wizard."/>
+        <action
+              class="com.soartech.soar.ide.ui.actions.DeleteSoarAgentActionDelegate"
+              icon="icons/deletesoaragent.gif"
+              id="com.soartech.soar.ide.ui.DeleteSoarAgentAction"
+              label="Delete Soar Agent..."
+              menubarPath="com.soartech.soar.ide.ui.soarMenu/soarMenuGroup"
+              style="push"
+              tooltip="Delete one or more Soar agents."/>
+        <action
+              class="com.soartech.soar.ide.ui.actions.NewSoarAgentWizardActionDelegate"
+              icon="icons/newsoaragent.gif"
+              id="com.soartech.soar.ide.ui.NewSoarAgentWizardAction"
+              label="New Soar Agent"
+              menubarPath="com.soartech.soar.ide.ui.soarMenu/soarMenuGroup"
+              style="push"
+              tooltip="Create a new Soar agent with the wizard."/>
+     </actionSet>
+  </extension>
+  <extension
+        point="org.eclipse.ui.actionSets">
+     <actionSet
+           description="Action set containing Soar coding related actions."
+           id="com.soartech.soar.ide.ui.CodingActionSet"
+           label="Soar Coding"
+           visible="true">
+        <menu
+              id="com.soartech.soar.ide.ui.soar.menu"	
+              label="%SoarMenu.label"
+              path="edit">
+           <separator name="commentGroup"/>
+        </menu>
+        <action
+              definitionId="com.soartech.soar.ide.ui.comment"
+              id="com.soartech.soar.ide.ui.Comment"
+              label="%CommentAction.label"
+              retarget="true" />
+        <action
+              definitionId="com.soartech.soar.ide.ui.uncomment"
+              id="com.soartech.soar.ide.ui.Uncomment"
+              label="%Uncomment.label"
+              retarget="true"/>
+        <action
+              definitionId="com.soartech.soar.ide.ui.toggle.comment"
+              id="com.soartech.soar.ide.ui.ToggleComment"
+              label="%ToggleCommentAction.label"
+              retarget="true"
+              tooltip="Toggle Soar comments on selected lines."/>
+     </actionSet>
+  </extension>
+ 
+	<extension
+        point="org.eclipse.ui.preferencePages">
+     	<page
+            class="com.soartech.soar.ide.ui.editors.text.SoarEditorPreferencePage"
+            id="com.soartech.soar.ide.ui.preferencepage"
+            name="Soar Editor"/>
+        <page
+           name="Templates"
+           class="com.soartech.soar.ide.ui.editors.text.SoarEditorTemplatesPreferencePage"
+           id="com.soartech.soar.ide.ui.templatepreferencepage"
+           category="com.soartech.soar.ide.ui.preferencepage"/>
+        <page
+           name="Syntax Coloring"
+           class="com.soartech.soar.ide.ui.editors.text.SoarEditorColoringPreferencePage"
+           id="com.soartech.soar.ide.ui.coloringpreferencepage"
+           category="com.soartech.soar.ide.ui.preferencepage"/>
+  	</extension>
+  	 
+	<extension
+        point="org.eclipse.ui.editors.templates">
+     <contextType
+           class="com.soartech.soar.ide.ui.editors.text.SoarContext"
+           id="com.soartech.soar.ide.ui.soar.file"
+           name="Soar Production"/>
+     <template
+           autoinsert="true"
+           contextTypeId="com.soartech.soar.ide.ui.soar.file"
+           description="Soar Production"
+           icon="icons/soar.gif"
+           id="com.soartech.soar.ide.ui.soar.production"
+           name="sp">
+        <pattern>
+           sp { ${productionname}
+   ( state &lt;s&gt; ^${state} ${value} )
+--&gt;
+}
+        </pattern>
+     </template>
+  </extension>
+ <extension
+       point="org.eclipse.ui.popupMenus">
+    <objectContribution
+          adaptable="true"
+          id="com.soartech.soar.ide.ui.projectObjectContribution"
+          objectClass="org.eclipse.core.resources.IProject">
+       <action
+             class="com.soartech.soar.ide.ui.actions.ToggleSoarProjectNatureActionDelegate"
+             enablesFor="1"
+             icon="icons/soar.gif"
+             id="com.soartech.soar.ide.ui.toggleSoarProjectNature"
+             label="Include Soar Project Support"
+             menubarPath="additions"
+             style="toggle"
+             tooltip="Toggle Soar support for this project"/>
+    </objectContribution>
+    <objectContribution
+          adaptable="true"
+          id="com.soartech.soar.ide.ui.soarFileObjectContribution"
+          objectClass="com.soartech.soar.ide.core.model.ISoarFile">
+    </objectContribution>
+    <objectContribution
+          adaptable="false"
+          id="com.soartech.soar.ide.ui.soarDatamapAttributeObjectContribution"
+          objectClass="com.soartech.soar.ide.core.model.datamap.ISoarDatamapAttribute">
+       <action
+             class="com.soartech.soar.ide.ui.actions.GenerateMonitorProductionFromDatamapActionDelegate"
+             enablesFor="1+"
+             id="com.soartech.soar.ide.ui.generateMonitorProductionFromDatamap"
+             label="Generate Monitor Production"
+             menubarPath="additions"
+             tooltip="Generate a monitor production from the selected datamap attributes"/>
+    </objectContribution>
+    <viewerContribution
+          id="com.soartech.soar.ide.ui.actions.FormatSoarDocumentViewerContribution"
+          targetID="#TextEditorContext">
+       <action
+             class="com.soartech.soar.ide.ui.actions.FormatSoarDocumentAction"
+             definitionId="com.soartech.soar.ide.ui.editor.command.FormatSoarDocument"
+             icon="icons/soar_file_16.gif"
+             id="com.soartech.soar.ide.ui.actions.FormatSoarDocumentAction"
+             label="Format Soar Document"
+             menubarPath="additions"
+             tooltip="Format the Soar Document."/>
+    </viewerContribution>
+    <viewerContribution
+          id="com.soartech.soar.ide.ui.actions.OpenReferencingFilesViewerContribution"
+          targetID="#TextEditorContext">
+       <action
+             class="com.soartech.soar.ide.ui.actions.OpenReferencingFilesEditorAction"
+             definitionId="com.soartech.soar.ide.ui.editor.command.OpenReferencingFiles"
+             icon="icons/filereference.gif"
+             id="com.soartech.soar.ide.ui.actions.OpenParentFileEditorAction"
+             label="Open Referencing Files"
+             menubarPath="additions"
+             tooltip="Open Soar files that reference this file.">
+       </action>
+    </viewerContribution>
+    <viewerContribution
+          id="com.soartech.soar.ide.ui.actions.DuplicateProductionViewerContribution"
+          targetID="#TextEditorContext">
+       <action
+             class="com.soartech.soar.ide.ui.actions.DuplicateProductionActionDelegate"
+             definitionId="com.soartech.soar.ide.ui.editor.command.DuplicateProduction"
+             icon="icons/production.gif"
+             id="com.soartech.soar.ide.ui.actions.DuplicateProductionEditorAction"
+             label="Duplicate Production"
+             menubarPath="additions"
+             tooltip="Duplicate selected production."/>
+    </viewerContribution>
+ </extension>
+ <extension
+       point="org.eclipse.ui.views">
+    <category
+          id="com.soartech.soar.ide.ui.SoarCategory"
+          name="Soar"/>
+    <view
+          allowMultiple="false"
+          category="com.soartech.soar.ide.ui.SoarCategory"
+          class="com.soartech.soar.ide.ui.views.source.SoarElementSourceViewer"
+          icon="icons/expand.gif"
+          id="com.soartech.soar.ide.ui.views.SoarElementSourceViewer"
+          name="Soar Source Viewer"/>
+    <view
+          category="com.soartech.soar.ide.ui.SoarCategory"
+          class="com.soartech.soar.ide.ui.views.explorer.SoarExplorerView"
+          icon="icons/package.gif"
+          id="com.soartech.soar.ide.ui.views.SoarExplorerView"
+          name="Soar Explorer"/>
+    <view
+          allowMultiple="false"
+          category="com.soartech.soar.ide.ui.SoarCategory"
+          class="com.soartech.soar.ide.ui.views.datamap.SoarDatamapView"
+          icon="icons/attribute.gif"
+          id="com.soartech.soar.ide.ui.views.datamap.SoarDatamapView"
+          name="Soar Datamap"/>
+ </extension>
+ <extension
+       point="org.eclipse.ui.viewActions">
+    <viewContribution
+          id="com.soartech.soar.ide.ui.SoarExplorerContribution"
+          targetID="com.soartech.soar.ide.ui.views.SoarExplorerView">
+       <action
+             class="com.soartech.soar.ide.ui.actions.SwitchSoarExplorerViewActionDelegate"
+             icon="icons/impl_co.gif"
+             id="com.soartech.soar.ide.ui.actions.SwitchSoarExplorer"
+             label="Switch View Type"
+             menubarPath="com.soartech.soar.ide.ui.SoarExplorerMenu"
+             style="toggle"
+             toolbarPath="additions"
+             tooltip="Switch the package view structure"/>
+       <action
+             class="com.soartech.soar.ide.ui.actions.SortSoarExplorerViewActionDelegate"
+             icon="icons/alphab_sort_co.gif"
+             id="com.soartech.soar.ide.ui.SortViewAction"
+             label="Sort View"
+             style="toggle"
+             toolbarPath="additions"
+             tooltip="Sort"/>
+       <menu
+             id="com.soartech.soar.ide.ui.SoarExplorerMenu"
+             label="com.soartech.soar.ide.ui.SoarExplorerMenu"/>
+       <action
+             class="com.soartech.soar.ide.ui.actions.ToggleShowProductionsViewActionDelegate"
+             icon="icons/production.gif"
+             id="com.soartech.soar.ide.ui.actions.ToggleShowProductions"
+             label="Toggle Show Productions"
+             menubarPath="com.soartech.soar.ide.ui.SoarExplorerMenu"
+             style="toggle"
+             toolbarPath="additions"/>
+       <action
+             class="com.soartech.soar.ide.ui.actions.ToggleShowProceduresViewActionDelegate"
+             icon="icons/procedure.gif"
+             id="com.soartech.soar.ide.ui.actions.ToggleShowProcedures"
+             label="Toggle Show Procedures"
+             menubarPath="com.soartech.soar.ide.ui.SoarExplorerMenu"
+             style="toggle"
+             toolbarPath="additions"/>
+    </viewContribution>
+ </extension>
+ <extension
+       point="org.eclipse.ui.decorators">
+    <decorator
+          adaptable="false"
+          class="com.soartech.soar.ide.ui.views.SoarProblemLabelDecorator"
+          id="com.soartech.soar.ide.ui.SoarProblemLabelDecorator"
+          label="Soar problem label decorator"
+          lightweight="true"
+          state="true">
+       <enablement>
+          <or>
+             <objectClass name="com.soartech.soar.ide.core.model.ISoarElement"/>
+             <objectClass name="com.soartech.soar.ide.ui.views.explorer.SoarExplorerFullViewContentProvider$SoarFolderHeader"/>
+          </or>
+       </enablement>
+    </decorator>
+    <decorator
+          adaptable="true"
+          class="com.soartech.soar.ide.ui.views.SoarStartFileDecorator"
+          id="com.soartech.soar.ide.ui.SoarStartFileDecorator"
+          label="Soar startup file label decorator"
+          lightweight="true"
+          state="true">
+       <enablement>
+         <objectClass name="com.soartech.soar.ide.core.model.ISoarFile"/>
+       </enablement>
+    </decorator>
+ </extension>
+ <extension
+       point="org.eclipse.ui.newWizards">
+    <category
+          id="com.soartech.soar.ide.ui.SoarCategory"
+          name="Soar"/>
+    <wizard
+          category="com.soartech.soar.ide.ui.SoarCategory"
+          class="com.soartech.soar.ide.ui.wizards.NewSoarAgentWizard"
+          icon="icons/soaragent.gif"
+          id="com.soartech.soar.ide.ui.NewSoarAgentWizard"
+          name="Soar Agent"
+          project="false"/>
+    <wizard
+          category="com.soartech.soar.ide.ui.SoarCategory"
+          class="com.soartech.soar.ide.ui.wizards.NewSoarFileWizard"
+          icon="icons/soar_file_16.gif"
+          id="com.soartech.soar.ide.ui.NewSoarFileWizard"
+          name="Soar File"
+          project="false"/>
+    <wizard
+          category="com.soartech.soar.ide.ui.SoarCategory"
+          class="com.soartech.soar.ide.ui.wizards.NewSoarFolderWizard"
+          icon="icons/newsoarfolder.gif"
+          id="com.soartech.soar.ide.ui.NewSoarFolderWizard"
+          name="Soar Folder"
+          project="false">
+    </wizard>
+ </extension>
+ <extension
+       point="org.eclipse.ui.editorActions">
+    <editorContribution
+          id="com.soartech.soar.ide.ui.editorContribution"
+          targetID="com.soartech.soar.editor.editors.SoarEditor">
+       <action
+             class="com.soartech.soar.ide.ui.actions.FormatSoarDocumentAction"
+             definitionId="com.soartech.soar.ide.ui.editor.command.FormatSoarDocument"
+             icon="icons/soar.gif"
+             id="com.soartech.soar.ide.ui.actions.FormatSoarDocumentAction"
+             label="Format Soar Document"
+             style="push"
+             tooltip="Format the selected lines."/>
+    </editorContribution>
+    <editorContribution
+          id="com.soartech.soar.ide.ui.editorContribution"
+          targetID="com.soartech.soar.editor.editors.SoarEditor">
+       <action
+             class="com.soartech.soar.ide.ui.actions.OpenReferencingFilesEditorAction"
+             definitionId="com.soartech.soar.ide.ui.editor.command.OpenReferencingFiles"
+             icon="icons/filereference.gif"
+             id="com.soartech.soar.ide.ui.actions.OpenParentFileEditorAction"
+             label="Open referencing files"
+             style="push"
+             tooltip="Open Soar files that reference this file."/>
+    </editorContribution>
+    <editorContribution
+          id="com.soartech.soar.ide.ui.editorContribution"
+          targetID="com.soartech.soar.editor.editors.SoarEditor">
+       <action
+             class="com.soartech.soar.ide.ui.actions.DuplicateProductionActionDelegate"
+             definitionId="com.soartech.soar.ide.ui.editor.command.DuplicateProduction"
+             icon="icons/production.gif"
+             id="com.soartech.soar.ide.ui.actions.DuplicateProductionActionDelegate"
+             label="Duplicate Production"
+             style="push"
+             tooltip="Duplicate the production.">
+       </action>
+    </editorContribution>
+ </extension>
+ <extension
+       point="org.eclipse.ui.editors.annotationTypes">
+    <type
+          name="com.soartech.soar.ide.ui.error"
+          super="org.eclipse.ui.workbench.texteditor.error"/>
+    <type
+          name="com.soartech.soar.ide.ui.warning"
+          super="org.eclipse.ui.workbench.texteditor.warning"/>
+    <type
+          name="com.soartech.soar.ide.ui.info"
+          super="org.eclipse.ui.workbench.texteditor.info"/>
+ </extension>
+ <extension
+       point="org.eclipse.core.runtime.preferences">
+    <initializer class="com.soartech.soar.ide.ui.SoarEditorPluginPreferenceInitializer"/>
+ </extension>
+ <extension
+       point="org.eclipse.ui.ide.markerResolution">
+    <markerResolutionGenerator
+          class="com.soartech.soar.ide.ui.editors.text.quickfix.TestResolutionGenerator"
+          markerType="com.soartech.soar.ide.problemmarker">
+    </markerResolutionGenerator>
+ </extension>
+ <extension
+       point="org.eclipse.jdt.ui.quickAssistProcessors">
+    <quickAssistProcessor
+          class="com.soartech.soar.ide.ui.editors.text.quickfix.TestAssistProcessor"
+          id="com.soartech.soar.ide.ui.editors.text.quickfix.TestAssistProcessor"
+          name="com.soartech.soar.ide.ui.editors.text.quickfix.TestAssistProcessor">
+   <enablement>
+      <with variable="projectNatures">
+         <iterate operator="or">
+            <equals value="com.soartech.soar.ide.nature"/>
+         </iterate>
+      </with>
+   </enablement>
+
+    </quickAssistProcessor>
+ </extension>
+
+ </plugin>

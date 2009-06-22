@@ -1,0 +1,18 @@
+##!
+# @file
+#
+# @created ray 20071024
+
+
+sp " test-rename-superstate
+    [lhs]
+-->
+    (interrupt)
+"
+
+
+sp " test-fix-lhs-error
+    [lhs-with-error]
+-->
+    (interrupt)
+"

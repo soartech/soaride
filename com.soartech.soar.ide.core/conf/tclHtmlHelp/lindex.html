@@ -1,0 +1,76 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: lindex</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81a7148">NAME</a> · <a href="#SECTid81a71c0">SYNOPSIS</a> · <a href="#SECTid81a7260">DESCRIPTION</a> · <a href="#SECTid81a7710">EXAMPLES</a> · <a href="#SECTid81a7aa8">SEE ALSO</a> · <a href="#SECTid81a7c60">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81a7148">NAME</a></h2><p class="namesection">
+<b class="names">lindex - </b><br>Retrieve an element from a list</p>
+<h2><a name="SECTid81a71c0">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">lindex</b> <i class="m">list ?index...?</i>
+</pre>
+<h2><a name="SECTid81a7260">DESCRIPTION</a></h2><p>The <b class="cmd">lindex</b> command accepts a parameter, <i>list</i>, which
+it treats as a Tcl list. It also accepts zero or more <i>indices</i> into
+the list.  The indices may be presented either consecutively on the
+command line, or grouped in a
+Tcl list and presented as a single argument.
+</p><p>If no indices are presented, the command takes the form:
+</p><pre class="example">
+lindex list
+</pre><p>or
+</p><pre class="example">
+lindex list {}
+</pre><p>In this case, the return value of <b class="cmd">lindex</b> is simply the value of the
+<i>list</i> parameter.
+</p><p>When presented with a single index, the <b class="cmd">lindex</b> command
+treats <i>list</i> as a Tcl list and returns the
+<i>index</i>'th element from it (0 refers to the first element of the list).
+In extracting the element, <b class="cmd">lindex</b> observes the same rules
+concerning braces and quotes and backslashes as the Tcl command
+interpreter; however, variable
+substitution and command substitution do not occur.
+If <i>index</i> is negative or greater than or equal to the number
+of elements in <i>value</i>, then an empty
+string is returned.
+The interpretation of each simple <i>index</i> value is the same as 
+for the command <b>string index</b>, supporting simple index
+arithmetic and indices relative to the end of the list.
+</p><p>If additional <i>index</i> arguments are supplied, then each argument is
+used in turn to select an element from the previous indexing operation,
+allowing the script to select elements from sublists.  The command,
+</p><pre class="example">
+lindex $a 1 2 3
+</pre><p>or
+</p><pre class="example">
+lindex $a {1 2 3}
+</pre><p>is synonymous with
+</p><pre class="example">
+lindex [lindex [lindex $a 1] 2] 3
+</pre>
+<h2><a name="SECTid81a7710">EXAMPLES</a></h2><pre class="example">
+<b class="cmd">lindex</b> {a b c}  <i>=&gt; a b c</i>
+<b class="cmd">lindex</b> {a b c} {} <i>=&gt; a b c</i>
+<b class="cmd">lindex</b> {a b c} 0 <i>=&gt; a</i>
+<b class="cmd">lindex</b> {a b c} 2 <i>=&gt; c</i>
+<b class="cmd">lindex</b> {a b c} end <i>=&gt; c</i>
+<b class="cmd">lindex</b> {a b c} end-1 <i>=&gt; b</i>
+<b class="cmd">lindex</b> {{a b c} {d e f} {g h i}} 2 1 <i>=&gt; h</i>
+<b class="cmd">lindex</b> {{a b c} {d e f} {g h i}} {2 1} <i>=&gt; h</i>
+<b class="cmd">lindex</b> {{{a b} {c d}} {{e f} {g h}}} 1 1 0 <i>=&gt; g</i>
+<b class="cmd">lindex</b> {{{a b} {c d}} {{e f} {g h}}} {1 1 0} <i>=&gt; g</i>
+</pre>
+<h2><a name="SECTid81a7aa8">SEE ALSO</a></h2><p class="seealso">list(n), lappend(n), linsert(n), llength(n), lsearch(n), lset(n), lsort(n), lrange(n), lreplace(n), string(n)</p>
+<h2><a name="SECTid81a7c60">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-element">element</a>, <a class="keyword" href="keyword-index.html#KW-index">index</a>, <a class="keyword" href="keyword-index.html#KW-list">list</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

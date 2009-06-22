@@ -1,0 +1,72 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: lreplace</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd40">NAME</a> · <a href="#SECTid81abdb8">SYNOPSIS</a> · <a href="#SECTid81abe80">DESCRIPTION</a> · <a href="#SECTid81ac330">EXAMPLES</a> · <a href="#SECTid81ac4e8">SEE ALSO</a> · <a href="#SECTid81ac6a0">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd40">NAME</a></h2><p class="namesection">
+<b class="names">lreplace - </b><br>Replace elements in a list with new elements</p>
+<h2><a name="SECTid81abdb8">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">lreplace</b> <i class="m">list first last</i> ?<i class="m">element element ...</i>?
+</pre>
+
+
+<h2><a name="SECTid81abe80">DESCRIPTION</a></h2><p>
+<b class="cmd">lreplace</b> returns a new list formed by replacing one or more elements of
+<i>list</i> with the <i>element</i> arguments.
+<i>first</i> and <i>last</i> are index values specifying the first and
+last elements of the range to replace.  
+The index values <i>first</i> and <i>last</i> are interpreted
+the same as index values for the command <b>string index</b>,
+supporting simple index arithmetic and indices relative to the
+end of the list.
+0 refers to the first element of the
+list, and <b>end</b> refers to the last element of the list.
+If <i>list</i> is empty, then <i>first</i> and <i>last</i> are ignored.
+
+If <i>first</i> is less than zero, it is considered to refer to the
+first element of the list.  For non-empty lists, the element indicated
+by <i>first</i> must exist.
+
+If <i>last</i> is less than zero but greater than <i>first</i>, then any
+specified elements will be prepended to the list.  If <i>last</i> is
+less than <i>first</i> then no elements are deleted; the new elements
+are simply inserted before <i>first</i>.
+
+The <i>element</i> arguments specify zero or more new arguments to
+be added to the list in place of those that were deleted.
+Each <i>element</i> argument will become a separate element of
+the list.  If no <i>element</i> arguments are specified, then the elements
+between <i>first</i> and <i>last</i> are simply deleted.  If <i>list</i>
+is empty, any <i>element</i> arguments are added to the end of the list.
+</p>
+<h2><a name="SECTid81ac330">EXAMPLES</a></h2><p>Replacing an element of a list with another:
+</p><pre class="example">
+% <b class="cmd">lreplace</b> {a b c d e} 1 1 foo
+a foo c d e
+</pre><p>Replacing two elements of a list with three:
+</p><pre class="example">
+% <b class="cmd">lreplace</b> {a b c d e} 1 2 three more elements
+a three more elements d e
+</pre><p>Deleting the last element from a list in a variable:
+</p><pre class="example">
+% set var {a b c d e}
+a b c d e
+% set var [<b class="cmd">lreplace</b> $var end end]
+a b c d
+</pre>
+<h2><a name="SECTid81ac4e8">SEE ALSO</a></h2><p class="seealso">list(n), lappend(n), lindex(n), linsert(n), llength(n), lsearch(n), lset(n), lrange(n), lsort(n), string(n)</p>
+<h2><a name="SECTid81ac6a0">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-element">element</a>, <a class="keyword" href="keyword-index.html#KW-list">list</a>, <a class="keyword" href="keyword-index.html#KW-replace">replace</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

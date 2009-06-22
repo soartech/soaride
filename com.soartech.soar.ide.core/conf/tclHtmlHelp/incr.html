@@ -1,0 +1,55 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: incr</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81ac6a8">NAME</a> · <a href="#SECTid81ac720">SYNOPSIS</a> · <a href="#SECTid81ac7e8">DESCRIPTION</a> · <a href="#SECTid81aca18">EXAMPLES</a> · <a href="#SECTid81acd10">SEE ALSO</a> · <a href="#SECTid81acd60">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81ac6a8">NAME</a></h2><p class="namesection">
+<b class="names">incr - </b><br>Increment the value of a variable</p>
+<h2><a name="SECTid81ac720">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">incr</b> <i class="m">varName</i> ?<i class="m">increment</i>?
+</pre>
+
+
+<h2><a name="SECTid81ac7e8">DESCRIPTION</a></h2><p>Increments the value stored in the variable whose name is <i>varName</i>.
+The value of the variable must be an integer.
+If <i>increment</i> is supplied then its value (which must be an
+integer) is added to the value of variable <i>varName</i>;  otherwise
+1 is added to <i>varName</i>.
+The new value is stored as a decimal string in variable <i>varName</i>
+and also returned as result.
+</p><p>Starting with the Tcl 8.5 release, the variable <i>varName</i> passed
+to <b class="cmd">incr</b> may be unset, and in that case, it will be set to
+the value <i>increment</i> or to the default increment value of <b>1</b>.
+</p>
+<h2><a name="SECTid81aca18">EXAMPLES</a></h2><p>Add one to the contents of the variable <i>x</i>:
+</p><pre class="example">
+<b class="cmd">incr</b> x
+</pre><p>Add 42 to the contents of the variable <i>x</i>:
+</p><pre class="example">
+<b class="cmd">incr</b> x 42
+</pre><p>Add the contents of the variable <i>y</i> to the contents of the
+variable <i>x</i>:
+</p><pre class="example">
+<b class="cmd">incr</b> x $y
+</pre><p>Add nothing at all to the variable <i>x</i> (often useful for checking
+whether an argument to a procedure is actually integral and generating
+an error if it is not):
+</p><pre class="example">
+<b class="cmd">incr</b> x 0
+</pre>
+<h2><a name="SECTid81acd10">SEE ALSO</a></h2><p class="seealso">expr(n)</p>
+<h2><a name="SECTid81acd60">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-add">add</a>, <a class="keyword" href="keyword-index.html#KW-increment">increment</a>, <a class="keyword" href="keyword-index.html#KW-variable">variable</a>, <a class="keyword" href="keyword-index.html#KW-value">value</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

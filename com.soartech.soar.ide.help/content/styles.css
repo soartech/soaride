@@ -1,0 +1,162 @@
+
+HTML {
+    background: 	#FFFFFF;
+    color: 		black;
+}
+
+body {
+	font-family: Verdana, sans-serif;
+	background-image: url('soaride_help_header_60.png');
+	background-repeat: repeat-x;
+	padding-left: 0px;
+	padding-right: 0px;
+	margin: 0px;
+	font-size: 70%;
+}
+
+
+/* For most anchors, we should leave colors up to the user's preferences. */
+/*--
+A:link 		{ color: blue; 		background: transparent; }
+A:visited	{ color: purple;	background: transparent; }
+A:active 	{ color: red;		background: transparent; }
+--*/
+
+
+P.clear {
+	clear: both;
+}
+
+.clear {
+	clear:both;	
+}
+
+H2 {
+	margin-top: 	1em;
+    font-family:	sans-serif;
+    font-size:		1em;
+    color:		#005A9C;
+    background: 	transparent;
+    text-align:		left;
+}
+
+H1 {
+    margin-top: 	1em;
+    font-family:	sans-serif;
+    font-size:		1.4em;
+    color:			#FFFFFF;
+    background: 	transparent;
+    text-align: 	left;
+	padding-left:	20px;
+}
+
+H1.title {
+    text-align: center;
+}
+
+UL,OL {
+    margin-right: 0em;
+    margin-top: 10pt;
+    margin-bottom: 3pt;
+}
+UL LI {
+    list-style: disc;
+    margin-top: 6pt;
+    margin-bottom: 6pt;
+}
+OL LI {
+    list-style: decimal;
+    margin-top: 6pt;
+    margin-bottom: 6pt;
+}
+
+IMG.left {
+	float: left;
+	margin: 1em;	
+}
+
+IMG.right {
+	float: right;
+	margin: 1em;	
+}
+
+IMG.left_margin {
+	float: left;
+	margin: 2em;	
+}
+
+UL.toc,UL.toc UL, UL.toc UL UL {
+    font:	normal 12pt/14pt sans-serif;
+    list-style:	none;
+}
+
+.content {
+	padding-left: 20px;
+	padding-right: 20px;
+}
+
+.content h2 {
+	font-weight: bold;
+	font-size: 120%;
+	color: #959DAF;
+	margin-bottom: .5em;
+	border-bottom: 1px dotted #aaaaaa;
+	padding-top: 6px;
+}
+
+/* content for the examples */
+.content h3 {
+	font-weight: bold;
+	font-size: 128%;
+	color: #0B5F8B;
+	margin-bottom: .5em;
+	padding-left: 26px;
+	padding-top: 8px;
+	background-image: url(soaride_linebreak_20.png);
+	background-repeat: no-repeat;
+	height: 37px;
+	width: 726px;
+}
+
+.content p {
+	margin-left: 15px;
+}
+
+.content dd {
+	margin-left: 15px;
+	padding-bottom: 5px;
+}
+
+.content dt {
+	margin-left: 10px;
+	padding-bottom: 5px;
+}
+
+.content table {
+	border: 1px solid #ECECEA;
+}
+
+.content th {
+	font-size: 60%;
+	font-weight: bold;
+	color: #FFFFFF;
+	background-color: #959DAF;
+	text-align: left;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 6px;
+	padding-bottom: 6px;
+}
+
+.content td {
+	font-size: 60%;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 6px;
+	padding-bottom: 6px;
+}
+
+/* For debugging: highlight unrecognized elements: */
+.unrecognized {
+    color: red; background: green;
+}

@@ -1,0 +1,46 @@
+##!
+# @file
+#
+# @created ray 20071024
+
+sp {test-disconnected-from-state
+    (state <s> ^superstate nil ^io.input-link <il>)
+    (<s> ^goals.<g> <goal>)
+    (<g> ^name hello)
+    (<il> ^contacts <contacts>)
+    (<contacts> ^contact <contact>)
+    (<conact> ^location 3)
+-->
+}
+
+sp {test-unbound
+    (state <s> ^superstate nil 
+               ^io.input-link.contacts.contact.location <loc>)
+-->
+    (write |location=| <location>)
+}
+
+sp {test-no-positive-conditions1
+    (state <s> -^superstate)
+-->
+    (interrupt)
+}
+
+sp {test-no-positive-conditions2
+    -{(state <s> ^superstate <ss>)}
+-->
+    (interrupt)
+}
+
+sp {test-function-arguments
+    (state <s> ^superstate nil)
+-->
+    (write (crlf 1) hello)
+    (halt hello)
+    (interrupt hello)
+    (timestamp hello)
+    (accept hello)
+    (capitalize-symbol)
+    (<s> ^ifeq (ifeq <s> <s> value)
+         ^strlen (strlen <s> hi))
+}

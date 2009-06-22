@@ -1,0 +1,11 @@
+##!
+# @file
+#
+# @created ray 20071024
+
+
+sp {
+    (state <s> ^superstate nil)
+-->
+    (halt)
+}

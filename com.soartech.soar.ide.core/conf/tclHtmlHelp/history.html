@@ -1,0 +1,132 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: history</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81a6fd0">NAME</a> · <a href="#SECTid81a7048">SYNOPSIS</a> · <a href="#SECTid81a7110">DESCRIPTION</a> · <a href="#SECTid81a7d18">HISTORY REVISION</a> · <a href="#SECTid81a7ea8">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81a6fd0">NAME</a></h2><p class="namesection">
+<b class="names">history - </b><br>Manipulate the history list</p>
+<h2><a name="SECTid81a7048">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">history</b> ?<i class="m">option</i>? ?<i class="m">arg arg ...</i>?
+</pre>
+
+
+<h2><a name="SECTid81a7110">DESCRIPTION</a></h2><p>The <b class="cmd">history</b> command performs one of several operations related to
+recently-executed commands recorded in a history list.  Each of
+these recorded commands is referred to as an ``event''.  When
+specifying an event to the <b class="cmd">history</b> command, the following
+forms may be used:
+</p><ol>
+<li>A number:  if positive, it refers to the event with
+that number (all events are numbered starting at 1).  If the number
+is negative, it selects an event relative to the current event
+(<b>-1</b> refers to the previous event, <b>-2</b> to the one before that, and
+so on).  Event <b>0</b> refers to the current event.
+</li>
+<li>A string:  selects the most recent event that matches the string.
+An event is considered to match the string either if the string is
+the same as the first characters of the event, or if the string
+matches the event in the sense of the <b>string match</b> command.
+</li>
+</ol><p>The <b class="cmd">history</b> command can take any of the following forms:
+</p><dl class="commandlist">
+
+<dt><b>history</b></dt>
+<dd>Same
+as <b>history info</b>, described below.
+</dd>
+
+
+<dt>
+<b>history add</b> <i class="m">command</i> ?<b>exec</b>?</dt>
+<dd>Adds the <i>command</i> argument to the history list as a new event.  If
+<b class="cmd">exec</b> is specified (or abbreviated) then the command is also
+executed and its result is returned.  If <b class="cmd">exec</b> isn't specified
+then an empty string is returned as result.
+</dd>
+
+
+<dt>
+<b>history change</b> <i class="m">newValue</i> ?<i class="m">event</i>?</dt>
+<dd>Replaces the value recorded for an event with <i>newValue</i>.  <i>Event</i>
+specifies the event to replace, and
+defaults to the <i>current</i> event (not event <b>-1</b>).  This command
+is intended for use in commands that implement new forms of history
+substitution and wish to replace the current event (which invokes the
+substitution) with the command created through substitution.  The return
+value is an empty string.
+</dd>
+
+
+<dt><b>history clear</b></dt>
+<dd>Erase the history list.  The current keep limit is retained.
+The history event numbers are reset.
+</dd>
+
+
+<dt>
+<b>history event</b> ?<i class="m">event</i>?</dt>
+<dd>Returns the value of the event given by <i>event</i>.  <i>Event</i>
+defaults to <b>-1</b>.
+</dd>
+
+
+<dt>
+<b>history info</b> ?<i class="m">count</i>?</dt>
+<dd>Returns a formatted string (intended for humans to read) giving
+the event number and contents for each of the events in the history
+list except the current event.  If <i>count</i> is specified
+then only the most recent <i>count</i> events are returned.
+</dd>
+
+
+<dt>
+<b>history keep</b> ?<i class="m">count</i>?</dt>
+<dd>This command may be used to change the size of the history list to
+<i>count</i> events.  Initially, 20 events are retained in the history
+list.  If <i>count</i> is not specified, the current keep limit is returned.
+</dd>
+
+
+<dt><b>history nextid</b></dt>
+<dd>Returns the number of the next event to be recorded
+in the history list.  It is useful for things like printing the
+event number in command-line prompts.
+</dd>
+
+
+<dt>
+<b>history redo</b> ?<i class="m">event</i>?</dt>
+<dd>Re-executes the command indicated by <i>event</i> and returns its result.
+<i>Event</i> defaults to <b>-1</b>.  This command results in history
+revision:  see below for details.
+</dd>
+
+</dl>
+<h2><a name="SECTid81a7d18">HISTORY REVISION</a></h2><p>Pre-8.0 Tcl had a complex history revision mechanism.
+The current mechanism is more limited, and the old
+history operations <b>substitute</b> and <b>words</b> have been removed.
+(As a consolation, the <b>clear</b> operation was added.)
+</p><p>The history option <b>redo</b> results in much simpler ``history revision''.
+When this option is invoked then the most recent event
+is modified to eliminate the history command and replace it with
+the result of the history command.
+If you want to redo an event without modifying history, then use
+the <b class="cmd">event</b> operation to retrieve some event,
+and the <b>add</b> operation to add it to history and execute it.
+
+</p>
+<h2><a name="SECTid81a7ea8">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-event">event</a>, <a class="keyword" href="keyword-index.html#KW-history">history</a>, <a class="keyword" href="keyword-index.html#KW-record">record</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

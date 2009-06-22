@@ -1,0 +1,197 @@
+<html lang="en">
+
+<head>
+	<link rel="stylesheet" href="../content/styles.css">
+	<title>Editor View</title>
+</head>
+
+<body>
+	<h1>Soar Editor</h1>
+	
+	<br><br>
+	
+	<div class="content">
+		
+		<p>The Soar Editor is a text editor with the Soar-specific features described below.</p>
+		
+		<div style="margin-left:20px;"><ul>
+		<li><i><b>Note:</b> This section has a lot of screenshots, so you may want to maximize 
+		the <b>Help</b> frame for a better view.</i></li></ul></div>
+		
+		
+		<h3><a name="syntax_highlighting">Syntax Highlighting</a></h3>
+		
+		<img src="../content/syntax_highlighting.png" alt="" class ="right">
+	
+		<p>
+		The editor supports basic syntax highlighting. The functions and commands  
+		defined in the Soar8 Manual, as well as variables and comments, are shown 
+		with special formatting to indicate that they are keywords or simply to 
+		make a block of code stand out.
+		</p>
+		
+		<p>
+		The colors used for syntax highlighting can be configured on the 
+		<a href="soar_preferences.html#scp">Syntax Coloring Preferences Page</a>.
+		</p>
+		
+		
+		<h3><a name="error_marking">Error Marking</a></h3>
+		
+		<img src="../content/syntax_errors.png" alt="" class="right">
+		
+		<p>
+		The Soar Editor checks the syntax of your Soar code. Errors are marked in typical Eclipse
+		fashion with both an error marker on the line where it occurs, as well as an entry 
+		in the <b>Problems View</b>.</p>
+		
+		<p>Typical Errors include:</p>
+		
+		<ul>
+			<li>Invalid production syntax</li>
+			<li>Disconnected variables</li>
+		    <li>Duplicate production names</li>
+		</ul>
+		<br>
+		</p>
+		
+		
+		<h3><a name="agent_membership">Agent Membership</a></h3>
+		
+		<p>The editor includes a bar at the top of each file indication which agents the current
+		soar file is a member of.</p>
+		
+		<p>If the current soar file is not a member of any agents, the option will be given to
+		add it to an existing agent or create a new agent.</p>
+		
+		<p>If the current soar file is part of an agent, clicking the "(-)" will remove it from
+		the corresponding agent.</p>
+		
+		
+		<h3><a name="content_assist">Content Assist</a></h3>
+		<img src="../content/content_assist.png" alt="" class="right">
+		
+		<p>The Soar IDE includes many different types of content assist in the editor. Assistance
+		is provided for Soar keywords, datamap attributes, production variables, and Tcl macros.</p>
+		
+		<p>The content assist is invoked by pressing <b>ctrl-space</b> in various specific contexts. 
+		The list will automatically be narrowed as letters are typed.</p>
+		
+		<ul>
+			<li>After a whitespace character, content assist will display a list of Soar keywords and 
+			Tcl procedure names.</li>
+			
+			<li>After a <b>^</b> content assist will display a list of valid attributes from the datamap.</li>
+			
+			<li>After a <b>&lt;</b> content assist will display a list of valid variables.</li>
+			
+			<li>After a <b>[</b> content assist will display a list of valid Tcl macros.</li>
+		</ul>
+		
+		
+		<h3><a name="templates">Templates</a></h3>
+		<p>
+		Eclipse Templates are small snippets of reusable code that can be automatically 
+		inserted into the editor. They act like a short form in which you fill with custom text. 
+		For more details on Eclipse Templates, refer to the article on 
+		<a  href="http://www.javalobby.org/forums/thread.jspa?threadID=15736">Teaching Templates</a>.
+		</p>
+		
+		To use a Soar Template:
+		<img src="../content/template_select.png" alt="" class="right">
+		<ol>
+			<br>
+			<li>Press <b>ctrl+space</b> just as you would if you were looking for content assistance.
+			The pane to the right displays the text of the currently selected template.</li>
+			<br class="clear">
+			<img src="../content/template_expanded.png" alt="" class="right">
+			<li>Press <b>enter</b> to run the selected template. The form elements of the active template 
+			are outlined.</li>
+			<li>Press the <b>tab</b> key to move between elements.</li>
+		</ol>
+		<p class="clear">
+		The templates used by the Soar IDE can be created and configured on the 
+		<a href="soar_preferences.html#stp">Templates Preferences Page</a>.
+		</p>
+	
+		
+		<h3><a name="code_folding">Code Folding and Regions</a></h3>
+		
+		<img src="../content/folding_and_regions.png" alt="" class="right">
+		
+		<p>The editor provides functionality for code folding, with both automatic and user 
+		defined regions.</p>
+		
+		<p>Automatically defined foldable regions include both soar productions and 
+		tcl procedures.</p>
+		
+		<p>Users can define foldable regions by surrounding code with <b>#region RegionName</b>
+		and <b>#endregion</b>. The syntax should look familiar as it is the same in Visual Studio.</p>
+		
+		<p>Notice that the user defined region is also displayed in the outline.</p>
+		
+		
+		<h3><a name="code_formatting">Soar Document Formatting</a></h3>
+		
+		<p>The editor has a basic integrated code formatter. It can be invoked by highlighting a 
+		region of code and pressing <b>ctrl-shift-f</b> or by selecting <b>Format Soar Document</b> 
+		through the pop-up menu. The entire file will be formatted if no selection is highlighted.</p>
+		
+		<p>The code will be formatted according to the values set in the 
+		<a href="soar_preferences.html">Soar Editor Preferences	Page.</a></p>
+		
+		
+		<h3><a name="hover_help">Hover Help</a></h3>
+		<p>
+		The Soar Editor displays hover help for user defined Tcl procedures, 
+		built-in Tcl procedures, and Soar commands. To access hover help, 
+		hover the cursor over the name of the desired procedure or command.
+		</p>
+		
+		<ul>
+			<img src="../content/hover_user_defined.png" alt="" class="right">
+			<br><br><br>
+			<li>Hovering over a user defined Tcl procedure displays the comment for 
+			that procedure as well as a list of arguments it takes.</li>
+			
+			<br class="clear">
+			
+			<img src="../content/hover_built_in.png" alt="" class="right">
+			<br><br><br>
+			<li>Hovering over a built-in command displays a short description of the command 
+			followed by a synopsis of how to use the command.</li>
+		</ul>
+		
+		
+		<h3><a name="hyperlinking">Hyperlinking</a></h3>
+		
+		<img src="../content/hyperlinking.png" alt="" class="right">
+		
+		<p>
+		Hyperlinking in the Soar Editor allows you to easily navigate to the 
+		definition of a Tcl procedure by <b>ctrl-clicking</b> on its name. When the 
+		<b>ctrl</b> button is held down, the text of hyperlinkable items turn blue and 
+		become underlined as you mouse over them.
+		</p>
+		
+		<p>
+		You can also access integrated manpages for built-in Tcl procedures with this method.
+		</p>
+		
+		<h3><a name="hotkeys">Hotkeys</a></h3>
+		
+		<ul>
+			<li><b>[ctrl-/]</b> Comments out the selected line.</li>
+		
+			<li><b>[alt-/]</b> Auto-completes the word adjacent to the cursor. Hitting the hotkey
+			multiple times iterates over the list possible auto-completion choices.</li>
+			
+			<li><b>[ctrl-g]</b> Opens any files referencing this one. This is also an option in 
+			the popup menu.</li>
+		</ul>
+	</div>
+
+<br><br><br>
+
+</body>
+</html>

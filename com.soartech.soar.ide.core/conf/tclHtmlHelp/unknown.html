@@ -1,0 +1,81 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: unknown</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd78">NAME</a> · <a href="#SECTid81abdf0">SYNOPSIS</a> · <a href="#SECTid81abeb8">DESCRIPTION</a> · <a href="#SECTid81ac548">SEE ALSO</a> · <a href="#SECTid81ac610">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd78">NAME</a></h2><p class="namesection">
+<b class="names">unknown - </b><br>Handle attempts to use non-existent commands</p>
+<h2><a name="SECTid81abdf0">SYNOPSIS</a></h2><pre class="syntax">
+<b>unknown</b> <i class="m">cmdName</i> ?<i class="m">arg arg ...</i>?
+</pre>
+
+
+<h2><a name="SECTid81abeb8">DESCRIPTION</a></h2><p>This command is invoked by the Tcl interpreter whenever a script
+tries to invoke a command that doesn't exist.  The default implementation
+of <b>unknown</b> is a library procedure defined when Tcl initializes an
+interpreter.  You can override the default <b>unknown</b> to change its
+functionality.  Note that there is no default implementation of
+<b>unknown</b> in a safe interpreter.
+</p><p>If the Tcl interpreter encounters a command name for which there
+is not a defined command, then Tcl checks for the existence of
+a command named <b>unknown</b>.
+If there is no such command, then the interpreter returns an
+error.
+If the <b>unknown</b> command exists, then it is invoked with
+arguments consisting of the fully-substituted name and arguments
+for the original non-existent command.
+The <b>unknown</b> command typically does things like searching
+through library directories for a command procedure with the name
+<i>cmdName</i>, or expanding abbreviated command names to full-length,
+or automatically executing unknown commands as sub-processes.
+In some cases (such as expanding abbreviations) <b>unknown</b> will
+change the original command slightly and then (re-)execute it.
+The result of the <b>unknown</b> command is used as the result for
+the original non-existent command.
+</p><p>The default implementation of <b>unknown</b> behaves as follows.
+It first calls the <b class="cmd">auto_load</b> library procedure to load the command.
+If this succeeds, then it executes the original command with its
+original arguments.
+If the auto-load fails then <b>unknown</b> calls <b class="cmd">auto_execok</b>
+to see if there is an executable file by the name <i>cmd</i>.
+If so, it invokes the Tcl <b class="cmd">exec</b> command
+with <i>cmd</i> and all the <i>args</i> as arguments.
+If <i>cmd</i> can't be auto-executed, <b>unknown</b> checks to
+see if the command was invoked at top-level and outside of any
+script.  If so, then <b>unknown</b> takes two additional steps.
+First, it sees if <i>cmd</i> has one of the following three forms:
+<b>!!</b>, <b>!</b><i>event</i>, or <b>^</b><i>old</i><b>^</b><i>new</i>?<b>^</b>?.
+If so, then <b>unknown</b> carries out history substitution
+in the same way that <b>csh</b> would for these constructs.
+Finally, <b>unknown</b> checks to see if <i>cmd</i> is
+a unique abbreviation for an existing Tcl command.
+If so, it expands the command name and executes the command with
+the original arguments.
+If none of the above efforts has been able to execute
+the command, <b>unknown</b> generates an error return.
+If the global variable <b>auto_noload</b> is defined, then the auto-load
+step is skipped.
+If the global variable <b>auto_noexec</b> is defined then the
+auto-exec step is skipped.
+Under normal circumstances the return value from <b>unknown</b>
+is the return value from the command that was eventually
+executed.
+
+</p>
+<h2><a name="SECTid81ac548">SEE ALSO</a></h2><p class="seealso">info(n), proc(n), interp(n), <a href="library.html">library(n)</a>
+</p>
+<h2><a name="SECTid81ac610">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-error">error</a>, <a class="keyword" href="keyword-index.html#KW-non-existentcommand">non-existent command</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

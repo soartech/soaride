@@ -1,0 +1,66 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: unset</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd78">NAME</a> · <a href="#SECTid81abdf0">SYNOPSIS</a> · <a href="#SECTid81abee0">DESCRIPTION</a> · <a href="#SECTid81ac070">EXAMPLE</a> · <a href="#SECTid81ac160">SEE ALSO</a> · <a href="#SECTid81ac200">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd78">NAME</a></h2><p class="namesection">
+<b class="names">unset - </b><br>Delete variables</p>
+<h2><a name="SECTid81abdf0">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">unset</b> ?<i class="m">-nocomplain</i>? ?<i class="m">--</i>? ?<i class="m">name name name ...</i>?
+</pre>
+
+
+<h2><a name="SECTid81abee0">DESCRIPTION</a></h2><p>This command removes one or more variables.
+Each <i>name</i> is a variable name, specified in any of the
+ways acceptable to the <b>set</b> command.
+If a <i>name</i> refers to an element of an array then that
+element is removed without affecting the rest of the array.
+If a <i>name</i> consists of an array name with no parenthesized
+index, then the entire array is deleted.
+The <b class="cmd">unset</b> command returns an empty string as result.
+If <i>-nocomplain</i> is specified as the first argument, any possible
+errors are suppressed.  The option may not be abbreviated, in order to
+disambiguate it from possible variable names.  The option <i>--</i>
+indicates the end of the options, and should be used if you wish to
+remove a variable with the same name as any of the options.
+If an error occurs, any variables after the named one causing the error not
+deleted.  An error can occur when the named variable doesn't exist, or the
+name refers to an array element but the variable is a scalar, or the name
+refers to a variable in a non-existent namespace.
+</p>
+<h2><a name="SECTid81ac070">EXAMPLE</a></h2><p>Create an array containing a mapping from some numbers to their
+squares and remove the array elements for non-prime numbers:
+</p><pre class="example">
+array set squares {
+    1 1    6 36
+    2 4    7 49
+    3 9    8 64
+    4 16   9 81
+    5 25  10 100
+}
+
+puts "The squares are:"
+parray squares
+
+<b class="cmd">unset</b> squares(1) squares(4) squares(6)
+<b class="cmd">unset</b> squares(8) squares(9) squares(10)
+
+puts "The prime squares are:"
+parray squares
+</pre>
+<h2><a name="SECTid81ac160">SEE ALSO</a></h2><p class="seealso">set(n), trace(n), upvar(n)</p>
+<h2><a name="SECTid81ac200">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-remove">remove</a>, <a class="keyword" href="keyword-index.html#KW-variable">variable</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

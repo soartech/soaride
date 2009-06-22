@@ -1,0 +1,179 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: regexp</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd70">NAME</a> · <a href="#SECTid81abde8">SYNOPSIS</a> · <a href="#SECTid81abf00">DESCRIPTION</a> · <a href="#SECTid81acec8">EXAMPLES</a> · <a href="#SECTid81ad1e8">SEE ALSO</a> · <a href="#SECTid81ad288">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd70">NAME</a></h2><p class="namesection">
+<b class="names">regexp - </b><br>Match a regular expression against a string</p>
+<h2><a name="SECTid81abde8">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">regexp</b> ?<i class="m">switches</i>? <i class="m">exp string</i> ?<i class="m">matchVar</i>? ?<i class="m">subMatchVar subMatchVar ...</i>?
+</pre>
+
+
+<h2><a name="SECTid81abf00">DESCRIPTION</a></h2><p>Determines whether the regular expression <i>exp</i> matches part or
+all of <i>string</i> and returns 1 if it does, 0 if it doesn't, unless
+<b>-inline</b> is specified (see below).
+(Regular expression matching is described in the <b>re_syntax</b>
+reference page.)
+</p><p>If additional arguments are specified after <i>string</i> then they
+are treated as the names of variables in which to return
+information about which part(s) of <i>string</i> matched <i>exp</i>.
+<i>MatchVar</i> will be set to the range of <i>string</i> that
+matched all of <i>exp</i>.  The first <i>subMatchVar</i> will contain
+the characters in <i>string</i> that matched the leftmost parenthesized
+subexpression within <i>exp</i>, the next <i>subMatchVar</i> will
+contain the characters that matched the next parenthesized
+subexpression to the right in <i>exp</i>, and so on.
+</p><p>If the initial arguments to <b class="cmd">regexp</b> start with <b>-</b> then
+they are treated as switches.  The following switches are
+currently supported:
+</p><dl>
+
+<dt><b>-about</b></dt>
+<dd>Instead of attempting to match the regular expression, returns a list
+containing information about the regular expression.  The first
+element of the list is a subexpression count.  The second element is a
+list of property names that describe various attributes of the regular
+expression. This switch is primarily intended for debugging purposes.
+</dd>
+
+
+<dt><b>-expanded</b></dt>
+<dd>Enables use of the expanded regular expression syntax where
+whitespace and comments are ignored.  This is the same as specifying
+the <b>(?x)</b> embedded option (see the <b>re_syntax</b> manual page).
+</dd>
+
+
+<dt><b>-indices</b></dt>
+<dd>Changes what is stored in the <i>subMatchVar</i>s. 
+Instead of storing the matching characters from <i>string</i>,
+each variable
+will contain a list of two decimal strings giving the indices
+in <i>string</i> of the first and last characters in the matching
+range of characters.
+</dd>
+
+
+<dt><b>-line</b></dt>
+<dd>Enables newline-sensitive matching.  By default, newline is a
+completely ordinary character with no special meaning.  With this
+flag, `[^' bracket expressions and `.' never match newline, `^'
+matches an empty string after any newline in addition to its normal
+function, and `$' matches an empty string before any newline in
+addition to its normal function.  This flag is equivalent to
+specifying both <b>-linestop</b> and <b>-lineanchor</b>, or the
+<b>(?n)</b> embedded option (see the <b>re_syntax</b> manual page).
+</dd>
+
+
+<dt><b>-linestop</b></dt>
+<dd>Changes the behavior of `[^' bracket expressions and `.' so that they
+stop at newlines.  This is the same as specifying the <b>(?p)</b>
+embedded option (see the <b>re_syntax</b> manual page).
+</dd>
+
+
+<dt><b>-lineanchor</b></dt>
+<dd>Changes the behavior of `^' and `$' (the ``anchors'') so they match the
+beginning and end of a line respectively.  This is the same as
+specifying the <b>(?w)</b> embedded option (see the <b>re_syntax</b>
+manual page).
+</dd>
+
+
+<dt><b>-nocase</b></dt>
+<dd>Causes upper-case characters in <i>string</i> to be treated as
+lower case during the matching process.
+</dd>
+
+
+<dt><b>-all</b></dt>
+<dd>Causes the regular expression to be matched as many times as possible
+in the string, returning the total number of matches found.  If this
+is specified with match variables, they will contain information for
+the last match only.
+</dd>
+
+
+<dt><b>-inline</b></dt>
+<dd>Causes the command to return, as a list, the data that would otherwise
+be placed in match variables.  When using <b>-inline</b>,
+match variables may not be specified.  If used with <b>-all</b>, the
+list will be concatenated at each iteration, such that a flat list is
+always returned.  For each match iteration, the command will append the
+overall match data, plus one element for each subexpression in the
+regular expression.  Examples are:
+<pre class="example">
+    regexp -inline -- {\w(\w)} " inlined "
+ =&gt; {in n}
+    regexp -all -inline -- {\w(\w)} " inlined "
+ =&gt; {in n li i ne e}
+</pre>
+</dd>
+
+
+<dt>
+<b>-start</b> <i class="m">index</i>
+</dt>
+<dd>Specifies a character index offset into the string to start
+matching the regular expression at.  
+The <i>index</i> value is interpreted in the same manner
+as the <i>index</i> argument to <b>string index</b>.
+When using this switch, `^'
+will not match the beginning of the line, and \A will still
+match the start of the string at <i>index</i>.  If <b>-indices</b>
+is specified, the indices will be indexed starting from the
+absolute beginning of the input string.
+<i>index</i> will be constrained to the bounds of the input string.
+</dd>
+
+
+<dt><b>--</b></dt>
+<dd>Marks the end of switches.  The argument following this one will
+be treated as <i>exp</i> even if it starts with a <b>-</b>.
+</dd>
+
+</dl><p>If there are more <i>subMatchVar</i>'s than parenthesized
+subexpressions within <i>exp</i>, or if a particular subexpression
+in <i>exp</i> doesn't match the string (e.g. because it was in a
+portion of the expression that wasn't matched), then the corresponding
+<i>subMatchVar</i> will be set to ``<b>-1 -1</b>'' if <b>-indices</b>
+has been specified or to an empty string otherwise.
+</p>
+<h2><a name="SECTid81acec8">EXAMPLES</a></h2><p>Find the first occurrence of a word starting with <b>foo</b> in a
+string that is not actually an instance of <b>foobar</b>, and get the
+letters following it up to the end of the word into a variable:
+</p><pre class="example">
+<b class="cmd">regexp</b> {\&lt;foo(?!bar\&gt;)(\w*)} $string -&gt; restOfWord
+</pre><p>Note that the whole matched substring has been placed in the variable
+<b>-&gt;</b> which is a name chosen to look nice given that we are not
+actually interested in its contents.
+</p><p>Find the index of the word <b>badger</b> (in any case) within a string
+and store that in the variable <b>location</b>:
+</p><pre class="example">
+<b class="cmd">regexp</b> -indices {(?i)\&lt;badger\&gt;} $string location
+</pre><p>Count the number of octal digits in a string:
+</p><pre class="example">
+<b class="cmd">regexp</b> -all {[0-7]} $string
+</pre><p>List all words (consisting of all sequences of non-whitespace
+characters) in a string:
+</p><pre class="example">
+<b class="cmd">regexp</b> -all -inline {\S+} $string
+</pre>
+<h2><a name="SECTid81ad1e8">SEE ALSO</a></h2><p class="seealso">re_syntax(n), regsub(n), string(n)</p>
+<h2><a name="SECTid81ad288">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-match">match</a>, <a class="keyword" href="keyword-index.html#KW-regularexpression">regular expression</a>, <a class="keyword" href="keyword-index.html#KW-string">string</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

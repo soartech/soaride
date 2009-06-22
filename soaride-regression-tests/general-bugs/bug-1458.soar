@@ -1,0 +1,9 @@
+
+# The :template flag was added by the university in a research
+# branch of Soar.
+sp {test-bug-1458
+    :template
+    (state <s> ^superstate nil)
+-->
+    (interrupt)
+}

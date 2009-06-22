@@ -1,0 +1,75 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: close</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd78">NAME</a> · <a href="#SECTid81abdf0">SYNOPSIS</a> · <a href="#SECTid81abe90">DESCRIPTION</a> · <a href="#SECTid81ac2c8">EXAMPLE</a> · <a href="#SECTid81ac408">SEE ALSO</a> · <a href="#SECTid81ac4f8">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd78">NAME</a></h2><p class="namesection">
+<b class="names">close - </b><br>Close an open channel</p>
+<h2><a name="SECTid81abdf0">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">close</b> <i class="m">channelId</i>
+</pre>
+
+
+<h2><a name="SECTid81abe90">DESCRIPTION</a></h2><p>Closes the channel given by <i>channelId</i>.
+</p><p>
+<i>ChannelId</i> must be an identifier for an open channel such as a
+Tcl standard channel (<b>stdin</b>, <b>stdout</b>, or <b>stderr</b>),
+the return value from an invocation of <b>open</b> or <b class="cmd">socket</b>, or
+the result of a channel creation command provided by a Tcl extension.
+</p><p>All buffered output is flushed to the channel's output device,
+any buffered input is discarded, the underlying file or device is closed,
+and <i>channelId</i> becomes unavailable for use.
+</p><p>If the channel is blocking, the command does not return until all output
+is flushed.
+If the channel is nonblocking and there is unflushed output, the
+channel remains open and the command
+returns immediately; output will be flushed in the background and the
+channel will be closed when all the flushing is complete.
+</p><p>If <i>channelId</i> is a blocking channel for a command pipeline then
+<b class="cmd">close</b> waits for the child processes to complete.
+</p><p>If the channel is shared between interpreters, then <b class="cmd">close</b>
+makes <i>channelId</i> unavailable in the invoking interpreter but has no
+other effect until all of the sharing interpreters have closed the
+channel.
+When the last interpreter in which the channel is registered invokes
+<b class="cmd">close</b>, the cleanup actions described above occur. See the
+<b class="cmd">interp</b> command for a description of channel sharing.
+</p><p>Channels are automatically closed when an interpreter is destroyed and
+when the process exits.  Channels are switched to blocking mode, to ensure
+that all output is correctly flushed before the process exits.
+</p><p>The command returns an empty string, and may generate an error if
+an error occurs while flushing output.  If a command in a command
+pipeline created with <b>open</b> returns an error, <b class="cmd">close</b>
+generates an error (similar to the <b class="cmd">exec</b> command.)
+</p>
+<h2><a name="SECTid81ac2c8">EXAMPLE</a></h2><p>This illustrates how you can use Tcl to ensure that files get closed
+even when errors happen by combining <b class="cmd">catch</b>, <b class="cmd">close</b> and
+<b class="cmd">return</b>:
+</p><pre class="example">
+proc withOpenFile {filename channelVar script} {
+    upvar 1 $channelVar chan
+    set chan [open $filename]
+    catch {
+        uplevel 1 $script
+    } result options
+    <b class="cmd">close</b> $chan
+    return -options $options $result
+}
+</pre>
+<h2><a name="SECTid81ac408">SEE ALSO</a></h2><p class="seealso">file(n), open(n), socket(n), eof(n), <a href="StdChannels.html">Tcl_StandardChannels(3)</a>
+</p>
+<h2><a name="SECTid81ac4f8">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-blocking">blocking</a>, <a class="keyword" href="keyword-index.html#KW-channel">channel</a>, <a class="keyword" href="keyword-index.html#KW-close">close</a>, <a class="keyword" href="keyword-index.html#KW-nonblocking">nonblocking</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

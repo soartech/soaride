@@ -1,0 +1,77 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: pkg::create</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd40">NAME</a> · <a href="#SECTid81abdb8">SYNOPSIS</a> · <a href="#SECTid81abed0">DESCRIPTION</a> · <a href="#SECTid81abfe8">OPTIONS</a> · <a href="#SECTid81ac560">SEE ALSO</a> · <a href="#SECTid81ac5b0">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd40">NAME</a></h2><p class="namesection">
+<b class="names">pkg::create - </b><br>Construct an appropriate `package ifneeded' command for a given package specification</p>
+<h2><a name="SECTid81abdb8">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">::pkg::create</b> <i class="m">-name packageName</i> <i class="m">-version packageVersion</i> ?<i class="m">-load filespec</i>? ... ?<i class="m">-source filespec</i>? ...
+</pre>
+
+
+<h2><a name="SECTid81abed0">DESCRIPTION</a></h2><p>
+<b class="cmd">::pkg::create</b> is a utility procedure that is part of the standard Tcl
+library.  It is used to create an appropriate <b>package ifneeded</b>
+command for a given package specification.  It can be used to construct a
+<b>pkgIndex.tcl</b> file for use with the <b class="cmd">package</b> mechanism.
+
+</p>
+<h2><a name="SECTid81abfe8">OPTIONS</a></h2><p>The parameters supported are:
+</p><dl>
+
+<dt>
+<b>-name</b> <i class="m">packageName</i>
+</dt>
+<dd>This parameter specifies the name of the package.  It is required.
+</dd>
+
+
+<dt>
+<b>-version</b> <i class="m">packageVersion</i>
+</dt>
+<dd>This parameter specifies the version of the package.  It is required.
+</dd>
+
+
+<dt>
+<b>-load</b> <i class="m">filespec</i>
+</dt>
+<dd>This parameter specifies a binary library that must be loaded with the
+<b>load</b> command.  <i>filespec</i> is a list with two elements.  The
+first element is the name of the file to load.  The second, optional
+element is a list of commands supplied by loading that file.  If the
+list of procedures is empty or omitted, <b class="cmd">::pkg::create</b> will
+set up the library for direct loading (see <b class="cmd"><a href="pkgMkIndex.html">pkg_mkIndex</a></b>).  Any
+number of <b>-load</b> parameters may be specified.
+</dd>
+
+
+<dt>
+<b>-source</b> <i class="m">filespec</i>
+</dt>
+<dd>This parameter is similar to the <b>-load</b> parameter, except that it
+specifies a Tcl library that must be loaded with the
+<b>source</b> command.  Any number of <b>-source</b> parameters may be
+specified.
+</dd>
+
+</dl><p>At least one <b>-load</b> or <b>-source</b> parameter must be given.
+
+</p>
+<h2><a name="SECTid81ac560">SEE ALSO</a></h2><p class="seealso">package(n)</p>
+<h2><a name="SECTid81ac5b0">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-auto-load">auto-load</a>, <a class="keyword" href="keyword-index.html#KW-index">index</a>, <a class="keyword" href="keyword-index.html#KW-package">package</a>, <a class="keyword" href="keyword-index.html#KW-version">version</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

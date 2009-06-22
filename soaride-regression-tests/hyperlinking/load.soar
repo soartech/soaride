@@ -1,0 +1,14 @@
+##!
+# @file
+#
+# @created ray 20071024
+
+set x 100
+
+source "a.soar"
+
+pushd subfolder
+source load.soar
+popd
+
+source "multi.soar"

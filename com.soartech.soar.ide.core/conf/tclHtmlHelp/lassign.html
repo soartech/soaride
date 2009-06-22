@@ -1,0 +1,56 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: lassign</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd78">NAME</a> · <a href="#SECTid81abdf0">SYNOPSIS</a> · <a href="#SECTid81abeb8">DESCRIPTION</a> · <a href="#SECTid81abf80">EXAMPLES</a> · <a href="#SECTid81ac098">SEE ALSO</a> · <a href="#SECTid81ac160">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd78">NAME</a></h2><p class="namesection">
+<b class="names">lassign - </b><br>Assign list elements to variables</p>
+<h2><a name="SECTid81abdf0">SYNOPSIS</a></h2><pre class="syntax">
+<b>lassign</b> <i class="m">list varName</i> ?<i class="m">varName ...</i>?
+</pre>
+
+
+<h2><a name="SECTid81abeb8">DESCRIPTION</a></h2><p>This command treats the value <i>list</i> as a list and assigns
+successive elements from that list to the variables given by the
+<i>varName</i> arguments in order.  If there are more variable names
+than list elements, the remaining variables are set to the empty
+string.  If there are more list elements than variables, a list of
+unassigned elements is returned.
+</p>
+<h2><a name="SECTid81abf80">EXAMPLES</a></h2><p>An illustration of how multiple assignment works, and what happens
+when there are either too few or too many elements.
+</p><pre class="example">
+lassign {a b c} x y z       ;# Empty return
+puts $x                     ;# Prints "a"
+puts $y                     ;# Prints "b"
+puts $z                     ;# Prints "c"
+
+lassign {d e} x y z         ;# Empty return
+puts $x                     ;# Prints "d"
+puts $y                     ;# Prints "e"
+puts $z                     ;# Prints ""
+
+lassign {f g h i} x y       ;# Returns "h i"
+puts $x                     ;# Prints "f"
+puts $y                     ;# Prints "g"
+</pre><p>The <b>lassign</b> command has other uses.  It can be used to create
+the analogue of the "shift" command in many shell languages like this:
+</p><pre class="example">
+set ::argv [lassign $::argv argumentToReadOff]
+</pre>
+<h2><a name="SECTid81ac098">SEE ALSO</a></h2><p class="seealso">lindex(n), list(n), lset(n), set(n)</p>
+<h2><a name="SECTid81ac160">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-assign">assign</a>, <a class="keyword" href="keyword-index.html#KW-element">element</a>, <a class="keyword" href="keyword-index.html#KW-list">list</a>, <a class="keyword" href="keyword-index.html#KW-multiple">multiple</a>, <a class="keyword" href="keyword-index.html#KW-set">set</a>, <a class="keyword" href="keyword-index.html#KW-variable">variable</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

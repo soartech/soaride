@@ -1,0 +1,51 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: concat</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd70">NAME</a> · <a href="#SECTid81abde8">SYNOPSIS</a> · <a href="#SECTid81abeb0">DESCRIPTION</a> · <a href="#SECTid81abf50">EXAMPLES</a> · <a href="#SECTid81ac270">SEE ALSO</a> · <a href="#SECTid81ac2e8">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd70">NAME</a></h2><p class="namesection">
+<b class="names">concat - </b><br>Join lists together</p>
+<h2><a name="SECTid81abde8">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">concat</b><i class="m"> </i>?<i class="m">arg arg ...</i>?
+</pre>
+
+
+<h2><a name="SECTid81abeb0">DESCRIPTION</a></h2><p>This command joins each of its arguments together with spaces after
+trimming leading and trailing white-space from each of them.  If all the
+arguments are lists, this has the same effect as concatenating them
+into a single list.
+It permits any number of arguments;
+if no <i>arg</i>s are supplied, the result is an empty string.
+</p>
+<h2><a name="SECTid81abf50">EXAMPLES</a></h2><p>Although <b class="cmd">concat</b> will concatenate lists (so the command:
+</p><pre class="example">
+<b class="cmd">concat</b> a b {c d e} {f {g h}}
+</pre><p>will return "<b>a b c d e f {g h}</b>" as its result), it will also
+concatenate things that are not lists, and hence the command:
+</p><pre class="example">
+<b class="cmd">concat</b> " a b {c   " d "  e} f"
+</pre><p>will return "<b>a b {c d e} f</b>" as its result.
+</p><p>Note that the concatenation does not remove spaces from the middle of
+its arguments, so the command:
+</p><pre class="example">
+<b class="cmd">concat</b> "a   b   c" { d e f }
+</pre><p>will return "<b>a   b   c d e f</b>" (i.e. with three spaces between
+the <b>a</b>, the <b>b</b> and the <b>c</b>).
+
+</p>
+<h2><a name="SECTid81ac270">SEE ALSO</a></h2><p class="seealso">append(n), eval(n)</p>
+<h2><a name="SECTid81ac2e8">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-concatenate">concatenate</a>, <a class="keyword" href="keyword-index.html#KW-join">join</a>, <a class="keyword" href="keyword-index.html#KW-lists">lists</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

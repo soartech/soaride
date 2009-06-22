@@ -1,0 +1,8 @@
+##!
+# @file
+#
+# @created ray 20071024
+
+set path b.contacts
+
+source load.soar

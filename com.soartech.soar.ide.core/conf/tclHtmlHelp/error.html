@@ -1,0 +1,69 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: error</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd78">NAME</a> · <a href="#SECTid81abdf0">SYNOPSIS</a> · <a href="#SECTid81abee0">DESCRIPTION</a> · <a href="#SECTid81ac2a0">EXAMPLE</a> · <a href="#SECTid81ac368">SEE ALSO</a> · <a href="#SECTid81ac3e0">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd78">NAME</a></h2><p class="namesection">
+<b class="names">error - </b><br>Generate an error</p>
+<h2><a name="SECTid81abdf0">SYNOPSIS</a></h2><pre class="syntax">
+<b>error</b> <i class="m">message</i> ?<i class="m">info</i>? ?<i class="m">code</i>?
+</pre>
+
+
+<h2><a name="SECTid81abee0">DESCRIPTION</a></h2><p>Returns a <b>TCL_ERROR</b> code, which causes command interpretation to be
+unwound.  <i>Message</i> is a string that is returned to the application
+to indicate what went wrong.
+</p><p>The <b>-errorinfo</b> return option of an interpreter is used
+to accumulate a stack trace of what was in progress when an
+error occurred; as nested commands unwind,
+the Tcl interpreter adds information to the <b>-errorinfo</b>
+return option.  If the <i>info</i> argument is present, it is
+used to initialize the <b>-errorinfo</b> return options and
+the first increment of unwind information
+will not be added by the Tcl interpreter.  
+In other
+words, the command containing the <b>error</b> command will not appear
+in the stack trace; in its place will be <i>info</i>.
+Historically, this feature had been most useful in conjunction
+with the <b class="cmd">catch</b> command:
+if a caught error cannot be handled successfully, <i>info</i> can be used
+to return a stack trace reflecting the original point of occurrence
+of the error:
+</p><pre class="example">
+<b>catch {...} errMsg
+set savedInfo $::errorInfo
+...
+error $errMsg $savedInfo</b>
+</pre><p>When working with Tcl 8.5 or later, the following code
+should be used instead:
+</p><pre class="example">
+<b>catch {...} errMsg options
+...
+return -options $options $errMsg</b>
+</pre><p>If the <i>code</i> argument is present, then its value is stored
+in the <b>-errorcode</b> return option.  The <b>-errorcode</b>
+return option is intended to hold a machine-readable description
+of the error in cases where such information is available; see
+the <b class="cmd">return</b> manual page for information on the proper format
+for this option's value.
+</p>
+<h2><a name="SECTid81ac2a0">EXAMPLE</a></h2><p>Generate an error if a basic mathematical operation fails:
+</p><pre class="example">
+if {1+2 != 3} {
+    <b>error</b> "something is very wrong with addition"
+}
+</pre>
+<h2><a name="SECTid81ac368">SEE ALSO</a></h2><p class="seealso">catch(n), return(n)</p>
+<h2><a name="SECTid81ac3e0">KEYWORDS</a></h2><p class="keywords"><a class="keyword" href="keyword-index.html#KW-error">error</a></p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

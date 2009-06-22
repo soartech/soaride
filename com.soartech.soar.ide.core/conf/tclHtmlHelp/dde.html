@@ -1,0 +1,186 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: dde</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd70">NAME</a> · <a href="#SECTid81abde8">SYNOPSIS</a> · <a href="#SECTid81ac180">DESCRIPTION</a> · <a href="#SECTid81ac360">DDE COMMANDS</a> · <a href="#SECTid81ad1c0">DDE AND TCL</a> · <a href="#SECTid81ad558">EXAMPLE</a> · <a href="#SECTid81ad620">SEE ALSO</a> · <a href="#SECTid81ad6c0">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd70">NAME</a></h2><p class="namesection">
+<b class="names">dde - </b><br>Execute a Dynamic Data Exchange command</p>
+<h2><a name="SECTid81abde8">SYNOPSIS</a></h2><pre class="syntax">
+
+<b>package require dde 1.3</b>
+
+<b>dde servername</b> ?<b>-force</b>? ?<b>-handler</b> <i class="m">proc</i>? ?<b>--</b>? ?<i class="m">topic</i>?
+
+<b>dde execute</b> ?<b>-async</b>? <i class="m">service topic data</i>
+
+<b>dde poke</b> <i class="m">service topic item data</i>
+
+<b>dde request</b> ?<b>-binary</b>? <i class="m">service topic item</i>
+
+<b>dde services</b> <i class="m">service topic</i>
+
+<b>dde eval</b> ?<b>-async</b>? <i class="m">topic cmd</i> ?<i class="m">arg arg ...</i>?
+</pre>
+
+
+<h2><a name="SECTid81ac180">DESCRIPTION</a></h2><p>This command allows an application to send Dynamic Data Exchange (DDE)
+command when running under Microsoft Windows. Dynamic Data Exchange is
+a mechanism where applications can exchange raw data. Each DDE
+transaction needs a <i>service name</i> and a <i>topic</i>. Both the
+<i>service name</i> and <i>topic</i> are application defined; Tcl uses
+the service name <b>TclEval</b>, while the topic name is the name of the
+interpreter given by <b>dde servername</b>. Other applications have their
+own <i>service names</i> and <i>topics</i>. For instance, Microsoft Excel
+has the service name <b>Excel</b>.
+</p>
+<h2><a name="SECTid81ac360">DDE COMMANDS</a></h2><p>The following commands are a subset of the full Dynamic Data Exchange
+set of commands.
+</p><dl>
+
+<dt>
+<b>dde servername</b> ?<b>-force</b>? ?<b>-handler</b> <i class="m">proc</i>? ?<b>--</b>? ?<i class="m">topic</i>?</dt>
+<dd>
+<b>dde servername</b> registers the interpreter as a DDE server with
+the service name <b>TclEval</b> and the topic name specified by <i>topic</i>.
+If no <i>topic</i> is given, <b>dde servername</b> returns the name
+of the current topic or the empty string if it is not registered as a
+service. If the given <i>topic</i> name is already in use, then a
+suffix of the form ' #2' or ' #3' is appended to the name to make it
+unique. The command's result will be the name actually used. The
+<b>-force</b> option is used to force registration of precisely the
+given <i>topic</i> name.
+</dd>
+
+
+<dt></dt>
+<dd>The <b>-handler</b> option specifies a Tcl procedure that will be called to
+process calls to the dde server. If the package has been loaded into a
+safe interpreter then a <b>-handler</b> procedure must be defined. The
+procedure is called with all the arguments provided by the remote
+call.
+</dd>
+
+
+<dt>
+<b>dde execute</b> ?<b>-async</b>? <i class="m">service topic data</i>
+</dt>
+<dd>
+<b>dde execute</b> takes the <i>data</i> and sends it to the server indicated
+by <i>service</i> with the topic indicated by <i>topic</i>. Typically,
+<i>service</i> is the name of an application, and <i>topic</i> is a file to
+work on.  The <i>data</i> field is given to the remote application.
+Typically, the application treats the <i>data</i> field as a script, and the
+script is run in the application.  The <b>-async</b> option requests
+asynchronous invocation.  The command returns an error message if the
+script did not run, unless the <b>-async</b> flag was used, in which case
+the command returns immediately with no error.
+</dd>
+
+
+<dt>
+<b>dde poke</b> <i class="m">service topic item data</i>
+</dt>
+<dd>
+<b>dde poke</b> passes the <i>data</i> to the server indicated by
+<i>service</i> using the <i>topic</i> and <i>item</i> specified.  Typically,
+<i>service</i> is the name of an application.  <i>topic</i> is application
+specific but can be a command to the server or the name of a file to work
+on.  The <i>item</i> is also application specific and is often not used, but
+it must always be non-null.  The <i>data</i> field is given to the remote
+application.
+</dd>
+
+
+<dt>
+<b>dde request</b> ?<b>-binary</b>? <i class="m">service topic item</i>
+</dt>
+<dd>
+<b>dde request</b> is typically used to get the value of something; the
+value of a cell in Microsoft Excel or the text of a selection in
+Microsoft Word. <i>service</i> is typically the name of an application,
+<i>topic</i> is typically the name of the file, and <i>item</i> is
+application-specific. The command returns the value of <i>item</i> as
+defined in the application.  Normally this is interpreted to be a
+string with terminating null.  If <b>-binary</b> is specified, the
+result is returned as a byte array.
+</dd>
+
+
+<dt>
+<b>dde services</b> <i class="m">service topic</i>
+</dt>
+<dd>
+<b>dde services</b> returns a list of service-topic pairs that
+currently exist on the machine. If <i>service</i> and <i>topic</i> are
+both empty strings ({}), then all service-topic pairs currently
+available on the system are returned. If <i>service</i> is empty and
+<i>topic</i> is not, then all services with the specified topic are
+returned. If <i>service</i> is non-empty and <i>topic</i> is, all topics
+for a given service are returned. If both are non-empty, if that
+service-topic pair currently exists, it is returned; otherwise, an
+empty string is returned.
+</dd>
+
+
+<dt>
+<b>dde eval</b> ?<b>-async</b>? <i class="m">topic cmd</i> ?<i class="m">arg arg ...</i>?</dt>
+<dd>
+<b>dde eval</b> evaluates a command and its arguments using the interpreter
+specified by <i>topic</i>. The DDE service must be the <b>TclEval</b>
+service.  The <b>-async</b> option requests asynchronous invocation.  The
+command returns an error message if the script did not run, unless the
+<b>-async</b> flag was used, in which case the command returns immediately
+with no error.  This command can be used to replace send on Windows.
+</dd>
+
+</dl>
+<h2><a name="SECTid81ad1c0">DDE AND TCL</a></h2><p>A Tcl interpreter always has a service name of <b>TclEval</b>.  Each
+different interpreter of all running Tcl applications must be
+given a unique
+name specified by <b>dde servername</b>. Each interp is available as a
+DDE topic only if the <b>dde servername</b> command was used to set the
+name of the topic for each interp. So a <b>dde services TclEval {}</b>
+command will return a list of service-topic pairs, where each of the
+currently running interps will be a topic.
+</p><p>When Tcl processes a <b>dde execute</b> command, the data for the
+execute is run as a script in the interp named by the topic of the
+<b>dde execute</b> command.
+</p><p>When Tcl processes a <b>dde request</b> command, it returns the value of the
+variable given in the dde command in the context of the interp named by the
+dde topic. Tcl reserves the variable <b>$TCLEVAL$EXECUTE$RESULT</b> for
+internal use, and <b>dde request</b> commands for that variable will give
+unpredictable results.
+</p><p>An external application which wishes to run a script in Tcl should have
+that script store its result in a variable, run the <b>dde execute</b>
+command, and the run <b>dde request</b> to get the value of the
+variable.
+</p><p>When using DDE, be careful to ensure that the event queue is flushed
+using either <b class="cmd">update</b> or <b class="cmd">vwait</b>.  This happens by default
+when using <b>wish</b> unless a blocking command is called (such as <b class="cmd">exec</b>
+without adding the <b>&amp;</b> to place the process in the background).
+If for any reason the event queue is not flushed, DDE commands may
+hang until the event queue is flushed.  This can create a deadlock
+situation.
+</p>
+<h2><a name="SECTid81ad558">EXAMPLE</a></h2><p>This asks Internet Explorer (which must already be running) to go to a
+particularly important website:
+</p><pre class="example">
+package require dde
+<b>dde execute</b> iexplore WWW_OpenURL http://www.tcl.tk/
+</pre>
+<h2><a name="SECTid81ad620">SEE ALSO</a></h2><p class="seealso">tk(n), winfo(n), send(n)</p>
+<h2><a name="SECTid81ad6c0">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-application">application</a>, <a class="keyword" href="keyword-index.html#KW-dde">dde</a>, <a class="keyword" href="keyword-index.html#KW-name">name</a>, <a class="keyword" href="keyword-index.html#KW-remoteexecution">remote execution</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

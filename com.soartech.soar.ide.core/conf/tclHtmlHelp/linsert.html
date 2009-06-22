@@ -1,0 +1,46 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: linsert</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd78">NAME</a> · <a href="#SECTid81abdf0">SYNOPSIS</a> · <a href="#SECTid81abeb8">DESCRIPTION</a> · <a href="#SECTid81ac098">EXAMPLE</a> · <a href="#SECTid81ac1d8">SEE ALSO</a> · <a href="#SECTid81ac390">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd78">NAME</a></h2><p class="namesection">
+<b class="names">linsert - </b><br>Insert elements into a list</p>
+<h2><a name="SECTid81abdf0">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">linsert</b> <i class="m">list index element</i> ?<i class="m">element element ...</i>?
+</pre>
+
+
+<h2><a name="SECTid81abeb8">DESCRIPTION</a></h2><p>This command produces a new list from <i>list</i> by inserting all of the
+<i>element</i> arguments just before the <i>index</i>'th element of
+<i>list</i>.  Each <i>element</i> argument will become a separate element of
+the new list.  If <i>index</i> is less than or equal to zero, then the new
+elements are inserted at the beginning of the list.  
+The interpretation of the <i>index</i> value is the same as
+for the command <b>string index</b>, supporting simple index
+arithmetic and indices relative to the end of the list.
+</p>
+<h2><a name="SECTid81ac098">EXAMPLE</a></h2><p>Putting some values into a list, first indexing from the start and
+then indexing from the end, and then chaining them together:
+</p><pre class="example">
+set oldList {the fox jumps over the dog}
+set midList [<b class="cmd">linsert</b> $oldList 1 quick]
+set newList [<b class="cmd">linsert</b> $midList end-1 lazy]
+# The old lists still exist though...
+set newerList [<b class="cmd">linsert</b> [<b class="cmd">linsert</b> $oldList end-1 quick] 1 lazy]
+</pre>
+<h2><a name="SECTid81ac1d8">SEE ALSO</a></h2><p class="seealso">list(n), lappend(n), lindex(n), llength(n), lsearch(n), lset(n), lsort(n), lrange(n), lreplace(n), string(n)</p>
+<h2><a name="SECTid81ac390">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-element">element</a>, <a class="keyword" href="keyword-index.html#KW-insert">insert</a>, <a class="keyword" href="keyword-index.html#KW-list">list</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

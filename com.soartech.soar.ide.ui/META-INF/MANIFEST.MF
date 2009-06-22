@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Soar IDE UI Plug-in
+Bundle-SymbolicName: com.soartech.soar.ide.ui; singleton:=true
+Bundle-Version: 1.0.2
+Bundle-Activator: com.soartech.soar.ide.ui.SoarEditorUIPlugin
+Bundle-Vendor: Soar Technology, Inc.
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.console,
+ org.eclipse.jface.text,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.ui.views,
+ com.soartech.soar.ide,
+ org.eclipse.search,
+ org.eclipse.debug.ui,
+ org.eclipse.ui.forms,
+ org.eclipse.ltk.core.refactoring,
+ org.eclipse.ltk.ui.refactoring,
+ org.eclipse.jdt.ui
+Eclipse-AutoStart: true
+Bundle-ClassPath: soareditor-ui.jar
+Export-Package: com.soartech.soar.ide.ui,
+ com.soartech.soar.ide.ui.editors.text,
+ com.soartech.soar.ide.ui.editors.text.actions;x-friends:="com.soartech.soar.ide.ui.test",
+ com.soartech.soar.ide.ui.editors.text.rules,
+ com.soartech.soar.ide.ui.perspectives

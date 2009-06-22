@@ -1,0 +1,92 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: catch</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd78">NAME</a> · <a href="#SECTid81abdf0">SYNOPSIS</a> · <a href="#SECTid81abee0">DESCRIPTION</a> · <a href="#SECTid81ac868">EXAMPLES</a> · <a href="#SECTid81ac9f8">SEE ALSO</a> · <a href="#SECTid81acb10">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd78">NAME</a></h2><p class="namesection">
+<b class="names">catch - </b><br>Evaluate script and trap exceptional returns</p>
+<h2><a name="SECTid81abdf0">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">catch</b> <i class="m">script</i> ?<i class="m">resultVarName</i>? ?<i class="m">optionsVarName</i>?
+</pre>
+
+
+<h2><a name="SECTid81abee0">DESCRIPTION</a></h2><p>The <b class="cmd">catch</b> command may be used to prevent errors from aborting command
+interpretation.  The <b class="cmd">catch</b> command calls the Tcl interpreter recursively to
+execute <i>script</i>, and always returns without raising an error,
+regardless of any errors that might occur while executing <i>script</i>.
+</p><p>If <i>script</i> raises an error, <b class="cmd">catch</b> will return a non-zero integer
+value corresponding to the exceptional return code returned by evaluation
+of <i>script</i>.  Tcl defines the normal return code from script
+evaluation to be zero (0), or <b>TCL_OK</b>.  Tcl also defines four exceptional
+return codes: 1 (<b>TCL_ERROR</b>), 2 (<b>TCL_RETURN</b>), 3 (<b>TCL_BREAK</b>),
+and 4 (<b>TCL_CONTINUE</b>).  Errors during evaluation of a script are indicated
+by a return code of <b>TCL_ERROR</b>.  The other exceptional return codes are
+returned by the <b class="cmd">return</b>, <b class="cmd">break</b>, and <b class="cmd">continue</b> commands
+and in other special situations as documented.  Tcl packages can define
+new commands that return other integer values as return codes as well,
+and scripts that make use of the <b>return -code</b> command can also
+have return codes other than the five defined by Tcl.
+</p><p>If the <i>resultVarName</i> argument is given, then the variable it names is
+set to the result of the script evaluation.  When the return code from
+the script is 1 (<b>TCL_ERROR</b>), the value stored in <i>resultVarName</i> is an error
+message.  When the return code from the script is 0 (<b>TCL_OK</b>), the value
+stored in <i>resultVarName</i> is the value returned from <i>script</i>.
+</p><p>If the <i>optionsVarName</i> argument is given, then the variable it
+names is set to a dictionary of return options returned by evaluation
+of <i>script</i>.  Tcl specifies two entries that are always 
+defined in the dictionary: <b>-code</b> and <b>-level</b>.  When
+the return code from evaluation of <i>script</i> is not <b>TCL_RETURN</b>,
+the value of the <b>-level</b> entry will be 0, and the value
+of the <b>-code</b> entry will be the same as the return code.
+Only when the return code is <b>TCL_RETURN</b> will the values of
+the <b>-level</b> and <b>-code</b> entries be something else, as
+further described in the documentation for the <b class="cmd">return</b> command.
+</p><p>When the return code from evaluation of <i>script</i> is <b>TCL_ERROR</b>,
+three additional entries are defined in the dictionary of return options
+stored in <i>optionsVarName</i>: <b>-errorinfo</b>, <b>-errorcode</b>, 
+and <b>-errorline</b>.  The value of the <b>-errorinfo</b> entry
+is a formatted stack trace containing more information about
+the context in which the error happened.  The formatted stack
+trace is meant to be read by a person.  The value of
+the <b>-errorcode</b> entry is additional information about the
+error stored as a list.  The <b>-errorcode</b> value is meant to
+be further processed by programs, and may not be particularly
+readable by people.  The value of the <b>-errorline</b> entry
+is an integer indicating which line of <i>script</i> was being
+evaluated when the error occurred.  The values of the <b>-errorinfo</b>
+and <b>-errorcode</b> entries of the most recent error are also
+available as values of the global variables <b>::errorInfo</b>
+and <b>::errorCode</b> respectively.
+</p><p>Tcl packages may provide commands that set other entries in the
+dictionary of return options, and the <b class="cmd">return</b> command may be
+used by scripts to set return options in addition to those defined
+above.
+</p>
+
+<h2><a name="SECTid81ac868">EXAMPLES</a></h2><p>The <b class="cmd">catch</b> command may be used in an <b class="cmd">if</b> to branch based on
+the success of a script.
+</p><pre class="example">
+if { [<b class="cmd">catch</b> {open $someFile w} fid] } {
+    puts stderr "Could not open $someFile for writing\n$fid"
+    exit 1
+}
+</pre><p>There are more complex examples of <b class="cmd">catch</b> usage in the
+documentation for the <b class="cmd">return</b> command.
+
+</p>
+<h2><a name="SECTid81ac9f8">SEE ALSO</a></h2><p class="seealso">break(n), continue(n), dict(n), error(n), return(n), tclvars(n)</p>
+<h2><a name="SECTid81acb10">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-catch">catch</a>, <a class="keyword" href="keyword-index.html#KW-error">error</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: lrepeat</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81a6fd0">NAME</a> · <a href="#SECTid81a7048">SYNOPSIS</a> · <a href="#SECTid81a7110">DESCRIPTION</a> · <a href="#SECTid81a7318">EXAMPLES</a> · <a href="#SECTid81a7390">SEE ALSO</a> · <a href="#SECTid81a7480">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81a6fd0">NAME</a></h2><p class="namesection">
+<b class="names">lrepeat - </b><br>Build a list by repeating elements</p>
+<h2><a name="SECTid81a7048">SYNOPSIS</a></h2><pre class="syntax">
+<b>lrepeat</b> <i class="m">number element1</i> ?<i class="m">element2 element3 ...</i>?
+</pre>
+<h2><a name="SECTid81a7110">DESCRIPTION</a></h2><p>The <b>lrepeat</b> command creates a list of size <i>number * number of
+elements</i> by repeating <i>number</i> times the sequence of elements
+<i>element1 element2 ...</i>.  <i>number</i> must be a positive integer,
+<i>elementn</i> can be any Tcl value.  Note that <b>lrepeat 1 arg ...</b>
+is identical to <b>list arg ...</b>, though the <i>arg</i> is required
+with <b>lrepeat</b>.
+</p>
+<h2><a name="SECTid81a7318">EXAMPLES</a></h2><pre class="example">
+lrepeat 3 a  =&gt; a a a
+lrepeat 3 [lrepeat 3 0] =&gt; {0 0 0} {0 0 0} {0 0 0}
+lrepeat 3 a b c =&gt; a b c a b c a b c
+lrepeat 3 [lrepeat 2 a] b c =&gt; {a a} b c {a a} b c {a a} b c
+</pre>
+<h2><a name="SECTid81a7390">SEE ALSO</a></h2><p class="seealso">list(n), lappend(n), linsert(n), llength(n), lset(n)</p>
+<h2><a name="SECTid81a7480">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-element">element</a>, <a class="keyword" href="keyword-index.html#KW-index">index</a>, <a class="keyword" href="keyword-index.html#KW-list">list</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

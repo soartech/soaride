@@ -1,0 +1,731 @@
+<manpages>
+	<manpage cat="cmd" title="excise">
+		<namesection>
+			<name>excise</name>
+			<desc>Delete Soar productions from production memory.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="help">
+		<namesection>
+			<name>help</name>
+			<desc>Provide formatted, on-line information about Soar commands.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>	
+	</manpage>
+	
+	<manpage cat="cmd" title="init-soar">
+		<namesection>
+			<name>init-soar</name>
+			<desc>Reinitialize Soar so a program can be rerun from scratch.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="quit">
+		<namesection>
+			<name>quit</name>
+			<desc>Close log file, terminate Soar, and return user to the operating system.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="run">
+		<namesection>
+			<name>run</name>
+			<desc>Begin Soar's execution cycle.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="sp">
+		<namesection>
+			<name>sp</name>
+			<desc>The sp command creates a new production and loads it into production memory.</desc>
+		</namesection>
+		<synopsis>
+			<syntax>sp {production_body}</syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="stop-soar">
+		<namesection>
+			<name>stop-soar</name>
+			<desc>Interrupt a running Soar program.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="default-wme-depth">
+		<namesection>
+			<name>default-wme-depth</name>
+			<desc>Set the level of detail used to print WME's.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="gds-print">
+		<namesection>
+			<name>gds-print</name>
+			<desc>Print the WME's in the goal dependency set for each goal.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="internal-symbols">
+		<namesection>
+			<name>internal-symbols</name>
+			<desc>Print information about the Soar symbol table.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="matches">
+		<namesection>
+			<name>matches</name>
+			<desc>Print information about the match set and partial matches.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="memories">
+		<namesection>
+			<name>memories</name>
+			<desc>Print memory usage for production matches.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="preferences">
+		<namesection>
+			<name>preferences</name>
+			<desc>Examine items in preference memory.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="print">
+		<namesection>
+			<name>print</name>
+			<desc>Print items in working memory or production memory.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="production-find">
+		<namesection>
+			<name>production-find</name>
+			<desc>Find productions that contain a given pattern.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="chunk-name-format">
+		<namesection>
+			<name>chunk-name-format</name>
+			<desc>Specify format of the name to use for new chunks.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="firing-counts">
+		<namesection>
+			<name>firing-counts</name>
+			<desc>Print the number of times productions have fired.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="pwatch">
+		<namesection>
+			<name>pwatch</name>
+			<desc>Trace firings and retractions of specific productions.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="stats">
+		<namesection>
+			<name>stats</name>
+			<desc>Print information on Soar's runtime statistics.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="warnings">
+		<namesection>
+			<name>warnings</name>
+			<desc>Toggle whether or not warnings are printed.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="watch">
+		<namesection>
+			<name>watch</name>
+			<desc>Control the information printed as Soar runs.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="watch-wmes">
+		<namesection>
+			<name>watch-wmes</name>
+			<desc>Trace WME's matching specific patterns.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="attribute-preferences-mode">
+		<namesection>
+			<name>attribute-preferences-mode</name>
+			<desc>In Soar7 mode, controls handling of preferences for non-context slots.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="explain-backtraces">
+		<namesection>
+			<name>explain-backtraces</name>
+			<desc>Print information about chunk and justification backtraces.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="indifferent-selection">
+		<namesection>
+			<name>indifferent-selection</name>
+			<desc>Controls how indifferent selections are made.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="learn">
+		<namesection>
+			<name>learn</name>
+			<desc>Set the parameters for chunking, Soar's learning mechanism.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="max-chunks">
+		<namesection>
+			<name>max-chunks</name>
+			<desc>Limit the number of chunks created during a decision cycle.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="max-elaborations">
+		<namesection>
+			<name>max-elaborations</name>
+			<desc>Limit the maximum number of elaboration cycles.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="max-nil-output-cycles">
+		<namesection>
+			<name>max-nil-output-cycles</name>
+			<desc>Limit the maximum number of decision cycles that are executed without producing output when run is invoked with run-til-output args.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="multi-attributes">
+		<namesection>
+			<name>multi-attributes</name>
+			<desc>Declare multi-attributes so as to increase Rete matching efficiency.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="numeric-indifferent-mode">
+		<namesection>
+			<name>numeric-indifferent-mode</name>
+			<desc>Select method for combining numeric preferences.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="o-support-mode">
+		<namesection>
+			<name>o-support-mode</name>
+			<desc>Choose experimental variations of o-support.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="save-backtraces">
+		<namesection>
+			<name>save-backtraces</name>
+			<desc>Save trace information to explain chunks and justifications.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="soar8">
+		<namesection>
+			<name>soar8</name>
+			<desc>Toggle between Soar 8 methodology and Soar 7 methodology.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="timers">
+		<namesection>
+			<name>timers</name>
+			<desc>Toggle on or off the internal timers used to profile Soar.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="waitsnc">
+		<namesection>
+			<name>waitsnc</name>
+			<desc>Generate a wait state rather than a state-no-change impasse.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="cd">
+		<namesection>
+			<name>cd</name>
+			<desc>Change directory.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="dirs">
+		<namesection>
+			<name>dirs</name>
+			<desc>List the directory stack.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="echo">
+		<namesection>
+			<name>echo</name>
+			<desc>Print a string to the current output device.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="log">
+		<namesection>
+			<name>log</name>
+			<desc>Record all user-interface input and output to a file.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="ls">
+		<namesection>
+			<name>ls</name>
+			<desc>List the contents of the current working directory.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="popd">
+		<namesection>
+			<name>popd</name>
+			<desc>Pop the current working directory off the stack and change to the next directory on the stack.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="pushd">
+		<namesection>
+			<name>pushd</name>
+			<desc>Push a directory onto the directory stack, changing to it.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="pwd">
+		<namesection>
+			<name>pwd</name>
+			<desc>Print the current working directory.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="rete-net">
+		<namesection>
+			<name>rete-net</name>
+			<desc>Save the current Rete net, or restore a previous one.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="set-library-location">
+		<namesection>
+			<name>set-library-location</name>
+			<desc>Set the top level directory containing demos/help/etc.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="source">
+		<namesection>
+			<name>source</name>
+			<desc>Load and evaluate the contents of a file.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="add-wme">
+		<namesection>
+			<name>add-wme</name>
+			<desc>Manually add an element to working memory.  Output links.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="remove-wme">
+		<namesection>
+			<name>remove-wme</name>
+			<desc>Manually remove an element from working memory.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="alias">
+		<namesection>
+			<name>alias</name>
+			<desc>Define command aliases.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="soarnews">
+		<namesection>
+			<name>soarnews</name>
+			<desc>Prints information about the current release.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="time">
+		<namesection>
+			<name>time</name>
+			<desc>Uses a default system clock timer to record the wall time required while executing a command.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="version">
+		<namesection>
+			<name>version</name>
+			<desc>Returns version number of Soar kernel.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="halt">
+		<namesection>
+			<name>halt</name>
+			<desc>Terminates Soar's execution and returns to the user prompt.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="interrupt">
+		<namesection>
+			<name>interrupt</name>
+			<desc>Causes Soar to stop at the end of the current phase, and return to the user prompt.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="write">
+		<namesection>
+			<name>write</name>
+			<desc>Writes its arguments to the standard output.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="crlf">
+		<namesection>
+			<name>crlf</name>
+			<desc>Short for "carriage return, line feed" and can be called only within write.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="div">
+		<namesection>
+			<name>div</name>
+			<desc>Returns the integer quotient between two integers.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="mod">
+		<namesection>
+			<name>mod</name>
+			<desc>Returns the remainder between two integers.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="abs">
+		<namesection>
+			<name>abs</name>
+			<desc>Returns an integer when its argument is an integer and otherwise returns a real number.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="atan2">
+		<namesection>
+			<name>atan2</name>
+			<desc>Returns a float in radians, the arctangent of (first/arg / second_arg)</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="sqrt">
+		<namesection>
+			<name>sqrt</name>
+			<desc>Returns a real number, the square root of the given number.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="sin">
+		<namesection>
+			<name>sin</name>
+			<desc>Returns a real number, the sin value of the given angle in radians.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="cos">
+		<namesection>
+			<name>cos</name>
+			<desc>Returns a real number, the cos value of the given angle in radians.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="int">
+		<namesection>
+			<name>int</name>
+			<desc>Converts a single symbol to an integer constant.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="float">
+		<namesection>
+			<name>float</name>
+			<desc>Converts a single symbol to a floating point constant.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="timestamp">
+		<namesection>
+			<name>timestamp</name>
+			<desc>Returns a symbol whos print name is a representation of the current date and time.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="make-constant-symbol">
+		<namesection>
+			<name>make-constant-symbol</name>
+			<desc>Returns a new constant symbol guaranteed to be different from all symbols currently present in the system.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="capitalize-symbol">
+		<namesection>
+			<name>capitalize-symbol</name>
+			<desc>Returns a new symbol with the first character of the given symbol capitalized.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="exec">
+		<namesection>
+			<name>exec</name>
+			<desc>Calls user-defined registered functions.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="cmd">
+		<namesection>
+			<name>cmd</name>
+			<desc>Calls built-in Soar commands.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="dont-learn">
+		<namesection>
+			<name>dont-learn</name>
+			<desc>Turns off learning for the specified state.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+	
+	<manpage cat="cmd" title="force-learn">
+		<namesection>
+			<name>force-learn</name>
+			<desc>Turns on learning for the specified state.</desc>
+		</namesection>
+		<synopsis>
+			<syntax></syntax>
+		</synopsis>
+	</manpage>
+</manpages>

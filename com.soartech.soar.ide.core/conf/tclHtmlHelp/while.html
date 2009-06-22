@@ -1,0 +1,66 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: while</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd78">NAME</a> · <a href="#SECTid81abdf0">SYNOPSIS</a> · <a href="#SECTid81abe90">DESCRIPTION</a> · <a href="#SECTid81ac228">EXAMPLE</a> · <a href="#SECTid81ac2f0">SEE ALSO</a> · <a href="#SECTid81ac3b8">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd78">NAME</a></h2><p class="namesection">
+<b class="names">while - </b><br>Execute script repeatedly as long as a condition is met</p>
+<h2><a name="SECTid81abdf0">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">while</b> <i class="m">test body</i>
+</pre>
+
+
+<h2><a name="SECTid81abe90">DESCRIPTION</a></h2><p>The <b class="cmd">while</b> command evaluates <i>test</i> as an expression
+(in the same way that <b class="cmd">expr</b> evaluates its argument).
+The value of the expression must a proper boolean
+value; if it is a true value
+then <i>body</i> is executed by passing it to the Tcl interpreter.
+Once <i>body</i> has been executed then <i>test</i> is evaluated
+again, and the process repeats until eventually <i>test</i>
+evaluates to a false boolean value.  <b>Continue</b>
+commands may be executed inside <i>body</i> to terminate the current
+iteration of the loop, and <b class="cmd">break</b>
+commands may be executed inside <i>body</i> to cause immediate
+termination of the <b class="cmd">while</b> command.  The <b class="cmd">while</b> command
+always returns an empty string.
+</p><p>Note: <i>test</i> should almost always be enclosed in braces.  If not,
+variable substitutions will be made before the <b class="cmd">while</b>
+command starts executing, which means that variable changes
+made by the loop body will not be considered in the expression.
+This is likely to result in an infinite loop.  If <i>test</i> is
+enclosed in braces, variable substitutions are delayed until the
+expression is evaluated (before
+each loop iteration), so changes in the variables will be visible.
+For an example, try the following script with and without the braces
+around <b>$x&lt;10</b>:
+</p><pre class="example">
+set x 0
+<b class="cmd">while</b> {$x&lt;10} {
+    puts "x is $x"
+    incr x
+}
+</pre>
+<h2><a name="SECTid81ac228">EXAMPLE</a></h2><p>Read lines from a channel until we get to the end of the stream, and
+print them out with a line-number prepended:
+</p><pre class="example">
+set lineCount 0
+<b class="cmd">while</b> {[gets $chan line] &gt;= 0} {
+    puts "[incr lineCount]: $line"
+}
+</pre>
+<h2><a name="SECTid81ac2f0">SEE ALSO</a></h2><p class="seealso">break(n), continue(n), for(n), foreach(n)</p>
+<h2><a name="SECTid81ac3b8">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-booleanvalue">boolean value</a>, <a class="keyword" href="keyword-index.html#KW-loop">loop</a>, <a class="keyword" href="keyword-index.html#KW-test">test</a>, <a class="keyword" href="keyword-index.html#KW-while">while</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

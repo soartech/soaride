@@ -1,0 +1,35 @@
+<html lang="en">
+
+<head>
+	<link rel="stylesheet" href="../content/styles.css">
+	<title>FAQ</title>
+</head>
+
+<body>
+	<h1>FAQ</h1>
+	
+    <br><br>
+
+	<div class="content">
+	    <h3>Why am I getting an out of memory error?</h3>
+		<p>The Eclipse default memory settings are set in the eclipse.ini file located in the 
+		root of your Eclipse installation, and are as follows:<p>
+		
+		<p>
+		-vmargs<br>
+		-Xms40m<br>
+		-Xmx256m</p>
+
+		<p>This is ok for most users, but these settings can be tweaked by editing eclipse.ini file. 
+		This will give some more room for plugins (like the Soar IDE) that need additional memory.</p>
+		
+		<p>To fix the problem, change the values to match the following:</p>
+		
+		<p>
+		-vmargs<br>
+		-Xms128m<br>
+		-Xmx512m</p>
+		
+	</div>
+</body>
+</html>

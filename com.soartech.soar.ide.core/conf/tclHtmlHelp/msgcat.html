@@ -1,0 +1,311 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: msgcat</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81a6278">NAME</a> · <a href="#SECTid81a62f0">SYNOPSIS</a> · <a href="#SECTid81a6638">DESCRIPTION</a> · <a href="#SECTid81a6700">COMMANDS</a> · <a href="#SECTid81a7498">LOCALE SPECIFICATION</a> · <a href="#SECTid81a7740">NAMESPACES AND MESSAGE CATALOGS</a> · <a href="#SECTid81a7c40">LOCATION AND FORMAT OF MESSAGE FILES</a> · <a href="#SECTid81a7ee8">RECOMMENDED MESSAGE SETUP FOR PACKAGES</a> · <a href="#SECTid81a80c8">POSITIONAL CODES FOR FORMAT AND SCAN COMMANDS</a> · <a href="#SECTid81a8230">CREDITS</a> · <a href="#SECTid81a82a8">SEE ALSO</a> · <a href="#SECTid81a8370">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81a6278">NAME</a></h2><p class="namesection">
+<b class="names">msgcat - </b><br>Tcl message catalog</p>
+<h2><a name="SECTid81a62f0">SYNOPSIS</a></h2><pre class="syntax">
+<b>package require Tcl 8.5</b>
+
+<b>package require msgcat 1.4.2</b>
+
+<b>::msgcat::mc</b> <i class="m">src-string</i> ?<i class="m">arg arg ...</i>?
+
+<b>::msgcat::mcmax ?</b><i class="m">src-string src-string ...</i>?
+
+<b>::msgcat::mclocale</b> ?<i class="m">newLocale</i>?
+
+<b>::msgcat::mcpreferences</b>
+
+<b>::msgcat::mcload</b> <i class="m">dirname</i>
+
+<b>::msgcat::mcset</b> <i class="m">locale src-string</i> ?<i class="m">translate-string</i>?
+
+<b>::msgcat::mcmset</b> <i class="m">locale src-trans-list</i>
+
+<b>::msgcat::mcunknown</b> <i class="m">locale src-string</i>
+</pre>
+
+
+<h2><a name="SECTid81a6638">DESCRIPTION</a></h2><p>The <b>msgcat</b> package provides a set of functions
+that can be used to manage multi-lingual user interfaces.
+Text strings are defined in a ``message catalog'' which
+is independent from the application, and
+which can be edited or localized without modifying
+the application source code.  New languages
+or locales are provided by adding a new file to
+the message catalog.
+</p><p>Use of the message catalog is optional by any application
+or package, but is encouraged if the application or package
+wishes to be enabled for multi-lingual applications.
+</p>
+<h2><a name="SECTid81a6700">COMMANDS</a></h2><dl>
+
+<dt>
+<b>::msgcat::mc</b> <i class="m">src-string</i> ?<i class="m">arg arg ...</i>?</dt>
+<dd>Returns a translation of <i>src-string</i> according to the
+user's current locale.  If additional arguments past <i>src-string</i>
+are given, the <b>format</b> command is used to substitute the
+additional arguments in the translation of <i>src-string</i>.
+</dd>
+
+</dl><p>
+<b>::msgcat::mc</b> will search the messages defined
+in the current namespace for a translation of <i>src-string</i>; if
+none is found, it will search in the parent of the current namespace,
+and so on until it reaches the global namespace.  If no translation
+string exists, <b>::msgcat::mcunknown</b> is called and the string
+returned from <b>::msgcat::mcunknown</b> is returned.
+</p><p>
+<b>::msgcat::mc</b> is the main function used to localize an
+application.  Instead of using an English string directly, an
+application can pass the English string through <b>::msgcat::mc</b> and
+use the result.  If an application is written for a single language in
+this fashion, then it is easy to add support for additional languages
+later simply by defining new message catalog entries.
+</p><dl>
+
+<dt>
+<b>::msgcat::mcmax ?</b><i class="m">src-string src-string ...</i>?</dt>
+<dd>Given several source strings, <b>::msgcat::mcmax</b> returns the length
+of the longest translated string.  This is useful when designing
+localized GUIs, which may require that all buttons, for example, be a
+fixed width (which will be the width of the widest button).
+</dd>
+
+
+<dt>
+<b>::msgcat::mclocale</b> ?<i class="m">newLocale</i>?  </dt>
+<dd>This function sets the locale to <i>newLocale</i>.  If <i>newLocale</i>
+is omitted, the current locale is returned, otherwise the current locale
+is set to <i>newLocale</i>.  msgcat stores and compares the locale in a
+case-insensitive manner, and returns locales in lowercase.
+The initial locale is determined by the locale specified in
+the user's environment.  See <a href="#SECTid81a7498">LOCALE SPECIFICATION</a>
+below for a description of the locale string format.
+</dd>
+
+
+<dt><b>::msgcat::mcpreferences</b></dt>
+<dd>Returns an ordered list of the locales preferred by
+the user, based on the user's language specification.
+The list is ordered from most specific to least
+preference.  The list is derived from the current
+locale set in msgcat by <b>::msgcat::mclocale</b>, and
+cannot be set independently.  For example, if the
+current locale is en_US_funky, then <b>::msgcat::mcpreferences</b>
+returns <b>{en_US_funky en_US en {}}</b>.
+</dd>
+
+
+<dt>
+<b>::msgcat::mcload</b> <i class="m">dirname</i>
+</dt>
+<dd>Searches the specified directory for files that match
+the language specifications returned by <b>::msgcat::mcpreferences</b>
+(note that these are all lowercase), extended by the file
+extension ``.msg''.  Each matching file is 
+read in order, assuming a UTF-8 encoding.  The file contents are
+then evaluated as a Tcl script.  This means that Unicode characters
+may be present in the message file either directly in their UTF-8
+encoded form, or by use of the backslash-u quoting recognized by Tcl
+evaluation.  The number of message files which matched the specification
+and were loaded is returned.
+</dd>
+
+
+<dt>
+<b>::msgcat::mcset</b> <i class="m">locale src-string</i> ?<i class="m">translate-string</i>?</dt>
+<dd>Sets the translation for <i>src-string</i> to <i>translate-string</i>
+in the specified <i>locale</i> and the current namespace.  If
+<i>translate-string</i> is not specified, <i>src-string</i> is used
+for both.  The function returns <i>translate-string</i>.
+</dd>
+
+
+<dt>
+<b>::msgcat::mcmset</b> <i class="m">locale src-trans-list</i>
+</dt>
+<dd>Sets the translation for multiple source strings in
+<i>src-trans-list</i> in the specified <i>locale</i> and the current
+namespace.
+<i>src-trans-list</i> must have an even number of elements and is in
+the form {<i>src-string translate-string</i> ?<i>src-string
+translate-string ...</i>?} <b>::msgcat::mcmset</b> can be significantly
+faster than multiple invocations of <b>::msgcat::mcset</b>. The function
+returns the number of translations set.
+</dd>
+
+
+<dt>
+<b>::msgcat::mcunknown</b> <i class="m">locale src-string</i>
+</dt>
+<dd>This routine is called by <b>::msgcat::mc</b> in the case when
+a translation for <i>src-string</i> is not defined in the
+current locale.  The default action is to return
+<i>src-string</i>.  This procedure can be redefined by the
+application, for example to log error messages for each unknown
+string.  The <b>::msgcat::mcunknown</b> procedure is invoked at the
+same stack context as the call to <b>::msgcat::mc</b>.  The return value
+of <b>::msgcat::mcunknown</b> is used as the return value for the call
+to <b>::msgcat::mc</b>.  
+</dd>
+
+</dl>
+<h2><a name="SECTid81a7498">LOCALE SPECIFICATION</a></h2><p>The locale is specified to <b>msgcat</b> by a locale string
+passed to <b>::msgcat::mclocale</b>.
+The locale string consists of
+a language code, an optional country code, and an optional
+system-specific code, each separated by ``_''.  The country and language
+codes are specified in standards ISO-639 and ISO-3166.
+For example, the locale ``en'' specifies English and ``en_US'' specifies
+U.S. English.
+</p><p>When the msgcat package is first loaded, the locale is initialized
+according to the user's environment.  The variables <b>env(LC_ALL)</b>,
+<b>env(LC_MESSAGES)</b>, and <b>env(LANG)</b> are examined in order.
+The first of them to have a non-empty value is used to determine the
+initial locale.  The value is parsed according to the XPG4 pattern
+</p><pre class="example">
+language[_country][.codeset][@modifier]
+</pre><p>to extract its parts.  The initial locale is then set by calling
+<b>::msgcat::mclocale</b> with the argument 
+</p><pre class="example">
+language[_country][_modifier]
+</pre><p>On Windows, if none of those environment variables is set, msgcat will
+attempt to extract locale information from the
+registry.  If all these attempts to discover an initial locale
+from the user's environment fail, msgcat defaults to an initial
+locale of ``C''.
+</p><p>When a locale is specified by the user, a ``best match'' search is
+performed during string translation.  For example, if a user specifies
+en_GB_Funky, the locales ``en_GB_Funky'', ``en_GB'', ``en'' and ``''
+(the empty string)
+are searched in order until a matching translation
+string is found.  If no translation string is available, then
+<b>::msgcat::mcunknown</b> is called.
+</p>
+<h2><a name="SECTid81a7740">NAMESPACES AND MESSAGE CATALOGS</a></h2><p>Strings stored in the message catalog are stored relative
+to the namespace from which they were added.  This allows
+multiple packages to use the same strings without fear
+of collisions with other packages.  It also allows the
+source string to be shorter and less prone to typographical
+error.
+</p><p>For example, executing the code
+</p><pre class="example">
+<b>::msgcat::mcset</b> en hello "hello from ::"
+namespace eval foo {
+   <b>::msgcat::mcset</b> en hello "hello from ::foo"
+}
+puts [<b>::msgcat::mc</b> hello]
+namespace eval foo {puts [<b>::msgcat::mc</b> hello]}
+</pre><p>will print
+</p><pre class="example">
+hello from ::
+hello from ::foo
+</pre><p>When searching for a translation of a message, the
+message catalog will search first the current namespace,
+then the parent of the current namespace, and so on until
+the global namespace is reached.  This allows child namespaces
+to "inherit" messages from their parent namespace.
+</p><p>For example, executing (in the ``en'' locale) the code 
+</p><pre class="example">
+<b>::msgcat::mcset</b> en m1 ":: message1"
+<b>::msgcat::mcset</b> en m2 ":: message2"
+<b>::msgcat::mcset</b> en m3 ":: message3"
+namespace eval ::foo {
+   <b>::msgcat::mcset</b> en m2 "::foo message2"
+   <b>::msgcat::mcset</b> en m3 "::foo message3"
+}
+namespace eval ::foo::bar {
+   <b>::msgcat::mcset</b> en m3 "::foo::bar message3"
+}
+namespace import <b>::msgcat::mc</b>
+puts "[<b>mc</b> m1]; [<b>mc</b> m2]; [<b>mc</b> m3]"
+namespace eval ::foo {puts "[<b>mc</b> m1]; [<b>mc</b> m2]; [<b>mc</b> m3]"}
+namespace eval ::foo::bar {puts "[<b>mc</b> m1]; [<b>mc</b> m2]; [<b>mc</b> m3]"}
+</pre><p>will print
+</p><pre class="example">
+:: message1; :: message2; :: message3
+:: message1; ::foo message2; ::foo message3
+:: message1; ::foo message2; ::foo::bar message3
+</pre>
+<h2><a name="SECTid81a7c40">LOCATION AND FORMAT OF MESSAGE FILES</a></h2><p>Message files can be located in any directory, subject
+to the following conditions:
+</p><ol>
+<li>All message files for a package are in the same directory.
+</li>
+<li>The message file name is a msgcat locale specifier (all lowercase)
+followed by ``.msg''.  For example:
+<pre class="example">
+es.msg    -- spanish
+en_gb.msg -- United Kingdom English
+</pre><i>Exception:</i> The message file for the root locale ``'' is
+called <b>ROOT.msg</b>.  This exception is made so as not to
+cause peculiar behavior, such as marking the message file as
+``hidden'' on Unix file systems.
+</li>
+<li>The file contains a series of calls to <b>mcset</b> and
+<b>mcmset</b>, setting the necessary translation strings
+for the language, likely enclosed in a <b>namespace eval</b>
+so that all source strings are tied to the namespace of
+the package. For example, a short <b>es.msg</b> might contain:
+<pre class="example">
+namespace eval ::mypackage {
+   <b>::msgcat::mcset</b> es "Free Beer!" "Cerveza Gracias!"
+}
+</pre>
+</li>
+</ol>
+<h2><a name="SECTid81a7ee8">RECOMMENDED MESSAGE SETUP FOR PACKAGES</a></h2><p>If a package is installed into a subdirectory of the
+<b>tcl_pkgPath</b> and loaded via <b>package require</b>, the
+following procedure is recommended.
+</p><ol>
+<li>During package installation, create a subdirectory
+<b>msgs</b> under your package directory.
+</li>
+<li>Copy your *.msg files into that directory.
+</li>
+<li> Add the following command to your package
+initialization script:
+<pre class="example">
+# load language files, stored in msgs subdirectory
+<b>::msgcat::mcload</b> [file join [file dirname [info script]] msgs]
+</pre>
+</li>
+</ol>
+<h2><a name="SECTid81a80c8">POSITIONAL CODES FOR FORMAT AND SCAN COMMANDS</a></h2><p>It is possible that a message string used as an argument
+to <b>format</b> might have positionally dependent parameters that
+might need to be repositioned.  For example, it might be
+syntactically desirable to rearrange the sentence structure
+while translating.
+</p><pre class="example">
+format "We produced %d units in location %s" $num $city
+format "In location %s we produced %d units" $city $num
+</pre><p>This can be handled by using the positional
+parameters:
+</p><pre class="example">
+format "We produced %1\$d units in location %2\$s" $num $city
+format "In location %2\$s we produced %1\$d units" $num $city
+</pre><p>Similarly, positional parameters can be used with <b>scan</b> to
+extract values from internationalized strings.
+</p>
+<h2><a name="SECTid81a8230">CREDITS</a></h2><p>The message catalog code was developed by Mark Harrison.
+
+</p>
+<h2><a name="SECTid81a82a8">SEE ALSO</a></h2><p class="seealso">format(n), scan(n), namespace(n), package(n)</p>
+<h2><a name="SECTid81a8370">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-internationalization">internationalization</a>, <a class="keyword" href="keyword-index.html#KW-i18n">i18n</a>, <a class="keyword" href="keyword-index.html#KW-localization">localization</a>, <a class="keyword" href="keyword-index.html#KW-l10n">l10n</a>, <a class="keyword" href="keyword-index.html#KW-message">message</a>, <a class="keyword" href="keyword-index.html#KW-text">text</a>, <a class="keyword" href="keyword-index.html#KW-translation">translation</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

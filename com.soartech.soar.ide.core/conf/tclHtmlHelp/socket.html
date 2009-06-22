@@ -1,0 +1,194 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: socket</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81ac640">NAME</a> · <a href="#SECTid81ac6b8">SYNOPSIS</a> · <a href="#SECTid81ac848">DESCRIPTION</a> · <a href="#SECTid81aca78">CLIENT SOCKETS</a> · <a href="#SECTid81ad130">SERVER SOCKETS</a> · <a href="#SECTid81ad540">CONFIGURATION OPTIONS</a> · <a href="#SECTid81ad7e8">EXAMPLES</a> · <a href="#SECTid81ad928">SEE ALSO</a> · <a href="#SECTid81ad9f0">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81ac640">NAME</a></h2><p class="namesection">
+<b class="names">socket - </b><br>Open a TCP network connection</p>
+<h2><a name="SECTid81ac6b8">SYNOPSIS</a></h2><pre class="syntax">
+
+<b class="cmd">socket</b> ?<i class="m">options</i>? <i class="m">host port</i>
+
+<b class="cmd">socket</b> <b>-server</b> <i class="m">command</i> ?<i class="m">options</i>? <i class="m">port</i>
+</pre>
+
+
+<h2><a name="SECTid81ac848">DESCRIPTION</a></h2><p>This command opens a network socket and returns a channel
+identifier that may be used in future invocations of commands like
+<b>read</b>, <b class="cmd">puts</b> and <b>flush</b>.
+At present only the TCP network protocol is supported;  future
+releases may include support for additional protocols.
+The <b class="cmd">socket</b> command may be used to open either the client or
+server side of a connection, depending on whether the <b>-server</b>
+switch is specified.
+</p><p>Note that the default encoding for <i>all</i> sockets is the system
+encoding, as returned by <b>encoding system</b>.  Most of the time, you
+will need to use <b class="cmd">fconfigure</b> to alter this to something else,
+such as <i>utf-8</i> (ideal for communicating with other Tcl
+processes) or <i>iso8859-1</i> (useful for many network protocols,
+especially the older ones).
+</p>
+<h2><a name="SECTid81aca78">CLIENT SOCKETS</a></h2><p>If the <b>-server</b> option is not specified, then the client side of a
+connection is opened and the command returns a channel identifier
+that can be used for both reading and writing.
+<i>Port</i> and <i>host</i> specify a port
+to connect to;  there must be a server accepting connections on
+this port.  <i>Port</i> is an integer port number
+(or service name, where supported and understood by the host operating
+system) and <i>host</i>
+is either a domain-style name such as <b>www.tcl.tk</b> or
+a numerical IP address such as <b>127.0.0.1</b>.
+Use <i>localhost</i> to refer to the host on which the command is invoked.
+</p><p>The following options may also be present before <i>host</i>
+to specify additional information about the connection:
+</p><dl>
+
+<dt>
+<b>-myaddr</b> <i class="m">addr</i>
+</dt>
+<dd>
+<i>Addr</i> gives the domain-style name or numerical IP address of
+the client-side network interface to use for the connection.
+This option may be useful if the client machine has multiple network
+interfaces.  If the option is omitted then the client-side interface
+will be chosen by the system software.
+</dd>
+
+
+<dt>
+<b>-myport</b> <i class="m">port</i>
+</dt>
+<dd>
+<i>Port</i> specifies an integer port number (or service name, where
+supported and understood by the host operating system) to use for the
+client's
+side of the connection.  If this option is omitted, the client's
+port number will be chosen at random by the system software.
+</dd>
+
+
+<dt><b>-async</b></dt>
+<dd>The <b>-async</b> option will cause the client socket to be connected
+asynchronously. This means that the socket will be created immediately but
+may not yet be connected to the server, when the call to <b class="cmd">socket</b>
+returns. When a <b class="cmd">gets</b> or <b>flush</b> is done on the socket before the
+connection attempt succeeds or fails, if the socket is in blocking mode, the
+operation will wait until the connection is completed or fails. If the
+socket is in nonblocking mode and a <b class="cmd">gets</b> or <b>flush</b> is done on
+the socket before the connection attempt succeeds or fails, the operation
+returns immediately and <b class="cmd">fblocked</b> on the socket returns 1. Synchronous
+client sockets may be switched (after they have connected) to operating in
+asynchronous mode using:
+<pre class="example">
+<b class="cmd">fconfigure</b> <i>chan</i> <b>-blocking 0</b>
+</pre><p>See the <b class="cmd">fconfigure</b> command for more details.
+</p>
+</dd>
+
+</dl>
+<h2><a name="SECTid81ad130">SERVER SOCKETS</a></h2><p>If the <b>-server</b> option is specified then the new socket
+will be a server for the port given by <i>port</i> (either an integer
+or a service name, where supported and understood by the host
+operating system; if <i>port</i> is zero, the operating system will
+allocate a free port to the server socket which may be discovered by
+using <b class="cmd">fconfigure</b> to read the <b>-sockname</b> option).
+Tcl will automatically accept connections to the given port.
+For each connection Tcl will create a new channel that may be used to
+communicate with the client.  Tcl then invokes <i>command</i>
+with three additional arguments: the name of the new channel, the
+address, in network address notation, of the client's host, and
+the client's port number.
+</p><p>The following additional option may also be specified before <i>host</i>:
+</p><dl>
+
+<dt>
+<b>-myaddr</b> <i class="m">addr</i>
+</dt>
+<dd>
+<i>Addr</i> gives the domain-style name or numerical IP address of
+the server-side network interface to use for the connection.
+This option may be useful if the server machine has multiple network
+interfaces.  If the option is omitted then the server socket is bound
+to the special address INADDR_ANY so that it can accept connections from
+any interface.
+</dd>
+
+</dl><p>Server channels cannot be used for input or output; their sole use is to
+accept new client connections. The channels created for each incoming
+client connection are opened for input and output. Closing the server
+channel shuts down the server so that no new connections will be
+accepted;  however, existing connections will be unaffected.
+</p><p>Server sockets depend on the Tcl event mechanism to find out when
+new connections are opened.  If the application doesn't enter the
+event loop, for example by invoking the <b class="cmd">vwait</b> command or
+calling the C procedure <b class="fun"><a href="DoOneEvent.html">Tcl_DoOneEvent</a></b>, then no connections
+will be accepted.
+</p><p>If <i>port</i> is specified as zero, the operating system will allocate
+an unused port for use as a server socket.  The port number actually
+allocated may be retrieved from the created server socket using the
+<b class="cmd">fconfigure</b> command to retrieve the <b>-sockname</b> option as
+described below.
+</p>
+<h2><a name="SECTid81ad540">CONFIGURATION OPTIONS</a></h2><p>The <b class="cmd">fconfigure</b> command can be used to query several readonly
+configuration options for socket channels:
+</p><dl>
+
+<dt><b>-error</b></dt>
+<dd>This option gets the current error status of the given socket.  This
+is useful when you need to determine if an asynchronous connect
+operation succeeded.  If there was an error, the error message is
+returned.  If there was no error, an empty string is returned.
+</dd>
+
+
+<dt><b>-sockname</b></dt>
+<dd>This option returns a list of three elements, the address, the host name
+and the port number for the socket. If the host name cannot be computed,
+the second element is identical to the address, the first element of the
+list.
+</dd>
+
+
+<dt><b>-peername</b></dt>
+<dd>This option is not supported by server sockets. For client and accepted
+sockets, this option returns a list of three elements; these are the
+address, the host name and the port to which the peer socket is connected
+or bound. If the host name cannot be computed, the second element of the
+list is identical to the address, its first element.
+</dd>
+
+</dl>
+<h2><a name="SECTid81ad7e8">EXAMPLES</a></h2><p>Here is a very simple time server:
+</p><pre class="example">
+proc Server {channel clientaddr clientport} {
+   puts "Connection from $clientaddr registered"
+   puts $channel [clock format [clock seconds]]
+   close $channel
+}
+
+<b class="cmd">socket</b> -server Server 9900
+vwait forever
+</pre><p>And here is the corresponding client to talk to the server:
+</p><pre class="example">
+set server localhost
+set sockChan [<b class="cmd">socket</b> $server 9900]
+gets $sockChan line
+close $sockChan
+puts "The time on $server is $line"
+</pre>
+<h2><a name="SECTid81ad928">SEE ALSO</a></h2><p class="seealso">fconfigure(n), flush(n), open(n), read(n)</p>
+<h2><a name="SECTid81ad9f0">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-bind">bind</a>, <a class="keyword" href="keyword-index.html#KW-channel">channel</a>, <a class="keyword" href="keyword-index.html#KW-connection">connection</a>, <a class="keyword" href="keyword-index.html#KW-domainname">domain name</a>, <a class="keyword" href="keyword-index.html#KW-host">host</a>, <a class="keyword" href="keyword-index.html#KW-networkaddress">network address</a>, <a class="keyword" href="keyword-index.html#KW-socket">socket</a>, <a class="keyword" href="keyword-index.html#KW-tcp">tcp</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

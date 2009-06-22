@@ -1,0 +1,201 @@
+<html lang="en">
+
+<head>
+	<link rel="stylesheet" href="../content/styles.css">
+	<title>Beginner Soar IDE Tutorial</title>
+</head>
+
+<body>
+
+<h2><a name="open_perspective">Open the Soar Perspective</a></h2>
+
+<img src="images/open_perspective.png" alt="" class="right">
+
+<p>An Eclipse perspective is a pre-defined grouping of views associated with the 
+language or problem context we want to work with. Eclipse comes with perspectives 
+useful for various tasks, the default being the Java Perspective.</p>
+
+<p>To view the list of available perspectives, we will choose 
+<i>Window -> Open Perspective -> Other</i>.</p>
+
+<hr width="50%" size="3" class="clear">
+
+<img src="images/open_soar_perspective.png" alt="" class="right">
+
+<p>This displays a dialog box asking us to choose a perspective to open. In this case, 
+we will be writing a Soar program, so we will open the Soar Perspective.</p> 
+
+<p>Select <i>Soar Perspective</i> and click <i>OK</i>.</p>
+
+<hr width="100%" size="3" class="clear">
+<hr width="100%" size="3" class="clear">
+
+<h2><a name="new_project">Create a New Soar Project</a></h2>
+
+<img src="images/new_project.png" alt="" class="right">
+
+<p>In Eclipse, files exist within projects. Before we create our Soar file,
+we must first create a new project for that file to be a part of.</p>
+
+<p>To create a new project, right-click in the Package Explorer view and choose 
+<i>New -> Project</i>.</p>
+
+<hr width="50%" size="3" class="clear">
+
+<img src="images/new_project_wizard.png" alt="" class="right">
+
+<p>This opens the New Project wizard dialog. This dialog contains wizards for
+every type of project Eclipse knows about. In order to provide support for Soar within multiple
+project types, there is no specific "Soar" project type.</p>
+
+<p>Since we will just be writing Soar code, choose <i>General -> 
+Project</i> from the list of project wizards and click <i>Next</i>.</p>
+
+<p><b>Note:</b> If we wanted to integrate Soar into a Java project, we would instead
+create a Java project here. This applies, in general, to other languages as well.</p>
+
+<hr width="50%" size="3" class="clear">
+
+<img src="images/new_project_name.png" alt="" class="right">
+
+<p>Now we need to name the new project. Type "helloworld" in the<i>Project name</i> box.</p> 
+
+<p>Once this is done, click <i>Finish</i> to create the project.</p>
+
+<hr width="50%" size="3" class="clear">
+
+<img src="images/include_soar_support.png" alt="" class="right">
+
+<p>The newly created project is now displayed in the Package Explorer.</p>
+
+<p>As we said, support for Soar can be provided in any type of project, but to
+get the project to provide support Soar, we must explicitly tell it to do so.</p> 
+
+<p>To do this, simply right click on the project in the Package Explorer
+and choose <i>Include Soar Project Support</i>.<p>
+<br>
+<p><b>Note:</b> We can tell that a project has Soar Support by the "s" decoration
+on the project icon in the Package Explorer as shown below.
+
+<img src="images/icon_change.png" alt="" class="left_margin">
+
+<hr width="100%" size="3" class="clear">
+<hr width="100%" size="3" class="clear">
+
+<h2><a name="new_file">Create a New Soar File</a></h2>
+
+<img src="images/new_file.png" alt="" class="right">
+
+<p>Now that we have an empty project with Soar support, we can create a new Soar file
+for that project.</p>
+
+<p>To add a new file to a project, right-click on the helloworld project and choose 
+<i>New -> File</i>.
+
+<hr width="50%" size="3" class="clear">
+
+<img src="images/new_file_name.png" alt="" class="right">
+
+<p>The New File dialog should now appear on the screen. This dialog handles the
+creation of most types of files, with the file type specified by the filename's extension.</p>
+
+<p>Now we need to name the new file "hello.soar".</p>
+
+<p>Once this is done, click <i>Finish</i> to create the file.</p>
+
+<p><b>Note:</b> The <i>helloworld</i> project is automatically selected as the parent folder 
+when the file is created in this way.</p>
+
+<hr width="100%" size="3" class="clear">
+<hr width="100%" size="3" class="clear">
+
+<h2><a name="new_production">Write a Soar Production</a></h2>
+
+<img src="images/sp_template.png" alt="" class="right">
+
+<p>Once we have created our new empty Soar file, we can see that it is automatically 
+opened in an editor.</p>
+
+<p>To write our Soar production, we use the "sp" template built in to the IDE. 
+Simply type "sp" into the editor and then press <i>ctrl-space</i>. This 
+displays the auto-complete popup as shown to the right.</p>
+
+<p>Open the "sp" template by <i>double-clicking</i> on it or by pressing <i>Enter</i>.</p>
+
+<hr width="50%" size="3" class="clear">
+
+<img src="images/sp_initial_text.png" alt="" class="right">
+
+<p>Opening the "sp" template generates a bare-bones Soar production. The production 
+name is highlighted, ready to be entered. </p>
+
+<p>Enter a production name, then press <i>tab</i> to jump to the next outlined box in the template.</p>
+
+<hr width="50%" size="3" class="clear">
+
+<img src="images/sp_helloworld.png" alt="" class="right">
+
+<p>Continue to fill out the rest of the production as shown.</p>
+
+<hr width="100%" size="3" class="clear">
+<hr width="100%" size="3" class="clear">
+
+<h2><a name="overview">IDE Overview</a></h2>
+
+<img src="images/helloworld_overview.png" alt="">
+
+<hr width="100%" size="3" class="clear">
+<hr width="100%" size="3" class="clear">
+
+<h2><a name="run_project">Run the Soar Project</a></h2>
+
+<img src="images/external_tools_dropdown.png" alt="" class="right">
+
+<p>To run the Soar project, we need to hook it to a debugger. In this case, we will
+use the Java Soar Debugger available as part of the Soar Suite.</p>
+
+<p>To hook the project to the Java Soar Debugger, we will use Eclipse's External Tools
+run manager. This is accessed by clicking the arrow next to the <i>External Tools</i> 
+icon in the Eclipse toolbar, then choosing <i>External Tools</i> from the dropdown menu.</p>
+
+<hr width="50%" size="3" class="clear">
+
+<img src="images/external_tools_new.png" alt="" class="right">
+
+<p>The External Tools dialog should now appear on the screen.</p>
+
+<p>To create a new launch configuration, we will click the <i>New</i> button at the 
+far left of the toolbar.</p>
+
+<p><b>Note:</b> Make sure the <i>Program</i> launch configuration is highlighted, not the 
+<i>Ant Build</i> launch configuration.</p>
+
+<hr width="50%" size="3" class="clear">
+
+<img src="images/external_tools_configuration.png" alt="" class="right">
+
+<p>We need to give the new launch configuration four pieces of information to run.<p>
+
+<ul>
+	<li><i>Name</i>: This can be anything, in this case "java_soar_debugger".</li>
+	
+	<li><i>Location</i>: To keep this line clean, we will be running a .bat (or .sh) script. 
+	<a href="lib/run-JavaDebugger.bat">Here</a> is a sample one.</li>
+	
+	<li><i>Working Directory</i>: The working directory for the script (or program) to run from.</li>
+	
+	<li><i>Arguments</i>: The arguments to give the program that is being run.</li>
+</ul>
+
+<p>Now save the run configuration by clicking <i>Apply</i> and run it by clicking 
+<i>Run</i>. Running it opens the Java Soar Debugger with the production loaded
+and ready to go.</p>
+
+<p><b>Note:</b> Once we have run the configuration once, it will appear in the 
+<i>External Tools</i> dropdown menu on the Eclipse toolbar.</p>
+
+<hr width="100%" size="3" class="clear">
+<hr width="100%" size="3" class="clear">
+
+</body>
+</html>

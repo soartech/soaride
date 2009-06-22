@@ -1,0 +1,7 @@
+##!
+# @file
+#
+# @created ray 20071024
+source test.soar
+source macros.tcl
+source "productions.soar"

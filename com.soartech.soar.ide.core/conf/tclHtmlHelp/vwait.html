@@ -1,0 +1,80 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: vwait</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd78">NAME</a> · <a href="#SECTid81abdf0">SYNOPSIS</a> · <a href="#SECTid81abe90">DESCRIPTION</a> · <a href="#SECTid81ac138">EXAMPLES</a> · <a href="#SECTid81ac2c8">SEE ALSO</a> · <a href="#SECTid81ac340">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd78">NAME</a></h2><p class="namesection">
+<b class="names">vwait - </b><br>Process events until a variable is written</p>
+<h2><a name="SECTid81abdf0">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">vwait</b> <i class="m">varName</i>
+</pre>
+
+
+<h2><a name="SECTid81abe90">DESCRIPTION</a></h2><p>This command enters the Tcl event loop to process events, blocking
+the application if no events are ready.  It continues processing
+events until some event handler sets the value of variable
+<i>varName</i>.  Once <i>varName</i> has been set, the <b class="cmd">vwait</b>
+command will return as soon as the event handler that modified
+<i>varName</i> completes.  <i>varName</i> must globally scoped
+(either with a call to <b>global</b> for the <i>varName</i>, or with
+the full namespace path specification).
+</p><p>In some cases the <b class="cmd">vwait</b> command may not return immediately
+after <i>varName</i> is set.  This can happen if the event handler
+that sets <i>varName</i> does not complete immediately.  For example,
+if an event handler sets <i>varName</i> and then itself calls
+<b class="cmd">vwait</b> to wait for a different variable, then it may not return
+for a long time.  During this time the top-level <b class="cmd">vwait</b> is
+blocked waiting for the event handler to complete, so it cannot
+return either.
+</p>
+<h2><a name="SECTid81ac138">EXAMPLES</a></h2><p>Run the event-loop continually until some event calls <b class="cmd">exit</b>.
+(You can use any variable not mentioned elsewhere, but the name
+<i>forever</i> reminds you at a glance of the intent.)
+</p><pre class="example">
+<b class="cmd">vwait</b> forever
+</pre><p>Wait five seconds for a connection to a server socket, otherwise
+close the socket and continue running the script:
+</p><pre class="example">
+# Initialise the state
+after 5000 set state timeout
+set server [socket -server accept 12345]
+proc accept {args} {
+   global state connectionInfo
+   set state accepted
+   set connectionInfo $args
+}
+
+# Wait for something to happen
+<b class="cmd">vwait</b> state
+
+# Clean up events that could have happened
+close $server
+after cancel set state timeout
+
+# Do something based on how the vwait finished...
+switch $state {
+   timeout {
+      puts "no connection on port 12345"
+   }
+   accepted {
+      puts "connection: $connectionInfo"
+      puts [lindex $connectionInfo 0] "Hello there!"
+   }
+}
+</pre>
+<h2><a name="SECTid81ac2c8">SEE ALSO</a></h2><p class="seealso">global(n), update(n)</p>
+<h2><a name="SECTid81ac340">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-event">event</a>, <a class="keyword" href="keyword-index.html#KW-variable">variable</a>, <a class="keyword" href="keyword-index.html#KW-wait">wait</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

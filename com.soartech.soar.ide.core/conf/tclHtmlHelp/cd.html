@@ -1,0 +1,42 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: cd</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd10">NAME</a> · <a href="#SECTid81abd88">SYNOPSIS</a> · <a href="#SECTid81abe28">DESCRIPTION</a> · <a href="#SECTid81abf18">EXAMPLES</a> · <a href="#SECTid81ac0a8">SEE ALSO</a> · <a href="#SECTid81ac148">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd10">NAME</a></h2><p class="namesection">
+<b class="names">cd - </b><br>Change working directory</p>
+<h2><a name="SECTid81abd88">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">cd</b> ?<i class="m">dirName</i>?
+</pre>
+
+
+<h2><a name="SECTid81abe28">DESCRIPTION</a></h2><p>Change the current working directory to <i>dirName</i>, or to the
+home directory (as specified in the HOME environment variable) if
+<i>dirName</i> is not given.
+Returns an empty string.
+Note that the current working directory is a per-process resource; the
+<b class="cmd">cd</b> command changes the working directory for all interpreters
+and (in a threaded environment) all threads.
+</p>
+<h2><a name="SECTid81abf18">EXAMPLES</a></h2><p>Change to the home directory of the user <b>fred</b>:
+</p><pre class="example">
+<b class="cmd">cd</b> ~fred
+</pre><p>Change to the directory <b>lib</b> that is a sibling directory of the
+current one:
+</p><pre class="example">
+<b class="cmd">cd</b> ../lib
+</pre>
+<h2><a name="SECTid81ac0a8">SEE ALSO</a></h2><p class="seealso">filename(n), glob(n), pwd(n)</p>
+<h2><a name="SECTid81ac148">KEYWORDS</a></h2><p class="keywords"><a class="keyword" href="keyword-index.html#KW-workingdirectory">working directory</a></p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

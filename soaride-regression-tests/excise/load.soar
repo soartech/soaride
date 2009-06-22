@@ -1,0 +1,20 @@
+##!
+# @file
+#
+# @created ray 20071024
+
+
+sp {test-excise
+    (state <s> ^superstate nil)
+-->
+    (write |hello|)
+}
+
+
+sp {test-excise
+    (state <s> ^superstate nil)
+-->
+    (write |hello|)
+}
+
+source "other.soar"

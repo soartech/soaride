@@ -1,0 +1,48 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: list</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd70">NAME</a> · <a href="#SECTid81abde8">SYNOPSIS</a> · <a href="#SECTid81abe88">DESCRIPTION</a> · <a href="#SECTid81ac090">EXAMPLE</a> · <a href="#SECTid81ac270">SEE ALSO</a> · <a href="#SECTid81ac428">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd70">NAME</a></h2><p class="namesection">
+<b class="names">list - </b><br>Create a list</p>
+<h2><a name="SECTid81abde8">SYNOPSIS</a></h2><pre class="syntax">
+<b>list</b> ?<i class="m">arg arg ...</i>?
+</pre>
+
+
+<h2><a name="SECTid81abe88">DESCRIPTION</a></h2><p>This command returns a list comprised of all the <i>arg</i>s,
+or an empty string if no <i>arg</i>s are specified.
+Braces and backslashes get added as necessary, so that the <b class="cmd">lindex</b> command
+may be used on the result to re-extract the original arguments, and also
+so that <b>eval</b> may be used to execute the resulting list, with
+<i>arg1</i> comprising the command's name and the other <i>arg</i>s comprising
+its arguments.  <b>List</b> produces slightly different results than
+<b class="cmd">concat</b>:  <b class="cmd">concat</b> removes one level of grouping before forming
+the list, while <b>list</b> works directly from the original arguments.
+</p>
+<h2><a name="SECTid81ac090">EXAMPLE</a></h2><p>The command
+</p><pre class="example">
+<b>list</b> a b "c d e  " "  f {g h}"
+</pre><p>will return
+</p><pre class="example">
+<b>a b {c d e  } {  f {g h}}</b>
+</pre><p>while <b class="cmd">concat</b> with the same arguments will return
+</p><pre class="example">
+<b>a b c d e f {g h}</b>
+</pre>
+<h2><a name="SECTid81ac270">SEE ALSO</a></h2><p class="seealso">lappend(n), lindex(n), linsert(n), llength(n), lrange(n), lrepeat(n), lreplace(n), lsearch(n), lset(n), lsort(n)</p>
+<h2><a name="SECTid81ac428">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-element">element</a>, <a class="keyword" href="keyword-index.html#KW-list">list</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

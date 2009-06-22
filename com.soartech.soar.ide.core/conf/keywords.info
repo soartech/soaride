@@ -1,0 +1,223 @@
+# 
+# Basic Commands
+#
+
+excise=Delete Soar productions from production memory.
+
+help=Provide formatted, on-line information about Soar commands.
+
+init-soar=Reinitialize Soar so a program can be rerun from scratch.
+
+quit=Close log file, terminate Soar, and return user to the operating system.
+
+run=Begin Soar's execution cycle.
+
+# This is an example of a more detailed description.  Right now it is not
+# displayed with newlines in the content assist and does not break on word boundaries
+# so it is not very pretty.
+sp=sp {production_body} \
+The sp command creates a new production and loads it into production memory.  \
+"production_body" is a single argument parsed by the Soar kernel, so it should be enclosed \
+in curly braces to avoid being parsed by other scripting languages that might \
+be in the same process. The overall syntax of a rule is as follows:\
+\
+name\
+["documentation-string"]\
+[FLAG*]\
+LHS\
+-->\
+RHS
+
+stop-soar=Interrupt a running Soar program.
+
+#
+# Memory Commands
+#
+
+default-wme-depth=Set the level of detail used to print WME's.
+
+gds-print=Print the WME's in the goal dependency set for each goal.
+
+internal-symbols=Print information about the Soar symbol table.
+
+matches=Print information about the match set and partial matches.
+
+memories=Print memory usage for production matches.
+
+preferences=Examine items in preference memory.
+
+print=Print items in working memory or production memory.
+
+production-find=Find productions that contain a given pattern.
+
+#
+# Debug Commands
+#
+
+chunk-name-format=Specify format of the name to use for new chunks.
+
+firing-counts=Print the number of times productions have fired.
+
+pwatch=Trace firings and retractions of specific productions.
+
+stats=Print information on Soar's runtime statistics.
+
+warnings=Toggle whether or not warnings are printed.
+
+watch=Control the information printed as Soar runs.
+
+watch-wmes=Trace WME's matching specific patterns.
+
+#
+# Runtime Commands
+#
+
+attribute-preferences-mode=In Soar7 mode, controls handling of preferences \
+for non-context slots.
+
+explain-backtraces=Print information about chunk and justification backtraces.
+
+indifferent-selection=Controls how indifferent selections are made.
+
+learn=Set the parameters for chunking, Soar's learning mechanism.
+
+max-chunks=Limit the number of chunks created during a decision cycle.
+
+max-elaborations=Limit the maximum number of elaboration cycles.
+
+max-nil-output-cycles=Limit the maximum number of decision cycles that are \
+executed without producing output when run is invoked with run-til-output args.
+
+multi-attributes=Declare multi-attributes so as to increase Rete matching \
+efficiency.
+
+numeric-indifferent-mode=Select method for combining numeric preferences.
+
+o-support-mode=Choose experimental variations of o-support.
+
+save-backtraces=Save trace information to explain chunks and justifications.
+
+soar8=Toggle between Soar 8 methodology and Soar 7 methodology.
+
+timers=Toggle on or off the internal timers used to profile Soar.
+
+waitsnc=Generate a wait state rather than a state-no-change impasse.
+
+#
+# System Commands
+#
+
+cd=Change directory.
+
+dirs=List the directory stack.
+
+echo=Print a string to the current output device.
+
+log=Record all user-interface input and output to a file.
+
+ls=List the contents of the current working directory.
+
+popd=Pop the current working directory off the stack and change to the \
+next directory on the stack.
+
+pushd=Push a directory onto the directory stack, changing to it.
+
+pwd=Print the current working directory.
+
+rete-net=Save the current Rete net, or restore a previous one.
+
+set-library-location=Set the top level directory containing demos/help/etc.
+
+source=Load and evaluate the contents of a file.
+
+#
+# I/O Commands
+#
+
+add-wme=Manually add an element to working memory.  Output links.
+
+remove-wme=Manually remove an element from working memory.
+
+#
+# Miscellaneous Commands
+#
+
+alias=Define command aliases.
+
+soarnews=Prints information about the current release.
+
+time=Uses a default system clock timer to record the wall time required \
+while executing a command.
+
+version=Returns version number of Soar kernel.
+
+#
+# Stop/Interrupt Functions
+#
+
+halt=Terminates Soar's execution and returns to the user prompt.
+
+interrupt=Causes Soar to stop at the end of the current phase, and \
+return to the user prompt.
+
+#
+# Text I/O Functions
+#
+
+write=Writes its arguments to the standard output.
+
+crlf=Short for "carriage return, line feed" and can be called only \
+within write.
+
+#
+# Mathematical Functions
+#
+
+div=Returns the integer quotient between two integers.
+
+mod=Returns the remainder between two integers.
+
+abs=Returns an integer when its argument is an integer and otherwise \
+returns a real number.
+
+atan2=Returns a float in radians, the arctangent of (first/arg / \
+second_arg)
+
+sqrt=Returns a real number, the square root of the given number.
+
+sin=Returns a real number, the sin value of the given angle in radians.
+
+cos=Returns a real number, the cos value of the given angle in radians.
+
+int=Converts a single symbol to an integer constant.
+
+float=Converts a single symbol to a floating point constant.
+
+#
+# Symbol Generating/Manipulating Functions
+#
+
+timestamp=Returns a symbol whos print name is a representation of the \
+current date and time.
+
+make-constant-symbol=Returns a new constant symbol guaranteed to be different \
+from all symbols currently present in the system.
+
+capitalize-symbol=Returns a new symbol with the first character of the given \
+symbol capitalized.
+
+#
+# User-defined/Interface Functions
+#
+
+exec=Calls user-defined registered functions.
+
+cmd=Calls built-in Soar commands.
+
+#
+# Learning Functions
+#
+
+dont-learn=Turns off learning for the specified state.
+
+force-learn=Turns on learning for the specified state.

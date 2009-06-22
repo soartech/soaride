@@ -1,0 +1,50 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: pid</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd70">NAME</a> · <a href="#SECTid81abde8">SYNOPSIS</a> · <a href="#SECTid81abe88">DESCRIPTION</a> · <a href="#SECTid81abff0">EXAMPLE</a> · <a href="#SECTid81ac0e0">SEE ALSO</a> · <a href="#SECTid81ac158">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd70">NAME</a></h2><p class="namesection">
+<b class="names">pid - </b><br>Retrieve process identifiers</p>
+<h2><a name="SECTid81abde8">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">pid</b> ?<i class="m">fileId</i>?
+</pre>
+
+
+<h2><a name="SECTid81abe88">DESCRIPTION</a></h2><p>If the <i>fileId</i> argument is given then it should normally
+refer to a process pipeline created with the <b>open</b> command.
+In this case the <b class="cmd">pid</b> command will return a list whose elements
+are the process identifiers of all the processes in the pipeline,
+in order.
+The list will be empty if <i>fileId</i> refers to an open file
+that isn't a process pipeline.
+If no <i>fileId</i> argument is given then <b class="cmd">pid</b> returns the process
+identifier of the current process.
+All process identifiers are returned as decimal strings.
+</p>
+<h2><a name="SECTid81abff0">EXAMPLE</a></h2><p>Print process information about the processes in a pipeline using the
+SysV <b>ps</b> program before reading the output of that pipeline:
+</p><pre class="example">
+set pipeline [open "| zcat somefile.gz | grep foobar | sort -u"]
+# Print process information
+exec ps -fp [<b class="cmd">pid</b> $pipeline] &gt;@stdout
+# Print a separator and then the output of the pipeline
+puts [string repeat - 70]
+puts [read $pipeline]
+close $pipeline
+</pre>
+<h2><a name="SECTid81ac0e0">SEE ALSO</a></h2><p class="seealso">exec(n), open(n)</p>
+<h2><a name="SECTid81ac158">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-file">file</a>, <a class="keyword" href="keyword-index.html#KW-pipeline">pipeline</a>, <a class="keyword" href="keyword-index.html#KW-processidentifier">process identifier</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

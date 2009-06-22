@@ -1,0 +1,65 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: update</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81abd70">NAME</a> · <a href="#SECTid81abde8">SYNOPSIS</a> · <a href="#SECTid81abe88">DESCRIPTION</a> · <a href="#SECTid81ac090">EXAMPLE</a> · <a href="#SECTid81ac158">SEE ALSO</a> · <a href="#SECTid81ac1d0">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81abd70">NAME</a></h2><p class="namesection">
+<b class="names">update - </b><br>Process pending events and idle callbacks</p>
+<h2><a name="SECTid81abde8">SYNOPSIS</a></h2><pre class="syntax">
+<b class="cmd">update</b> ?<b>idletasks</b>?
+</pre>
+
+
+<h2><a name="SECTid81abe88">DESCRIPTION</a></h2><p>This command is used to bring the application ``up to date''
+by entering the event loop repeatedly until all pending events
+(including idle callbacks) have been processed.
+</p><p>If the <b>idletasks</b> keyword is specified as an argument to the
+command, then no new events or errors are processed;  only idle
+callbacks are invoked.
+This causes operations that are normally deferred, such as display
+updates and window layout calculations, to be performed immediately.
+</p><p>The <b>update idletasks</b> command is useful in scripts where
+changes have been made to the application's state and you want those
+changes to appear on the display immediately, rather than waiting
+for the script to complete.  Most display updates are performed as
+idle callbacks, so <b>update idletasks</b> will cause them to run.
+However, there are some kinds of updates that only happen in
+response to events, such as those triggered by window size changes;
+these updates will not occur in <b>update idletasks</b>.
+</p><p>The <b class="cmd">update</b> command with no options is useful in scripts where
+you are performing a long-running computation but you still want
+the application to respond to events such as user interactions;  if
+you occasionally call <b class="cmd">update</b> then user input will be processed
+during the next call to <b class="cmd">update</b>.
+</p>
+<h2><a name="SECTid81ac090">EXAMPLE</a></h2><p>Run computations for about a second and then finish:
+</p><pre class="example">
+set x 1000
+set done 0
+after 1000 set done 1
+while {!$done} {
+    # A very silly example!
+    set x [expr {log($x) ** 2.8}]
+
+    # Test to see if our time-limit has been hit.  This would
+    # also give a chance for serving network sockets and, if
+    # the Tk package is loaded, updating a user interface.
+    <b class="cmd">update</b>
+}
+</pre>
+<h2><a name="SECTid81ac158">SEE ALSO</a></h2><p class="seealso">after(n), interp(n)</p>
+<h2><a name="SECTid81ac1d0">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-event">event</a>, <a class="keyword" href="keyword-index.html#KW-flush">flush</a>, <a class="keyword" href="keyword-index.html#KW-handler">handler</a>, <a class="keyword" href="keyword-index.html#KW-idle">idle</a>, <a class="keyword" href="keyword-index.html#KW-update">update</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

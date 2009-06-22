@@ -1,0 +1,277 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: tm</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81a6d48">NAME</a> · <a href="#SECTid81a6dc0">SYNOPSIS</a> · <a href="#SECTid81a6fa0">DESCRIPTION</a> · <a href="#SECTid81a7658">MODULE DEFINITION</a> · <a href="#SECTid81a7838">FINDING MODULES</a> · <a href="#SECTid81a8328">DEFAULT PATHS</a> · <a href="#SECTid81a9020">SEE ALSO</a> · <a href="#SECTid81a90c0">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81a6d48">NAME</a></h2><p class="namesection">
+<b class="names">tm - </b><br>Facilities for locating and loading of Tcl Modules</p>
+<h2><a name="SECTid81a6dc0">SYNOPSIS</a></h2><pre class="syntax">
+<b>::tcl::tm::path</b> <b>add</b> <i class="m">path</i>...
+<b>::tcl::tm::path</b> <b>remove</b> <i class="m">path</i>...
+<b>::tcl::tm::path</b> <b>list</b>
+<b>::tcl::tm::roots</b> <i class="m">path</i>...
+</pre>
+
+
+<h2><a name="SECTid81a6fa0">DESCRIPTION</a></h2><p>This document describes the facilities for locating and loading Tcl
+Modules. The following commands are supported:
+</p><dl>
+
+<dt>
+<b>::tcl::tm::path</b> <b>add</b> <i class="m">path</i>...</dt>
+<dd>The paths are added at the head to the list of module paths, in order
+of appearance. This means that the last argument ends up as the new
+head of the list.
+<p>The command enforces the restriction that no path may be an ancestor
+directory of any other path on the list. If any of the new paths
+violates this restriction an error will be raised, before any of the
+paths have been added. In other words, if only one path argument
+violates the restriction then none will be added.
+</p><p>If a path is already present as is, no error will be raised and no
+action will be taken.
+</p><p>Paths are searched later in the order of their appearance in the
+list. As they are added to the front of the list they are searched in
+reverse order of addition. In other words, the paths added last are
+looked at first.
+</p>
+</dd>
+
+
+<dt>
+<b>::tcl::tm::path</b> <b>remove</b> <i class="m">path</i>...</dt>
+<dd>Removes the paths from the list of module paths. The command silently
+ignores all paths which are not on the list.
+</dd>
+
+
+<dt>
+<b>::tcl::tm::path</b> <b>list</b>
+</dt>
+<dd>Returns a list containing all registered module paths, in the order
+that they are searched for modules.
+</dd>
+
+
+<dt>
+<b>::tcl::tm::roots</b> <i class="m">path</i>...</dt>
+<dd>Similar to <b>path add</b>, and layered on top of it. This command
+takes a list of paths, extends each with "<b>tcl</b><i>X</i><b>/site-tcl</b>",
+and "<b>tcl</b><i>X</i><b>/</b><i>X</i><b>.</b><i>y</i>", for major version <i>X</i> of the
+Tcl interpreter and minor version <i>y</i> less than or equal to the
+minor version of the interpreter, and adds the resulting set of paths
+to the list of paths to search.
+<p>This command is used internally by the system to set up the
+system-specific default paths.
+</p><p>The command has been exposed to allow a build system to define
+additional root paths beyond those described by this document.
+</p>
+</dd>
+
+</dl>
+<h2><a name="SECTid81a7658">MODULE DEFINITION</a></h2><p>A Tcl Module is a Tcl Package contained in a single file, and no other
+files required by it. This file has to be <b>source</b>able. In other
+words, a Tcl Module is always imported via:
+</p><pre class="example">
+source module_file
+</pre><p>The <b>load</b> command is not directly used. This restriction is not
+an actual limitation, as some may believe.
+Ever since 8.4 the Tcl <b>source</b> command reads only until the first
+^Z character. This allows us to combine an arbitrary Tcl script with
+arbitrary binary data into one file, where the script processes the
+attached data in any it chooses to fully import and activate the
+package.
+</p><p>The name of a module file has to match the regular expression:
+</p><pre class="example">
+([[:alpha:]][:[:alnum:]]*)-([[:digit:]].*)\.tm
+</pre><p>The first capturing parentheses provides the name of the package, the
+second clause its version. In addition to matching the pattern, the
+extracted version number must not raise an error when used in the
+command:
+</p><pre class="example">
+package vcompare $version 0
+</pre>
+<h2><a name="SECTid81a7838">FINDING MODULES</a></h2><p>The directory tree for storing Tcl modules is separate from other
+parts of the filesystem and independent of <b>auto_path</b>.
+</p><p>Tcl Modules are searched for in all directories listed in the result
+of the command <b>::tcl::tm::path list</b>.
+This is called the <i>Module path</i>. Neither the <b>auto_path</b> nor
+the <b>tcl_pkgPath</b> variables are used.
+All directories on the module path have to obey one restriction:
+</p><dl>
+
+<dt></dt>
+<dd>For any two directories, neither is an ancestor directory of the
+other.
+</dd>
+
+</dl><p>This is required to avoid ambiguities in package naming. If for
+example the two directories "<i>foo/</i>" and "<i>foo/cool</i>" were on
+the path a package named <b>cool::ice</b> could be found via the
+names <b>cool::ice</b> or <b>ice</b>, the latter potentially
+obscuring a package named <b>ice</b>, unqualified.
+</p><p>Before the search is started, the name of the requested package is
+translated into a partial path, using the following algorithm:
+</p><dl>
+
+<dt></dt>
+<dd>All occurrences of "<b>::</b>" in the package name are replaced by
+the appropriate directory separator character for the platform we are
+on. On Unix, for example, this is "<b>/</b>".
+</dd>
+
+</dl><p>Example:
+</p><dl>
+
+<dt></dt>
+<dd>The requested package is <b>encoding::base64</b>. The generated
+partial path is "<i>encoding/base64</i>"
+</dd>
+
+</dl><p>After this translation the package is looked for in all module paths,
+by combining them one-by-one, first to last with the partial path to
+form a complete search pattern. Note that the search algorithm rejects
+all files where the filename does not match the regular expression
+given in the section <a href="#SECTid81a7658">MODULE DEFINITION</a>. For the remaining
+files <i>provide scripts</i> are generated and added to the package
+ifneeded database.
+</p><p>The algorithm falls back to the previous unknown handler when none of
+the found module files satisfy the request. If the request was
+satisfied the fall-back is ignored.
+</p><p>Note that packages in module form have <i>no</i> control over the
+<i>index</i> and <i>provide script</i>s entered into the package
+database for them.
+For a module file <b>MF</b> the <i>index script</i> is always:
+</p><pre class="example">
+package ifneeded <b>PNAME PVERSION</b> [list source <b>MF</b>]
+</pre><p>and the <i>provide script</i> embedded in the above is:
+</p><pre class="example">
+source <b>MF</b>
+</pre><p>Both package name <b>PNAME</b> and package version <b>PVERSION</b> are
+extracted from the filename <b>MF</b> according to the definition
+below:
+</p><pre class="example">
+<b>MF</b> = /module_path/<b>PNAME'</b>-<b>PVERSION</b>.tm
+</pre><p>Where <b>PNAME'</b> is the partial path of the module as defined in
+section <a href="#SECTid81a7838">FINDING MODULES</a>, and translated into <b></b>PNAME by
+changing all directory separators to "<b>::</b>",
+and <b>module_path</b> is the path (from the list of paths to search)
+that we found the module file under.
+</p><p>Note also that we are here creating a connection between package names
+and paths. Tcl is case-sensitive when it comes to comparing package
+names, but there are filesystems which are not, like NTFS. Luckily
+these filesystems do store the case of the name, despite not using the
+information when comparing.
+</p><p>Given the above we allow the names for packages in Tcl modules to have
+mixed-case, but also require that there are no collisions when
+comparing names in a case-insensitive manner. In other words, if a
+package <b>Foo</b> is deployed in the form of a Tcl Module,
+packages like <b>foo</b>, <b>fOo</b>, etc. are not allowed
+anymore.
+</p>
+<h2><a name="SECTid81a8328">DEFAULT PATHS</a></h2><p>The default list of paths on the module path is computed by a
+<b>tclsh</b> as follows, where <i>X</i> is the major version of the Tcl
+interpreter and <i>y</i> is less than or equal to the minor version of
+the Tcl interpreter.
+</p><p>All the default paths are added to the module path, even those paths
+which do not exist. Non-existent paths are filtered out during actual
+searches. This enables a user to create one of the paths searched when
+needed and all running applications will automatically pick up any
+modules placed in them.
+</p><p>The paths are added in the order as they are listed below, and for
+lists of paths defined by an environment variable in the order they
+are found in the variable.
+</p>
+<h3><a name="SECTid81a8468">SYSTEM SPECIFIC PATHS</a></h3>
+<dl class="commandlist">
+
+<dt>
+<b>file normalize [info library]/../tcl</b><i class="m">X</i><b>/</b><i class="m">X</i><b>.</b><i class="m">y</i>
+</dt>
+<dd>In other words, the interpreter will look into a directory specified
+by its major version and whose minor versions are less than or equal
+to the minor version of the interpreter.
+<p>For example for Tcl 8.4 the paths searched are:
+</p><pre class="example">
+<b>[info library]/../tcl8/8.4</b>
+<b>[info library]/../tcl8/8.3</b>
+<b>[info library]/../tcl8/8.2</b>
+<b>[info library]/../tcl8/8.1</b>
+<b>[info library]/../tcl8/8.0</b>
+</pre><p>This definition assumes that a package defined for Tcl <i>X</i><b>.</b><i>y</i>
+can also be used by all interpreters which have the same major number
+<i>X</i> and a minor number greater than <i>y</i>.
+</p>
+</dd>
+
+
+<dt>
+<b>file normalize EXEC/tcl</b><i class="m">X</i><b>/</b><i class="m">X</i><b>.</b><i class="m">y</i>
+</dt>
+<dd>Where <b>EXEC</b> is <b>file normalize [info nameofexecutable]/../lib</b>
+or <b>file normalize [::tcl::pkgconfig get libdir,runtime]</b>
+<p>This sets of paths is handled equivalently to the set coming before,
+except that it is anchored in <b>EXEC_PREFIX</b>.
+For a build with <b>PREFIX</b> = <b>EXEC_PREFIX</b> the two sets are
+identical.
+</p>
+</dd>
+
+</dl>
+
+<h3><a name="SECTid81a8ad0">SITE SPECIFIC PATHS</a></h3>
+<dl>
+
+<dt>
+<b>file normalize [info library]/../tcl</b><i class="m">X</i><b>/site-tcl</b>
+</dt>
+<dd>Note that this is always a single entry because <i>X</i> is always a
+specific value (the current major version of Tcl).
+</dd>
+
+</dl>
+
+<h3><a name="SECTid81a8c60">USER SPECIFIC PATHS</a></h3>
+<dl>
+
+<dt>
+<b>$::env(TCL</b><i class="m">X</i><b>.</b><i class="m">y</i><b>_TM_PATH)</b>
+</dt>
+<dd>A list of paths, separated by either <b>:</b> (Unix) or <b>;</b>
+(Windows). This is user and site specific as this environment variable
+can be set not only by the user's profile, but by system configuration
+scripts as well.
+<p>These paths are seen and therefore shared by all Tcl shells in the
+<b>$::env(PATH)</b> of the user.
+</p><p>Note that <i>X</i> and <i>y</i> follow the general rules set out
+above. In other words, Tcl 8.4, for example, will look at these 5
+environment variables:
+</p><pre class="example">
+<b>$::env(TCL8.4_TM_PATH)</b>
+<b>$::env(TCL8.3_TM_PATH)</b>
+<b>$::env(TCL8.2_TM_PATH)</b>
+<b>$::env(TCL8.1_TM_PATH)</b>
+<b>$::env(TCL8.0_TM_PATH)</b>
+</pre>
+</dd>
+
+</dl>
+
+<h2><a name="SECTid81a9020">SEE ALSO</a></h2><p class="seealso">package(n), Tcl Improvement Proposal #189 "Tcl Modules" (online
+at http://tip.tcl.tk/189.html), Tcl Improvement Proposal #190
+"Implementation Choices for Tcl Modules" (online at
+http://tip.tcl.tk/190.html)</p>
+<h2><a name="SECTid81a90c0">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-modules">modules</a>, <a class="keyword" href="keyword-index.html#KW-package">package</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>

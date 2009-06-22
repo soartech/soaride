@@ -1,0 +1,359 @@
+<html>
+<head>
+<link rel="stylesheet" href="manpage.css"><title>Tcl Reference Manual: dict</title><meta name="xsl-processor" content="Jochen Loewer (loewerj@hotmail.com), Rolf Ade (rolf@pointsman.de) et. al."><meta name="generator" content="$RCSfile: tmml-html.xsl,v $ $Revision: 1.12 $">
+</head><body>
+<div class="header">
+<div class="navbar" align="center">
+<a href="#SECTid81ac6a8">NAME</a> · <a href="#SECTid81ac720">SYNOPSIS</a> · <a href="#SECTid81ac7e8">DESCRIPTION</a> · <a href="#SECTid81ae7a0">DICTIONARY VALUES</a> · <a href="#SECTid81ae868">EXAMPLES</a> · <a href="#SECTid81aed68">SEE ALSO</a> · <a href="#SECTid81aeea8">KEYWORDS</a>
+</div><p class="notice">Documentation generated from Tcl CVS HEAD</p><hr class="navsep">
+</div><div class="body">
+
+
+
+<h2><a name="SECTid81ac6a8">NAME</a></h2><p class="namesection">
+<b class="names">dict - </b><br>Manipulate dictionaries</p>
+<h2><a name="SECTid81ac720">SYNOPSIS</a></h2><pre class="syntax">
+<b>dict</b> <i class="m">option arg</i> ?<i class="m">arg ...</i>?
+</pre>
+
+
+<h2><a name="SECTid81ac7e8">DESCRIPTION</a></h2><p>Performs one of several operations on dictionary values or variables
+containing dictionary values (see the <a href="#SECTid81ae7a0">DICTIONARY VALUES</a> section
+below for a description), depending on <i>option</i>.  The legal
+<i>option</i>s (which may be abbreviated) are:
+</p><dl>
+
+<dt>
+<b>dict append</b> <i class="m">dictionaryVariable key</i> ?<i class="m">string ...</i>?</dt>
+<dd>This appends the given string (or strings) to the value that the given
+key maps to in the dictionary value contained in the given variable,
+writing the resulting dictionary value back to that variable.
+Non-existent keys are treated as if they map to an empty string.
+</dd>
+
+
+<dt>
+<b>dict create</b> ?<i class="m">key value ...</i>?</dt>
+<dd>Create a new dictionary that contains each of the key/value mappings
+listed as arguments (keys and values alternating, with each key being
+followed by its associated value.)
+</dd>
+
+
+<dt>
+<b>dict exists</b> <i class="m">dictionaryValue key</i> ?<i class="m">key ...</i>?</dt>
+<dd>This returns a boolean value indicating whether the given key (or path
+of keys through a set of nested dictionaries) exists in the given
+dictionary value. This returns a true value exactly when <b>dict
+get</b> on that path will succeed.
+</dd>
+
+
+<dt>
+<b>dict filter</b> <i class="m">dictionaryValue filterType arg</i> ?<i class="m">arg ...</i>?</dt>
+<dd>This takes a dictionary value and returns a new dictionary that
+contains just those key/value pairs that match the specified filter
+type (which may be abbreviated.)  Supported filter types are:
+<dl>
+
+<dt>
+<b>dict filter</b> <i class="m">dictionaryValue</i> <b>key</b> <i class="m">globPattern</i>
+</dt>
+<dd>The key rule only matches those key/value pairs whose keys match the
+given pattern (in the style of <b>string match</b>.)
+</dd>
+
+
+<dt>
+<b>dict filter</b> <i class="m">dictionaryValue</i> <b>script {</b><i class="m">keyVar valueVar</i><b>}</b> <i class="m">script</i>
+</dt>
+<dd>The script rule tests for matching by assigning the key to the
+<i>keyVar</i> and the value to the <i>valueVar</i>, and then evaluating
+the given script which should return a boolean value (with the
+key/value pair only being included in the result of the <b>dict
+filter</b> when a true value is returned.)  Note that the first
+argument after the rule selection word is a two-element list.  If the
+<i>script</i> returns with a condition of <b>TCL_BREAK</b>, no further
+key/value pairs are considered for inclusion in the resulting
+dictionary, and a condition of <b>TCL_CONTINUE</b> is equivalent to a false
+result. The order in which the key/value pairs are tested is undefined.
+</dd>
+
+
+<dt>
+<b>dict filter</b> <i class="m">dictionaryValue</i> <b>value</b> <i class="m">globPattern</i>
+</dt>
+<dd>The value rule only matches those key/value pairs whose values match
+the given pattern (in the style of <b>string match</b>.)
+</dd>
+
+</dl>
+</dd>
+
+
+<dt>
+<b>dict for {</b><i class="m">keyVar valueVar</i><b>}</b> <i class="m">dictionaryValue body</i>
+</dt>
+<dd>This command takes three arguments, the first a two-element list of
+variable names (for the key and value respectively of each mapping in
+the dictionary), the second the dictionary value to iterate across,
+and the third a script to be evaluated for each mapping with the key
+and value variables set appropriately (in the manner of <b class="cmd">foreach</b>.)
+The result of the command is an empty string. If any evaluation of the
+body generates a <b>TCL_BREAK</b> result, no further pairs from the
+dictionary will be iterated over and the <b>dict for</b> command will
+terminate successfully immediately. If any evaluation of the body
+generates a <b>TCL_CONTINUE</b> result, this shall be treated exactly like a
+normal <b>TCL_OK</b> result.  The order of iteration is undefined.
+</dd>
+
+
+<dt>
+<b>dict get</b> <i class="m">dictionaryValue</i> ?<i class="m">key ...</i>?</dt>
+<dd>Given a dictionary value (first argument) and a key (second argument),
+this will retrieve the value for that key. Where several keys are
+supplied, the behaviour of the command shall be as if the result of
+<b>dict get $dictVal $key</b> was passed as the first argument to
+<b>dict get</b> with the remaining arguments as second (and possibly
+subsequent) arguments. This facilitates lookups in nested
+dictionaries. For example, the following two commands are equivalent:
+<pre class="example">
+dict get $dict foo bar spong
+dict get [dict get [dict get $dict foo] bar] spong
+</pre><p>If no keys are provided, dict would return a list containing pairs of
+elements in a manner similar to <b>array get</b>. That is, the first
+element of each pair would be the key and the second element would be
+the value for that key.
+
+It is an error to attempt to retrieve a value for a key that is not
+present in the dictionary.
+</p>
+</dd>
+
+
+<dt>
+<b>dict incr</b> <i class="m">dictionaryVariable key</i> ?<i class="m">increment</i>?</dt>
+<dd>This adds the given increment value (an integer that defaults to 1 if
+not specified) to the value that the given key maps to in the
+dictionary value contained in the given variable, writing the
+resulting dictionary value back to that variable. Non-existent keys
+are treated as if they map to 0. It is an error to increment a value
+for an existing key if that value is not an integer.
+</dd>
+
+
+<dt>
+<b>dict info</b> <i class="m">dictionaryValue</i>
+</dt>
+<dd>This returns information (intended for display to people) about the
+given dictionary though the format of this data is dependent on the
+implementation of the dictionary. For dictionaries that are
+implemented by hash tables, it is expected that this will return the
+string produced by <b class="fun"><a href="Hash.html">Tcl_HashStats</a></b>, similar to <b>array info</b>.
+</dd>
+
+
+<dt>
+<b>dict keys</b> <i class="m">dictionaryValue</i> ?<i class="m">globPattern</i>?</dt>
+<dd>Return a list of all keys in the given dictionary value. If a pattern
+is supplied, only those keys that match it (according to the rules of
+<b>string match</b>) will be returned. The returned keys will be in an
+arbitrary implementation-specific order, though where no pattern is
+supplied the i'th key returned by <b>dict keys</b> will be the key for
+the i'th value returned by <b>dict values</b> applied to the same
+dictionary value.
+</dd>
+
+
+<dt>
+<b>dict lappend</b> <i class="m">dictionaryVariable key</i> ?<i class="m">value ...</i>?</dt>
+<dd>This appends the given items to the list value that the given key maps
+to in the dictionary value contained in the given variable, writing
+the resulting dictionary value back to that variable. Non-existent
+keys are treated as if they map to an empty list, and it is legal for
+there to be no items to append to the list. It is an error for the
+value that the key maps to to not be representable as a list.
+</dd>
+
+
+<dt>
+<b>dict merge</b> ?<i class="m">dictionaryValue ...</i>?</dt>
+<dd>Return a dictionary that contains the contents of each of the
+<i>dictionaryValue</i> arguments.  Where two (or more) dictionaries
+contain a mapping for the same key, the resulting dictionary maps that
+key to the value according to the last dictionary on the command line
+containing a mapping for that key.
+</dd>
+
+
+<dt>
+<b>dict remove</b> <i class="m">dictionaryValue</i> ?<i class="m">key ...</i>?</dt>
+<dd>Return a new dictionary that is a copy of an old one passed in as
+first argument except without mappings for each of the keys listed.
+It is legal for there to be no keys to remove, and it also legal for
+any of the keys to be removed to not be present in the input
+dictionary in the first place.
+</dd>
+
+
+<dt>
+<b>dict replace</b> <i class="m">dictionaryValue</i> ?<i class="m">key value ...</i>?</dt>
+<dd>Return a new dictionary that is a copy of an old one passed in as
+first argument except with some values different or some extra
+key/value pairs added. It is legal for this command to be called with
+no key/value pairs, but illegal for this command to be called with a
+key but no value.
+</dd>
+
+
+<dt>
+<b>dict set</b> <i class="m">dictionaryVariable key</i> ?<i class="m">key ...</i>? <i class="m">value</i>
+</dt>
+<dd>This operation takes the name of a variable containing a dictionary
+value and places an updated dictionary value in that variable
+containing a mapping from the given key to the given value. When
+multiple keys are present, this operation creates or updates a chain
+of nested dictionaries.
+</dd>
+
+
+<dt>
+<b>dict size</b> <i class="m">dictionaryValue</i>
+</dt>
+<dd>Return the number of key/value mappings in the given dictionary value.
+</dd>
+
+
+<dt>
+<b>dict unset</b> <i class="m">dictionaryVariable key</i> ?<i class="m">key ...</i>?</dt>
+<dd>This operation (the companion to <b>dict set</b>) takes the name of a
+variable containing a dictionary value and places an updated
+dictionary value in that variable that does not contain a mapping for
+the given key. Where multiple keys are present, this describes a path
+through nested dictionaries to the mapping to remove. At least one key
+must be specified, but the last key on the key-path need not exist.
+All other components on the path must exist.
+</dd>
+
+
+<dt>
+<b>dict update</b> <i class="m">dictionaryVariable key varName</i> ?<i class="m">key varName ...</i>? <i class="m">body</i>
+</dt>
+<dd>Execute the Tcl script in <i>body</i> with the value for each <i>key</i>
+(as found by reading the dictionary value in <i>dictionaryVariable</i>)
+mapped to the variable <i>varName</i>. There may be multiple
+<i>key</i>/<i>varName</i> pairs. If a <i>key</i> does not have a mapping,
+that corresponds to an unset <i>varName</i>. When <i>body</i>
+terminates, any changes made to the <i>varName</i>s is reflected back
+to the dictionary within <i>dictionaryVariable</i> (unless
+<i>dictionaryVariable</i> itself becomes unreadable, when all updates
+are silently discarded), even if the result of <i>body</i> is an error
+or some other kind of exceptional exit. The result of <b>dict
+update</b> is (unless some kind of error occurs) the result of the
+evaluation of <i>body</i>. Note that the mapping of values to variables
+does not use traces; changes to the <i>dictionaryVariable</i>'s
+contents only happen when <i>body</i> terminates.
+</dd>
+
+
+<dt>
+<b>dict values</b> <i class="m">dictionaryValue</i> ?<i class="m">globPattern</i>?</dt>
+<dd>Return a list of all values in the given dictionary value. If a
+pattern is supplied, only those values that match it (according to the
+rules of <b>string match</b>) will be returned. The returned values
+will be in an arbitrary implementation-specific order, though where no
+pattern is supplied the i'th key returned by <b>dict keys</b> will be
+the key for the i'th value returned by <b>dict values</b> applied to
+the same dictionary value.
+</dd>
+
+
+<dt>
+<b>dict with</b> <i class="m">dictionaryVariable</i> ?<i class="m">key ...</i>? <i class="m">body</i>
+</dt>
+<dd>Execute the Tcl script in <i>body</i> with the value for each key in
+<i>dictionaryVariable</i> mapped (in a manner similarly to <b>dict
+update</b>) to a variable with the same name. Where one or more
+<i>key</i>s are available, these indicate a chain of nested
+dictionaries, with the innermost dictionary being the one opened out
+for the execution of <i>body</i>. As with <b>dict update</b>, making
+<i>dictionaryVariable</i> unreadable will make the updates to the
+dictionary be discarded, and this also happens if the contents of
+<i>dictionaryVariable</i> are adjusted so that the chain of
+dictionaries no longer exists. The result of <b>dict with</b> is
+(unless some kind of error occurs) the result of the evaluation of
+<i>body</i>. Note that the mapping of values to variables does not use
+traces; changes to the <i>dictionaryVariable</i>'s contents only happen
+when <i>body</i> terminates.
+</dd>
+
+</dl>
+<h2><a name="SECTid81ae7a0">DICTIONARY VALUES</a></h2><p>Dictionaries are values that contain an efficient (but <i>not</i>
+order-preserving) mapping from arbitrary keys to arbitrary values.
+They have a textual format that is exactly that of any list with an
+even number of elements, with each mapping in the dictionary being
+represented as two items in the list.  When a command takes a
+dictionary and produces a new dictionary based on it (either returning
+it or writing it back into the variable that the starting dictionary
+was read from) there is <i>no</i> guarantee that the new dictionary
+will have the same ordering of keys.
+</p>
+<h2><a name="SECTid81ae868">EXAMPLES</a></h2><p>Constructing and using nested dictionaries:
+</p><pre class="example">
+# Data for one employee
+<b>dict set</b> employeeInfo 12345-A forenames "Joe"
+<b>dict set</b> employeeInfo 12345-A surname   "Schmoe"
+<b>dict set</b> employeeInfo 12345-A street "147 Short Street"
+<b>dict set</b> employeeInfo 12345-A city   "Springfield"
+<b>dict set</b> employeeInfo 12345-A phone  "555-1234"
+# Data for another employee
+<b>dict set</b> employeeInfo 98372-J forenames "Anne"
+<b>dict set</b> employeeInfo 98372-J surname   "Other"
+<b>dict set</b> employeeInfo 98372-J street "32995 Oakdale Way"
+<b>dict set</b> employeeInfo 98372-J city   "Springfield"
+<b>dict set</b> employeeInfo 98372-J phone  "555-8765"
+# The above data probably ought to come from a database...
+
+# Print out some employee info
+set i 0
+puts "There are [<b>dict size</b> $employeeInfo] employees"
+<b>dict for</b> {id info} $employeeInfo {
+   puts "Employee #[incr i]: $id"
+   <b>dict with</b> info {
+      puts "   Name: $forenames $surname"
+      puts "   Address: $street, $city"
+      puts "   Telephone: $phone"
+   }
+}
+# Another way to iterate and pick out names...
+foreach id [<b>dict keys</b> $employeeInfo] {
+   puts "Hello, [<b>dict get</b> $employeeInfo $id forenames]!"
+}
+</pre><p>A localizable version of <b>string toupper</b>:
+</p><pre class="example">
+# Set up the basic C locale
+set capital [<b>dict create</b> C [<b>dict create</b>]]
+foreach c [split {abcdefghijklmnopqrstuvwxyz} ""] {
+   <b>dict set</b> capital C $c [string toupper $c]
+}
+
+# English locales can luckily share the "C" locale
+<b>dict set</b> capital en [<b>dict get</b> $capital C]
+<b>dict set</b> capital en_US [<b>dict get</b> $capital C]
+<b>dict set</b> capital en_GB [<b>dict get</b> $capital C]
+
+# ... and so on for other supported languages ...
+
+# Now get the mapping for the current locale and use it.
+set upperCaseMap [<b>dict get</b> $capital $env(LANG)]
+set upperCase [string map $upperCaseMap $string]
+</pre>
+<h2><a name="SECTid81aed68">SEE ALSO</a></h2><p class="seealso">append(n), array(n), foreach(n), incr(n), list(n), lappend(n), set(n)</p>
+<h2><a name="SECTid81aeea8">KEYWORDS</a></h2><p class="keywords">
+<a class="keyword" href="keyword-index.html#KW-dictionary">dictionary</a>, <a class="keyword" href="keyword-index.html#KW-create">create</a>, <a class="keyword" href="keyword-index.html#KW-update">update</a>, <a class="keyword" href="keyword-index.html#KW-lookup">lookup</a>, <a class="keyword" href="keyword-index.html#KW-iterate">iterate</a>, <a class="keyword" href="keyword-index.html#KW-filter">filter</a>
+</p>
+</div><hr class="navsep"><div class="navbar" align="center">
+<a class="navaid" href="http://tmml.sourceforge.net/search.php">Search</a> · <a class="navaid" href="index.html">Contents</a> · <a class="navaid" href="category-index.html">Index</a> · <a class="navaid" href="keyword-index.html">Keywords</a> · <a class="navaid" href="http://tmml.sourceforge.net/coredocs.html">About...</a>
+</div>
+</body>
+</html>
