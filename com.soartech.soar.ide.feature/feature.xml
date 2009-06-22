@@ -2,15 +2,15 @@
 <feature
       id="com.soartech.soar.ide.feature"
       label="Soar IDE"
-      version="1.0.2"
+      version="1.0.3"
       provider-name="Soar Technology, Inc.">
 
-   <description url="http://www.soartech.com/downloads.soar-ide.php">
+   <description url="http://soaride.googlecode.com">
       Soar IDE
    </description>
 
-   <copyright url="http://www.soartech.com/copyright">
-      2007 Soar Technology, Inc. All rights reserved.
+   <copyright>
+      2009 Soar Technology, Inc. All rights reserved.
    </copyright>
 
    <license url="http://www.soartech.com/download/soardev/SoarIDE_Academic_License.txt">
@@ -391,7 +391,7 @@ that utilize the Licensed Product to any third party.
    </license>
 
    <url>
-      <update url="http://www.soartech.com/download/soaride/updates"/>
+      <update label="Soar IDE Update Site" url="http://soaride.googlecode.com/svn/update/"/>
    </url>
 
    <requires>

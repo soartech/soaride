@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description url="http://www.soartech.com/download/soaride/updates/">
-      Soar IDE Eclipse Update Site
+   <description url="http://soaride.googlecode.com/svn/update/">
+      Soar IDE Update Site
    </description>
    <feature url="features/com.soartech.soar.ide.feature_1.0.2.jar" id="com.soartech.soar.ide.feature" version="1.0.2">
       <category name="Soar IDE"/>
