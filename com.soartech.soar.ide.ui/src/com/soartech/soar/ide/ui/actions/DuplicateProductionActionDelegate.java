@@ -142,6 +142,11 @@ public class DuplicateProductionActionDelegate implements IEditorActionDelegate
     }
     private ISoarProduction getCurrentProduction()
     {
+        if(this.editor == null)
+        {
+            return null;
+        }
+        
     	ISoarProduction prod = null;
     	Object o = null;
         //get the soar-reference from the editor
