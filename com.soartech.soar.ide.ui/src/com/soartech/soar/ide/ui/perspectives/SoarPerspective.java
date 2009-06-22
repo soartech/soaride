@@ -64,7 +64,7 @@ public class SoarPerspective implements IPerspectiveFactory {
         IFolderLayout outputfolder= layout.createFolder("bottom", IPageLayout.BOTTOM, (float)0.75, editorArea); //$NON-NLS-1$
         outputfolder.addView(IPageLayout.ID_PROBLEM_VIEW);
         outputfolder.addView(SoarElementSourceViewer.ID);
-        outputfolder.addView("com.soartech.soar.ide.debug.ui.commandline");
+        //outputfolder.addView("com.soartech.soar.ide.debug.ui.commandline");
         outputfolder.addPlaceholder(NewSearchUI.SEARCH_VIEW_ID);
         outputfolder.addPlaceholder(IConsoleConstants.ID_CONSOLE_VIEW);
         outputfolder.addPlaceholder(IPageLayout.ID_BOOKMARKS);
