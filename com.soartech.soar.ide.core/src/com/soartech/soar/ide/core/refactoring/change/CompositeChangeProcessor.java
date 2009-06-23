@@ -19,6 +19,7 @@
  */
 package com.soartech.soar.ide.core.refactoring.change;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.ltk.core.refactoring.Change;
@@ -32,7 +33,7 @@ public class CompositeChangeProcessor implements IChangeProcessor {
 
 	private String name;
 
-	private List<IChangeProcessor> processors;
+	private List<IChangeProcessor> processors = new ArrayList<IChangeProcessor>();
 
 	public CompositeChangeProcessor(String name,
 			List<IChangeProcessor> processors) {
