@@ -77,7 +77,10 @@ public class CreateSoarFileRefactoring extends AbstractSoarRefactoring {
 	@Override
 	protected List<IChangeProcessor> getChangeProcessors() {
 		List<IChangeProcessor> processors = new ArrayList<IChangeProcessor>();
-		processors.add(changeProcessor);
+		if(changeProcessor != null)
+		{
+		    processors.add(changeProcessor);
+		}
 		return processors;
 	}
 
