@@ -1,0 +1,757 @@
+Run by Dave Ray 6/23/2009
+
+-------------------------------------------------------
+agent-file-selection\readme.txt
+-------------------------------------------------------
+This tests adding and removing a file from an agent
+
+* Open file-with-errors.soar
+* Verify that it is not a member of any agent (message at top of editor)
+   Result: [X]
+   Notes:
+
+* Verify that no errors are reported in the file
+   Result: [X]
+   Notes:
+
+
+* Open agent-file-selection.soaragent
+* Check "file-with-errors.soar" to add the file to the agent and save
+* Return to file-with-errors.soar
+* Verify that the file is a member of agent-file-selection
+   Result: [X]
+   Notes:
+
+* Verify that the following errors and warnings appear:
+** Warning: agent-file-selection: file does not appear reachable from selected start file
+** Error: Encountered "(". Expected: <SYMBOLIC_CONST>
+   Result: [X]
+   Notes:
+
+
+* Click the (-) next to agent-file-selection at the top of the editor to remove the file
+  from the agent again
+* Verify that it is not a member of any agent (message at top of editor)
+   Result: [X]
+   Notes:
+
+* Verify that no errors are reported in the file
+   Result: [X]
+   Notes:
+
+
+
+
+
+-------------------------------------------------------
+agent-priority\readme.txt
+-------------------------------------------------------
+This tests the agent priority setting for files that are part of multiple
+agents.
+
+* Open load.soar
+* Verify that it is a member of [agent-priority-a] and agent-priority-b
+   Result: [X]
+   Notes:
+
+
+* Hover over the $path variable in the test production
+* Verify that the value shown is a.contacts
+   Result: [X]
+   Notes:
+
+
+* Click Soar->Edit Agent Priorities...
+* Select agent-priority-b and click "Move Up" until it is above agent-priority-a.
+* Click Ok and return to load.soar
+* Verify that it is a member of [agent-priority-b] and agent-priority-a
+   Result: [X]
+   Notes:
+
+* Hover over the $path variable in the test production
+* Verify that the value shown is b.contacts
+   Result: [X]
+   Notes:
+
+
+* Click Soar->Edit Agent Priorities...
+* Select agent-priority-b and click "Move Down" until it is below agent-priority-a.
+* Click Ok and return to load.soar
+* Verify that it is a member of [agent-priority-a] and agent-priority-b
+   Result: [X]
+   Notes:
+
+* Hover over the $path variable in the test production
+* Verify that the value shown is a.contacts
+   Result: [X]
+   Notes:
+
+
+
+
+-------------------------------------------------------
+agent-start-file-selection\readme.txt
+-------------------------------------------------------
+
+* Open agent-start-file-selection
+* Verify that the start file field is empty
+   Result: [X]
+   Notes:
+
+* Verify that the warning "No start file selected for agent 
+	'agent-start-file-selection'..." appears in the problem view
+   Result: [X]
+   Notes:
+
+
+* Type /soaride-regression-tests/agent-start-file-selection/load.soar into
+  the start file field.
+* Hit enter
+* Verify that the agent editor indicates that the agent is changed (* in 
+  title bar)
+  
+   Result: [X]
+   Notes:
+
+* Save the file (Ctrl+S)
+* Verify that the warning above no longer appears in the problem view
+   Result: [X]
+   Notes:
+
+
+
+
+-------------------------------------------------------
+create-agent\readme.txt
+-------------------------------------------------------
+This tests creating and deleting a simple agent
+
+* Open load.soar
+* Verify that the message "This file is not a member of any agent..." appears
+  at the top of the editor.
+   Result: [X]
+   Notes:
+
+
+* Right-click the create-agent directory and click "New->Soar Agent"
+* Name the agent "create-agent" and click Finish
+* Verify that the agent's start file is /create-agent/load.soar
+   Result: [X]
+   Notes:
+
+* Verify that the message "Member of: [create-agent]" appears at the top
+  of the editor for load.soar
+   Result: [X]
+   Notes:
+
+* Verify that "create-agent" appears in the Soar Datamap view
+   Result: [X]
+   Notes:
+
+
+* Right-click "create-agent.soaragent" and click delete
+* Verify that the "create-agent" agent editor closes automatically
+   Result: [X]
+   Notes:
+
+* Verify that "create-agent" no longer appears in the Soar Datamap view
+   Result: [X]
+   Notes:
+
+* Verify that the message "This file is not a member of any agent..." appears
+  at the top of the editor for load.soar.
+   Result: [X]
+   Notes:
+
+
+
+
+-------------------------------------------------------
+datamap-view\readme.txt
+-------------------------------------------------------
+This tests the Soar datamap view
+
+* Set the layout of the datamap view to horizontal from the toolbar
+* Close the workbench
+* Reopen the workbench
+* Verify that the layout was persisted and that the layout is selected in the toolbar
+   Result: [X]
+   Notes:
+
+* Repeat for the remaining layouts
+
+Bug 941
+-------
+* Open load.soar in an editor
+* Expand the datamap
+* Right click on the datamap-view/state(?)/<*>(+) node.
+* Select 'Generate Monitor Production'
+* Verify that the following is generated in the load.soar editor with no exceptions:
+   Result: [X]
+   Notes:
+
+
+##!
+# @brief Auto-generated monitor production
+sp {monitor-attributes*
+    (state <s> ^state <s0>)
+    (<s0> ^<*1> <*0>)
+-->
+    (write (crlf) |Auto-generated monitor: |
+        |<*0>=| <*0>    
+)
+}
+
+----
+
+* Expand the datamap for datamap-view
+* Control-click to select the ^superstate and ^io.input-link.contacts.contact attributes
+* Verify that test-attribute-intersection1, test-attribute-intersection2, and
+	test-attribute-intersection3 are all listed in the datamap production list.
+	
+   Result: [X]
+   Notes:
+
+* Control-click to select only the ^superstate and ^io.input-link.contacts.contact.location attributes
+* Verify that only test-attribute-intersection1 and
+	test-attribute-intersection3 are all listed in the datamap production list.
+   Result: [X]
+   Notes:
+
+
+ 
+
+
+
+-------------------------------------------------------
+duplicate-production\readme.txt
+-------------------------------------------------------
+Tests in duplicate-production
+
+* Open production.soar
+* Verify that this file is a member of the duplicate-production agent.
+   Result: [X]
+   Notes:
+
+
+* Select the single-production in that file, 
+  either by highlighting or by placing the cursor within it.
+* Either press Ctrl+Shift+D or right click and select "Duplicate production" from the popup menu.
+* Verify that a new production appears called "copy*of*single-production", but otherwise be identical
+   Result: [X]
+   Notes:
+
+
+* Wait a moment for the soar agent to refresh, then do the other (to test that it works both ways)
+
+
+-------------------------------------------------------
+excise\readme.txt
+-------------------------------------------------------
+This tests Soar IDE's ability to detect overwritten productions
+
+* Open load.soar and other.soar
+* Verify that there are no errors in other.soar
+   Result: [X]
+   Notes:
+
+* Verify that load.soar has on "Overwrites" error on the second test-excise production
+   Result: [X]
+   Notes:
+
+
+* Add "excise test-excise" between the two test-excise productions and save
+* Verify that load.soar now has no errors
+   Result: [X]
+   Notes:
+
+* Verify that an "Overwrites" error has been added to the test-excise production in
+  other.soar
+  
+   Result: [X]
+   Notes:
+
+* Add "excise test-excise" before the test-excise production in other.soar and save
+* Verify that there are no errors in other.soar
+   Result: [X]
+   Notes:
+
+* Verify that there are no errors in load.soar
+   Result: [X]
+   Notes:
+
+
+* Remove both excise commands (revert load.soar and other.soar)
+* Verify that there are no errors in other.soar
+   Result: [X]
+   Notes:
+
+* Verify that load.soar has on "Overwrites" error on the second test-excise production
+   Result: [X]
+   Notes:
+
+
+
+
+
+
+
+-------------------------------------------------------
+formatting\readme.txt
+-------------------------------------------------------
+This tests auto-formatting in the Soar editor
+
+* Open formatting.soar
+
+* In test-unindent-arrow, type a > immediately after the -- that is there
+* Verify that the arrow unindents to the start of the line
+   Result: [X]
+   Notes:
+
+
+* Bug 1460
+* Select all of the test-format-selection production
+* Press ctrl-shift-F
+* The text of the selection should not change at all
+ 
+
+-------------------------------------------------------
+general-bugs\readme.txt
+-------------------------------------------------------
+This folder is for testing simple bugs that do not require multiple
+files or a specially configured agent. Generally, bugs involving
+pure, non-Tcl Soar code with no start file. Each bug has its own file, labeled with the
+Bugzilla bug number it tests.
+
+* Open not-reachable-from-start-file.soar
+* Here were making sure that the "not reachable" warning is not displayed
+  if no start file is selected.
+* Verify that there are no errors or warnings
+   Result: [X]
+   Notes:
+
+
+* Open bug-1461.soar
+* Validate that there are no errors on the test-bug-1461-no-error production
+* Validate that there is a "Too many arguments" error on the test-bug-1461-yes-error production
+
+* Open bug-1458.soar
+* Validate that there are no errors in the file
+
+* Open bug-1454.soar
+* Validate that there are no errors in the file
+
+-------------------------------------------------------
+hyperlinking\readme.txt
+-------------------------------------------------------
+This tests hyperlinking in the Soar IDE
+
+^^^ File Navigation
+* Open load.soar
+* Ctrl-click "source a.soar"
+* Verify that a.soar is opened
+   Result: [X]
+   Notes:
+
+
+* In a.soar, type ctrl-G
+* Verify that you return to load.soar
+   Result: [X]
+   Notes:
+
+
+* In load.soar, ctrl-click "source load.soar" (within the pushd)
+* Verify that subfolder/load.soar is opened
+   Result: [X]
+   Notes:
+
+
+* In subfolder/load.soar, ctrl-click "source b.soar"
+* Verify that subfolder/b.soar is opened
+   Result: [X]
+   Notes:
+
+
+* In subfolder/b.soar, type ctrl-G twice
+* Verify that you are back at the original load.soar file.
+   Result: [X]
+   Notes:
+
+
+* Open multi.soar
+* Right-click and select "Open Referencing Files"
+* Verify that a dialog pops up allowing a selection between load.soar and a.soar
+   Result: [X]
+   Notes:
+
+* Select a.soar
+* Verify that a.soar is opened
+   Result: [X]
+   Notes:
+
+
+^^^ Built-in Tcl help
+* Open load.soar
+* Ctrl-click the "set" command
+* Verify that the Soar/Tcl help browser opens with the Tcl man page for the set command
+   Result: []
+   Notes:
+
+
+^^^ Tcl Procedure hyper-linking
+* Open subfolder/b.soar
+* Ctrl-click the "test-procedure" command
+* Verify that a.soar is opened and the definition of the test-procedure proc is 
+  highlighted
+  
+   Result: [X]
+   Notes:
+
+* Open subfolder/b.soar
+* In the test-rhs-macro production, ctrl-click the "rhs-macro" command
+* Verify that a.soar is opened and the definition of the rhs-macro proc is 
+  highlighted
+   Result: [X]
+   Notes:
+
+
+  
+
+
+-------------------------------------------------------
+new-files-and-folders\readme.txt
+-------------------------------------------------------
+This tests that new files and folders are correctly added to agents as they're
+created.
+
+* Highlight the new-files-and-folders folder and click "Soar->New Soar File"
+* Name the file "test" (the extension will be added automatically)
+* Verify that the message "Member of: [new-files-and-folders]" appears at the
+  top of the editor for test.soar.
+   Result: []
+   Notes: FAIL
+
+* Verify that the line "source test.soar" has been added to the load.soar file.
+   Result: []
+   Notes:
+
+
+* Highlight the new-files-and-folders folder and click "Soar->New Soar Folder"
+* Name the folder "subfolder"
+* Highlight the subfolder folder and click "Soar->New Soar File"
+* Name the file "subtest" (the extension will be added automatically)
+* Verify that the message "Member of: [new-files-and-folders]" appears at the
+  top of the editor for subtest.soar.
+   Result: []
+   Notes: FAIL
+
+* Verify that the warning "new-files-and-folders: file does not appear reachable from selected start file"
+  appears in the subtest.soar file.
+   Result: []
+   Notes: FAIL
+
+
+* Open new-files-and-folders/load.soar
+* Add "source subfolder/subtest.soar" to the end of the file and save.
+* Verify that the "not reachable" warning is removed from subtest.soar
+  (TODO: This does not currently work. Performing a clean build will clear
+  		 the warning. See bug 1402.)
+  		 
+   Result: []
+   Notes: FAIL
+
+* Delete subfolder and test.soar
+* Verify that open editors are closed correctly
+   Result: [X]
+   Notes:
+
+
+* Open load.soar
+* Verify that there are two errors, one each missing file
+  test.soar and subtest.soar
+   Result: [X]
+   Notes:
+
+
+* Delete the source commands file load.soar. 
+* Verify that the two source errors are gone.
+   Result: [X]
+   Notes:
+
+
+
+
+
+
+
+-------------------------------------------------------
+new-project\readme.txt
+-------------------------------------------------------
+This tests creating a new Soar project as well as creating a new agent
+with from the editor status bar.
+Also tests bug 1405.
+
+* Switch to the Soar perspective and close all open editors.
+* Click File->New->Project...
+* Create a new general project called "new-project"
+* Right-click the new project and click New->Soar File
+* Create a new file called load.soar in the root of new-project.
+* Verify that the new file opens and the message "There are no agents
+  in this project ..." appears at the top of the editor.
+   Result: [X]
+   Notes:
+
+
+* Click "Click here" at the top of the editor
+* Name the new agent "agent" and click finish
+* Verify that the agent was created and it was opened in the editor
+   Result: [X]
+   Notes:
+
+
+* Return to the load.soar editor
+* Verify that the message at the top of the editor is "Member of: [agent (-)]"
+   Result: [X]
+   Notes:
+
+
+* Delete new-project
+* Verify that the agent editor closes automatically
+   Result: [X]
+   Notes:
+
+
+
+-------------------------------------------------------
+only-build-when-soar-files-change\readme.txt
+-------------------------------------------------------
+This tests that the Soar build process is only run when a Soar file or agent
+is modified.  Otherwise, in large, multi-language projects, you get the overhead
+of a Soar build every time you save any other file in the system.
+
+* Open only-build-when-soar-files-change/load.soar
+* Change the 0 to 1 and save
+* Verify that "Building Workspace" appears in the lower right corner of Eclipse
+  for about 5 seconds.
+  
+   Result: [X]
+   Notes:
+
+* Open only-build-when-soar-files-change/other.txt
+* Make some modification to the file and save
+* Verify that "Building workspace" is nearly instantaneous
+   Result: [X]
+   Notes:
+
+
+* Revert only-build-when-soar-files-change/load.soar before proceeding to any
+  further tests. Otherwise, the long delay will always be present.
+
+
+-------------------------------------------------------
+rename-refactoring\readme.txt
+-------------------------------------------------------
+
+* Right-click a.soar and click Refactor->Rename...
+* Rename it to b.soar
+* Click Preview
+* Verify that the correct changes are shown in both load1.soar and load2.soar.
+   Result: [X]
+   Notes:
+
+
+* Click Ok
+* Verify that the file is renamed and that the changes were applied
+  correctly to load1.soar and load2.soar
+  
+   Result: [X]
+   Notes:
+
+* Right-click subfolder/a.soar and click Refactor->Rename...
+* Rename is to subfolder/b.soar and click Preview
+* Verify that the correct changes are shown in both load1.soar and load2.soar.
+   Result: [X]
+   Notes:
+
+
+* Click Ok
+* Verify that the file is renamed and that the changes were applied
+  correctly to load1.soar and load2.soar
+   Result: [X]
+   Notes:
+
+
+* Rename both b.soar files back to a.soar
+* Verify that they are renamed correctly and that load1.soar and load2.soar
+  are restored to their original state.
+   
+   Result: [X]
+   Notes: Reverted ok, but agent was messed up afterward. Files were no longer
+          members of the agent.
+
+* Rename pathological.soar, a file that sources itself
+Result: [X]
+Notes: File was renamed, but got some weird behavior, possibly because the
+editor was open at the time.
+
+
+-------------------------------------------------------
+secondary-tcl-files\readme.txt
+-------------------------------------------------------
+This tests the ability of Soar IDE to detect when a secondary file needs to be
+reparsed do to a change in a Tcl macro.
+
+* Expand secondary-tcl-files in the Soar Datamap view
+* Verify that there is an attribute named "superstatex" with value nil
+   Result: [X]
+   Notes:
+
+* Highlight the attribute and and verify it is a member of test-rename-superstate
+
+* Double-click test-rename-superstate to open productions.soar
+* Control click on [lhs] in the production to jump to the lhs macro in macros.tcl
+
+* In the macro change ^superstatex to ^superstate and save the file
+* Verify that the superstatex attribute in the datamap has been changed to superstate
+   Result: [X]
+   Notes:
+
+
+* Verify in productions.soar that test-fix-lhs-error has the error "only state allowed"
+   Result: [X]
+   Notes:
+
+* Control-click [lhs-with-error] to jump to the macro
+* In the macro, change statex to state and save the file
+X
+
+-------------------------------------------------------
+soar-errors\readme.txt
+-------------------------------------------------------
+This tests various Soar variable errors that are found by Soar IDE
+
+* Open soar-errors.soar
+* Verify the following errors:
+** In test-disconnected-from-state, "Variable <conact> is not connected to state"
+** In test-unbound, "Unbound variable <location> passed to function"
+** In test-no-positive-conditions1, "Production has no positive conditions"
+** In test-no-positive-conditions2, "Production has no positive conditions"
+** In test-function-arguments:
+	"Too many arguments to function 'crlf'. Expected no arguments"
+	"Too many arguments to function 'halt'. Expected no arguments"
+	"Too many arguments to function 'interrupt'. Expected no arguments"
+	"Too many arguments to function 'timestamp'. Expected no arguments"
+	"Too many arguments to function 'accept'. Expected no arguments"
+	"Too few arguments to function 'capitalize-symbol'. Expected exactly 1 argument"
+	"Too few arguments to function 'ifeq'. Expected exactly 4 arguments"
+	"Too many arguments to function 'strlen'. Expected exactly 1 argument"
+	
+   Result: [X]
+   Notes:
+
+Fix the errors and verify that the errors go away.
+X	
+
+-------------------------------------------------------
+syntax-highlighting\readme.txt
+-------------------------------------------------------
+This tests syntax highlighting in the Soar editor
+
+* Open syntax-highlighting.soar
+* Vefify that all of the comments are colored correctly
+* Verify that "state" is colored in case (A)
+   Result: [X]
+   Notes:
+
+* Verify that <s> is colored as a variable in case (A)
+   Result: [X]
+   Notes:
+
+* Verify that <bar> is colored as a variable in case (B) (bug 1416)
+   Result: [X]
+   Notes:
+
+* Verify that "interrupt" is colored as a RHS function in case (C)
+   Result: [X]
+   Notes:
+
+* Verify that "[left-hand-side 1 2 3]" is colored as a Tcl macro in case (D)
+   Result: [X]
+   Notes:
+
+* Verify that "$iopath" is colored as a Tcl variable in case (E)
+   Result: [X]
+   Notes:
+
+* Verify that "sp" is colored in case (F)
+   Result: [X]
+   Notes:
+
+* Verify that the disjunction is colored in case (G)
+   Result: [X]
+   Notes:
+
+* Verify that the string is colored correctly in case (H) 
+   Result: [X]
+   Notes:
+
+
+* Open "Window->Preferences->Soar Editor->Syntax Coloring" and change colors
+  of various language elements
+* Verify that the colors change in the open editor
+   Result: [X]
+   Notes:
+
+
+* Close and reopen the Eclipse workbench
+
+
+-------------------------------------------------------
+tcl-error-reporting\readme.txt
+-------------------------------------------------------
+This tests the ability of Soar IDE to output the stack of a Tcl error in the Soar Source Viewer as well as to 
+avoid evaluating source commands on non-exisatant files.
+
+* Open productions.soar
+* Bring up the Soar Source Viewer and expand the test-good production
+* Verify that there is no error on the production and that the Tcl expands to:
+	"(state <s> ^superstate nil)"
+   Result: [X]
+   Notes:
+
+* Now place the test-bad production into the Soar Source Viewer and expand the Tcl
+* Verify that there is an error on the production that the expansion in the Soar Source Viewer has the Tcl stack in it:
+	can't read "error": no such variable
+	    while executing
+	"return "(state <s> ^superstate $error)""
+	    (procedure "recurse" line 2)
+	    invoked from within
+	"recurse"
+	    invoked from within
+	"return [recurse]"
+	    (procedure "lhs-with-error" line 2)
+	    invoked from within
+	"lhs-with-error"
+	    invoked from within
+	"return " test-bad
+	    [lhs-with-error]
+	-->
+	    (interrupt)
+	""
+	    (in namespace eval "::" script line 1)
+	    invoked from within
+	"namespace eval :: {return " test-bad
+	    [lhs-with-error]
+	-->
+	    (interrupt)
+	"}" 
+   Result: [X]
+   Notes:
+
+
+* Verify that load.soar contains an error that test.soar does not exist.
+   Result: [X]
+   Notes:
+
+
+
