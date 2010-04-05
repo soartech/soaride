@@ -77,7 +77,7 @@ public class SoarBuilder extends IncrementalProjectBuilder
      */
     public static void addToProject(IProject project) throws CoreException
     {
-        System.out.println("Adding Soar builder to soarProject " + project.getName());
+
         IProjectDescription desc = project.getDescription();
         List<ICommand> commands = new ArrayList<ICommand>(Arrays.asList(desc.getBuildSpec()));
         
@@ -569,7 +569,7 @@ public class SoarBuilder extends IncrementalProjectBuilder
      * @param soarProject
      * @throws SoarModelException 
      */
-    private void saveDatamap(SoarProject soarProject) throws SoarModelException
+    void saveDatamap(SoarProject soarProject) throws SoarModelException
     {
         for(ISoarAgent agent : soarProject.getAgents())
         {

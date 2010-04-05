@@ -33,6 +33,7 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -49,8 +50,12 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.model.ISoarElement;
+import com.soartech.soar.ide.core.model.ISoarModel;
 import com.soartech.soar.ide.core.model.ISoarModelListener;
 import com.soartech.soar.ide.core.model.SoarModelEvent;
+import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
+import com.soartech.soar.ide.core.sql.ISoarDatabaseEventListener;
+import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.SoarUiTools;
@@ -63,9 +68,9 @@ import com.soartech.soar.ide.ui.views.SoarLabelProvider;
  * @author aron
  */
 public class SoarExplorerView extends ViewPart 
-							  implements ISelectionChangedListener,
-								 		 ISoarModelListener,
-								 		 IDoubleClickListener
+							  implements ISoarModelListener,
+								 		 IDoubleClickListener,
+								 		 ISoarDatabaseEventListener
 {
     public static final String ID = "com.soartech.soar.ide.ui.views.SoarExplorerView";
     
@@ -84,12 +89,19 @@ public class SoarExplorerView extends ViewPart
 		new SoarExplorerProductionViewContentProvider();
     private ILabelProvider productionViewLabelProvider = SoarLabelProvider.createFullLabelProvider(null);
 	
-	/**
+    /**
 	 * The content provider for the 'full view' structure.
 	 */
 	private SoarExplorerFullViewContentProvider fullViewContentProvider =
 		new SoarExplorerFullViewContentProvider();
 	private ILabelProvider fullViewLabelProvider = SoarLabelProvider.createFullLabelProvider(null);
+	
+    /**
+	 * The content provider for the database view.
+	 */
+	private SoarExplorerDatabaseContentProvider databaseContentProvider =
+		new SoarExplorerDatabaseContentProvider();
+	private ILabelProvider databaseLabelProvider = SoarLabelProvider.createFullLabelProvider(null);
 	
 	/**
 	 * The viewer filter for the soar explorer.
@@ -118,14 +130,14 @@ public class SoarExplorerView extends ViewPart
 	{
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		
-		viewer.addSelectionChangedListener(this);
 		viewer.addDoubleClickListener(this);
         viewer.setUseHashlookup(true); // this significantly improves update performance
 		
-		viewer.setContentProvider(fullViewContentProvider);
-		viewer.setLabelProvider(fullViewLabelProvider);
+		viewer.setContentProvider(databaseContentProvider);
+		viewer.setLabelProvider(databaseLabelProvider);
 		viewer.addFilter(viewerFilter);
-        viewer.setInput(SoarCorePlugin.getDefault().getSoarModel());
+		ISoarModel input = SoarCorePlugin.getDefault().getSoarModel(); 
+        viewer.setInput(input);
         getSite().setSelectionProvider(viewer);
 
         createContextMenu();
@@ -135,7 +147,7 @@ public class SoarExplorerView extends ViewPart
 		FilterContributionItem filterContribution = new FilterContributionItem("text_filter", this);
 		toolbarManager.add(filterContribution);
 		
-        SoarCorePlugin.getDefault().getSoarModel().addListener(this);
+        SoarCorePlugin.getDefault().getSoarModel().getDatabase().addListener(this);
 	}
     
     private void createContextMenu()
@@ -240,9 +252,7 @@ public class SoarExplorerView extends ViewPart
                 
                 control.setRedraw(false);
     			
-    			viewer.removeSelectionChangedListener(this);
                 viewer.refresh();
-    			viewer.addSelectionChangedListener(this);
     			
     			//re-expand the tree to it's previous state
                 viewer.setExpandedElements(expandedElements);
@@ -357,14 +367,6 @@ public class SoarExplorerView extends ViewPart
     }
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.ISelectionChangedListener#selectionChanged(org.eclipse.jface.viewers.SelectionChangedEvent)
-	 */
-	public void selectionChanged(SelectionChangedEvent event) 
-	{   
-        //nothing for now
-	}
-
-	/* (non-Javadoc)
 	 * @see com.soartech.soar.ide.core.model.ISoarModelListener#onEvent(com.soartech.soar.ide.core.model.SoarModelEvent)
 	 */
 	public void onEvent(SoarModelEvent event) 
@@ -397,6 +399,18 @@ public class SoarExplorerView extends ViewPart
 		} catch (CoreException e) {
 			SoarEditorUIPlugin.log(e.getStatus());
 		}
+	}
+
+	@Override
+	public void onEvent(SoarDatabaseEvent event, SoarDatabaseConnection db) {
+		//Object[] elements = viewer.getExpandedElements();
+		//TreePath[] treePaths = viewer.getExpandedTreePaths();
+		viewer.refresh();
+		//viewer.setExpandedElements(elements); 
+		//viewer.setExpandedTreePaths(treePaths);
+		
+		// TODO: hack
+		viewer.expandAll();
 	}
 
 }

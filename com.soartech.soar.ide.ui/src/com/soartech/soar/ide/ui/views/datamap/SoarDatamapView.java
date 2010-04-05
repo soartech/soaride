@@ -31,11 +31,13 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -255,6 +257,15 @@ public class SoarDatamapView extends ViewPart
         treeViewer.setContentProvider(new SoarDatamapContentProvider());
         // Can't use the full label provider because it hides the column stuff. 
         treeViewer.setLabelProvider(SoarLabelProvider.createFastLabelProvider(null));
+        
+        // Make cells editable
+        treeViewer.setCellModifier(new SoarDatamapCellModifier(treeViewer));
+        treeViewer.setColumnProperties(new String[]{"Attribute", "Values"});
+        CellEditor[] cellEditors = new CellEditor[2];
+        cellEditors[0] = new TextCellEditor(treeViewer.getTree());
+        cellEditors[1] = new TextCellEditor(treeViewer.getTree());
+        treeViewer.setCellEditors(cellEditors);
+        
         treeViewer.setInput(getInitialTreeInput());
         treeViewer.setSorter(new ViewerSorter());
         

@@ -3,6 +3,7 @@
 	<name>com.soartech.soar.ide.ui</name>
 	<comment></comment>
 	<projects>
+		<project>com.soartech.soar.ide.core</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

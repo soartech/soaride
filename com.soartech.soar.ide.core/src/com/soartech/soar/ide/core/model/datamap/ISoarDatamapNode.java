@@ -21,6 +21,8 @@ package com.soartech.soar.ide.core.model.datamap;
 
 import java.util.Set;
 
+import com.soartech.soar.ide.core.model.ISoarProduction;
+
 /**
  * Represents a node in the datamap graph. Each node corresponds to a variable 
  * in a Soar production.
@@ -74,4 +76,16 @@ public interface ISoarDatamapNode
      * @return All values associated with this node
      */
     Set<ISoarDatamapValue> getValues();
+    
+    /**
+     * Removes all values.
+     */
+    void clearValues();
+    
+    /**
+     * 
+     * @param production
+     * @param value
+     */
+    ISoarDatamapValue addValue(ISoarProduction production, String value);
 }

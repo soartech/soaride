@@ -47,6 +47,7 @@ import com.soartech.soar.ide.core.model.ITclHelpModel;
 import com.soartech.soar.ide.core.model.SoarModelEvent;
 import com.soartech.soar.ide.core.model.SoarModelException;
 import com.soartech.soar.ide.core.model.SoarModelTools;
+import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 
 /**
  * Implementation of the ISoarModel interface. The instance of this object 
@@ -66,6 +67,8 @@ public class SoarModel extends AbstractSoarOpenable implements ISoarModel
     private int queuedEventsDepth = 0;
     private List<SoarModelEvent> queuedEvents = new ArrayList<SoarModelEvent>();
     private int queuedTypedEvents[] = { 0, 0, 0 };
+    
+    private SoarDatabaseConnection dbConn = new SoarDatabaseConnection();
     
     /**
      * Construct a new Soar model. This method should not be used by client code.
@@ -291,7 +294,7 @@ public class SoarModel extends AbstractSoarOpenable implements ISoarModel
     public List<ISoarProject> getProjects() throws SoarModelException
     {
         synchronized(getLock())
-        {
+        {	
             List<ISoarProject> projects = new ArrayList<ISoarProject>();
             for(ISoarElement element : getChildren())
             {
@@ -426,6 +429,14 @@ public class SoarModel extends AbstractSoarOpenable implements ISoarModel
     public ITclHelpModel getTclHelpModel()
     {
         return tclHelpModel;
+    }
+    
+    /**
+     * Gets the databaseConnection
+     * @return
+     */
+    public SoarDatabaseConnection getDatabase() {
+    	return dbConn;
     }
 
     /**

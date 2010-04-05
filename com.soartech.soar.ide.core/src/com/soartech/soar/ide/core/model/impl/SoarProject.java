@@ -56,6 +56,7 @@ import com.soartech.soar.ide.core.model.SoarModelEvent;
 import com.soartech.soar.ide.core.model.SoarModelException;
 import com.soartech.soar.ide.core.model.SoarModelTools;
 import com.soartech.soar.ide.core.model.impl.datamap.SoarDatamap;
+import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 
 /**
  * @author ray
@@ -612,7 +613,11 @@ public class SoarProject extends AbstractSoarOpenable
         }
         makeConsistent(monitor);
         
-        return true;
+        // TODO: for debugging
+        // Do a full build.
+        return false;
+        
+        //return true;
     }
         
     /* (non-Javadoc)

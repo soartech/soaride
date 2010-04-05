@@ -24,6 +24,8 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspace;
 
+import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
+
 /**
  * The root interface of the  Soar model. This is the main entry point for
  * access to all Soar objects. The single instance can be retrieved through
@@ -93,4 +95,6 @@ public interface ISoarModel extends ISoarElement, ISoarOpenable
      *      return <code>null</code>
      */
     ITclHelpModel getTclHelpModel();
+    
+    SoarDatabaseConnection getDatabase();
 }

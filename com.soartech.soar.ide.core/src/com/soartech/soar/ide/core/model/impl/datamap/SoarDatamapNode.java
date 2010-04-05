@@ -144,7 +144,8 @@ public class SoarDatamapNode implements ISoarDatamapNode
         assert removed == attr;
     }
     
-    void addValue(ISoarProduction production, String value)
+    @Override
+    public ISoarDatamapValue addValue(ISoarProduction production, String value)
     {
         if(values == null)
         {
@@ -156,7 +157,11 @@ public class SoarDatamapNode implements ISoarDatamapNode
             v = new SoarDatamapValue(value);
             values.put(value, v);
         }
-        v.addProduction(production);
+        if (production != null)
+        {
+        	v.addProduction(production);
+        }
+        return v; 
     }
     
     void removeValue(ISoarProduction production)
@@ -314,6 +319,15 @@ public class SoarDatamapNode implements ISoarDatamapNode
     public String toString()
     {
         return Character.toString(idChar);
+    }
+    
+    @Override
+    public void clearValues()
+    {
+    	if (values != null)
+    	{
+    		values.clear();
+    	}
     }
 
 }

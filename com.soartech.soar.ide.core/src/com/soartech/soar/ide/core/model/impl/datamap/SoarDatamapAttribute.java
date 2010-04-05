@@ -68,11 +68,11 @@ public class SoarDatamapAttribute implements ISoarDatamapAttribute
         this.datamap = datamap;
         this.name = name;
         this.source = source;
-        this.target = target;
-        
-        source.addAttribute(this);
-        datamap.onAttributeAdded(this);
-    }
+		this.target = target;
+
+		source.addAttribute(this);
+		datamap.onAttributeAdded(this);
+	}
     
     SoarDatamapAttribute(SoarProject project, 
                          SoarDatamap datamap, DatamapAttributeMemento memento,
@@ -108,10 +108,10 @@ public class SoarDatamapAttribute implements ISoarDatamapAttribute
                 }
             }
         }
-        
-        source.addAttribute(this);
-        datamap.onAttributeAdded(this);
-    }
+
+		source.addAttribute(this);
+		datamap.onAttributeAdded(this);
+	}
     
     DatamapAttributeMemento createMemento(Map<ISoarDatamapNode, DatamapNodeMemento> nodeMap)
     {

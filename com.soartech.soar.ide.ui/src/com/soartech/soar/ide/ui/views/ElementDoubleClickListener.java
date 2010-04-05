@@ -22,10 +22,12 @@ package com.soartech.soar.ide.ui.views;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 
 import com.soartech.soar.ide.core.model.ISoarElement;
+import com.soartech.soar.ide.core.model.datamap.ISoarDatamapAttribute;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.SoarUiTools;
@@ -43,20 +45,22 @@ public class ElementDoubleClickListener implements IDoubleClickListener
      */
     public void doubleClick(DoubleClickEvent event)
     {
-        ISoarElement p = SoarUiTools.getValueFromSelection(event.getSelection(), ISoarElement.class);
-        if(p == null)
-        {
-            return;
-        }
-        
-        IWorkbench workbench = SoarEditorUIPlugin.getDefault().getWorkbench();
-        IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
-        
-        try {
-            SoarUiModelTools.showElementInEditor(page, p);
-        } catch (CoreException e) {
-            SoarEditorUIPlugin.log(e.getStatus());
-        }
-        
-    }
+		ISoarElement p = SoarUiTools.getValueFromSelection(
+				event.getSelection(), ISoarElement.class);
+		if (p == null) {
+			return;
+		} else {
+			IWorkbench workbench = SoarEditorUIPlugin.getDefault()
+					.getWorkbench();
+			IWorkbenchPage page = workbench.getActiveWorkbenchWindow()
+					.getActivePage();
+
+			try {
+				SoarUiModelTools.showElementInEditor(page, p);
+			} catch (CoreException e) {
+				SoarEditorUIPlugin.log(e.getStatus());
+			}
+		}
+
+	}
 }

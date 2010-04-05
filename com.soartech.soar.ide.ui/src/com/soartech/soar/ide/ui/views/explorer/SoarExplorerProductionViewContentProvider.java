@@ -82,7 +82,7 @@ public class SoarExplorerProductionViewContentProvider implements ITreeContentPr
             catch(SoarModelException e)
             {
                 SoarEditorUIPlugin.log(e);
-            }
+            }         
 		}
         else if(element instanceof ISoarAgent)
         {
@@ -135,7 +135,8 @@ public class SoarExplorerProductionViewContentProvider implements ITreeContentPr
 	 */
 	public Object[] getElements(Object inputElement) 
 	{
-        return getChildren(inputElement);
+        Object[] ret = getChildren(inputElement);
+        return ret;
 	}
 
 	/* (non-Javadoc)

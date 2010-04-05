@@ -92,7 +92,8 @@ public class SoarExplorerFullViewContentProvider implements ITreeContentProvider
 		{
 			ISoarModel model = (ISoarModel) element;
 			try {
-				return model.getProjects().toArray();
+				Object[] ret = model.getProjects().toArray();
+				return ret;
 			} catch (SoarModelException e) {
 				SoarEditorUIPlugin.log(e);
 			}

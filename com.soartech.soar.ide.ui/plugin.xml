@@ -309,6 +309,18 @@
              menubarPath="additions"
              tooltip="Generate a monitor production from the selected datamap attributes"/>
     </objectContribution>
+    <objectContribution
+          adaptable="false"
+          id="com.soartech.soar.ide.ui.soarDatamapAttributeObjectContribution"
+          objectClass="com.soartech.soar.ide.core.sql.SoarDatabaseRow">
+       <action
+             class="com.soartech.soar.ide.ui.actions.HelloWorldActionDelegate"
+             enablesFor="*"
+             id="com.soartech.soar.ide.ui.helloWorld"
+             label="Hello, World!"
+             menubarPath="additions"
+             tooltip="Prints Hello, World! to stdout"/>
+    </objectContribution>
     <viewerContribution
           id="com.soartech.soar.ide.ui.actions.FormatSoarDocumentViewerContribution"
           targetID="#TextEditorContext">
@@ -378,6 +390,7 @@
     <viewContribution
           id="com.soartech.soar.ide.ui.SoarExplorerContribution"
           targetID="com.soartech.soar.ide.ui.views.SoarExplorerView">
+                     <!--
        <action
              class="com.soartech.soar.ide.ui.actions.SwitchSoarExplorerViewActionDelegate"
              icon="icons/impl_co.gif"
@@ -414,6 +427,7 @@
              menubarPath="com.soartech.soar.ide.ui.SoarExplorerMenu"
              style="toggle"
              toolbarPath="additions"/>
+             -->
     </viewContribution>
  </extension>
  <extension

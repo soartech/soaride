@@ -413,5 +413,4 @@ public class SoarDatamap implements ISoarDatamap
     {
         this.agent = agent;
     }
-
 }

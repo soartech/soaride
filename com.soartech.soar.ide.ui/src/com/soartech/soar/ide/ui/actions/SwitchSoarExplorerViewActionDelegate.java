@@ -109,6 +109,7 @@ public class SwitchSoarExplorerViewActionDelegate
             action.setChecked(false);
         }
 		
-		run(action);
+        // Eventually get rid of this action
+		// run(action);
 	}
 }

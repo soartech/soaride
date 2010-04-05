@@ -83,6 +83,7 @@ public class Mementos
      */
     public static Object deserialize(File file)
     {
+    	System.out.println("Mementos.deserialize(" + file.getPath() + ")");
         ObjectInputStream in = null;
         
         try
