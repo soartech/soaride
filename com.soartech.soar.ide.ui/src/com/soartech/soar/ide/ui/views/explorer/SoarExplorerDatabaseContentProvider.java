@@ -32,7 +32,7 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 			return null;
 		}
 		else if (element instanceof SoarDatabaseRow) {
-			ArrayList<SoarDatabaseRow> parents = ((SoarDatabaseRow)element).getParent();
+			ArrayList<SoarDatabaseRow> parents = ((SoarDatabaseRow)element).getParentRow();
 			if (parents.size() > 0) {
 				return parents.get(0);
 			} else {

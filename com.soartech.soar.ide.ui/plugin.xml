@@ -61,6 +61,11 @@
            icon="icons/soaragentfile.gif"
            id="com.soartech.soar.ide.ui.editors.agent.SoarAgentEditor"
            name="Soar Agent Editor"/>
+     <editor
+           class="com.soartech.soar.ide.ui.editors.database.SoarDatabaseTextEditor"
+           id="com.soartech.soar.ide.ui.editors.database.SoarDatabaseTextEditor"
+           icon="icons/soar_file_16.gif"
+           name="Soar Database Editor"/>
   </extension>
   <extension
         point="org.eclipse.ui.commands">
@@ -314,12 +319,19 @@
           id="com.soartech.soar.ide.ui.soarDatamapAttributeObjectContribution"
           objectClass="com.soartech.soar.ide.core.sql.SoarDatabaseRow">
        <action
-             class="com.soartech.soar.ide.ui.actions.HelloWorldActionDelegate"
+             class="com.soartech.soar.ide.ui.actions.AddChildActionDelegate"
              enablesFor="*"
-             id="com.soartech.soar.ide.ui.helloWorld"
-             label="Hello, World!"
+             id="com.soartech.soar.ide.ui.addChild"
+             label="Add child element"
              menubarPath="additions"
-             tooltip="Prints Hello, World! to stdout"/>
+             tooltip="Adds a child element to the selected database row."/>
+       <action
+             class="com.soartech.soar.ide.ui.actions.OpenDatabaseRowInEditorActionDelegate"
+             enablesFor="*"
+             id="com.soartech.soar.ide.ui.openRowInEditor"
+             label="Open in editor"
+             menubarPath="additions"
+             tooltip="Opens the selected database row in an editor."/>
     </objectContribution>
     <viewerContribution
           id="com.soartech.soar.ide.ui.actions.FormatSoarDocumentViewerContribution"

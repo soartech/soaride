@@ -5,12 +5,21 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IPersistableElement;
+
+import com.soartech.soar.ide.core.SoarCorePlugin;
+import com.soartech.soar.ide.core.model.impl.SoarModel;
+import com.soartech.soar.ide.core.model.impl.SoarProject;
+
 public class SoarDatabaseRow {
 	
 	public enum Table {
 		AGENTS,
 		PROBLEM_SPACES,
-		PRODUCTIONS;
+		RULES;
 		
 		public String tableName() {
 			return toString().toLowerCase();
@@ -24,6 +33,15 @@ public class SoarDatabaseRow {
 		public String idName() {
 			return shortName() + "_id";
 		}
+	}
+	
+	public static Table getTableNamed(String name) {
+		for (Table t : Table.values()) {
+			if (name.equalsIgnoreCase(t.name())) {
+				return t;
+			}
+		}
+		return null;
 	}
 	
 	private static HashMap<Table, ArrayList<Table>> childTables = new HashMap<Table, ArrayList<Table>>();
@@ -137,7 +155,7 @@ public class SoarDatabaseRow {
 		return new ArrayList<Table>();
 	}
 	
-	public ArrayList<SoarDatabaseRow> getParent() {
+	public ArrayList<SoarDatabaseRow> getParentRow() {
 		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
 		ArrayList<Table> parents = getParentTables();
 		for (Table t : parents) {
@@ -167,8 +185,8 @@ public class SoarDatabaseRow {
 	
 	private static void init() {
 		addChild(Table.AGENTS, Table.PROBLEM_SPACES);
-		addChild(Table.PROBLEM_SPACES, Table.PRODUCTIONS);
-	    addParent(Table.PRODUCTIONS, Table.PROBLEM_SPACES);
+		addChild(Table.PROBLEM_SPACES, Table.RULES);
+	    addParent(Table.RULES, Table.PROBLEM_SPACES);
 	    addParent(Table.PROBLEM_SPACES, Table.AGENTS);
 		initted = true;
 	}
@@ -200,5 +218,51 @@ public class SoarDatabaseRow {
 			}
 		}
 		return false;
+	}
+
+	public IEditorInput getEditorInput() {
+		return new SoarDatabaseEditorInput(this);
+	}
+
+	public boolean exists() {
+		String sql = "select * from " + getTable().tableName() + " where id=" + id;
+		ResultSet rs = db.getResultSet(sql);
+		boolean ret = false;
+		try {
+			ret = rs.next();
+			rs.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ret;
+	}
+
+	public String getText() {
+		String ret = null;
+		if (table == Table.RULES) {
+			String sql = "select (raw_text) from " + table.tableName() + " where id=" + id;
+			ResultSet rs = db.getResultSet(sql);
+			try {
+				if (rs.next()) {
+					ret = rs.getString("raw_text");
+				}
+				rs.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		if (ret == null) {
+			ret = "";
+		}
+		return ret;
+	}
+
+	public void setText(String text) {
+		// TODO Auto-generated method stub
+		if (table == Table.RULES) {
+			String sql = "update " + table.tableName() + " set raw_text=\"" + text + "\" where id=" + id;
+			db.execute(sql);
+		}
 	}
 }

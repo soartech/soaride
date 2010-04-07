@@ -56,7 +56,6 @@ import com.soartech.soar.ide.core.model.SoarModelEvent;
 import com.soartech.soar.ide.core.model.SoarModelException;
 import com.soartech.soar.ide.core.model.SoarModelTools;
 import com.soartech.soar.ide.core.model.impl.datamap.SoarDatamap;
-import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 
 /**
  * @author ray

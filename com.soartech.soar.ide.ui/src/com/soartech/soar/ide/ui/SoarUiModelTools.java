@@ -23,6 +23,7 @@ package com.soartech.soar.ide.ui;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -34,7 +35,9 @@ import org.eclipse.ui.texteditor.AbstractTextEditor;
 import com.soartech.soar.ide.core.model.ISoarElement;
 import com.soartech.soar.ide.core.model.ISoarSourceRange;
 import com.soartech.soar.ide.core.model.ISoarSourceReference;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.ui.editors.text.SoarEditor;
+import com.soartech.soar.ide.ui.editors.database.SoarDatabaseTextEditor;
 
 /**
  * @author aron
@@ -85,6 +88,29 @@ public class SoarUiModelTools
         }
         
         return part;
+    }
+    
+	/**
+     * Show a particular database row in an editor.
+     * 
+     * <p>Taken from 
+     * <a href="http://wiki.eclipse.org/index.php/FAQ_How_do_I_open_an_editor_on_a_file_in_the_workspace%3F">here</a>
+     * 
+     * @param page The workbench page
+     * @param row The database row to display
+     * @return The editor the element was shown in, or null if the element 
+     *      could not be displayed.
+     * @throws CoreException
+     */
+    public static IEditorPart showDatabaseRowInEditor(IWorkbenchPage page, SoarDatabaseRow row) throws CoreException
+    {
+        String editorId = SoarDatabaseTextEditor.ID;
+        IEditorInput input = row.getEditorInput();
+		if (input != null) {
+			IEditorPart part = page.openEditor(input, editorId);
+			return part;
+		}
+		return null;
     }
     
     /**

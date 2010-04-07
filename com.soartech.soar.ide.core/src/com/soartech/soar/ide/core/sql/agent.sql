@@ -13,8 +13,8 @@ agent_id int,
 name varchar(100) not null
 );
 
-drop table if exists productions;
-create table productions
+drop table if exists rules;
+create table rules
 (
 id integer primary key,
 problem_space_id integer,

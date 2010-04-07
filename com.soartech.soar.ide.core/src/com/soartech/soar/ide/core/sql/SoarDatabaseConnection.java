@@ -91,7 +91,7 @@ public class SoarDatabaseConnection {
 		for (int i = 0; i < problemSpaces.size(); ++i) {
 			SoarDatabaseRow problemSpace = problemSpaces.get(i);
 			for (int j = 0; j < 2; ++j) {
-				createChild(problemSpace, Table.PRODUCTIONS, "Production " + j);
+				createChild(problemSpace, Table.RULES, "Production " + j);
 			}
 		}
 	}
