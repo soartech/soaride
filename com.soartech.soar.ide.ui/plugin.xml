@@ -319,19 +319,40 @@
           id="com.soartech.soar.ide.ui.soarDatamapAttributeObjectContribution"
           objectClass="com.soartech.soar.ide.core.sql.SoarDatabaseRow">
        <action
-             class="com.soartech.soar.ide.ui.actions.AddChildActionDelegate"
+             class="com.soartech.soar.ide.ui.actions.explorer.AddProblemSpaceActionDelegate"
              enablesFor="*"
-             id="com.soartech.soar.ide.ui.addChild"
-             label="Add child element"
+             id="com.soartech.soar.ide.ui.addProblemSpace"
+             label="Add Problem Space"
              menubarPath="additions"
-             tooltip="Adds a child element to the selected database row."/>
+             tooltip="Adds a child Problem Space to the selected database row."/>
        <action
-             class="com.soartech.soar.ide.ui.actions.OpenDatabaseRowInEditorActionDelegate"
+             class="com.soartech.soar.ide.ui.actions.explorer.AddRuleActionDelegate"
+             enablesFor="*"
+             id="com.soartech.soar.ide.ui.addRule"
+             label="Add Rule"
+             menubarPath="additions"
+             tooltip="Adds a child Rule to the selected database row."/>
+       <action
+             class="com.soartech.soar.ide.ui.actions.explorer.AddOperatorActionDelegate"
+             enablesFor="*"
+             id="com.soartech.soar.ide.ui.addOperator"
+             label="Add Operator"
+             menubarPath="additions"
+             tooltip="Adds a child Operator to the selected database row."/>
+       <action
+             class="com.soartech.soar.ide.ui.actions.explorer.OpenDatabaseRowInEditorActionDelegate"
              enablesFor="*"
              id="com.soartech.soar.ide.ui.openRowInEditor"
              label="Open in editor"
              menubarPath="additions"
              tooltip="Opens the selected database row in an editor."/>
+       <action
+             class="com.soartech.soar.ide.ui.actions.explorer.RenameDatabaseRowActionDelegate"
+             enablesFor="*"
+             id="com.soartech.soar.ide.ui.RenameSoarDatabaseRow"
+             label="Rename"
+             menubarPath="additions"
+             tooltip="Rename the selected database row."/>
     </objectContribution>
     <viewerContribution
           id="com.soartech.soar.ide.ui.actions.FormatSoarDocumentViewerContribution"
@@ -402,6 +423,12 @@
     <viewContribution
           id="com.soartech.soar.ide.ui.SoarExplorerContribution"
           targetID="com.soartech.soar.ide.ui.views.SoarExplorerView">
+       <action
+             class="com.soartech.soar.ide.ui.actions.explorer.AddAgentActionDelegate"
+             id="com.soartech.soar.ide.ui.actions.explorer.AddAgent"
+             label="New Agent"
+             toolbarPath="additions"
+             tooltip="Adds an Agent to the project."/>
                      <!--
        <action
              class="com.soartech.soar.ide.ui.actions.SwitchSoarExplorerViewActionDelegate"

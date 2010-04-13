@@ -2,6 +2,7 @@ package com.soartech.soar.ide.ui.editors.database;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.TextEditor;
 
@@ -29,8 +30,8 @@ public class SoarDatabaseTextEditor extends TextEditor {
 		super.doSave(progressMonitor);
 		if (input != null) {
 			SoarDatabaseRow row = input.getSoarDatabaseStorage().getRow();
-			String text = getDocumentProvider().getDocument(input).get();
-			row.setText(text);
+			IDocument doc = getDocumentProvider().getDocument(input);
+			row.save(doc);
 		}
 	}
 	

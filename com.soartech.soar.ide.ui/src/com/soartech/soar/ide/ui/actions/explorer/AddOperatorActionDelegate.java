@@ -1,41 +1,38 @@
-package com.soartech.soar.ide.ui.actions;
+package com.soartech.soar.ide.ui.actions.explorer;
 
-import java.util.ArrayList;
-
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.soartech.soar.ide.ui.SoarUiModelTools;
 
-public class OpenDatabaseRowInEditorActionDelegate implements
-		IObjectActionDelegate {
+public class AddOperatorActionDelegate implements IObjectActionDelegate {
 
-	private SoarDatabaseRow selectedRow = null;
-    private IWorkbenchPart targetPart;
-
+	SoarDatabaseRow selectedRow = null;
+	
 	@Override
 	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
-		// TODO Auto-generated method stub
-		action.setText("Show in editor");
-        this.targetPart = targetPart;
 	}
 
 	@Override
 	public void run(IAction action) {
-		// TODO Auto-generated method stub
-		if (selectedRow != null && selectedRow.getTable() == Table.RULES) {
-			try {
-				SoarUiModelTools.showDatabaseRowInEditor(targetPart.getSite().getPage(), selectedRow);
-			} catch (CoreException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		
+		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow() .getShell();
+		String title = "New Rule";
+		String message = "Enter Name:";
+		String initialValue = "New Operator";
+		InputDialog dialog = new InputDialog(shell, title, message, initialValue, null);
+		dialog.open();
+		String result = dialog.getValue();
+		
+		if (result != null && result.length() > 0) {
+			selectedRow.createChild(Table.OPERATORS, result);
 		}
 	}
 
@@ -48,10 +45,9 @@ public class OpenDatabaseRowInEditorActionDelegate implements
 			Object obj = ss.getFirstElement();
 			if (obj instanceof SoarDatabaseRow) {
 				selectedRow = (SoarDatabaseRow) obj;
-				action.setEnabled(true);
-			}
-			else {
-				selectedRow = null;
+				if (selectedRow.getChildTables().contains(Table.OPERATORS)) {
+					action.setEnabled(true);
+				}
 			}
 		}
 	}

@@ -41,6 +41,7 @@ import com.soartech.soar.ide.core.model.ITclFileReference;
 import com.soartech.soar.ide.core.model.ITclProcedure;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamapAttribute;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamapValue;
+import com.soartech.soar.ide.core.sql.ISoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.ui.SoarEditorPluginImages;
 import com.soartech.soar.ide.ui.editors.text.SoarFoldingRegion;
@@ -129,8 +130,8 @@ public class SoarLabelProvider extends LabelProvider implements
 	 */
 	@Override
 	public String getText(Object element) {
-		if (element instanceof SoarDatabaseRow) {
-			return ((SoarDatabaseRow)element).toString();
+		if (element instanceof ISoarDatabaseRow) {
+			return element.toString();
 		} else if (element instanceof ISoarProject) {
 			ISoarProject project = (ISoarProject) element;
 
