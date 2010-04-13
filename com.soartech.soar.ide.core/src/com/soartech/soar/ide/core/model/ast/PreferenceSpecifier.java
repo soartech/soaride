@@ -35,6 +35,18 @@ public class PreferenceSpecifier {
 	public static final int PROHIBIT = 6;
 	public static final int AMPERSAND = 7;
 	public static final int ATSIGN = 8;
+	
+	public static final String[] PREFERENCES = {
+		"ACCEPTABLE",
+		"REJECT",
+		"EQUAL",
+		"GREATER",
+		"LESS",
+		"REQUIRE",
+		"PROHIBIT",
+		"AMPERSAND",
+		"ATSIGN"
+	};
 	              
 	// Constructors
 	protected PreferenceSpecifier(int type) {

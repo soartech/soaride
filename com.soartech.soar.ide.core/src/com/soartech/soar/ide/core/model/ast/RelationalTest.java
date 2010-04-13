@@ -29,7 +29,7 @@ public class RelationalTest {
 	public static final int GT = 5;
 	public static final int EQ = 6;
     
-    private static final String[] RELATIONS = {
+    public static final String[] RELATIONS = {
         "<>",
         "<=>",
         "<",

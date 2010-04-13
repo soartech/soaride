@@ -10,13 +10,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-import com.soartech.soar.ide.core.model.ISoarElement;
-import com.soartech.soar.ide.core.model.ISoarModelListener;
+import org.sqlite.SQLite;
+
 import com.soartech.soar.ide.core.model.ISoarProduction;
-import com.soartech.soar.ide.core.model.SoarModelEvent;
 import com.soartech.soar.ide.core.model.ast.Action;
 import com.soartech.soar.ide.core.model.ast.Condition;
 import com.soartech.soar.ide.core.model.ast.PositiveCondition;
@@ -32,13 +29,12 @@ public class SoarDatabaseConnection {
 	private String driver = "org.sqlite.JDBC";
 	private String protocol = "jdbc:sqlite::memory:";
 	private String dbName = ""; // the name of the database
-	private String[] sqlFiles = { "agent.sql" }; // "production.sql", "datamap.sql" };
+	private String[] sqlFiles = { "agent.sql" , "rule.sql" }; // , "datamap.sql" };
 	private Connection conn;
-	private boolean debug = true;
+	private boolean debug = false;
 
 	private ArrayList<ISoarDatabaseEventListener> listeners = new ArrayList<ISoarDatabaseEventListener>();
-	private ArrayList<SoarDatabaseEvent> queuedEvents = new ArrayList<SoarDatabaseEvent>();
-	private int modificationLevel = 0;
+	private boolean supressEvents = false;
 	
 	public SoarDatabaseConnection() {
 		
@@ -72,28 +68,23 @@ public class SoarDatabaseConnection {
 	}
 
 	public void fireEvent(SoarDatabaseEvent event) {
-		for (ISoarDatabaseEventListener listener : listeners) {
-			listener.onEvent(event, this);
+		if (!supressEvents) {
+			for (ISoarDatabaseEventListener listener : listeners) {
+				listener.onEvent(event, this);
+			}
 		}
 	}
 	
+	public void setSupressEvents(boolean supress) {
+		supressEvents = supress;
+	}
+
+	public boolean getSupressEvents() {
+		return supressEvents;
+	}
+	
 	private void test() {
-		insert(Table.AGENTS, new String[][] {{"name", "\"Agent 1\""}});
-		insert(Table.AGENTS, new String[][] {{"name", "\"Agent 2\""}});
-		ArrayList<SoarDatabaseRow> agents = selectAllFromTable(Table.AGENTS);
-		for (int i = 0; i < agents.size(); ++i) {
-			SoarDatabaseRow agent = agents.get(i);
-			for (int j = 0; j < 2; ++j) {
-				createChild(agent, Table.PROBLEM_SPACES, "Problem Space " + j);
-			}
-		}
-		ArrayList<SoarDatabaseRow> problemSpaces = selectAllFromTable(Table.PROBLEM_SPACES);
-		for (int i = 0; i < problemSpaces.size(); ++i) {
-			SoarDatabaseRow problemSpace = problemSpaces.get(i);
-			for (int j = 0; j < 2; ++j) {
-				createChild(problemSpace, Table.RULES, "Production " + j);
-			}
-		}
+		insert(Table.AGENTS, new String[][] {{"name", "\"Agent 0\""}});
 	}
 
 	/**
@@ -372,6 +363,7 @@ public class SoarDatabaseConnection {
 		}
 		sql += ")";
 		execute(sql);
+		
 	}
 	
 	public void createChild(SoarDatabaseRow parent, Table childTable) {

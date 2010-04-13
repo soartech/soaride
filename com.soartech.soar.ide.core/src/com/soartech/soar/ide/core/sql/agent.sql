@@ -13,11 +13,19 @@ agent_id int,
 name varchar(100) not null
 );
 
+drop table if exists operators;
+create table operators
+(
+id integer primary key,
+agent_id int,
+name varchar(100) not null
+);
+
 drop table if exists rules;
 create table rules
 (
 id integer primary key,
-problem_space_id integer,
+agent_id integer,
 name varchar(100) not null,
 raw_text text
 );
