@@ -29,3 +29,21 @@ agent_id integer,
 name varchar(100) not null,
 raw_text text
 );
+
+--Join tables
+drop table if exists join_rules_problem_spaces;
+create table join_rules_problem_spaces
+(
+id integer primary key,
+rule_id integer,
+problem_space_id integer
+);
+
+drop table if exists join_rules_operators;
+create table join_rules_operators
+(
+id integer primary key,
+rule_id integer,
+operator_id integer
+);
+

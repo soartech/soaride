@@ -38,7 +38,6 @@ import com.soartech.soar.ide.core.model.ast.ValueMake;
 import com.soartech.soar.ide.core.model.ast.ValueTest;
 import com.soartech.soar.ide.core.model.ast.VarAttrValMake;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
-import com.sun.org.apache.bcel.internal.generic.ASTORE;
 
 public class SoarDatabaseRow implements ISoarDatabaseRow {
 	
@@ -100,10 +99,20 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		return null;
 	}
 	
+	// Maps a table onto its possible child tables.
 	private static HashMap<Table, ArrayList<Table>> childTables = new HashMap<Table, ArrayList<Table>>();
+	
+	// Maps a table onto its possible parent tables.
 	private static HashMap<Table, ArrayList<Table>> parentTables = new HashMap<Table, ArrayList<Table>>();
+	
+	// Maps a class from an abstract syntax tree onto the equivelent Table.
 	private static HashMap<Class<?>, Table> tableForAstNode = new HashMap<Class<?>, Table>();
+	
+	// Maps a table onto the a list of child Tables which should be displayed in folders.
 	private static HashMap<Table, ArrayList<Table>> childFolders = new HashMap<Table, ArrayList<Table>>();
+	
+	// Maps a table onto a list of all tables it's joined to.
+	private static HashMap<Table, ArrayList<Table>> joinedTables = new HashMap<Table, ArrayList<Table>>(); 
 	
 	private Table table;
 	private int id;
@@ -172,7 +181,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		return id;
 	}
 	
-	public void delete() {
+	private void delete() {
 		String sql = "delete from " + table.tableName() + " where id = " + id;
 		db.execute(sql);
 	}
@@ -186,7 +195,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	}
 	
 	/**
-	 * Returns rows and folders (but not rows which are contained by child folders)
+	 * Returns rows, folders, and join folders (but not rows which are contained by child folders).
 	 */
 	public ArrayList<ISoarDatabaseRow> getChildren() {
 		ArrayList<ISoarDatabaseRow> ret = new ArrayList<ISoarDatabaseRow>();
@@ -209,6 +218,13 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 				}
 			}
 		}
+		
+		ArrayList<Table> joinedTables = tablesJoinedToTable(table);
+		for (Table t : joinedTables) {
+			SoarDatabaseJoinFolder folder = new SoarDatabaseJoinFolder(this, t);
+			ret.add(folder);
+		}
+		
 		return ret;
     }
 	
@@ -255,6 +271,12 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 				e.printStackTrace();
 			}
 		}
+		if (folders.size() > 0) {
+			return true;
+		}
+		if (tablesJoinedToTable(table).size() > 0) {
+			return true;
+		}
 		return false;
 	}
 
@@ -282,6 +304,10 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		return new ArrayList<Table>();
 	}
 	
+	/**
+	 * Should only return an array of size 0 or 1.
+	 * @return
+	 */
 	public ArrayList<SoarDatabaseRow> getParentRow() {
 		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
 		ArrayList<Table> parents = getParentTables();
@@ -302,10 +328,97 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		return ret;
     }
 	
-	// Create new entries
+	public SoarDatabaseRow getTopLevelRow() {
+		SoarDatabaseRow ret = this;
+		ArrayList<SoarDatabaseRow> parents = ret.getParentRow();
+		while(parents.size() > 0) {
+			ret = parents.get(0);
+			parents = ret.getParentRow();
+		}
+		return ret;
+	}
 	
-	public void createChild(Table childTable, String name) {
+	public ArrayList<ISoarDatabaseRow> getJoinedRowsFromTable(Table other) {
+		ArrayList<ISoarDatabaseRow> ret = new ArrayList<ISoarDatabaseRow>();
+		String joinTableName = joinTableName(this.table, other);
+		String sql = "select * from " + joinTableName + " where " + this.table.idName() + "=" + this.id;
+		ResultSet rs = db.getResultSet(sql);
+		try {
+		while (rs.next()) {
+			int otherId = rs.getInt(other.idName());
+			SoarDatabaseRow row = new SoarDatabaseRow(other, otherId, db);
+			ret.add(row);
+		}
+		rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	
+	public boolean hasJoinedRowsFromTable(Table other) {
+		boolean ret = false;
+		String joinTableName = joinTableName(this.table, other);
+		String sql = "select * from " + joinTableName + " where " + this.table.idName() + "=" + this.id;
+		ResultSet rs = db.getResultSet(sql);
+		try {
+			if (rs.next()) {
+				ret = true;
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	
+	// Create a new join entry between this row and the other row.
+	public void joinWithRow(SoarDatabaseRow other) {
+		
+		// First, make sure that the rows are joinable.
+		assert tablesAreJoined(this.table, other.table);
+		
+		// Make sure these rows aren't already joined.
+		boolean alreadyJoined = rowsAreJoined(this, other, db);
+		if (alreadyJoined) {
+			return;
+		}
+		
+		// Create new join row.
+		String joinTableName = joinTableName(this.table, other.table);
+		String sql = "insert into " + joinTableName + " (" + this.table.idName() + ", " + other.table.idName() + ") values " +
+			"(" + this.id + ", " + other.id + ")";
+		db.execute(sql);
+	}
+	
+	/**
+	 * Creates and returns a new row.
+	 * @param childTable The type of child row to create.
+	 * @param name The name of the new row.
+	 * @return The new row.
+	 * @throws Exception 
+	 */
+	public SoarDatabaseRow createChild(Table childTable, String name) {
 		db.createChild(this, childTable, name);
+		
+		// Get the row
+		String sql = "select * from " + childTable.tableName() + " where id=(last_insert_rowid())";
+		ResultSet rs = db.getResultSet(sql);
+		int id = -1;
+		try {
+			if (rs.next()) {
+				id = rs.getInt("id");
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		// Should have been assigned to recently created row's ID.
+		assert id != -1;
+		
+		SoarDatabaseRow ret = new SoarDatabaseRow(childTable, id, db);
+		return ret;
 	}
 	
 	public void createChildrenFromAstNode(Object node) throws Exception {
@@ -330,11 +443,12 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 				id = rs.getInt("id");
 			}
 			rs.close();
-			if (id == -1) {
-				throw new Exception("Insert failed");
-			}
+			
+			// Should have been assigned to recently created row's ID.
+			assert id != -1;
+			
 			childRow = new SoarDatabaseRow(childTable, id, db);
-		} else  {
+		} else {
 			throw new Exception("No child table of current type \"" + table.shortName() + "\" for AST node \"" + childTable + "\"");
 		}
 		
@@ -596,6 +710,10 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	    agentFolders.add(Table.RULES);
 	    childFolders.put(Table.AGENTS, agentFolders);
 	    
+	    // Declare joined tables.
+	    joinTables(Table.RULES, Table.PROBLEM_SPACES);
+	    joinTables(Table.RULES, Table.OPERATORS);
+	    
 	    // rule structure
 	    addParent(Table.CONDITIONS, Table.RULES);
 	    addParent(Table.POSITIVE_CONDITIONS, Table.CONDITIONS);
@@ -699,6 +817,140 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		children.add(child);
 	}
 	
+	/**
+	 * Order of parameters should match the order in the name of the sql table.
+	 * @param first
+	 * @param second
+	 */
+	private static void joinTables(Table first, Table second) {
+		ArrayList<Table> list;
+		
+		if (joinedTables.containsKey(first)) {
+			list = joinedTables.get(first);
+		} else {
+			list = new ArrayList<Table>();
+		}
+		if (!list.contains(second)) {
+			list.add(second);
+		}
+		joinedTables.put(first, list);
+	}
+	
+	/**
+	 * Order of parameters shouldn't matter.
+	 * @param first
+	 * @param second
+	 * @return
+	 */
+	public static boolean tablesAreJoined(Table first, Table second) {
+		if (joinedTables.containsKey(first)) {
+			ArrayList<Table> list = joinedTables.get(first);
+			if (list.contains(second)) {
+				return true;
+			}
+		}
+		if (joinedTables.containsKey(second)) {
+			ArrayList<Table> list = joinedTables.get(second);
+			if (list.contains(first)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns a list of all tables that are joined to the given table.
+	 * @param table
+	 * @return
+	 */
+	public static ArrayList<Table> tablesJoinedToTable(Table table) {
+		ArrayList<Table> ret = new ArrayList<Table>();
+		for (Table key : joinedTables.keySet()) {
+			ArrayList<Table> list = joinedTables.get(key); 
+			if (key == table) {
+				ret.addAll(list);
+			} else if (list.contains(table)) {
+				ret.add(key);
+			}
+		}
+		return ret;
+	}
+	
+	/**
+	 * Determine if the two rows are joined.
+	 * @param first The first row.
+	 * @param second The second row.
+	 * @param db The database connection.
+	 * @return True if the rows are joined, otherwise false.
+	 */
+	public static boolean rowsAreJoined(SoarDatabaseRow first, SoarDatabaseRow second, SoarDatabaseConnection db) {
+		
+		String joinTableName = joinTableName(first.table, second.table);
+		if (joinTableName == null) {
+			// The tables are not joined.
+			return false;
+		}
+		
+		String sql = "select * from " + joinTableName + " where " +
+			first.table.idName() + "=" + first.id + " and " + 
+			second.table.idName() + "=" + second.id;
+		
+		boolean ret = false;
+		
+		try {
+			ResultSet rs = db.getResultSet(sql);
+			if (rs.next()) {
+				ret = true;
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return ret;
+	}
+	
+	/**
+	 * Returns the tables in the order they jave been declared joined
+	 * (the order their sql join table is named), for use in
+	 * constructing sql queries.
+	 * <p>
+	 * Returns null if the tables aren't joined.
+	 * @param first
+	 * @param second
+	 * @return
+	 */
+	private static Table[] orderJoinedTables(Table first, Table second) {
+		if (joinedTables.containsKey(first)) {
+			if (joinedTables.get(first).contains(second)) {
+				return new Table[] { first, second };
+			}
+		}
+		if (joinedTables.containsKey(second)) {
+			if (joinedTables.get(second).contains(first)) {
+				return new Table[] { second, first };
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the propertl
+	 * @param first
+	 * @param second
+	 * @return
+	 */
+	private static String joinTableName(Table first, Table second) {
+		Table[] tables = orderJoinedTables(first, second);
+		
+		// This should only be called on two tables that are joinable.
+		if (tables == null) {
+			return null;
+		}
+		
+		return "join_" + tables[0].tableName() + "_" + tables[1].tableName();
+	}
+	
 	@Override
 	public boolean equals(Object other) {
 		if (other instanceof SoarDatabaseRow) {
@@ -708,6 +960,12 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 			}
 		}
 		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	public IEditorInput getEditorInput() {
