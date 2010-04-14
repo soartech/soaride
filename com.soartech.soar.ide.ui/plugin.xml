@@ -316,29 +316,8 @@
     </objectContribution>
     <objectContribution
           adaptable="false"
-          id="com.soartech.soar.ide.ui.soarDatamapAttributeObjectContribution"
+          id="com.soartech.soar.ide.ui.SoarDatabaseRowObjectContribution"
           objectClass="com.soartech.soar.ide.core.sql.SoarDatabaseRow">
-       <action
-             class="com.soartech.soar.ide.ui.actions.explorer.AddProblemSpaceActionDelegate"
-             enablesFor="*"
-             id="com.soartech.soar.ide.ui.addProblemSpace"
-             label="Add Problem Space"
-             menubarPath="additions"
-             tooltip="Adds a child Problem Space to the selected database row."/>
-       <action
-             class="com.soartech.soar.ide.ui.actions.explorer.AddRuleActionDelegate"
-             enablesFor="*"
-             id="com.soartech.soar.ide.ui.addRule"
-             label="Add Rule"
-             menubarPath="additions"
-             tooltip="Adds a child Rule to the selected database row."/>
-       <action
-             class="com.soartech.soar.ide.ui.actions.explorer.AddOperatorActionDelegate"
-             enablesFor="*"
-             id="com.soartech.soar.ide.ui.addOperator"
-             label="Add Operator"
-             menubarPath="additions"
-             tooltip="Adds a child Operator to the selected database row."/>
        <action
              class="com.soartech.soar.ide.ui.actions.explorer.OpenDatabaseRowInEditorActionDelegate"
              enablesFor="*"
@@ -353,6 +332,49 @@
              label="Rename"
              menubarPath="additions"
              tooltip="Rename the selected database row."/>
+       <action
+             class="com.soartech.soar.ide.ui.actions.explorer.DeleteDatabaseRowActionDelegate"
+             enablesFor="*"
+             id="com.soartech.soar.ide.ui.DeleteSoarDatabaseRow"
+             label="Delete"
+             menubarPath="additions"
+             tooltip="Delete the selected database row."/>       
+       <action
+             class="com.soartech.soar.ide.ui.actions.explorer.JoinRowWithRuleActionDelegate"
+             enablesFor="*"
+             id="com.soartech.soar.ide.ui.JoinRowWithRule"
+             label="Add Existing Rule..."
+             menubarPath="additions"/>
+       <action
+             class="com.soartech.soar.ide.ui.actions.explorer.RemoveJoinActionDelegate"
+             enablesFor="*"
+             id="com.soartech.soar.ide.ui.RemoveJoin"
+             label="Remove From Joined Item"
+             menubarPath="additions"/>
+    </objectContribution>
+    <objectContribution
+          adaptable="false"
+          id="com.soartech.soar.ide.ui.SoarDatabaseRowFolderObjectContribution"
+          objectClass="com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder">
+          <action
+             class="com.soartech.soar.ide.ui.actions.explorer.AddRuleActionDelegate"
+             enablesFor="*"
+             id="com.soartech.soar.ide.ui.addRule"
+             label="Add Rule"
+             menubarPath="additions"
+             tooltip="Adds a child Rule to the selected database row."/>
+    </objectContribution>
+    <objectContribution
+          adaptable="false"
+          id="com.soartech.soar.ide.ui.SoarDatabaseJoinFolderObjectContribution"
+          objectClass="com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder">
+          <action
+             class="com.soartech.soar.ide.ui.actions.explorer.AddRuleActionDelegate"
+             enablesFor="*"
+             id="com.soartech.soar.ide.ui.addRule"
+             label="Add Rule"
+             menubarPath="additions"
+             tooltip="Adds a child Rule to the selected database row."/>
     </objectContribution>
     <viewerContribution
           id="com.soartech.soar.ide.ui.actions.FormatSoarDocumentViewerContribution"

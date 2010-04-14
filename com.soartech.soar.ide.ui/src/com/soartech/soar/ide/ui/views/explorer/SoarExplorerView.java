@@ -136,7 +136,7 @@ public class SoarExplorerView extends ViewPart
 		viewer.setContentProvider(databaseContentProvider);
 		viewer.setLabelProvider(databaseLabelProvider);
 		viewer.addFilter(viewerFilter);
-		ISoarModel input = SoarCorePlugin.getDefault().getSoarModel(); 
+		ISoarModel input = SoarCorePlugin.getDefault().getSoarModel();
         viewer.setInput(input);
         getSite().setSelectionProvider(viewer);
 
@@ -403,14 +403,19 @@ public class SoarExplorerView extends ViewPart
 
 	@Override
 	public void onEvent(SoarDatabaseEvent event, SoarDatabaseConnection db) {
-		//Object[] elements = viewer.getExpandedElements();
-		//TreePath[] treePaths = viewer.getExpandedTreePaths();
-		viewer.refresh();
-		//viewer.setExpandedElements(elements); 
-		//viewer.setExpandedTreePaths(treePaths);
 		
-		// TODO: hack
-		viewer.expandAll();
+		//Control control = viewer.getControl();
+		//control.setRedraw(false);
+		Object[] elements = viewer.getExpandedElements();
+		TreePath[] treePaths = viewer.getExpandedTreePaths();
+        viewer.refresh();
+		viewer.setExpandedElements(elements);
+		viewer.setExpandedTreePaths(treePaths);
+		//control.setRedraw(true);
+		
+		// hack
+		// Freezes when tree is of infinite depth.
+		// viewer.expandAll();
 	}
 
 }
