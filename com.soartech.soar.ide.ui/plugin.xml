@@ -338,19 +338,7 @@
              id="com.soartech.soar.ide.ui.DeleteSoarDatabaseRow"
              label="Delete"
              menubarPath="additions"
-             tooltip="Delete the selected database row."/>       
-       <action
-             class="com.soartech.soar.ide.ui.actions.explorer.JoinRowWithRuleActionDelegate"
-             enablesFor="*"
-             id="com.soartech.soar.ide.ui.JoinRowWithRule"
-             label="Add Existing Rule..."
-             menubarPath="additions"/>
-       <action
-             class="com.soartech.soar.ide.ui.actions.explorer.RemoveJoinActionDelegate"
-             enablesFor="*"
-             id="com.soartech.soar.ide.ui.RemoveJoin"
-             label="Remove From Joined Item"
-             menubarPath="additions"/>
+             tooltip="Delete the selected database row."/>
     </objectContribution>
     <objectContribution
           adaptable="false"
@@ -372,9 +360,21 @@
              class="com.soartech.soar.ide.ui.actions.explorer.AddRuleActionDelegate"
              enablesFor="*"
              id="com.soartech.soar.ide.ui.addRule"
-             label="Add Rule"
+             label="Add New Rule"
              menubarPath="additions"
              tooltip="Adds a child Rule to the selected database row."/>
+          <action
+             class="com.soartech.soar.ide.ui.actions.explorer.JoinRowsActionDelegate"
+             enablesFor="*"
+             id="com.soartech.soar.ide.ui.JoinRows"
+             label="Add Existing Rule..."
+             menubarPath="additions"/>
+          <action
+             class="com.soartech.soar.ide.ui.actions.explorer.RemoveJoinedRowActionDelegate"
+             enablesFor="*"
+             id="com.soartech.soar.ide.ui.RemoveJoinedRow"
+             label="Remove Existing Rule..."
+             menubarPath="additions"/>
     </objectContribution>
     <viewerContribution
           id="com.soartech.soar.ide.ui.actions.FormatSoarDocumentViewerContribution"

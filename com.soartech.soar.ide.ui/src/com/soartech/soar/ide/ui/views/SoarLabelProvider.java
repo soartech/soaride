@@ -42,7 +42,10 @@ import com.soartech.soar.ide.core.model.ITclProcedure;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamapAttribute;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamapValue;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseRow;
+import com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorPluginImages;
 import com.soartech.soar.ide.ui.editors.text.SoarFoldingRegion;
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerFullViewContentProvider.SoarFolderHeader;
@@ -119,7 +122,25 @@ public class SoarLabelProvider extends LabelProvider implements
 		} else if (element instanceof SoarFoldingRegion) {
 			return SoarEditorPluginImages
 					.get(SoarEditorPluginImages.IMG_FOLDING_REGION);
-		}
+		} else if (element instanceof SoarDatabaseRow) {
+			Table table = ((SoarDatabaseRow) element).getTable(); 
+			if (table == Table.AGENTS) {
+				return SoarEditorPluginImages
+						.get(SoarEditorPluginImages.IMG_AGENT);
+			} else if (table == Table.RULES) {
+				return SoarEditorPluginImages
+						.get(SoarEditorPluginImages.IMG_SOAR_FILE);
+			} else if (table == Table.PROBLEM_SPACES) {
+				return SoarEditorPluginImages
+						.get(SoarEditorPluginImages.IMG_SOAR);
+			} else if (table == Table.OPERATORS) {
+				return SoarEditorPluginImages
+						.get(SoarEditorPluginImages.IMG_SOAR);
+			}
+		} else if (element instanceof SoarDatabaseRowFolder || element instanceof SoarDatabaseJoinFolder) {
+			return SoarEditorPluginImages
+				.get(SoarEditorPluginImages.IMG_PROJECT);
+			}
 		return super.getImage(element);
 	}
 

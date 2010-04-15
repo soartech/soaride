@@ -69,7 +69,7 @@ public class SoarEditorPluginImages {
     public static final String IMG_FUNCTION = NAME_PREFIX + "function.ico";
     public static final String IMG_VARIABLE = NAME_PREFIX + "variable.ico";
     public static final String IMG_TCL_VARIABLE = NAME_PREFIX + "tcl-variable.ico";
-    public static final String IMG_SOAR = NAME_PREFIX + "soar.ico";
+    public static final String IMG_SOAR = NAME_PREFIX + "soar.gif";
     public static final String IMG_CLEAR = NAME_PREFIX + "clear.gif";
     public static final String IMG_COMMAND_OUTLINE = NAME_PREFIX + "command-outline.ico";
     public static final String IMG_PRODUCTION = NAME_PREFIX + "production.gif";

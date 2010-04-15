@@ -52,7 +52,7 @@ public class AddRuleActionDelegate implements IObjectActionDelegate {
 			else if (selectedJoinFolder != null) {
 				SoarDatabaseRow oldRow = selectedJoinFolder.getRow();
 				SoarDatabaseRow newRow = oldRow.getTopLevelRow().createChild(table, result);
-				newRow.joinWithRow(oldRow);
+				SoarDatabaseRow.joinRows(oldRow, newRow, oldRow.getDatabaseConnection());
 			}
 		}
 	}
@@ -68,12 +68,12 @@ public class AddRuleActionDelegate implements IObjectActionDelegate {
 			if (obj instanceof SoarDatabaseRowFolder) {
 				selectedFolder = (SoarDatabaseRowFolder) obj;
 				action.setEnabled(true);
-				action.setText("Add " + selectedFolder.getTable().shortName());
+				action.setText("Add New " + selectedFolder.getTable().shortName());
 			}
 			else if (obj instanceof SoarDatabaseJoinFolder) {
 				selectedJoinFolder = (SoarDatabaseJoinFolder) obj;
 				action.setEnabled(true);
-				action.setText("Add " + selectedJoinFolder.getTable().shortName());
+				action.setText("Add New " + selectedJoinFolder.getTable().shortName());
 			}
 		}
 	}

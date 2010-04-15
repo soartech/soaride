@@ -23,7 +23,7 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 			return ret;
 		}
 		else if (element instanceof ISoarDatabaseRow) {
-			List<ISoarDatabaseRow> ret = ((ISoarDatabaseRow)element).getChildren();
+			List<ISoarDatabaseRow> ret = ((ISoarDatabaseRow)element).getChildren(false);
 			return ret.toArray();
 		}
 		return new Object[]{};
