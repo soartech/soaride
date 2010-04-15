@@ -39,6 +39,13 @@ import com.soartech.soar.ide.core.model.ast.ValueTest;
 import com.soartech.soar.ide.core.model.ast.VarAttrValMake;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 
+/**
+ * Represents a row in a table.
+ * Valid tables are in the enum SoarDatabaseRow.Table.
+ * Rows in join tables should be represented by a SoarDatabaseJoinRow.
+ * @author miller
+ *
+ */
 public class SoarDatabaseRow implements ISoarDatabaseRow {
 	
 	public enum Table {
@@ -112,6 +119,8 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	private static HashMap<Table, ArrayList<Table>> childFolders = new HashMap<Table, ArrayList<Table>>();
 	
 	// Maps a table onto a list of all tables it's joined to.
+	// This isn't multi-directional; the key must be the first table name in the join table.
+	// (see getTablesJoinedToTable)
 	private static HashMap<Table, ArrayList<Table>> joinedTables = new HashMap<Table, ArrayList<Table>>(); 
 	
 	private Table table;
@@ -184,6 +193,21 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	private void delete() {
 		String sql = "delete from " + table.tableName() + " where id = " + id;
 		db.execute(sql);
+		
+		// Also remove joins.
+		removeAllJoins();
+	}
+	
+	public void removeAllJoins() {
+		ArrayList<Table> tables = getTablesJoinedToTable(this.table);
+		for (Table t : tables) {
+			ArrayList<ISoarDatabaseRow> joinedRows = getJoinedRowsFromTable(t);
+			for (ISoarDatabaseRow other : joinedRows) {
+				if (other instanceof SoarDatabaseRow) {
+					unjoinRows(this, (SoarDatabaseRow) other, db);
+				}
+			}
+		}
 	}
 	
 	public ArrayList<Table> getChildTables() {
@@ -195,16 +219,20 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	}
 	
 	/**
-	 * Returns rows, folders, and join folders (but not rows which are contained by child folders).
+	 * Returns rows, folders, and join folders.
+	 * @param includeRowsInFolders Whether to include rows that are contained in child folders.
+	 * @return The child elements of this row.
 	 */
-	public ArrayList<ISoarDatabaseRow> getChildren() {
+	public ArrayList<ISoarDatabaseRow> getChildren(boolean includeChildrenInFolders) {
 		ArrayList<ISoarDatabaseRow> ret = new ArrayList<ISoarDatabaseRow>();
 		ArrayList<Table> children = getChildTables();
 		for (Table t : children) {
-			if (folders.containsKey(t)) {
+			boolean isFolder = folders.containsKey(t);
+			if (isFolder) {
 				ret.add(folders.get(t));
-			} else {
-				String sql = "select * from " + t.tableName() + " where " + table.idName() + " = " + id;
+			}
+			if ((!isFolder) || includeChildrenInFolders) {
+				String sql = "select * from " + t.tableName() + " where " + table.idName() + "=" + id;
 				ResultSet rs = db.getResultSet(sql);
 				try {
 					while (rs.next()) {
@@ -219,7 +247,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 			}
 		}
 		
-		ArrayList<Table> joinedTables = tablesJoinedToTable(table);
+		ArrayList<Table> joinedTables = getTablesJoinedToTable(table);
 		for (Table t : joinedTables) {
 			SoarDatabaseJoinFolder folder = new SoarDatabaseJoinFolder(this, t);
 			ret.add(folder);
@@ -238,7 +266,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		ArrayList<Table> children = getChildTables();
 		for (Table t : children) {
 			if (t == type) {
-				String sql = "select * from " + t.tableName() + " where " + table.idName() + " = " + id;
+				String sql = "select * from " + t.tableName() + " where " + table.idName() + "=" + id;
 				ResultSet rs = db.getResultSet(sql);
 				try {
 					while (rs.next()) {
@@ -258,7 +286,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	public boolean hasChildren() {
 		ArrayList<Table> children = getChildTables();
 		for (Table t : children) {
-			String sql = "select * from " + t.tableName() + " where " + table.idName() + " = " + id;
+			String sql = "select * from " + t.tableName() + " where " + table.idName() + "=" + id;
 			ResultSet rs = db.getResultSet(sql);
 			try {
 				if (rs.next()) {
@@ -274,14 +302,14 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		if (folders.size() > 0) {
 			return true;
 		}
-		if (tablesJoinedToTable(table).size() > 0) {
+		if (getTablesJoinedToTable(table).size() > 0) {
 			return true;
 		}
 		return false;
 	}
 
 	public boolean hasChildrenOfType(Table type) {
-		String sql = "select * from " + type.tableName() + " where " + table.idName() + " = " + id;
+		String sql = "select * from " + type.tableName() + " where " + table.idName() + "=" + id;
 		ResultSet rs = db.getResultSet(sql);
 		try {
 			if (rs.next()) {
@@ -373,21 +401,37 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	}
 	
 	// Create a new join entry between this row and the other row.
-	public void joinWithRow(SoarDatabaseRow other) {
+	public static void joinRows(SoarDatabaseRow first, SoarDatabaseRow second, SoarDatabaseConnection db) {
 		
 		// First, make sure that the rows are joinable.
-		assert tablesAreJoined(this.table, other.table);
+		assert tablesAreJoined(first.table, second.table);
 		
 		// Make sure these rows aren't already joined.
-		boolean alreadyJoined = rowsAreJoined(this, other, db);
+		boolean alreadyJoined = rowsAreJoined(first, second, db);
 		if (alreadyJoined) {
 			return;
 		}
 		
 		// Create new join row.
-		String joinTableName = joinTableName(this.table, other.table);
-		String sql = "insert into " + joinTableName + " (" + this.table.idName() + ", " + other.table.idName() + ") values " +
-			"(" + this.id + ", " + other.id + ")";
+		String joinTableName = joinTableName(first.table, second.table);
+		String sql = "insert into " + joinTableName + " (" + first.table.idName() + ", " + second.table.idName() + ") values " +
+			"(" + first.id + ", " + second.id + ")";
+		db.execute(sql);
+	}
+	
+	// Removes a join between the two rows, if one exists.
+	// Order of parameters doesn't matter.
+	public static void unjoinRows(SoarDatabaseRow firstRow, SoarDatabaseRow secondRow, SoarDatabaseConnection db) {
+		Table[] tables = SoarDatabaseRow.orderJoinedTables(firstRow.getTable(), secondRow.getTable());
+		if (tables[0] != firstRow.getTable()) {
+			// Swap first and second rows.
+			SoarDatabaseRow temp = firstRow;
+			firstRow = secondRow;
+			secondRow = temp;
+		}
+		String sql = "delete from " + SoarDatabaseRow.joinTableName(tables[0], tables[1]) + " where " +
+			tables[0].idName() + "=" + firstRow.id + " and " +
+			tables[1].idName() + "=" + secondRow.id;
 		db.execute(sql);
 	}
 	
@@ -460,7 +504,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	}
 	
 	public void deleteAllChildren(boolean alsoDeleteThis) {
-		ArrayList<ISoarDatabaseRow> childRows = getChildren();
+		ArrayList<ISoarDatabaseRow> childRows = getChildren(true);
 		for (ISoarDatabaseRow child : childRows) {
 			if (child instanceof SoarDatabaseRow) {
 				((SoarDatabaseRow)child).deleteAllChildren(true);
@@ -864,7 +908,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	 * @param table
 	 * @return
 	 */
-	public static ArrayList<Table> tablesJoinedToTable(Table table) {
+	public static ArrayList<Table> getTablesJoinedToTable(Table table) {
 		ArrayList<Table> ret = new ArrayList<Table>();
 		for (Table key : joinedTables.keySet()) {
 			ArrayList<Table> list = joinedTables.get(key); 
@@ -921,7 +965,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	 * @param second
 	 * @return
 	 */
-	private static Table[] orderJoinedTables(Table first, Table second) {
+	public static Table[] orderJoinedTables(Table first, Table second) {
 		if (joinedTables.containsKey(first)) {
 			if (joinedTables.get(first).contains(second)) {
 				return new Table[] { first, second };
@@ -941,7 +985,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	 * @param second
 	 * @return
 	 */
-	private static String joinTableName(Table first, Table second) {
+	public static String joinTableName(Table first, Table second) {
 		Table[] tables = orderJoinedTables(first, second);
 		
 		// This should only be called on two tables that are joinable.
@@ -1073,5 +1117,9 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 						.println("Production doesn't begin with \"sp {\" or doesn't end with \"}\"");
 			}
 		}
+	}
+
+	public SoarDatabaseConnection getDatabaseConnection() {
+		return db;
 	}
 }

@@ -14,13 +14,13 @@ public class SoarDatabaseRowFolder implements ISoarDatabaseRow {
 		this.table = table;
 	}
 	
-	public ArrayList<ISoarDatabaseRow> getChildren() {
+	public ArrayList<ISoarDatabaseRow> getChildren(boolean includeChildrenInFolders) {
 		return row.getChildrenOfType(table);
 	}
 	
 	@Override
 	public String toString() {
-		return "Folder of " + table.tableName();
+		return table.tableName();
 	}
 
 	@Override

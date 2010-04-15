@@ -23,7 +23,7 @@ public class SoarDatabaseJoinFolder implements ISoarDatabaseRow {
 	}
 	
 	@Override
-	public List<ISoarDatabaseRow> getChildren() {
+	public List<ISoarDatabaseRow> getChildren(boolean includeChildrenInFolders) {
 		// TODO Auto-generated method stub
 		return row.getJoinedRowsFromTable(table);
 	}
@@ -37,7 +37,7 @@ public class SoarDatabaseJoinFolder implements ISoarDatabaseRow {
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return "Joined " + table.tableName();
+		return table.tableName();
 	}
 	
 	public SoarDatabaseRow getRow() {

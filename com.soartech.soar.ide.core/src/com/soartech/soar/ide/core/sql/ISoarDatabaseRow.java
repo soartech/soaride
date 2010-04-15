@@ -4,7 +4,7 @@ import java.util.List;
 
 
 public interface ISoarDatabaseRow {
-	List<ISoarDatabaseRow> getChildren();
+	List<ISoarDatabaseRow> getChildren(boolean includeChildrenInFolders);
 
 	boolean hasChildren();
 }
