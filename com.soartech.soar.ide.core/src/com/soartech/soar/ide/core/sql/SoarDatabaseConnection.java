@@ -31,7 +31,7 @@ public class SoarDatabaseConnection {
 	private String dbName = ""; // the name of the database
 	private String[] sqlFiles = { "agent.sql" , "rule.sql" }; // , "datamap.sql" };
 	private Connection conn;
-	private boolean debug = false;
+	private boolean debug = true;
 
 	private ArrayList<ISoarDatabaseEventListener> listeners = new ArrayList<ISoarDatabaseEventListener>();
 	private boolean supressEvents = false;

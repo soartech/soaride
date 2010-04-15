@@ -42,7 +42,7 @@ public class SoarDatabaseRowFolder implements ISoarDatabaseRow {
 			return false;
 		}
 		SoarDatabaseRowFolder other = (SoarDatabaseRowFolder) obj;
-		if (this.row == other.row && this.table == other.table) {
+		if (this.row.equals(other.row) && this.table == other.table) {
 			return true;
 		}
 		return false;
@@ -50,6 +50,6 @@ public class SoarDatabaseRowFolder implements ISoarDatabaseRow {
 	
 	@Override
 	public int hashCode() {
-		return 0;
+		return row.getID();
 	}
 }

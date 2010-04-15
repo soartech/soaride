@@ -47,3 +47,11 @@ rule_id integer,
 operator_id integer
 );
 
+drop table if exists join_operators_problem_spaces;
+create table join_operators_problem_spaces
+(
+id integer primary key,
+operator_id integer,
+problem_space_id integer
+);
+

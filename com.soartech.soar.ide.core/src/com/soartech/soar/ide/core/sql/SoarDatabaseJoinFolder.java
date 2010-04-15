@@ -55,13 +55,12 @@ public class SoarDatabaseJoinFolder implements ISoarDatabaseRow {
 			return false;
 		}
 		SoarDatabaseJoinFolder other = (SoarDatabaseJoinFolder) obj;
-		return this.row == other.row && this.table == other.table;
+		return this.row.equals(other.row) && this.table == other.table;
 	}
 	
 	@Override
 	public int hashCode() {
-		// TODO Auto-generated method stub
-		return 0;
+		return row.getID();
 	}
 
 }

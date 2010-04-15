@@ -713,6 +713,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	    // Declare joined tables.
 	    joinTables(Table.RULES, Table.PROBLEM_SPACES);
 	    joinTables(Table.RULES, Table.OPERATORS);
+	    joinTables(Table.OPERATORS, Table.PROBLEM_SPACES);
 	    
 	    // rule structure
 	    addParent(Table.CONDITIONS, Table.RULES);
@@ -965,7 +966,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	@Override
 	public int hashCode() {
 		// TODO Auto-generated method stub
-		return 0;
+		return id;
 	}
 
 	public IEditorInput getEditorInput() {
