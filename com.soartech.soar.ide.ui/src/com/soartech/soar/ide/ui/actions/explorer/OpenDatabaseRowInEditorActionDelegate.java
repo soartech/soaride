@@ -29,13 +29,24 @@ public class OpenDatabaseRowInEditorActionDelegate implements
 	@Override
 	public void run(IAction action) {
 		// TODO Auto-generated method stub
-		if (selectedRow != null && selectedRow.getTable() == Table.RULES) {
-			try {
-				SoarUiModelTools.showDatabaseRowInEditor(targetPart.getSite().getPage(), selectedRow);
-			} catch (CoreException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		if (selectedRow != null) {
+			Table selectedTable = selectedRow.getTable();
+			if (selectedTable == Table.RULES) {
+				try {
+					SoarUiModelTools.showRuleInEditor(targetPart.getSite().getPage(), selectedRow);
+				} catch (CoreException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else if (selectedTable == Table.PROBLEM_SPACES) {
+				try {
+					SoarUiModelTools.showProblemSpaceInEditor(targetPart.getSite().getPage(), selectedRow);
+				} catch (CoreException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
+			
 		}
 	}
 
@@ -48,7 +59,8 @@ public class OpenDatabaseRowInEditorActionDelegate implements
 			Object obj = ss.getFirstElement();
 			if (obj instanceof SoarDatabaseRow) {
 				selectedRow = (SoarDatabaseRow) obj;
-				if (selectedRow.getTable() == Table.RULES) {
+				Table selectedTable = selectedRow.getTable();
+				if (selectedTable == Table.RULES || selectedTable == Table.PROBLEM_SPACES) {
 					action.setEnabled(true);
 				}
 			}

@@ -10,11 +10,28 @@ import com.soartech.soar.ide.core.model.ISoarModel;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
-import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider {
 
+	private boolean includeFolders;
+	private boolean includeItemsInFolders;
+	private boolean includeJoinedItems;
+	private boolean includeDirectionalJoinedItems;
+	private boolean includeDatamapNodes;
+	
+	public SoarExplorerDatabaseContentProvider(boolean includeFolders,
+			boolean includeItemsInFolders,
+			boolean includeJoinedItems,
+			boolean includeDirectionalJoinedItems,
+			boolean includeDatamapNodes) {
+		this.includeFolders = includeFolders;
+		this.includeItemsInFolders = includeItemsInFolders;
+		this.includeJoinedItems = includeJoinedItems;
+		this.includeDirectionalJoinedItems = includeDirectionalJoinedItems;
+		this.includeDatamapNodes = includeDatamapNodes;
+	}
+	
 	@Override
 	public Object[] getChildren(Object element) {
 		if (element instanceof ISoarModel) {
@@ -23,7 +40,7 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 			return ret;
 		}
 		else if (element instanceof ISoarDatabaseRow) {
-			List<ISoarDatabaseRow> ret = ((ISoarDatabaseRow)element).getChildren(false);
+			List<ISoarDatabaseRow> ret = ((ISoarDatabaseRow)element).getChildren(includeFolders, includeItemsInFolders, includeJoinedItems, includeDirectionalJoinedItems, includeDatamapNodes);
 			return ret.toArray();
 		}
 		return new Object[]{};
@@ -35,7 +52,7 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 			return null;
 		}
 		else if (element instanceof SoarDatabaseRow) {
-			ArrayList<SoarDatabaseRow> parents = ((SoarDatabaseRow)element).getParentRow();
+			ArrayList<SoarDatabaseRow> parents = ((SoarDatabaseRow)element).getParentRows();
 			if (parents.size() > 0) {
 				return parents.get(0);
 			} else {

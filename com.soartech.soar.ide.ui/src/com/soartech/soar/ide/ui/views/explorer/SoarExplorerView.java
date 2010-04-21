@@ -98,7 +98,7 @@ public class SoarExplorerView extends ViewPart
 	 * The content provider for the database view.
 	 */
 	private SoarExplorerDatabaseContentProvider databaseContentProvider =
-		new SoarExplorerDatabaseContentProvider();
+		new SoarExplorerDatabaseContentProvider(true, false, false, true, false);
 	private ILabelProvider databaseLabelProvider = SoarLabelProvider.createFullLabelProvider(null);
 	
 	/**

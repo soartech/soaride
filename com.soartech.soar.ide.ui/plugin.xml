@@ -65,7 +65,12 @@
            class="com.soartech.soar.ide.ui.editors.database.SoarDatabaseTextEditor"
            id="com.soartech.soar.ide.ui.editors.database.SoarDatabaseTextEditor"
            icon="icons/soar_file_16.gif"
-           name="Soar Database Editor"/>
+           name="Soar Database Text Editor"/>
+     <editor
+           class="com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapEditor"
+           id="com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapEditor"
+           icon="icons/soar_file_16.gif"
+           name="Soar Database Datamap Editor"/>
   </extension>
   <extension
         point="org.eclipse.ui.commands">
@@ -345,7 +350,7 @@
           id="com.soartech.soar.ide.ui.SoarDatabaseRowFolderObjectContribution"
           objectClass="com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder">
           <action
-             class="com.soartech.soar.ide.ui.actions.explorer.AddRuleActionDelegate"
+             class="com.soartech.soar.ide.ui.actions.explorer.AddChildRowActionDelegate"
              enablesFor="*"
              id="com.soartech.soar.ide.ui.addRule"
              label="Add Rule"
@@ -433,7 +438,7 @@
           id="com.soartech.soar.ide.ui.views.SoarExplorerView"
           name="Soar Explorer"/>
     <view
-          allowMultiple="false"
+          allowMultiple="true"
           category="com.soartech.soar.ide.ui.SoarCategory"
           class="com.soartech.soar.ide.ui.views.datamap.SoarDatamapView"
           icon="icons/attribute.gif"

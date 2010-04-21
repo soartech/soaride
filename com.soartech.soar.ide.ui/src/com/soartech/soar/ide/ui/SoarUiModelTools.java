@@ -36,7 +36,9 @@ import com.soartech.soar.ide.core.model.ISoarElement;
 import com.soartech.soar.ide.core.model.ISoarSourceRange;
 import com.soartech.soar.ide.core.model.ISoarSourceReference;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.editors.text.SoarEditor;
+import com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapEditor;
 import com.soartech.soar.ide.ui.editors.database.SoarDatabaseTextEditor;
 
 /**
@@ -91,20 +93,39 @@ public class SoarUiModelTools
     }
     
 	/**
-     * Show a particular database row in an editor.
-     * 
-     * <p>Taken from 
-     * <a href="http://wiki.eclipse.org/index.php/FAQ_How_do_I_open_an_editor_on_a_file_in_the_workspace%3F">here</a>
+     * Show a rule in an editor.
      * 
      * @param page The workbench page
-     * @param row The database row to display
-     * @return The editor the element was shown in, or null if the element 
-     *      could not be displayed.
+     * @param row The rule to display
+     * @return The editor the element was shown in, or null if the element could not be displayed.
      * @throws CoreException
      */
-    public static IEditorPart showDatabaseRowInEditor(IWorkbenchPage page, SoarDatabaseRow row) throws CoreException
+    public static IEditorPart showRuleInEditor(IWorkbenchPage page, SoarDatabaseRow row) throws CoreException
     {
+    	assert row.getTable() == Table.RULES;
+    	
         String editorId = SoarDatabaseTextEditor.ID;
+        IEditorInput input = row.getEditorInput();
+		if (input != null) {
+			IEditorPart part = page.openEditor(input, editorId);
+			return part;
+		}
+		return null;
+    }
+    
+	/**
+     * Show a rule in an editor.
+     * 
+     * @param page The workbench page
+     * @param row The rule to display
+     * @return The editor the element was shown in, or null if the element could not be displayed.
+     * @throws CoreException
+     */
+    public static IEditorPart showProblemSpaceInEditor(IWorkbenchPage page, SoarDatabaseRow row) throws CoreException
+    {
+    	assert row.getTable() == Table.PROBLEM_SPACES;
+    	
+        String editorId = SoarDatabaseDatamapEditor.ID;
         IEditorInput input = row.getEditorInput();
 		if (input != null) {
 			IEditorPart part = page.openEditor(input, editorId);

@@ -136,6 +136,9 @@ public class SoarLabelProvider extends LabelProvider implements
 			} else if (table == Table.OPERATORS) {
 				return SoarEditorPluginImages
 						.get(SoarEditorPluginImages.IMG_SOAR);
+			} else if (table == Table.DATAMAP_ATTRIBUTES) {
+				return SoarEditorPluginImages
+					.get(SoarEditorPluginImages.IMG_ATTRIBUTE);
 			}
 		} else if (element instanceof SoarDatabaseRowFolder || element instanceof SoarDatabaseJoinFolder) {
 			return SoarEditorPluginImages

@@ -14,8 +14,9 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
-public class AddRuleActionDelegate implements IObjectActionDelegate {
+public class AddChildRowActionDelegate implements IObjectActionDelegate {
 
+	StructuredSelection ss;
 	SoarDatabaseRowFolder selectedFolder = null;
 	SoarDatabaseJoinFolder selectedJoinFolder = null;
 	
@@ -63,7 +64,7 @@ public class AddRuleActionDelegate implements IObjectActionDelegate {
 		selectedJoinFolder = null;
 		action.setEnabled(false);
 		if (selection instanceof StructuredSelection) {
-			StructuredSelection ss = (StructuredSelection)selection;
+			ss = (StructuredSelection)selection;
 			Object obj = ss.getFirstElement();
 			if (obj instanceof SoarDatabaseRowFolder) {
 				selectedFolder = (SoarDatabaseRowFolder) obj;
