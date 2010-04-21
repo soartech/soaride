@@ -344,8 +344,6 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
                 if(e instanceof ISoarProduction)
                 {
                     productions.add((ISoarProduction) e);
-                    ISoarElement parent = getParent();
-                    getInternalSoarModel().getDatabase().writeProductionToDatabase((ISoarProduction) e, this);
                 }
                 else if(e instanceof ITclProcedure)
                 {

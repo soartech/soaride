@@ -318,7 +318,10 @@ public class SoarDatamapNode implements ISoarDatamapNode
     @Override
     public String toString()
     {
-        return Character.toString(idChar);
+    	if (idChar == '\0') {
+    		return "node";
+    	}
+    	return "" + idChar;
     }
     
     @Override

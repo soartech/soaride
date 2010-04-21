@@ -14,7 +14,11 @@ public class SoarDatabaseRowFolder implements ISoarDatabaseRow {
 		this.table = table;
 	}
 	
-	public ArrayList<ISoarDatabaseRow> getChildren(boolean includeChildrenInFolders) {
+	public ArrayList<ISoarDatabaseRow> getChildren(boolean includeFolders,
+			boolean includeChildrenInFolders,
+			boolean includeJoinedItems, 
+			boolean includeDirectedJoinedItems, 
+			boolean includeDatamapNodes) {
 		return row.getChildrenOfType(table);
 	}
 	

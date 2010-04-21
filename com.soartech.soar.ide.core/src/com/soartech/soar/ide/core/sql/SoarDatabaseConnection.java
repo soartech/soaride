@@ -29,7 +29,7 @@ public class SoarDatabaseConnection {
 	private String driver = "org.sqlite.JDBC";
 	private String protocol = "jdbc:sqlite::memory:";
 	private String dbName = ""; // the name of the database
-	private String[] sqlFiles = { "agent.sql" , "rule.sql" }; // , "datamap.sql" };
+	private String[] sqlFiles = { "agent.sql" , "rule.sql", "datamap.sql" };
 	private Connection conn;
 	private boolean debug = true;
 
@@ -221,90 +221,6 @@ public class SoarDatabaseConnection {
 		}
 	}
 	
-	/**
-	 * Enters the production in the database.
-	 * @param ast
-	 */
-	public void writeProductionToDatabase(ISoarProduction production, SoarAgent agent) {
-		int agentID = 0;
-		SoarProductionAst ast = production.getSyntaxTree();
-		if (ast != null) {
-			//writeAst(ast, agentID);
-		}
-	}
-	
-	private void writeAst(SoarProductionAst ast, int agentID) {
-		System.out.println("DatabaseConnection.writeAst: " + ast);
-		try {
-			
-			String sql = "insert into productions (agent_id, name, comment) values (?, ?, ?)";
-			PreparedStatement s = conn.prepareStatement(sql);
-			s.setInt(1, agentID);
-			String name = ast.getName();
-			s.setString(2, name);
-			String comment = ast.getComment();
-			if (comment == null) {
-				comment = "";
-			}
-			s.setString(3, comment);
-			s.executeUpdate();
-			//sql = ""
-			// 
-			/*
-			ResultSet result = s.getResultSet();
-			result.next();
-			int productionID = result.getInt("id");
-
-			for (Condition condition : ast.getConditions()) {
-				writeConditionFromProduction(condition, productionID);
-			}
-
-			for (Action action : ast.getActions()) {
-				writeActionFromProduction(action, productionID);
-			}
-			*/
-			
-		} catch (SQLException e) {
-			
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	private void writeConditionFromProduction(Condition condition, int productionID) {
-		System.out.println("DatabaseConnection.writeConditionFromProduction: " + condition);
-		try {
-			String sql = "insert into conditions (production_id) values (?)";
-			PreparedStatement s = conn.prepareStatement(sql);
-			s.setInt(1, productionID);
-			if (s.execute()) {
-				PositiveCondition positiveCondition = condition.getPositiveCondition();
-				
-			}
-		} catch (SQLException e) {
-
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	private void writeActionFromProduction(Action action, int productionID) {
-		System.out.println("DatabaseConnection.writeActionFromProduction: " + action);
-		try {
-			String sql = "insert into conditions (production_id) values (?)";
-			PreparedStatement s = conn.prepareStatement(sql);
-			s.setInt(1, productionID);
-			if (s.execute()) {
-				VarAttrValMake varAttrValueMake = action.getVarAttrValMake();
-				
-			}
-		} catch (SQLException e) {
-
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
 	public ArrayList<SoarDatabaseRow> selectAllFromTable(SoarDatabaseRow.Table table) {
 		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
 		String tableName = table.toString().toLowerCase();
@@ -317,7 +233,6 @@ public class SoarDatabaseConnection {
 			}
 			rs.getStatement().close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return ret;
@@ -348,6 +263,8 @@ public class SoarDatabaseConnection {
 	
 	/**
 	 * Adds a new row to the database.
+	 * WARNING:
+	 * Doesn't parameterize or sql-escape parameters.
 	 * @param parent
 	 * @param childTable
 	 * @param fields An array of column name / value pairs.
@@ -363,11 +280,6 @@ public class SoarDatabaseConnection {
 		}
 		sql += ")";
 		execute(sql);
-		
-	}
-	
-	public void createChild(SoarDatabaseRow parent, Table childTable) {
-		createChild(parent, childTable, new String[][] {});
 	}
 	
 	public void createChild(SoarDatabaseRow parent, Table childTable, String name) {
@@ -418,5 +330,16 @@ public class SoarDatabaseConnection {
 		if (debug) {
 			System.out.println("done.");
 		}
+	}
+	
+	public StatementWrapper prepareStatement(String sql) {
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			StatementWrapper ret = new StatementWrapper(ps, this);
+			return ret;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

@@ -1,30 +1,34 @@
-drop table if exists datamaps;
-create table datamaps
+drop table if exists datamap_attribute_types;
+create table datamap_attribute_types
 (
 id integer primary key,
-substate_id integer
-);
-
-drop table if exists datamap_nodes;
-create table datamap_nodes
-(
-id integer primary key,
-datamap_id integer
+name varchar(100)
 );
 
 drop table if exists datamap_attributes;
 create table datamap_attributes
 (
 id integer primary key,
-source_datamap_node_id integer,
-target_datamap_node_id integer,
-name varchar(100)
+name varchar(100),
+datamap_attribute_type_id integer,
+-- for root datamap nodes:
+problem_space_id integer
 );
 
-drop table if exists datamap_values;
-create table datamap_values
+-- Directed join table:
+drop table if exists directed_join_datamap_attributes_datamap_attributes;
+create table directed_join_datamap_attributes_datamap_attributes
 (
 id integer primary key,
-datamap_node_id integer,
-value varchar(100)
+parent_id integer,
+child_id integer
+);
+
+-- Undirected join table for linked attributes:
+drop table if exists join_datamap_attributes_datamap_attributes;
+create table join_datamap_attributes_datamap_attributes
+(
+id integer primary key,
+first_id integer,
+second_id integer
 );

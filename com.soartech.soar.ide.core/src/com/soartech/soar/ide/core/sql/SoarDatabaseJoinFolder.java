@@ -23,20 +23,21 @@ public class SoarDatabaseJoinFolder implements ISoarDatabaseRow {
 	}
 	
 	@Override
-	public List<ISoarDatabaseRow> getChildren(boolean includeChildrenInFolders) {
-		// TODO Auto-generated method stub
+	public List<ISoarDatabaseRow> getChildren(boolean includeFolders,
+			boolean includeChildrenInFolders,
+			boolean includeJoinedItems,
+			boolean includeDirectionalJoinedItems,
+			boolean includeDatamapNodes) {
 		return row.getJoinedRowsFromTable(table);
 	}
 
 	@Override
 	public boolean hasChildren() {
-		// TODO Auto-generated method stub
 		return row.hasJoinedRowsFromTable(table);
 	}
 	
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return table.tableName();
 	}
 	

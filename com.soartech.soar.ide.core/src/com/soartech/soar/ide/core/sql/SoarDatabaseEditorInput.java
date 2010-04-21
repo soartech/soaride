@@ -8,9 +8,15 @@ import org.eclipse.ui.IStorageEditorInput;
 public class SoarDatabaseEditorInput implements IStorageEditorInput {
 	
     private SoarDatabaseRowStorage storage;
+    private SoarDatabaseRow row;
     
     public SoarDatabaseEditorInput(SoarDatabaseRow row) {
+    	this.row = row;
     	storage = new SoarDatabaseRowStorage(row);
+    }
+    
+    public SoarDatabaseRow getRow() {
+    	return row;
     }
     
     public SoarDatabaseRowStorage getSoarDatabaseStorage() {
