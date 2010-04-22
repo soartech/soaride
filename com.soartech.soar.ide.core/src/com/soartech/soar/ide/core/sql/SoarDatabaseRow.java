@@ -85,6 +85,10 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 
 		// Datamap
 		DATAMAP_ATTRIBUTES,
+		DATAMAP_ENUMERATION_VALUES,
+		DATAMAP_INTEGER_VALUES,
+		DATAMAP_FLOAT_VALUES,
+		DATAMAP_STRING_VALUES,
 		;
 
 		public String tableName() {
@@ -138,6 +142,8 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	// when the key table is created.
 	private static HashMap<Table, ArrayList<Table>> automaticChildren = new HashMap<Table, ArrayList<Table>>();
 	
+	// Maps a Table onto a list of editable columns for that table.
+	private static HashMap<Table, ArrayList<EditableColumn>> editableColumns = new HashMap<Table, ArrayList<EditableColumn>>();
 	
 	private Table table;
 	private int id;
@@ -923,6 +929,52 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 			delete();
 		}
 	}
+	
+	public ArrayList<EditableColumn> getEditableColumns() {
+		if (editableColumns.containsKey(table)) {
+			ArrayList<EditableColumn> ret = editableColumns.get(table);
+			if (ret != null) {
+				return ret;
+			}
+		}
+		return new ArrayList<EditableColumn>();
+	}
+	
+	public Object getEditableColumnValue(EditableColumn column) {
+		String sql = "Select " + column.getName() + " from " + table.tableName() + " where id=?";
+		StatementWrapper sw = db.prepareStatement(sql);
+		sw.setInt(1, id);
+		ResultSet rs = sw.executeQuery();
+		Object ret = null;
+		try {
+			if (rs.next()) {
+				ret = rs.getObject(column.getName());
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		sw.close();
+		return ret;
+	}
+	
+	public void editColumnValue(EditableColumn column, Object newValue) {
+		if (column.objectIsRightType(newValue)) {
+			String sql = "update " + table.tableName() + " set " + column.getName() + "=?";
+			StatementWrapper sw = db.prepareStatement(sql);
+			switch (EditableColumn.typeForObject(newValue)) {
+			case FLOAT:
+				sw.setFloat(1, (Float)newValue);
+				break;
+			case INTEGER:
+				sw.setInt(1, (Integer)newValue);
+				break;
+			case STRING:
+				sw.setString(1, (String)newValue);
+				break;
+			}
+			sw.execute();
+		}
+	}
 
 	/**
 	 * Encapsulates information neccesary to add a row to the database.
@@ -1214,6 +1266,12 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		agentFolders.add(Table.OPERATORS);
 		agentFolders.add(Table.RULES);
 		childFolders.put(Table.AGENTS, agentFolders);
+		
+		// Which tables have editable columns
+		addEditableColumnToTable(Table.DATAMAP_INTEGER_VALUES, new EditableColumn("max_value", EditableColumn.Type.INTEGER));
+		addEditableColumnToTable(Table.DATAMAP_INTEGER_VALUES, new EditableColumn("min_value", EditableColumn.Type.INTEGER));
+		addEditableColumnToTable(Table.DATAMAP_FLOAT_VALUES, new EditableColumn("max_value", EditableColumn.Type.FLOAT));
+		addEditableColumnToTable(Table.DATAMAP_FLOAT_VALUES, new EditableColumn("min_value", EditableColumn.Type.FLOAT));
 
 		// Declare joined tables.
 		joinTables(Table.RULES, Table.PROBLEM_SPACES);
@@ -1223,6 +1281,10 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		
 		// Declare directional joined tables.
 		directedJoinTables(Table.DATAMAP_ATTRIBUTES, Table.DATAMAP_ATTRIBUTES);
+		directedJoinTables(Table.DATAMAP_ATTRIBUTES, Table.DATAMAP_ENUMERATION_VALUES);
+		directedJoinTables(Table.DATAMAP_ATTRIBUTES, Table.DATAMAP_INTEGER_VALUES);
+		directedJoinTables(Table.DATAMAP_ATTRIBUTES, Table.DATAMAP_FLOAT_VALUES);
+		directedJoinTables(Table.DATAMAP_ATTRIBUTES, Table.DATAMAP_STRING_VALUES);
 
 		// rule structure
 		addParent(Table.CONDITIONS, Table.RULES);
@@ -1545,6 +1607,18 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	
 	public static String directedJoinTableName(Table parent, Table child) {
 		return "directed_join_" + parent.tableName() + "_" + child.tableName();
+	}
+	
+	public static void addEditableColumnToTable(Table table, EditableColumn column) {
+		ArrayList<EditableColumn> columns = null;
+		if (editableColumns.containsKey(table)) {
+			columns = editableColumns.get(table);
+		}
+		if (columns == null) {
+			columns = new ArrayList<EditableColumn>();
+			editableColumns.put(table, columns);
+		}
+		columns.add(column);
 	}
 
 	@Override

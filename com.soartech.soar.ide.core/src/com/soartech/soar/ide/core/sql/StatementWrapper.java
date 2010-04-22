@@ -31,6 +31,14 @@ public class StatementWrapper {
 			e.printStackTrace();
 		}
 	}
+	
+	public void setFloat(int index, Float value) {
+		try {
+			ps.setFloat(index, value);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Also closes PreparedStatement.
