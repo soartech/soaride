@@ -24,6 +24,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.part.EditorPart;
 
+import com.soartech.soar.ide.core.sql.EditableColumn;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEditorInput;
 import com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder;
@@ -145,6 +146,49 @@ public class SoarDatabaseDatamapEditor extends EditorPart {
 								refreshTree();
 							}
 						});
+						
+						ArrayList<EditableColumn> editableColumns = row.getEditableColumns();
+						for (final EditableColumn column : editableColumns) {
+							manager.add(new Action("Edit " + column.getName()) {
+								@Override
+								public void run() {
+									Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+									String title = "Edit " + column.getName();
+									String message = "Enter New Value:";
+									Object currentValue = row.getEditableColumnValue(column);
+									String initialValue = null;
+									if (currentValue == null) {
+										initialValue = "";
+									} else {
+										initialValue = currentValue.toString();
+									}
+									InputDialog dialog = new InputDialog(shell, title, message, initialValue, null);
+									dialog.open();
+									String result = dialog.getValue();
+									
+									if (result != null) {
+										EditableColumn.Type columnType = column.getType();
+										Object parsedValue = null;
+										switch (columnType) {
+										case FLOAT:
+											parsedValue = Float.parseFloat(result);
+											break;
+										case INTEGER:
+											parsedValue = Integer.parseInt(result);
+											break;
+										case STRING:
+											parsedValue = result;
+											break;
+										}
+
+										if (parsedValue != null && result.length() > 0) {
+											row.editColumnValue(column, parsedValue);
+											refreshTree();
+										}
+									}
+								}
+							});
+						}
 					}
 					
 					else if (element instanceof SoarDatabaseJoinFolder) {
