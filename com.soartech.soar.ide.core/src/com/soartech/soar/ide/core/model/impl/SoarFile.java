@@ -447,7 +447,7 @@ public class SoarFile extends AbstractSoarOpenable implements ISoarFile
         {
             System.err.println(file.getFullPath() + ": " + e);
             reporter.report(SoarProblem.createError(e.getMessage(), e.getStart(), e.getLength()));
-        }        
+        }
     }
         
     /* (non-Javadoc)

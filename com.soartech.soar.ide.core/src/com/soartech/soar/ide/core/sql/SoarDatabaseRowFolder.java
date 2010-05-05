@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
-public class SoarDatabaseRowFolder implements ISoarDatabaseRow {
+public class SoarDatabaseRowFolder implements ISoarDatabaseTreeItem {
 
 	SoarDatabaseRow row;
 	Table table;
@@ -14,10 +14,11 @@ public class SoarDatabaseRowFolder implements ISoarDatabaseRow {
 		this.table = table;
 	}
 	
-	public ArrayList<ISoarDatabaseRow> getChildren(boolean includeFolders,
+	public ArrayList<ISoarDatabaseTreeItem> getChildren(boolean includeFolders,
 			boolean includeChildrenInFolders,
 			boolean includeJoinedItems, 
-			boolean includeDirectedJoinedItems, 
+			boolean includeDirectionalJoinedItems, 
+			boolean putDirectionalJoinedItemsInFolders, 
 			boolean includeDatamapNodes) {
 		return row.getChildrenOfType(table);
 	}

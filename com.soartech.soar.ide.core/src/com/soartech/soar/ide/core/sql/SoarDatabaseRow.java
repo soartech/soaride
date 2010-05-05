@@ -1,17 +1,15 @@
 package com.soartech.soar.ide.core.sql;
 
 import java.io.StringReader;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
-
+import com.soartech.soar.ide.core.model.SoarProblem;
 import com.soartech.soar.ide.core.model.ast.Action;
 import com.soartech.soar.ide.core.model.ast.AttributeTest;
 import com.soartech.soar.ide.core.model.ast.AttributeValueMake;
@@ -36,6 +34,7 @@ import com.soartech.soar.ide.core.model.ast.SingleTest;
 import com.soartech.soar.ide.core.model.ast.SoarParser;
 import com.soartech.soar.ide.core.model.ast.SoarProductionAst;
 import com.soartech.soar.ide.core.model.ast.Test;
+import com.soartech.soar.ide.core.model.ast.Token;
 import com.soartech.soar.ide.core.model.ast.ValueMake;
 import com.soartech.soar.ide.core.model.ast.ValueTest;
 import com.soartech.soar.ide.core.model.ast.VarAttrValMake;
@@ -49,10 +48,15 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
  * @author miller
  * 
  */
-public class SoarDatabaseRow implements ISoarDatabaseRow {
+public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 
 	public enum Table {
-		AGENTS, PROBLEM_SPACES, OPERATORS,
+		
+		// Agents
+		AGENTS,
+		PROBLEM_SPACES,
+		OPERATORS,
+		TAGS,
 
 		// Rules
 		RULES,
@@ -67,7 +71,10 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		SIMPLE_TESTS,
 		DISJUNCTION_TESTS,
 		RELATIONAL_TESTS,
-		RELATIONS,
+		
+		// Not used
+		//RELATIONS,
+		
 		SINGLE_TESTS,
 		CONSTANTS,
 		ACTIONS,
@@ -77,18 +84,19 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		FUNCTION_NAMES,
 		RHS_VALUES,
 		VALUE_MAKES,
-		PREFERENCES,
+		//PREFERENCES,
 		PREFERENCE_SPECIFIERS,
-		NATURALLY_UNARY_PREFERENCES,
-		BINARY_PREFERENCES,
-		FORCED_UNARY_PREFERENCES,
+		//NATURALLY_UNARY_PREFERENCES,
+		//BINARY_PREFERENCES,
+		//FORCED_UNARY_PREFERENCES,
 
 		// Datamap
-		DATAMAP_ATTRIBUTES,
+		DATAMAP_IDENTIFIERS,
+		DATAMAP_ENUMERATIONS,
 		DATAMAP_ENUMERATION_VALUES,
-		DATAMAP_INTEGER_VALUES,
-		DATAMAP_FLOAT_VALUES,
-		DATAMAP_STRING_VALUES,
+		DATAMAP_INTEGERS,
+		DATAMAP_FLOATS,
+		DATAMAP_STRINGS,
 		;
 
 		public String tableName() {
@@ -150,7 +158,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	private SoarDatabaseConnection db;
 	private String name = null;
 	private HashMap<Table, SoarDatabaseRowFolder> folders = new HashMap<Table, SoarDatabaseRowFolder>();
-
+	
 	private static boolean initted = false;
 
 	public SoarDatabaseRow(Table table, int id, SoarDatabaseConnection db) {
@@ -176,7 +184,25 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 
 	@Override
 	public String toString() {
-		return getName();
+		String ret = getName();
+		ArrayList<EditableColumn> columns = getEditableColumns();
+		int size = columns.size();
+		if (size > 0) {
+			ret += ": ";
+			for (int i = 0; i < size; ++i) {
+				EditableColumn column = columns.get(i);
+				Object value = getEditableColumnValue(column);
+				if (value == null) {
+					value = "NULL";
+				}
+				if (i != size - 1) {
+					ret += column.getName() + "=" + value + ", ";
+				} else {
+					ret += column.getName() + "=" + value;
+				}
+			}
+		}
+		return ret;
 	}
 
 	public String getName() {
@@ -216,7 +242,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	 * @param value
 	 */
 	public void updateValue(String column, String value) {
-		updateValues(new String[] {column}, new String[] {value});
+		updateValues(new String[] {column}, new String[] {value});		
 	}
 	
 	/**
@@ -238,6 +264,23 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 			}
 		}
 		db.execute(sql);
+	}
+	
+	public Object getColumnValue(String column) {
+		String sql = "select * from " + table.tableName() + " where id=?";
+		StatementWrapper sw = db.prepareStatement(sql);
+		sw.setInt(1, id);
+		ResultSet rs = sw.executeQuery();
+		Object ret = null;
+		try {
+			if (rs.next()) {
+				ret = rs.getObject(column);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		sw.close();
+		return ret;
 	}
 
 	public Table getTable() {
@@ -262,8 +305,8 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		// Remove undirected joins
 		ArrayList<Table> tables = getTablesJoinedToTable(this.table);
 		for (Table t : tables) {
-			ArrayList<ISoarDatabaseRow> joinedRows = getJoinedRowsFromTable(t);
-			for (ISoarDatabaseRow other : joinedRows) {
+			ArrayList<ISoarDatabaseTreeItem> joinedRows = getJoinedRowsFromTable(t);
+			for (ISoarDatabaseTreeItem other : joinedRows) {
 				if (other instanceof SoarDatabaseRow) {
 					unjoinRows(this, (SoarDatabaseRow) other, db);
 				}
@@ -272,12 +315,10 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		
 		// Remove directed joins where this is the child
 		// (directed joins with this as the parent have already been removed in deleteAllChildren() ).
-		ArrayList<ISoarDatabaseRow> parentRows = getParentJoinedRows();
-		for (ISoarDatabaseRow iParent : parentRows) {
-			if (iParent instanceof SoarDatabaseRow) {
-				SoarDatabaseRow parent = (SoarDatabaseRow) iParent;
-				directedUnjoinRows(parent, this, db);
-			}
+		ArrayList<SoarDatabaseRow> parentRows = getDirectedJoinedParents();
+		for (ISoarDatabaseTreeItem iParent : parentRows) {
+			SoarDatabaseRow parent = (SoarDatabaseRow) iParent;
+			directedUnjoinRows(parent, this, db);
 		}
 	}
 
@@ -302,20 +343,22 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	 *            Whether to include datamap nodes.
 	 * @return The child elements of this row.
 	 */
-	public ArrayList<ISoarDatabaseRow> getChildren(boolean includeFolders,
+	public ArrayList<ISoarDatabaseTreeItem> getChildren(boolean includeFolders,
 			boolean includeChildrenInFolders,
 			boolean includeJoinedItems,
 			boolean includeDirectionalJoinedItems,
+			boolean putDirectionalJoinedItemsInFolders,
 			boolean includeDatamapNodes) {
-		ArrayList<ISoarDatabaseRow> ret = new ArrayList<ISoarDatabaseRow>();
+		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		ArrayList<Table> children = getChildTables();
 		for (Table t : children) {
+			
 			boolean isFolder = folders.containsKey(t);
 			if (isFolder && includeFolders) {
 				ret.add(folders.get(t));
 			}
 			if ((!isFolder) || includeChildrenInFolders) {
-				if (t != Table.DATAMAP_ATTRIBUTES || includeDatamapNodes) {
+				if (t != Table.DATAMAP_IDENTIFIERS || includeDatamapNodes) {
 					String sql = "select * from " + t.tableName() + " where "
 							+ table.idName() + "=?";
 					StatementWrapper ps = db.prepareStatement(sql);
@@ -344,19 +387,24 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		}
 		
 		if (includeDirectionalJoinedItems) {
-			ret.addAll(getDirectedJoinedChildren());
+			ret.addAll(getDirectedJoinedChildren(putDirectionalJoinedItemsInFolders));
 		}
-
+		
 		return ret;
 	}
 	
-	public ArrayList<ISoarDatabaseRow> getDirectedJoinedChildren() {		
-		ArrayList<ISoarDatabaseRow> ret = new ArrayList<ISoarDatabaseRow>();
+	public ArrayList<ISoarDatabaseTreeItem> getDirectedJoinedChildren(boolean putInFolders) {		
+		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		if (directedJoinedTables.containsKey(table)) {
 			ArrayList<Table> joinedTables = directedJoinedTables.get(table);
 			for (Table t : joinedTables) {
 				SoarDatabaseJoinFolder folder = new SoarDatabaseJoinFolder(this, t);
-				ret.add(folder);
+				if (putInFolders) {
+					ret.add(folder);
+				} else {
+					// args here don't matter
+					ret.addAll(folder.getChildren(true, true, true, true, true, true));
+				}
 			}
 		}
 		return ret;
@@ -368,8 +416,8 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	 * @param type
 	 * @return
 	 */
-	public ArrayList<ISoarDatabaseRow> getChildrenOfType(Table type) {
-		ArrayList<ISoarDatabaseRow> ret = new ArrayList<ISoarDatabaseRow>();
+	public ArrayList<ISoarDatabaseTreeItem> getChildrenOfType(Table type) {
+		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		ArrayList<Table> children = getChildTables();
 		for (Table t : children) {
 			if (t == type) {
@@ -423,6 +471,13 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		return false;
 	}
 
+	public boolean isOrphan() {
+		if ((!hasParentJoinedRows()) && (!hasParents())) {
+			return true;
+		}
+		return false;
+	}
+	
 	public boolean hasChildrenOfType(Table type) {
 		String sql = "select * from " + type.tableName() + " where "
 				+ table.idName() + "=?";
@@ -454,7 +509,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	 * 
 	 * @return
 	 */
-	public ArrayList<SoarDatabaseRow> getParentRows() {
+	public ArrayList<SoarDatabaseRow> getParents() {
 		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
 		ArrayList<Table> parents = getParentTables();
 		for (Table t : parents) {
@@ -477,7 +532,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		return ret;
 	}
 	
-	public boolean hasParentRows() {
+	public boolean hasParents() {
 		ArrayList<Table> parents = getParentTables();
 		for (Table t : parents) {
 			String sql = "select * from " + t.tableName()
@@ -503,9 +558,9 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	 * Returns a list of all rows which are parents in a directional join with this row. 
 	 * @return
 	 */
-	public ArrayList<ISoarDatabaseRow> getParentJoinedRows() {
-		ArrayList<ISoarDatabaseRow> ret = new ArrayList<ISoarDatabaseRow>();
-		ArrayList<Table> parentTables = getParentTablesDirectedJoinedToTable(table);
+	public ArrayList<SoarDatabaseRow> getDirectedJoinedParents() {
+		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
+		ArrayList<Table> parentTables = getDirectedJoinParentTables(table);
 		for (Table parentTable : parentTables) {
 			String joinTableName = directedJoinTableName(parentTable, table);
 			String sql = "select * from " + joinTableName + " where child_id=?";
@@ -527,14 +582,24 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	}
 	
 	/**
+	 * Returns both regular parents and directed-join parents.
+	 * @return
+	 */
+	public ArrayList<SoarDatabaseRow> getAllParents() {
+		ArrayList<SoarDatabaseRow> ret = getParents();
+		ret.addAll(getDirectedJoinedParents());
+		return ret;
+	}
+	
+	/**
 	 * 
 	 * @return True if this.getParentJoinedRows().size() > 0.
 	 */
 	public boolean hasParentJoinedRows() {
-		ArrayList<Table> parentTables = getParentTablesDirectedJoinedToTable(table);
+		ArrayList<Table> parentTables = getDirectedJoinParentTables(table);
 		for (Table parentTable : parentTables) {
 			String joinTableName = directedJoinTableName(parentTable, table);
-			String sql = "select * from " + joinTableName + " where second_id=?";
+			String sql = "select * from " + joinTableName + " where child_id=?";
 			StatementWrapper sw = db.prepareStatement(sql);
 			sw.setInt(1, id);
 			ResultSet rs = sw.executeQuery();
@@ -558,19 +623,34 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	 * the top-level row.
 	 * @return
 	 */
-	public SoarDatabaseRow getTopLevelRow(Table type) {
+	public SoarDatabaseRow getAncestorRow(Table type) {
 		if (table == type) {
 			return this;
 		}
-		SoarDatabaseRow ret = this;
-		ArrayList<SoarDatabaseRow> parents = ret.getParentRows();
-		while (parents.size() > 0) {
-			ret = parents.get(0);
-			if (type != null && ret.getTable() == type) {
-				return ret;
+		HashSet<SoarDatabaseRow> alreadyVisited = new HashSet<SoarDatabaseRow>();
+		ArrayList<SoarDatabaseRow> parents = getAllParents();
+		ArrayList<SoarDatabaseRow> newParents = parents;
+		while (newParents.size() > 0) {
+			parents = newParents;
+			newParents = new ArrayList<SoarDatabaseRow>();
+			for (SoarDatabaseRow row : parents) {
+				
+				// Check for a match
+				if (type != null && row.getTable() == type) {
+					return row;
+				}
+				
+				// Replace current list with their parents
+				ArrayList<SoarDatabaseRow> rowParents = row.getAllParents();
+				for (SoarDatabaseRow rowParent : rowParents) {
+					if (!newParents.contains(rowParent) && !alreadyVisited.contains(rowParent)) {
+						newParents.add(rowParent);
+						alreadyVisited.add(rowParent);
+					}
+				}
 			}
-			parents = ret.getParentRows();
 		}
+		SoarDatabaseRow ret = parents.get(0);
 		if (type == null || ret.getTable() == type) {
 			return ret;
 		} else {
@@ -579,25 +659,25 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	}
 	
 	public SoarDatabaseRow getTopLevelRow() {
-		return getTopLevelRow(null);
+		return getAncestorRow(null);
 	}
 	
 	
-	public ArrayList<ISoarDatabaseRow> getDescendantsOfType(Table type) {
-		return getDescendantsOfType(type, new HashSet<ISoarDatabaseRow>());
+	public ArrayList<ISoarDatabaseTreeItem> getDescendantsOfType(Table type) {
+		return getDescendantsOfType(type, new HashSet<ISoarDatabaseTreeItem>());
 	}
 	
-	private ArrayList<ISoarDatabaseRow> getDescendantsOfType(Table type, HashSet<ISoarDatabaseRow> visitedRows) {
-		ArrayList<ISoarDatabaseRow> ret = new ArrayList<ISoarDatabaseRow>();
+	private ArrayList<ISoarDatabaseTreeItem> getDescendantsOfType(Table type, HashSet<ISoarDatabaseTreeItem> visitedRows) {
+		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		
-		ArrayList<ISoarDatabaseRow> children = getChildren(false, true, false, false, true);
-		for (ISoarDatabaseRow child : children) {
+		ArrayList<ISoarDatabaseTreeItem> children = getChildren(false, true, false, true, false, true);
+		for (ISoarDatabaseTreeItem child : children) {
 			if (!visitedRows.contains(child)) {
 				visitedRows.add(child);
 				
 				if (child instanceof SoarDatabaseRow) {
 					SoarDatabaseRow childRow = (SoarDatabaseRow) child;
-					ArrayList<ISoarDatabaseRow> temp = childRow.getDescendantsOfType(type, visitedRows);
+					ArrayList<ISoarDatabaseTreeItem> temp = childRow.getDescendantsOfType(type, visitedRows);
 					ret.addAll(temp);
 					if (childRow.getTable() == type) {
 						ret.add(childRow);
@@ -610,21 +690,22 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		return ret;
 	}
 
-	public ArrayList<ISoarDatabaseRow> getJoinedRowsFromTable(Table other) {
-		ArrayList<ISoarDatabaseRow> ret = new ArrayList<ISoarDatabaseRow>();
+	public ArrayList<ISoarDatabaseTreeItem> getJoinedRowsFromTable(Table other) {
+		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		
 		// First, add directionless joins.
 		if (tablesAreJoined(this.table, other)) {
 			String joinTableName = joinTableName(this.table, other);
 			Table[] orderedTables = orderJoinedTables(this.table, other);
 			String thisTableIdName = orderedTables[0] == this.table ? "first_id" : "second_id";
+			String otherTableIdName = orderedTables[1] == this.table ? "first_id" : "second_id";
 			String sql = "select * from " + joinTableName + " where " + thisTableIdName + "=?";
 			StatementWrapper ps = db.prepareStatement(sql);
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
 			try {
 				while (rs.next()) {
-					int otherId = rs.getInt(other.idName());
+					int otherId = rs.getInt(otherTableIdName);
 					SoarDatabaseRow row = new SoarDatabaseRow(other, otherId, db);
 					ret.add(row);
 				}
@@ -760,6 +841,11 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		ps.setInt(1, parent.id);
 		ps.setInt(2, child.id);
 		ps.execute();
+		
+		// If the child is as orphan, delete the child.
+		if (child.isOrphan()) {
+			child.deleteAllChildren(true);
+		}
 	}
 	
 	/**
@@ -857,6 +943,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	public void createChildrenFromAstNode(Object node) throws Exception {
 		ArrayList<Table> childTables = getChildTables();
 		Table childTable = tableForAstNode.get(node.getClass());
+		
 		SqlArgsAndChildNodes argsAndNodes = sqlArgsAndChildNodes(node,
 				childTable);
 		SoarDatabaseRow childRow;
@@ -908,26 +995,33 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	 * the child has no parents (normal parents or directed-join parents).
 	 * @param alsoDeleteThis
 	 */
-	public void deleteAllChildren(boolean alsoDeleteThis) {
-		ArrayList<ISoarDatabaseRow> childRows = getChildren(false, true, false, false, true);
-		for (ISoarDatabaseRow child : childRows) {
-			if (child instanceof SoarDatabaseRow) {
-				((SoarDatabaseRow) child).deleteAllChildren(true);
+	public void deleteAllChildren(boolean alsoDeleteThis, HashSet<SoarDatabaseRow> alreadyDeleted) {
+		alreadyDeleted.add(this);
+		ArrayList<ISoarDatabaseTreeItem> childRows = getChildren(false, true, false, false, false, true);
+		for (ISoarDatabaseTreeItem child : childRows) {
+			if (child instanceof SoarDatabaseRow && !alreadyDeleted.contains(child)) {
+				alreadyDeleted.add((SoarDatabaseRow)child);
+				((SoarDatabaseRow) child).deleteAllChildren(true, alreadyDeleted);
 			}
 		}
-		ArrayList<ISoarDatabaseRow> childJoinedRows = getDirectedJoinedChildren();
-		for (ISoarDatabaseRow child : childJoinedRows) {
+		ArrayList<ISoarDatabaseTreeItem> childJoinedRows = getDirectedJoinedChildren(false);
+		for (ISoarDatabaseTreeItem child : childJoinedRows) {
 			if (child instanceof SoarDatabaseRow) {
 				SoarDatabaseRow childRow = (SoarDatabaseRow) child;
 				directedUnjoinRows(this, childRow, db);
-				if (!childRow.hasParentJoinedRows() && !childRow.hasParentRows()) {
-					childRow.deleteAllChildren(true);
+				if (childRow.isOrphan() && !alreadyDeleted.contains(childRow)) {
+					alreadyDeleted.add(childRow);
+					childRow.deleteAllChildren(true, alreadyDeleted);
 				}
 			}
 		}
 		if (alsoDeleteThis) {
 			delete();
 		}
+	}
+	
+	public void deleteAllChildren(boolean alsoDeleteThis) {
+		deleteAllChildren(alsoDeleteThis, new HashSet<SoarDatabaseRow>());
 	}
 	
 	public ArrayList<EditableColumn> getEditableColumns() {
@@ -1014,13 +1108,12 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		ArrayList<String[]> sqlArgs = new ArrayList<String[]>();
 		Object[] childNodes = new Object[0]; // = null;
 
-		Class<?> nodeClass = node.getClass();
 		String name = nodeTable.shortName();
 
 		String sqlTrue = "1";
 		String sqlFalse = "0";
 
-		if (nodeClass == SoarProductionAst.class) {
+		if (node instanceof SoarProductionAst) {
 			Object[] conditions = ((SoarProductionAst) node).getConditions()
 					.toArray();
 			Object[] actions = ((SoarProductionAst) node).getActions()
@@ -1029,7 +1122,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 			System.arraycopy(conditions, 0, childNodes, 0, conditions.length);
 			System.arraycopy(actions, 0, childNodes, conditions.length,
 					actions.length);
-		} else if (nodeClass == Condition.class) {
+		} else if (node instanceof Condition) {
 			Object positiveCondition = ((Condition) node)
 					.getPositiveCondition();
 			childNodes = new Object[] { positiveCondition };
@@ -1038,7 +1131,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 					isNegated ? sqlTrue : sqlFalse });
 			if (isNegated)
 				name += " (negated)";
-		} else if (nodeClass == PositiveCondition.class) {
+		} else if (node instanceof PositiveCondition) {
 			boolean isConjunction = ((PositiveCondition) node).isConjunction();
 			sqlArgs.add(new String[] { "is_conjunction",
 					isConjunction ? sqlTrue : sqlFalse });
@@ -1051,7 +1144,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 			}
 			if (isConjunction)
 				name += " (conjunction)";
-		} else if (nodeClass == ConditionForOneIdentifier.class) {
+		} else if (node instanceof ConditionForOneIdentifier) {
 			childNodes = ((ConditionForOneIdentifier) node)
 					.getAttributeValueTests().toArray();
 			boolean hasState = ((ConditionForOneIdentifier) node).hasState();
@@ -1063,7 +1156,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 			name += " (variable: " + variable + ")";
 			if (hasState)
 				name += " (has state)";
-		} else if (nodeClass == AttributeValueTest.class) {
+		} else if (node instanceof AttributeValueTest) {
 			Object[] attributeTests = ((AttributeValueTest) node)
 					.getAttributeTests().toArray();
 			Object[] valueTests = ((AttributeValueTest) node).getValueTests()
@@ -1077,9 +1170,9 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 					"is_negated",
 					((AttributeValueTest) node).isNegated() ? sqlTrue
 							: sqlFalse });
-		} else if (nodeClass == AttributeTest.class) {
+		} else if (node instanceof AttributeTest) {
 			childNodes = new Object[] { ((AttributeTest) node).getTest() };
-		} else if (nodeClass == Test.class) {
+		} else if (node instanceof Test) {
 			boolean isConjunctiveTest = ((Test) node).isConjunctiveTest();
 			sqlArgs.add(new String[] { "is_conjunctive_test",
 					isConjunctiveTest ? sqlTrue : sqlFalse });
@@ -1090,7 +1183,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 			}
 			name += isConjunctiveTest ? " (conjunctive test)"
 					: " (simple test)";
-		} else if (nodeClass == SimpleTest.class) {
+		} else if (node instanceof SimpleTest) {
 			boolean isDisjunctionTest = ((SimpleTest) node).isDisjunctionTest();
 			sqlArgs.add(new String[] { "is_disjunction_test",
 					isDisjunctionTest ? sqlTrue : sqlFalse });
@@ -1103,14 +1196,14 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 			}
 			name += isDisjunctionTest ? " (disjunction test)"
 					: " (relational test)";
-		} else if (nodeClass == DisjunctionTest.class) {
+		} else if (node instanceof DisjunctionTest) {
 			childNodes = ((DisjunctionTest) node).getConstants().toArray();
-		} else if (nodeClass == RelationalTest.class) {
+		} else if (node instanceof RelationalTest) {
 			childNodes = new Object[] { ((RelationalTest) node).getSingleTest() };
 			int relation = ((RelationalTest) node).getRelation();
 			sqlArgs.add(new String[] { "relation", "" + relation });
 			name += " (" + RelationalTest.RELATIONS[relation] + ")";
-		} else if (nodeClass == SingleTest.class) {
+		} else if (node instanceof SingleTest) {
 			boolean isConstant = ((SingleTest) node).isConstant();
 			sqlArgs.add(new String[] { "is_constant",
 					isConstant ? sqlTrue : sqlFalse });
@@ -1120,13 +1213,12 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 			} else {
 				Pair pair = ((SingleTest) node).getVariable();
 				String variable = pair.getString();
-				sqlArgs
-						.add(new String[] { "variable", "\"" + variable + "\"" });
+				sqlArgs.add(new String[] { "variable", "\"" + variable + "\"" });
 				name += " (variable: " + variable + ")";
 			}
-		} else if (nodeClass == ConjunctiveTest.class) {
+		} else if (node instanceof ConjunctiveTest) {
 			childNodes = ((ConjunctiveTest) node).getSimpleTests().toArray();
-		} else if (nodeClass == ValueTest.class) {
+		} else if (node instanceof ValueTest) {
 			childNodes = new Object[] { ((ValueTest) node).getTest() };
 			boolean hasAcceptablePreference = ((ValueTest) node)
 					.hasAcceptablePreference();
@@ -1134,7 +1226,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 					hasAcceptablePreference ? sqlTrue : sqlFalse });
 			if (hasAcceptablePreference)
 				name += " (has acceptable preference)";
-		} else if (nodeClass == Action.class) {
+		} else if (node instanceof Action) {
 			boolean isVarAttrValMake = ((Action) node).isVarAttrValMake();
 			sqlArgs.add(new String[] { "is_var_attr_val_make",
 					isVarAttrValMake ? sqlTrue : sqlFalse });
@@ -1145,14 +1237,14 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 			}
 			name += isVarAttrValMake ? " (variable attribute make)"
 					: " (function call)";
-		} else if (nodeClass == VarAttrValMake.class) {
+		} else if (node instanceof VarAttrValMake) {
 			childNodes = ((VarAttrValMake) node).getAttributeValueMakes()
 					.toArray();
 			Pair pair = ((VarAttrValMake) node).getVariable();
 			String variable = pair.getString();
 			sqlArgs.add(new String[] { "variable", "\"" + variable + "\"" });
 			name += " (variable: " + variable + ")";
-		} else if (nodeClass == AttributeValueMake.class) {
+		} else if (node instanceof AttributeValueMake) {
 			Object[] rhsValues = ((AttributeValueMake) node).getRHSValues()
 					.toArray();
 			Object[] valueMakes = ((AttributeValueMake) node).getValueMakes()
@@ -1161,7 +1253,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 			System.arraycopy(rhsValues, 0, childNodes, 0, rhsValues.length);
 			System.arraycopy(valueMakes, 0, childNodes, rhsValues.length,
 					valueMakes.length);
-		} else if (nodeClass == RHSValue.class) {
+		} else if (node instanceof RHSValue) {
 			boolean isConstant = ((RHSValue) node).isConstant();
 			boolean isFunctionCall = ((RHSValue) node).isConstant();
 			boolean isVariable = ((RHSValue) node).isConstant();
@@ -1180,17 +1272,15 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 			} else if (isVariable) {
 				Pair pair = ((RHSValue) node).getVariable();
 				String variable = pair.getString();
-				sqlArgs
-						.add(new String[] { "variable", "\"" + variable + "\"" });
+				sqlArgs.add(new String[] { "variable", "\"" + variable + "\"" });
 				name += " (variable: " + variable + ")";
 			}
-		} else if (nodeClass == Constant.class) {
+		} else if (node instanceof Constant) {
 			int constantType = ((Constant) node).getConstantType();
 			sqlArgs.add(new String[] { "constant_type", "" + constantType });
 			if (constantType == Constant.FLOATING_CONST) {
 				float floatingConst = ((Constant) node).getFloatConst();
-				sqlArgs
-						.add(new String[] { "floating_const",
+				sqlArgs.add(new String[] { "floating_const",
 								"" + floatingConst });
 				name += " (floating constant: " + floatingConst + ")";
 			} else if (constantType == Constant.INTEGER_CONST) {
@@ -1203,13 +1293,13 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 						"\"" + symConst + "\"" });
 				name += " (symbolic constant: " + symConst + ")";
 			}
-		} else if (nodeClass == FunctionCall.class) {
+		} else if (node instanceof FunctionCall) {
 			childNodes = ((FunctionCall) node).getRHSValues().toArray();
 			Pair pair = ((FunctionCall) node).getFunctionName();
 			String variable = pair.getString();
 			sqlArgs.add(new String[] { "function_name", variable });
 			name += " (variable: " + variable + ")";
-		} else if (nodeClass == ValueMake.class) {
+		} else if (node instanceof ValueMake) {
 			Object[] preferenceSpecifiers = objectsArrayFromIterator(((ValueMake) node)
 					.getPreferenceSpecifiers());
 			Object[] rhsValue = new Object[] { ((ValueMake) node).getRHSValue() };
@@ -1219,18 +1309,17 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 					preferenceSpecifiers.length);
 			System.arraycopy(rhsValue, 0, childNodes,
 					preferenceSpecifiers.length, rhsValue.length);
-		} else if (nodeClass == PreferenceSpecifier.class) {
-			childNodes = new Object[] { ((PreferenceSpecifier) node).getRHS() };
-			boolean isUnaryPreference = ((PreferenceSpecifier) node)
-					.isUnaryPreference();
-			int preferenceSpecifierType = ((PreferenceSpecifier) node)
-					.getPreferenceSpecifierType();
-			sqlArgs.add(new String[] { "is_unary_preference",
-					isUnaryPreference ? sqlTrue : sqlFalse });
-			sqlArgs.add(new String[] { "preference_specifier_type",
-					"" + preferenceSpecifierType });
-			if (isUnaryPreference)
+		} else if (node instanceof PreferenceSpecifier) {
+			boolean isUnaryPreference = ((PreferenceSpecifier) node).isUnaryPreference();
+			if (!isUnaryPreference) {
+				childNodes = new Object[] { ((PreferenceSpecifier) node).getRHS() };
+			}
+			int preferenceSpecifierType = ((PreferenceSpecifier) node).getPreferenceSpecifierType();
+			sqlArgs.add(new String[] { "is_unary_preference", isUnaryPreference ? sqlTrue : sqlFalse });
+			sqlArgs.add(new String[] { "preference_specifier_type", "" + preferenceSpecifierType });
+			if (isUnaryPreference) {
 				name += " (unary preference)";
+			}
 			name += " (preference: "
 					+ PreferenceSpecifier.PREFERENCES[preferenceSpecifierType]
 					+ ")";
@@ -1259,32 +1348,37 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		addParent(Table.PROBLEM_SPACES, Table.AGENTS);
 		addParent(Table.OPERATORS, Table.AGENTS);
 		addParent(Table.RULES, Table.AGENTS);
+		addParent(Table.TAGS, Table.AGENTS);
 
 		// Which tables have folders
 		ArrayList<Table> agentFolders = new ArrayList<Table>();
 		agentFolders.add(Table.PROBLEM_SPACES);
 		agentFolders.add(Table.OPERATORS);
 		agentFolders.add(Table.RULES);
+		agentFolders.add(Table.TAGS);
 		childFolders.put(Table.AGENTS, agentFolders);
 		
 		// Which tables have editable columns
-		addEditableColumnToTable(Table.DATAMAP_INTEGER_VALUES, new EditableColumn("max_value", EditableColumn.Type.INTEGER));
-		addEditableColumnToTable(Table.DATAMAP_INTEGER_VALUES, new EditableColumn("min_value", EditableColumn.Type.INTEGER));
-		addEditableColumnToTable(Table.DATAMAP_FLOAT_VALUES, new EditableColumn("max_value", EditableColumn.Type.FLOAT));
-		addEditableColumnToTable(Table.DATAMAP_FLOAT_VALUES, new EditableColumn("min_value", EditableColumn.Type.FLOAT));
+		addEditableColumnToTable(Table.DATAMAP_INTEGERS, new EditableColumn("min_value", EditableColumn.Type.INTEGER));
+		addEditableColumnToTable(Table.DATAMAP_INTEGERS, new EditableColumn("max_value", EditableColumn.Type.INTEGER));
+		addEditableColumnToTable(Table.DATAMAP_FLOATS, new EditableColumn("min_value", EditableColumn.Type.FLOAT));
+		addEditableColumnToTable(Table.DATAMAP_FLOATS, new EditableColumn("max_value", EditableColumn.Type.FLOAT));
 
 		// Declare joined tables.
 		joinTables(Table.RULES, Table.PROBLEM_SPACES);
 		joinTables(Table.RULES, Table.OPERATORS);
 		joinTables(Table.OPERATORS, Table.PROBLEM_SPACES);
-		joinTables(Table.DATAMAP_ATTRIBUTES, Table.DATAMAP_ATTRIBUTES);
+		joinTables(Table.TAGS, Table.PROBLEM_SPACES);
+		joinTables(Table.TAGS, Table.OPERATORS);
+		joinTables(Table.TAGS, Table.RULES);
+		joinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_IDENTIFIERS);
 		
 		// Declare directional joined tables.
-		directedJoinTables(Table.DATAMAP_ATTRIBUTES, Table.DATAMAP_ATTRIBUTES);
-		directedJoinTables(Table.DATAMAP_ATTRIBUTES, Table.DATAMAP_ENUMERATION_VALUES);
-		directedJoinTables(Table.DATAMAP_ATTRIBUTES, Table.DATAMAP_INTEGER_VALUES);
-		directedJoinTables(Table.DATAMAP_ATTRIBUTES, Table.DATAMAP_FLOAT_VALUES);
-		directedJoinTables(Table.DATAMAP_ATTRIBUTES, Table.DATAMAP_STRING_VALUES);
+		directedJoinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_IDENTIFIERS);
+		directedJoinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_ENUMERATIONS);
+		directedJoinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_INTEGERS);
+		directedJoinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_FLOATS);
+		directedJoinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_STRINGS);
 
 		// rule structure
 		addParent(Table.CONDITIONS, Table.RULES);
@@ -1301,7 +1395,10 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		addParent(Table.SIMPLE_TESTS, Table.TESTS);
 		addParent(Table.DISJUNCTION_TESTS, Table.SIMPLE_TESTS);
 		addParent(Table.RELATIONAL_TESTS, Table.SIMPLE_TESTS);
-		addParent(Table.RELATIONS, Table.RELATIONAL_TESTS);
+		
+		//not used
+		//addParent(Table.RELATIONS, Table.RELATIONAL_TESTS);
+		
 		addParent(Table.SINGLE_TESTS, Table.RELATIONAL_TESTS);
 		addParent(Table.CONSTANTS, Table.SINGLE_TESTS);
 		addParent(Table.CONSTANTS, Table.DISJUNCTION_TESTS);
@@ -1316,19 +1413,20 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		addParent(Table.RHS_VALUES, Table.VALUE_MAKES);
 		addParent(Table.RHS_VALUES, Table.ATTRIBUTE_VALUE_MAKES);
 		addParent(Table.VALUE_MAKES, Table.ATTRIBUTE_VALUE_MAKES);
-		addParent(Table.PREFERENCES, Table.VALUE_MAKES);
-		addParent(Table.PREFERENCE_SPECIFIERS, Table.PREFERENCES);
-		addParent(Table.NATURALLY_UNARY_PREFERENCES, Table.PREFERENCE_SPECIFIERS);
-		addParent(Table.BINARY_PREFERENCES, Table.PREFERENCE_SPECIFIERS);
-		addParent(Table.BINARY_PREFERENCES, Table.FORCED_UNARY_PREFERENCES);
-		addParent(Table.FORCED_UNARY_PREFERENCES, Table.PREFERENCE_SPECIFIERS);
+		//addParent(Table.PREFERENCES, Table.VALUE_MAKES);
+		addParent(Table.PREFERENCE_SPECIFIERS, Table.VALUE_MAKES);
+		//addParent(Table.NATURALLY_UNARY_PREFERENCES, Table.PREFERENCE_SPECIFIERS);
+		//addParent(Table.BINARY_PREFERENCES, Table.PREFERENCE_SPECIFIERS);
+		//addParent(Table.BINARY_PREFERENCES, Table.FORCED_UNARY_PREFERENCES);
+		//addParent(Table.FORCED_UNARY_PREFERENCES, Table.PREFERENCE_SPECIFIERS);
 
 		// datamap structure
-		addParent(Table.DATAMAP_ATTRIBUTES, Table.PROBLEM_SPACES);
+		addParent(Table.DATAMAP_IDENTIFIERS, Table.PROBLEM_SPACES);
+		addParent(Table.DATAMAP_ENUMERATION_VALUES, Table.DATAMAP_ENUMERATIONS);
 
 		// Automatic children
 		ArrayList<Table> children = new ArrayList<Table>();
-		children.add(Table.DATAMAP_ATTRIBUTES);
+		children.add(Table.DATAMAP_IDENTIFIERS);
 		automaticChildren.put(Table.PROBLEM_SPACES, children);
 
 		// Table / ast object pairs
@@ -1362,15 +1460,16 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		tableForAstNode.put(ValueMake.class, Table.VALUE_MAKES);
 
 		// No ast class 'Preference'
+		// ValueMake goes right to a list of PreferenceSpecifiers 
 		// tableForAstElement.put(Preference.class, Table.PREFERENCES);
 
 		tableForAstNode.put(PreferenceSpecifier.class,
 				Table.PREFERENCE_SPECIFIERS);
 		tableForAstNode.put(NaturallyUnaryPreference.class,
-				Table.NATURALLY_UNARY_PREFERENCES);
-		tableForAstNode.put(BinaryPreference.class, Table.BINARY_PREFERENCES);
+				Table.PREFERENCE_SPECIFIERS);
+		tableForAstNode.put(BinaryPreference.class, Table.PREFERENCE_SPECIFIERS);
 		tableForAstNode.put(ForcedUnaryPreference.class,
-				Table.FORCED_UNARY_PREFERENCES);
+				Table.PREFERENCE_SPECIFIERS);
 
 		initted = true;
 	}
@@ -1509,7 +1608,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 	
 	// I'm counting on directedJoinedTables being pretty small, so the inefficiency of this
 	// method won't hurt too much.
-	public static ArrayList<Table> getParentTablesDirectedJoinedToTable(Table table) {
+	public static ArrayList<Table> getDirectedJoinParentTables(Table table) {
 		ArrayList<Table> ret = new ArrayList<Table>();
 		for (Table t : directedJoinedTables.keySet()) {
 			if (directedJoinedTables.get(t).contains(table)) {
@@ -1679,8 +1778,7 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 		return ret;
 	}
 
-	public void save(IDocument doc) {
-		// TODO Auto-generated method stub
+	public void save(IDocument doc, SoarDatabaseEditorInput input) { //, ISoarProblemReporter reporter) {
 		if (table == Table.RULES) {
 
 			// Update raw text.
@@ -1697,22 +1795,23 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 			// but parse only the text inside that.
 			// <hacky>
 			boolean error = false;
-			text = text.trim();
-			if (!text.startsWith("sp")) {
+			String trimmed = text.trim();
+			int beginIndex = 0;
+			int endIndex = 0;
+			if (!trimmed.startsWith("sp")) {
 				error = true;
 			} else {
-				text = text.substring(2).trim();
-				if (!text.startsWith("{")) {
+				beginIndex = text.indexOf("sp") + 2;
+				trimmed = text.substring(beginIndex).trim();
+				if (!trimmed.startsWith("{")) {
 					error = true;
-				}
-
-				else {
-					text = text.substring(1).trim();
-					if (!text.endsWith("}")) {
+				} else {
+					beginIndex = text.indexOf("{", beginIndex) + 1;
+					trimmed = text.substring(beginIndex).trim();
+					if (!trimmed.endsWith("}")) {
 						error = true;
 					} else {
-						int endIndex = text.length() - 1;
-						text = text.substring(0, endIndex);
+						endIndex = text.lastIndexOf("}");
 					}
 				}
 			}
@@ -1720,7 +1819,8 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 
 			if (!error) {
 				// Parse the rule into an AST.
-				StringReader reader = new StringReader(text);
+				String parseText = text.substring(beginIndex, endIndex);
+				StringReader reader = new StringReader(parseText);
 				SoarParser parser = new SoarParser(reader);
 				try {
 					SoarProductionAst ast = parser.soarProduction();
@@ -1733,15 +1833,34 @@ public class SoarDatabaseRow implements ISoarDatabaseRow {
 					try {
 						createChildrenFromAstNode(ast);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					db.setSupressEvents(eventsWereSupresssed);
 					db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 
 				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					//e.printStackTrace();
+					String message = e.getLocalizedMessage();
+					Token currentToken = e.currentToken;
+					Token errorToken = currentToken.next;
+					
+					// Get the range of the error, based on the string
+					// being parsed and the given column and row
+					int start = 0;
+					for (int i = 1; i < errorToken.beginLine; ) {
+						char c = parseText.charAt(start);
+						if (c == '\n') {
+							++i;
+						}
+						++start;
+					}
+					
+					start += beginIndex;
+					// -1 for columns counting starting with 1
+					start += errorToken.beginColumn - 1;
+					
+		            int length = 2; //(errorToken.endOffset - errorToken.beginOffset) + 1;
+					input.addProblem(SoarProblem.createError(message, start, length));
 				}
 			} else {
 				System.out

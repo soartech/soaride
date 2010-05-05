@@ -164,7 +164,7 @@ create table single_tests
 (
 id integer primary key,
 relational_test_id integer,
-variable_value varchar(100),
+/*variable_value varchar(100),*/
 name varchar(100) not null,
 is_constant boolean not null,
 variable varchar(100)
@@ -264,6 +264,7 @@ attribute_value_make_id integer,
 name varchar(100) not null
 );
 
+/*
 drop table if exists preferences;
 create table preferences
 (
@@ -271,12 +272,13 @@ id integer primary key,
 value_make_id integer,
 name varchar(100) not null
 );
+*/
 
 drop table if exists preference_specifiers;
 create table preference_specifiers
 (
 id integer primary key,
-preference_id integer,
+value_make_id integer,
 name varchar(100) not null,
 is_unary_preference boolean not null,
 preference_specifier_type integer not null

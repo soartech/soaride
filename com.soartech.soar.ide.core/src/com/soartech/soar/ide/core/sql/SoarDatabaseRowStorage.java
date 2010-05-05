@@ -1,14 +1,10 @@
 package com.soartech.soar.ide.core.sql;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-
-import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public class SoarDatabaseRowStorage implements IStorage {
 
@@ -42,6 +38,7 @@ public class SoarDatabaseRowStorage implements IStorage {
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object getAdapter(Class adapter) {
 		return null;

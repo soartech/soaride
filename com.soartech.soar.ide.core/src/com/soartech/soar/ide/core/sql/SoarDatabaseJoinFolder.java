@@ -9,7 +9,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
  * @author miller
  *
  */
-public class SoarDatabaseJoinFolder implements ISoarDatabaseRow {
+public class SoarDatabaseJoinFolder implements ISoarDatabaseTreeItem {
 
 	// The parent row of this folder.
 	private SoarDatabaseRow row;
@@ -23,10 +23,11 @@ public class SoarDatabaseJoinFolder implements ISoarDatabaseRow {
 	}
 	
 	@Override
-	public List<ISoarDatabaseRow> getChildren(boolean includeFolders,
+	public List<ISoarDatabaseTreeItem> getChildren(boolean includeFolders,
 			boolean includeChildrenInFolders,
 			boolean includeJoinedItems,
 			boolean includeDirectionalJoinedItems,
+			boolean putDirectionalJoinedItemsInFolders,
 			boolean includeDatamapNodes) {
 		return row.getJoinedRowsFromTable(table);
 	}

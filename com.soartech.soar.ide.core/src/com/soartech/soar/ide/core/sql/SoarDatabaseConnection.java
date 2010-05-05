@@ -10,28 +10,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-
-import org.sqlite.SQLite;
-
-import com.soartech.soar.ide.core.model.ISoarProduction;
-import com.soartech.soar.ide.core.model.ast.Action;
-import com.soartech.soar.ide.core.model.ast.Condition;
-import com.soartech.soar.ide.core.model.ast.PositiveCondition;
-import com.soartech.soar.ide.core.model.ast.SoarProductionAst;
-import com.soartech.soar.ide.core.model.ast.VarAttrValMake;
-import com.soartech.soar.ide.core.model.impl.SoarAgent;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public class SoarDatabaseConnection {
 
-	private String framework = "embedded";
 	private String driver = "org.sqlite.JDBC";
 	private String protocol = "jdbc:sqlite::memory:";
 	private String dbName = ""; // the name of the database
 	private String[] sqlFiles = { "agent.sql" , "rule.sql", "datamap.sql" };
 	private Connection conn;
-	private boolean debug = true;
+	public static final boolean debug = false;
 
 	private ArrayList<ISoarDatabaseEventListener> listeners = new ArrayList<ISoarDatabaseEventListener>();
 	private boolean supressEvents = false;
@@ -335,7 +324,7 @@ public class SoarDatabaseConnection {
 	public StatementWrapper prepareStatement(String sql) {
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
-			StatementWrapper ret = new StatementWrapper(ps, this);
+			StatementWrapper ret = new StatementWrapper(ps, this, sql);
 			return ret;
 		} catch (SQLException e) {
 			e.printStackTrace();

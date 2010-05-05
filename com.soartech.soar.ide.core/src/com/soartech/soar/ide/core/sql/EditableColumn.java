@@ -1,5 +1,8 @@
 package com.soartech.soar.ide.core.sql;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class EditableColumn {
 	
 	public enum Type {

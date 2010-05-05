@@ -10,10 +10,12 @@ public class StatementWrapper {
 
 	private PreparedStatement ps;
 	SoarDatabaseConnection db;
+	private String sql;
 
-	public StatementWrapper(PreparedStatement ps, SoarDatabaseConnection db) {
+	public StatementWrapper(PreparedStatement ps, SoarDatabaseConnection db, String sql) {
 		this.ps = ps;
 		this.db = db;
+		this.sql = sql;
 	}
 
 	public void setInt(int index, int value) {
@@ -44,6 +46,13 @@ public class StatementWrapper {
 	 * Also closes PreparedStatement.
 	 */
 	public void execute() {
+		if (SoarDatabaseConnection.debug) {
+			try {
+				System.out.print("Executing statement: \"" + sql + "\", " +  ps.getParameterMetaData() + " ... ");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
 		try {
 			ps.execute();
 			ps.close();
@@ -51,14 +60,27 @@ public class StatementWrapper {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		if (SoarDatabaseConnection.debug) {
+			System.out.println("done.");
+		}
 	}
 	
 	public ResultSet executeQuery() {
+		if (SoarDatabaseConnection.debug) {
+			try {
+				System.out.print("Executing statement: \"" + sql + "\", " + ps.getParameterMetaData() + " ... ");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
 		try {
 			ResultSet ret = ps.executeQuery();
 			return ret;
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}
+		if (SoarDatabaseConnection.debug) {
+			System.out.println("done.");
 		}
 		return null;
 	}
