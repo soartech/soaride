@@ -41,7 +41,7 @@ import com.soartech.soar.ide.core.model.ITclFileReference;
 import com.soartech.soar.ide.core.model.ITclProcedure;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamapAttribute;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamapValue;
-import com.soartech.soar.ide.core.sql.ISoarDatabaseRow;
+import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
@@ -136,9 +136,21 @@ public class SoarLabelProvider extends LabelProvider implements
 			} else if (table == Table.OPERATORS) {
 				return SoarEditorPluginImages
 						.get(SoarEditorPluginImages.IMG_SOAR);
-			} else if (table == Table.DATAMAP_ATTRIBUTES) {
+			} else if (table == Table.DATAMAP_IDENTIFIERS) {
 				return SoarEditorPluginImages
 					.get(SoarEditorPluginImages.IMG_ATTRIBUTE);
+			} else if (table == Table.DATAMAP_ENUMERATIONS ||
+					table == Table.DATAMAP_INTEGERS ||
+					table == Table.DATAMAP_FLOATS ||
+					table == Table.DATAMAP_STRINGS) {
+				return SoarEditorPluginImages
+					.get(SoarEditorPluginImages.IMG_PROCEDURE);
+			} else if (table == Table.DATAMAP_ENUMERATION_VALUES) {
+				return SoarEditorPluginImages
+				.get(SoarEditorPluginImages.IMG_PRODUCTION);
+			} else if (table == Table.TAGS) {
+				return SoarEditorPluginImages
+				.get(SoarEditorPluginImages.IMG_TAG);
 			}
 		} else if (element instanceof SoarDatabaseRowFolder || element instanceof SoarDatabaseJoinFolder) {
 			return SoarEditorPluginImages
@@ -154,7 +166,7 @@ public class SoarLabelProvider extends LabelProvider implements
 	 */
 	@Override
 	public String getText(Object element) {
-		if (element instanceof ISoarDatabaseRow) {
+		if (element instanceof ISoarDatabaseTreeItem) {
 			return element.toString();
 		} else if (element instanceof ISoarProject) {
 			ISoarProject project = (ISoarProject) element;

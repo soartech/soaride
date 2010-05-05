@@ -76,7 +76,7 @@ import com.soartech.soar.ide.ui.views.outline.SoarOutlinePage;
  * @author annmarie.steichmann@soartech.com
  * @version $Revision: 578 $ $Date: 2009-06-22 13:05:30 -0400 (Mon, 22 Jun 2009) $
  */
-public class SoarEditor extends TextEditor 
+public class SoarEditor extends TextEditor implements IAnnotated
 {
     private final SoarEditorDocumentProvider documentProvider = SoarEditorDocumentProvider.getInstance();
     private final SoarSourceEditorConfiguration configuration = new SoarSourceEditorConfiguration(this);
@@ -164,7 +164,8 @@ public class SoarEditor extends TextEditor
     /**
      * @return the problemReporter
      */
-    ISoarProblemReporter getProblemReporter()
+    @Override
+    public ISoarProblemReporter getProblemReporter()
     {
         return problemReporter;
     }
@@ -177,11 +178,15 @@ public class SoarEditor extends TextEditor
         return foldingSupport;
     }
 
-    IAnnotationModel getAnnotationModel()
+    @Override
+    public IAnnotationModel getAnnotationModel()
     {
         ISourceViewer viewer = getSourceViewer();
-        return disposed || viewer != null ? 
-                viewer.getAnnotationModel() : defaultAnnotationModel;
+        if (disposed || viewer != null) { 
+           IAnnotationModel ret = viewer.getAnnotationModel();
+           return ret;
+        }
+        return defaultAnnotationModel;
     }
 
     public boolean isDisposed()

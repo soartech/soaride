@@ -26,6 +26,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.reconciler.DirtyRegion;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategyExtension;
+import org.eclipse.ui.editors.text.TextEditor;
 
 import com.soartech.soar.ide.core.model.ISoarFile;
 import com.soartech.soar.ide.core.model.SoarModelException;
@@ -41,14 +42,14 @@ import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
  */
 public class SoarReconcilingStrategy implements IReconcilingStrategy, IReconcilingStrategyExtension
 {
-	private SoarEditor editor = null;
+	private TextEditor editor = null;
 	private IDocument document = null;
 	
 	/**
 	 * Constructor for <code>SoarReconcilingStrategy</code>
 	 * @param editor the associated <code>SoarEditor</code>
 	 */
-	public SoarReconcilingStrategy(SoarEditor editor) 
+	public SoarReconcilingStrategy(TextEditor editor) 
     {
 		this.editor = editor;
 	}
@@ -57,26 +58,24 @@ public class SoarReconcilingStrategy implements IReconcilingStrategy, IReconcili
 	 * @see org.eclipse.jface.text.reconciler.IReconcilingStrategy#reconcile(org.eclipse.jface.text.IRegion)
 	 */
 	public void reconcile(IRegion partition) 
-    {
-		if ( editor == null ) return;
-		
-        ISoarFile workingCopy = editor.getSoarFileWorkingCopy();
-        if(workingCopy == null)
-        {
-            return;
-        }
-        
-        try
-        {
-            workingCopy.makeConsistent(new NullProgressMonitor() /*, 
-                                       editor.getProblemReporter()*/);
-        }
-        catch (SoarModelException e)
-        {
-            SoarEditorUIPlugin.log(e.getStatus());
-        }
-        
-        editor.workingCopyReconciled();
+ {
+		if (editor == null)
+			return;
+
+		SoarEditor soarEditor = (SoarEditor) editor;
+
+		ISoarFile workingCopy = soarEditor.getSoarFileWorkingCopy();
+		if (workingCopy == null) {
+			return;
+		}
+
+		try {
+			workingCopy.makeConsistent(new NullProgressMonitor() /* , editor.getProblemReporter() */ );
+		} catch (SoarModelException e) {
+			SoarEditorUIPlugin.log(e.getStatus());
+		}
+
+		soarEditor.workingCopyReconciled();
 	}
 
 	/* (non-Javadoc)

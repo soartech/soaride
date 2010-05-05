@@ -4,6 +4,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
@@ -13,15 +14,18 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
+import com.soartech.soar.ide.ui.views.explorer.SoarExplorerView;
 
 public class AddChildRowActionDelegate implements IObjectActionDelegate {
 
 	StructuredSelection ss;
+	IWorkbenchPart targetPart;
 	SoarDatabaseRowFolder selectedFolder = null;
 	SoarDatabaseJoinFolder selectedJoinFolder = null;
 	
 	@Override
 	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+		this.targetPart = targetPart;
 	}
 
 	@Override
@@ -55,6 +59,11 @@ public class AddChildRowActionDelegate implements IObjectActionDelegate {
 				SoarDatabaseRow newRow = oldRow.getTopLevelRow().createChild(table, result);
 				SoarDatabaseRow.joinRows(oldRow, newRow, oldRow.getDatabaseConnection());
 			}
+		}
+		
+		if (targetPart instanceof SoarExplorerView) {
+			Object element = ss.getFirstElement();
+			((SoarExplorerView) targetPart).getTreeViewer().setExpandedState(element, true);
 		}
 	}
 

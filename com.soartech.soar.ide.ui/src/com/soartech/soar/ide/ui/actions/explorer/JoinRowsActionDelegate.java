@@ -7,6 +7,7 @@ import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.Viewer;
@@ -17,20 +18,23 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
 
-import com.soartech.soar.ide.core.sql.ISoarDatabaseRow;
+import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
+import com.soartech.soar.ide.ui.views.explorer.SoarExplorerView;
 
 public class JoinRowsActionDelegate implements IObjectActionDelegate {
 
 	SoarDatabaseJoinFolder selectedJoinFolder = null;
+	IWorkbenchPart targetPart;
+	IStructuredSelection ss;
 	
 	@Override
-	public void setActivePart(IAction action, IWorkbenchPart part) {
-
+	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+		this.targetPart = targetPart;
 	}
 
 	@Override
@@ -45,9 +49,9 @@ public class JoinRowsActionDelegate implements IObjectActionDelegate {
 						SoarDatabaseJoinFolder joinFolder = (SoarDatabaseJoinFolder) obj;
 						Table table = joinFolder.getTable();
 						SoarDatabaseRow topLevelRow = joinFolder.getRow().getTopLevelRow();
-						ArrayList<ISoarDatabaseRow> children = topLevelRow.getChildrenOfType(selectedJoinFolder.getTable());
+						ArrayList<ISoarDatabaseTreeItem> children = topLevelRow.getChildrenOfType(selectedJoinFolder.getTable());
 						ArrayList<SoarDatabaseRow> filteredChildren = new ArrayList<SoarDatabaseRow>();
-						for (ISoarDatabaseRow child : children) {
+						for (ISoarDatabaseTreeItem child : children) {
 							if (child instanceof SoarDatabaseRow) {
 								filteredChildren.add((SoarDatabaseRow) child);
 							}
@@ -79,6 +83,11 @@ public class JoinRowsActionDelegate implements IObjectActionDelegate {
 				SoarDatabaseRow selectedRow = (SoarDatabaseRow) result[0];
 				SoarDatabaseRow.joinRows(thisRow, selectedRow, thisRow.getDatabaseConnection());
 			}
+			
+			if (targetPart instanceof SoarExplorerView) {
+				Object element = ss.getFirstElement();
+				((SoarExplorerView) targetPart).getTreeViewer().setExpandedState(element, true);
+			}
 		}
 	}
 
@@ -87,7 +96,7 @@ public class JoinRowsActionDelegate implements IObjectActionDelegate {
 		selectedJoinFolder = null;
 		action.setEnabled(false);
 		if (selection instanceof StructuredSelection) {
-			StructuredSelection ss = (StructuredSelection)selection;
+			ss = (StructuredSelection)selection;
 			Object obj = ss.getFirstElement();
 			if (obj instanceof SoarDatabaseJoinFolder) {
 				selectedJoinFolder = (SoarDatabaseJoinFolder) obj;

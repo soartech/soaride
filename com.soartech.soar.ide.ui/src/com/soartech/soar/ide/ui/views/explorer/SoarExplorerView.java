@@ -98,7 +98,7 @@ public class SoarExplorerView extends ViewPart
 	 * The content provider for the database view.
 	 */
 	private SoarExplorerDatabaseContentProvider databaseContentProvider =
-		new SoarExplorerDatabaseContentProvider(true, false, false, true, false);
+		new SoarExplorerDatabaseContentProvider(true, false, true, true, true, false);
 	private ILabelProvider databaseLabelProvider = SoarLabelProvider.createFullLabelProvider(null);
 	
 	/**
@@ -414,6 +414,10 @@ public class SoarExplorerView extends ViewPart
 		// hack
 		// Freezes when tree is of infinite depth.
 		// viewer.expandAll();
+	}
+	
+	public TreeViewer getTreeViewer() {
+		return viewer;
 	}
 
 }

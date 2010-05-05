@@ -13,7 +13,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
 
-import com.soartech.soar.ide.core.sql.ISoarDatabaseRow;
+import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
@@ -39,9 +39,9 @@ public class RemoveJoinedRowActionDelegate implements IObjectActionDelegate {
 					if (obj instanceof SoarDatabaseJoinFolder) {
 						SoarDatabaseJoinFolder joinFolder = (SoarDatabaseJoinFolder) obj;
 						Table table = joinFolder.getTable();
-						ArrayList<ISoarDatabaseRow> children = joinFolder.getRow().getJoinedRowsFromTable(table);
+						ArrayList<ISoarDatabaseTreeItem> children = joinFolder.getRow().getJoinedRowsFromTable(table);
 						ArrayList<SoarDatabaseRow> filteredChildren = new ArrayList<SoarDatabaseRow>();
-						for (ISoarDatabaseRow child : children) {
+						for (ISoarDatabaseTreeItem child : children) {
 							if (child instanceof SoarDatabaseRow) {
 								filteredChildren.add((SoarDatabaseRow) child);
 							}

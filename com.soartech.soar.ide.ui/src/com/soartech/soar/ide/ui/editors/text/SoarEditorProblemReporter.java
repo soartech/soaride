@@ -43,14 +43,14 @@ public class SoarEditorProblemReporter implements ISoarProblemReporter
         void run();
     }
     
-    private SoarEditor editor;
+    private IAnnotated editor;
     private List<ProblemAction> actions = new ArrayList<ProblemAction>();
     private List<SoarProblem> problems = new ArrayList<SoarProblem>();
     
     /**
      * @param model
      */
-    public SoarEditorProblemReporter(SoarEditor editor)
+    public SoarEditorProblemReporter(IAnnotated editor)
     {
         this.editor = editor;
     }

@@ -94,6 +94,8 @@ public class SoarEditorPluginImages {
     public static final String IMG_FOLDING_REGION = NAME_PREFIX + "foldingregion.gif";
     public static final String IMG_DATAMAP_FILTER = NAME_PREFIX + "filter.gif";
     public static final String IMG_DATAMAP_REMOVE_FILTER = NAME_PREFIX + "remove_filter.gif";
+    public static final String IMG_TAG = NAME_PREFIX + "tag.gif";
+    public static final String IMG_SP = NAME_PREFIX + "sp.gif";
     
     /**
      * Returns the image managed under the given key in this registry.
@@ -141,6 +143,8 @@ public class SoarEditorPluginImages {
         registerImage(registry, IMG_FOLDING_REGION);
         registerImage(registry, IMG_DATAMAP_FILTER);
         registerImage(registry, IMG_DATAMAP_REMOVE_FILTER);
+        registerImage(registry, IMG_TAG);
+        registerImage(registry, IMG_SP);
     }
     
     /**

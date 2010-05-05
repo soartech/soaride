@@ -43,7 +43,7 @@ public class SoarEditorPluginPreferenceInitializer extends
     {
         IPreferenceStore prefs = EditorsUI.getPreferenceStore();
         
-        prefs.setDefault(SoarEditorPreferencePage.TAB_WIDTH, 4);
+        prefs.setDefault(SoarEditorPreferencePage.TAB_WIDTH, 3);
         prefs.setDefault(SoarEditorPreferencePage.CONVERT_TABS, true);
     }
 

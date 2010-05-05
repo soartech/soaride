@@ -170,7 +170,7 @@ public class SoarEditorPreferencePage extends PreferencePage
 		
 		if(!prefs.contains(TAB_WIDTH))
 		{	
-			prefs.setValue(TAB_WIDTH, 4);
+			prefs.setValue(TAB_WIDTH, 3);
 		}
 		
 		if(!prefs.contains(CONVERT_TABS))

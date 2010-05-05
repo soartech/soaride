@@ -7,7 +7,8 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
 import com.soartech.soar.ide.core.model.ISoarModel;
-import com.soartech.soar.ide.core.sql.ISoarDatabaseRow;
+import com.soartech.soar.ide.core.sql.EditableColumn;
+import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
@@ -18,17 +19,20 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 	private boolean includeItemsInFolders;
 	private boolean includeJoinedItems;
 	private boolean includeDirectionalJoinedItems;
+	private boolean putDirectionalJoinedItemsInFolders;
 	private boolean includeDatamapNodes;
 	
 	public SoarExplorerDatabaseContentProvider(boolean includeFolders,
 			boolean includeItemsInFolders,
 			boolean includeJoinedItems,
 			boolean includeDirectionalJoinedItems,
+			boolean putDirectionalJoinedItemsInFolders,
 			boolean includeDatamapNodes) {
 		this.includeFolders = includeFolders;
 		this.includeItemsInFolders = includeItemsInFolders;
 		this.includeJoinedItems = includeJoinedItems;
 		this.includeDirectionalJoinedItems = includeDirectionalJoinedItems;
+		this.putDirectionalJoinedItemsInFolders = putDirectionalJoinedItemsInFolders;
 		this.includeDatamapNodes = includeDatamapNodes;
 	}
 	
@@ -39,8 +43,8 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 			Object[] ret = conn.selectAllFromTable(Table.AGENTS).toArray(); 
 			return ret;
 		}
-		else if (element instanceof ISoarDatabaseRow) {
-			List<ISoarDatabaseRow> ret = ((ISoarDatabaseRow)element).getChildren(includeFolders, includeItemsInFolders, includeJoinedItems, includeDirectionalJoinedItems, includeDatamapNodes);
+		else if (element instanceof ISoarDatabaseTreeItem) {
+			List<ISoarDatabaseTreeItem> ret = ((ISoarDatabaseTreeItem)element).getChildren(includeFolders, includeItemsInFolders, includeJoinedItems, includeDirectionalJoinedItems, putDirectionalJoinedItemsInFolders, includeDatamapNodes);
 			return ret.toArray();
 		}
 		return new Object[]{};
@@ -52,7 +56,7 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 			return null;
 		}
 		else if (element instanceof SoarDatabaseRow) {
-			ArrayList<SoarDatabaseRow> parents = ((SoarDatabaseRow)element).getParentRows();
+			ArrayList<SoarDatabaseRow> parents = ((SoarDatabaseRow)element).getParents();
 			if (parents.size() > 0) {
 				return parents.get(0);
 			} else {
@@ -64,8 +68,8 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 
 	@Override
 	public boolean hasChildren(Object element) {
-		if (element instanceof ISoarDatabaseRow) {
-			boolean ret = ((ISoarDatabaseRow)element).hasChildren(); 
+		if (element instanceof ISoarDatabaseTreeItem) {
+			boolean ret = ((ISoarDatabaseTreeItem)element).hasChildren(); 
 			return ret;
 		}
 		return false;

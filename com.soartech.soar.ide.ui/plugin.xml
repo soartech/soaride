@@ -344,6 +344,13 @@
              label="Delete"
              menubarPath="additions"
              tooltip="Delete the selected database row."/>
+       <action
+             class="com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapActionDelegate"
+             enablesFor="*"
+             id="com.soartech.soar.ide.ui.GenerateDatamap"
+             label="Generate Datamap"
+             menubarPath="additions"
+             tooltip="Generates a datamap for the slected Problem Space."/>
     </objectContribution>
     <objectContribution
           adaptable="false"
@@ -352,7 +359,7 @@
           <action
              class="com.soartech.soar.ide.ui.actions.explorer.AddChildRowActionDelegate"
              enablesFor="*"
-             id="com.soartech.soar.ide.ui.addRule"
+             id="com.soartech.soar.ide.ui.addChildRowToFolder"
              label="Add Rule"
              menubarPath="additions"
              tooltip="Adds a child Rule to the selected database row."/>
@@ -362,9 +369,9 @@
           id="com.soartech.soar.ide.ui.SoarDatabaseJoinFolderObjectContribution"
           objectClass="com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder">
           <action
-             class="com.soartech.soar.ide.ui.actions.explorer.AddRuleActionDelegate"
+             class="com.soartech.soar.ide.ui.actions.explorer.AddChildRowActionDelegate"
              enablesFor="*"
-             id="com.soartech.soar.ide.ui.addRule"
+             id="com.soartech.soar.ide.ui.addChildRowToJoinFolder"
              label="Add New Rule"
              menubarPath="additions"
              tooltip="Adds a child Rule to the selected database row."/>
