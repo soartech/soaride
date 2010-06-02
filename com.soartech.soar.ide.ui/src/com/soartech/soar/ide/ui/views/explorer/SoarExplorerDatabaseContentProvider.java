@@ -40,7 +40,7 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 	public Object[] getChildren(Object element) {
 		if (element instanceof ISoarModel) {
 			SoarDatabaseConnection conn = ((ISoarModel)element).getDatabase();
-			Object[] ret = conn.selectAllFromTable(Table.AGENTS).toArray(); 
+			Object[] ret = conn.selectAllFromTable(Table.AGENTS).toArray();
 			return ret;
 		}
 		else if (element instanceof ISoarDatabaseTreeItem) {
@@ -69,7 +69,8 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 	@Override
 	public boolean hasChildren(Object element) {
 		if (element instanceof ISoarDatabaseTreeItem) {
-			boolean ret = ((ISoarDatabaseTreeItem)element).hasChildren(); 
+			List<ISoarDatabaseTreeItem> children = ((ISoarDatabaseTreeItem)element).getChildren(includeFolders, includeItemsInFolders, includeJoinedItems, includeDirectionalJoinedItems, putDirectionalJoinedItemsInFolders, includeDatamapNodes);
+			boolean ret = children.size() > 0;
 			return ret;
 		}
 		return false;

@@ -1,5 +1,7 @@
 package com.soartech.soar.ide.ui.actions.explorer;
 
+import java.util.Iterator;
+
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -11,7 +13,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public class DeleteDatabaseRowActionDelegate implements IObjectActionDelegate {
 
-	SoarDatabaseRow selectedRow = null;
+	StructuredSelection ss;
 	
 	@Override
 	public void setActivePart(IAction arg0, IWorkbenchPart arg1) {
@@ -22,18 +24,24 @@ public class DeleteDatabaseRowActionDelegate implements IObjectActionDelegate {
 	@Override
 	public void run(IAction arg0) {
 		// TODO Auto-generated method stub
-		selectedRow.deleteAllChildren(true);
+		Iterator<?> it = ss.iterator();
+		while (it.hasNext()) {
+			Object obj = it.next();
+			if (obj instanceof SoarDatabaseRow) {
+				SoarDatabaseRow selectedRow = (SoarDatabaseRow) obj;
+				selectedRow.deleteAllChildren(true);
+			}
+		}
 	}
 
 	@Override
 	public void selectionChanged(IAction action, ISelection selection) {
-		selectedRow = null;
+		ss = null;
 		action.setEnabled(false);
 		if (selection instanceof StructuredSelection) {
-			StructuredSelection ss = (StructuredSelection)selection;
+			ss = (StructuredSelection)selection;
 			Object obj = ss.getFirstElement();
 			if (obj instanceof SoarDatabaseRow) {
-				selectedRow = (SoarDatabaseRow) obj;
 				action.setEnabled(true);
 			}
 		}

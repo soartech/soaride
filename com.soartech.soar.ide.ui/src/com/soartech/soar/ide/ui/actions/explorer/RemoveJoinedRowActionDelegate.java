@@ -12,6 +12,7 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
+import org.eclipse.ui.dialogs.ListSelectionDialog;
 
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder;
@@ -62,16 +63,19 @@ public class RemoveJoinedRowActionDelegate implements IObjectActionDelegate {
 			};
 
 			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-			ListDialog dialog = new ListDialog(shell);
-			dialog.setContentProvider(contentProvider);
-			dialog.setLabelProvider(SoarLabelProvider.createFullLabelProvider(null));
-			dialog.setInput(selectedJoinFolder);
+			ListSelectionDialog dialog = new ListSelectionDialog(shell,
+					selectedJoinFolder,
+					contentProvider,
+					SoarLabelProvider.createFullLabelProvider(null),
+					"Select items to remove");
 			dialog.open();
 			Object[] result = dialog.getResult();
-			if (result.length > 0 && result[0] instanceof SoarDatabaseRow) {
-				SoarDatabaseRow thisRow = selectedJoinFolder.getRow();
-				SoarDatabaseRow selectedRow = (SoarDatabaseRow) result[0];
-				SoarDatabaseRow.unjoinRows(thisRow, selectedRow, thisRow.getDatabaseConnection());
+			SoarDatabaseRow thisRow = selectedJoinFolder.getRow();
+			for (int i = 0; i < result.length; ++i) {
+				if (result[i] instanceof SoarDatabaseRow) {
+					SoarDatabaseRow selectedRow = (SoarDatabaseRow) result[i];
+					SoarDatabaseRow.unjoinRows(thisRow, selectedRow, thisRow.getDatabaseConnection());
+				}
 			}
 		}
 	}

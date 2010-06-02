@@ -351,6 +351,13 @@
              label="Generate Datamap"
              menubarPath="additions"
              tooltip="Generates a datamap for the slected Problem Space."/>
+       <action
+             class="com.soartech.soar.ide.ui.actions.explorer.ExportProjectActionDelegate"
+             enablesFor="*"
+             id="com.soartech.soar.ide.ui.ExportProject"
+             label="Export Project"
+             menubarPath="additions"
+             tooltip="Exports the selected agent to a text file."/>
     </objectContribution>
     <objectContribution
           adaptable="false"
@@ -363,6 +370,13 @@
              label="Add Rule"
              menubarPath="additions"
              tooltip="Adds a child Rule to the selected database row."/>
+          <action
+             class="com.soartech.soar.ide.ui.actions.explorer.ImportRulesActionDelegate"
+             enablesFor="*"
+             id="com.soartech.soar.ide.ui.importRules"
+             label="Import Rules"
+             menubarPath="additions"
+             tooltip="Imports rules from a text file."/>
     </objectContribution>
     <objectContribution
           adaptable="false"
@@ -387,6 +401,13 @@
              id="com.soartech.soar.ide.ui.RemoveJoinedRow"
              label="Remove Existing Rule..."
              menubarPath="additions"/>
+          <action
+             class="com.soartech.soar.ide.ui.actions.explorer.ImportRulesActionDelegate"
+             enablesFor="*"
+             id="com.soartech.soar.ide.ui.importRules"
+             label="Import Rules"
+             menubarPath="additions"
+             tooltip="Imports rules from a text file."/>
     </objectContribution>
     <viewerContribution
           id="com.soartech.soar.ide.ui.actions.FormatSoarDocumentViewerContribution"

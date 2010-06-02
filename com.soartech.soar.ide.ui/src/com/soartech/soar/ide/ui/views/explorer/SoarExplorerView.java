@@ -51,9 +51,12 @@ import com.soartech.soar.ide.core.model.ISoarElement;
 import com.soartech.soar.ide.core.model.ISoarModel;
 import com.soartech.soar.ide.core.model.ISoarModelListener;
 import com.soartech.soar.ide.core.model.SoarModelEvent;
+import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseEventListener;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.SoarUiTools;
@@ -139,6 +142,7 @@ public class SoarExplorerView extends ViewPart
         getSite().setSelectionProvider(viewer);
 
         createContextMenu();
+        makeActions();
         
 		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
 		
@@ -163,6 +167,10 @@ public class SoarExplorerView extends ViewPart
         viewer.getControl().setMenu(menu);
         getSite().registerContextMenu(mgr, viewer);
         
+    }
+    
+    private void makeActions() {
+    	//doubleClickAction = null;
     }
     
     /* (non-Javadoc)
@@ -383,19 +391,29 @@ public class SoarExplorerView extends ViewPart
 	 */
 	public void doubleClick(DoubleClickEvent event) 
 	{
-		ISoarElement element = getSelectedSoarElement();
-        if(element == null)
-        {
-            return;
-        }
-        
-        IWorkbench workbench = SoarEditorUIPlugin.getDefault().getWorkbench();
-        IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
-        
-        try {
-			SoarUiModelTools.showElementInEditor(page, element);
-		} catch (CoreException e) {
-			SoarEditorUIPlugin.log(e.getStatus());
+		ISoarDatabaseTreeItem item = SoarUiTools.getValueFromSelection(viewer.getSelection(), ISoarDatabaseTreeItem.class);
+		if (item == null) {
+			return;
+		}
+		
+		if (item instanceof SoarDatabaseRow) {
+	        IWorkbench workbench = SoarEditorUIPlugin.getDefault().getWorkbench();
+	        IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
+			SoarDatabaseRow selectedRow = (SoarDatabaseRow) item;
+			Table selectedTable = selectedRow.getTable();
+			if (selectedTable == Table.RULES) {
+				try {
+					SoarUiModelTools.showRuleInEditor(page, selectedRow);
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
+			} else if (selectedTable == Table.PROBLEM_SPACES) {
+				try {
+					SoarUiModelTools.showProblemSpaceInEditor(page, selectedRow);
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 

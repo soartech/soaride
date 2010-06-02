@@ -29,7 +29,7 @@ public class AddAgentActionDelegate implements IViewActionDelegate {
 		String result = dialog.getValue();
 
 		if (result != null && result.length() > 0) {
-			ISoarModel model = SoarCorePlugin.getDefault() .getInternalSoarModel();
+			ISoarModel model = SoarCorePlugin.getDefault().getInternalSoarModel();
 			model.getDatabase().insert(Table.AGENTS, new String[][] { { "name", "\"" + result + "\"" } });
 		}
 	}
