@@ -44,8 +44,7 @@ RHS grammar:
 
 --Condition side:
 
-drop table if exists conditions;
-create table conditions
+create table if not exists conditions
 (
 id integer primary key,
 rule_id integer,
@@ -54,8 +53,7 @@ name varchar(100) not null,
 is_negated boolean not null
 );
 
-drop table if exists positive_conditions;
-create table positive_conditions
+create table if not exists positive_conditions
 (
 id integer primary key,
 condition_id integer,
@@ -64,8 +62,7 @@ name varchar(100) not null,
 is_conjunction boolean not null
 );
 
-drop table if exists condition_for_one_identifiers;
-create table condition_for_one_identifiers
+create table if not exists condition_for_one_identifiers
 (
 id integer primary key,
 positive_condition_id integer,
@@ -74,8 +71,7 @@ has_state boolean not null,
 variable varchar(100) not null
 );
 
-drop table if exists attribute_value_tests;
-create table attribute_value_tests
+create table if not exists attribute_value_tests
 (
 id integer primary key,
 condition_for_one_identifier_id integer,
@@ -83,16 +79,14 @@ name varchar(100) not null,
 is_negated boolean not null
 );
 
-drop table if exists attribute_tests;
-create table attribute_tests
+create table if not exists attribute_tests
 (
 id integer primary key,
 attribute_value_test_id integer,
 name varchar(100) not null
 );
 
-drop table if exists value_tests;
-create table value_tests
+create table if not exists value_tests
 (
 id integer primary key,
 attribute_value_test_id integer,
@@ -101,8 +95,7 @@ name varchar(100) not null,
 has_acceptable_preference boolean not null
 );
 
-drop table if exists tests;
-create table tests
+create table if not exists tests
 (
 id integer primary key,
 attribute_test_id integer,
@@ -111,16 +104,14 @@ name varchar(100) not null,
 is_conjunctive_test boolean not null
 );
 
-drop table if exists conjunctive_tests;
-create table conjunctive_tests
+create table if not exists conjunctive_tests
 (
 id integer primary key,
 test_id integer,
 name varchar(100) not null
 );
 
-drop table if exists simple_tests;
-create table simple_tests
+create table if not exists simple_tests
 (
 id integer primary key,
 conjunctive_test_id integer,
@@ -129,16 +120,14 @@ name varchar(100) not null,
 is_disjunction_test boolean not null
 );
 
-drop table if exists disjunction_tests;
-create table disjunction_tests
+create table if not exists disjunction_tests
 (
 id integer primary key,
 simple_test_id integer,
 name varchar(100) not null
 );
 
-drop table if exists relational_tests;
-create table relational_tests
+create table if not exists relational_tests
 (
 id integer primary key,
 simple_test_id integer,
@@ -150,7 +139,7 @@ relation integer not null
  * Not used in SoarProductionAST
  * 
 drop table if exists relations;
-create table relations
+create table if not exists relations
 (
 id integer primary key,
 relational_test_id integer,
@@ -159,8 +148,7 @@ name varchar(100) not null
 );
 */
 
-drop table if exists single_tests;
-create table single_tests
+create table if not exists single_tests
 (
 id integer primary key,
 relational_test_id integer,
@@ -170,8 +158,7 @@ is_constant boolean not null,
 variable varchar(100)
 );
 
-drop table if exists constants;
-create table constants
+create table if not exists constants
 (
 id integer primary key,
 single_test_id integer,
@@ -186,8 +173,7 @@ name varchar(100) not null
 
 --Action side:
 
-drop table if exists actions;
-create table actions
+create table if not exists actions
 (
 id integer primary key,
 rule_id integer,
@@ -195,8 +181,7 @@ name varchar(100) not null,
 is_var_attr_val_make boolean not null
 );
 
-drop table if exists var_attr_val_makes;
-create table var_attr_val_makes
+create table if not exists var_attr_val_makes
 (
 id integer primary key,
 action_id integer,
@@ -204,16 +189,14 @@ variable varchar(100),
 name varchar(100) not null
 );
 
-drop table if exists attribute_value_makes;
-create table attribute_value_makes
+create table if not exists attribute_value_makes
 (
 id integer primary key,
 var_attr_val_make_id integer,
 name varchar(100) not null
 );
 
-drop table if exists function_calls;
-create table function_calls
+create table if not exists function_calls
 (
 id integer primary key,
 action_id integer,
@@ -222,8 +205,7 @@ name varchar(100) not null,
 function_name varchar(100) not null
 );
 
-drop table if exists function_names;
-create table function_names
+create table if not exists function_names
 (
 id integer primary key,
 function_call_id integer,
@@ -231,8 +213,7 @@ symbolic_const varchar(100),
 name varchar(100) not null
 );
 
-drop table if exists rhs_values;
-create table rhs_values
+create table if not exists rhs_values
 (
 id integer primary key,
 function_call_id integer,
@@ -249,15 +230,14 @@ variable varchar(100)
  * Already exists from LHS.
  * 
 drop table if exists constants;
-create table constants
+create table if not exists constants
 (
 id integer primary key,
 rhs_value_id integer
 );
 */
 
-drop table if exists value_makes;
-create table value_makes
+create table if not exists value_makes
 (
 id integer primary key,
 attribute_value_make_id integer,
@@ -266,7 +246,7 @@ name varchar(100) not null
 
 /*
 drop table if exists preferences;
-create table preferences
+create table if not exists preferences
 (
 id integer primary key,
 value_make_id integer,
@@ -274,8 +254,7 @@ name varchar(100) not null
 );
 */
 
-drop table if exists preference_specifiers;
-create table preference_specifiers
+create table if not exists preference_specifiers
 (
 id integer primary key,
 value_make_id integer,
@@ -284,8 +263,7 @@ is_unary_preference boolean not null,
 preference_specifier_type integer not null
 );
 
-drop table if exists naturally_unary_preferences;
-create table naturally_unary_preferences
+create table if not exists naturally_unary_preferences
 (
 id integer primary key,
 preference_specifier_id integer,
@@ -293,8 +271,7 @@ value varchar(1),
 name varchar(100) not null
 );
 
-drop table if exists binary_preferences;
-create table binary_preferences
+create table if not exists binary_preferences
 (
 preference_specifier_id integer,
 forced_unary_preference_id integer,
@@ -302,8 +279,7 @@ value varchar(1),
 name varchar(100) not null
 );
 
-drop table if exists forced_unary_preferences;
-create table forced_unary_preferences
+create table if not exists forced_unary_preferences
 (
 id integer primary key,
 preference_specifier_id integer,

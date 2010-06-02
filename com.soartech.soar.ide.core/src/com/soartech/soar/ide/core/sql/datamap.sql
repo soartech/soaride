@@ -28,8 +28,7 @@ Each type of value gets its own database table.
 
  */
 
-drop table if exists datamap_identifiers;
-create table datamap_identifiers
+create table if not exists datamap_identifiers
 (
 id integer primary key,
 name varchar(100),
@@ -37,85 +36,75 @@ name varchar(100),
 problem_space_id integer
 );
 
-drop table if exists datamap_enumerations;
-create table datamap_enumerations
+create table if not exists datamap_enumerations
 (
 id integer primary key,
-name varchar(100),
-datamap_identifier_id integer
+name varchar(100)
+/*datamap_identifier_id integer*/
 );
 
-drop table if exists datamap_enumeration_values;
-create table datamap_enumeration_values
+create table if not exists datamap_enumeration_values
 (
 id integer primary key,
 name varchar(100),
 datamap_enumeration_id integer
 );
 
-drop table if exists datamap_integers;
-create table datamap_integers
+create table if not exists datamap_integers
 (
 id integer primary key,
 name varchar(100),
-datamap_identifier_id integer,
+/*datamap_identifier_id integer,*/
 min_value integer,
 max_value integer
 );
 
-drop table if exists datamap_floats;
-create table datamap_floats
+create table if not exists datamap_floats
 (
 id integer primary key,
 name varchar(100),
-datamap_identifier_id integer,
+/*datamap_identifier_id integer,*/
 min_value float,
 max_value float
 );
 
-drop table if exists datamap_strings;
-create table datamap_strings
+create table if not exists datamap_strings
 (
 id integer primary key,
-name varchar(100),
-datamap_identifier_id integer
+name varchar(100)
+/*datamap_identifier_id integer*/
 );
 
 -- Directed join tables:
-drop table if exists directed_join_datamap_identifiers_datamap_identifiers;
-create table directed_join_datamap_identifiers_datamap_identifiers
+create table if not exists directed_join_datamap_identifiers_datamap_identifiers
 (
 id integer primary key,
 parent_id integer,
 child_id integer
 );
 
-drop table if exists directed_join_datamap_identifiers_datamap_enumerations;
-create table directed_join_datamap_identifiers_datamap_enumerations
+create table if not exists directed_join_datamap_identifiers_datamap_enumerations
 (
 id integer primary key,
 parent_id integer,
 child_id integer
 );
 
-drop table if exists directed_join_datamap_identifiers_datamap_integers;
-create table directed_join_datamap_identifiers_datamap_integers
+create table if not exists directed_join_datamap_identifiers_datamap_integers
 (
 id integer primary key,
 parent_id integer,
 child_id integer
 );
 
-drop table if exists directed_join_datamap_identifiers_datamap_floats;
-create table directed_join_datamap_identifiers_datamap_floats
+create table if not exists directed_join_datamap_identifiers_datamap_floats
 (
 id integer primary key,
 parent_id integer,
 child_id integer
 );
 
-drop table if exists directed_join_datamap_identifiers_datamap_strings;
-create table directed_join_datamap_identifiers_datamap_strings
+create table if not exists directed_join_datamap_identifiers_datamap_strings
 (
 id integer primary key,
 parent_id integer,
@@ -123,8 +112,7 @@ child_id integer
 );
 
 -- Undirected join table for linked attributes:
-drop table if exists join_datamap_identifiers_datamap_identifiers;
-create table join_datamap_identifiers_datamap_identifiers
+create table if not exists join_datamap_identifiers_datamap_identifiers
 (
 id integer primary key,
 first_id integer,

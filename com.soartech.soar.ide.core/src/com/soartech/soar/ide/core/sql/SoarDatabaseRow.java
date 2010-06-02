@@ -1,5 +1,6 @@
 package com.soartech.soar.ide.core.sql;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -329,6 +330,14 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		}
 		return new ArrayList<Table>();
 	}
+	
+	public ArrayList<Table> getDirectedJoinedChildTables() {
+		if (directedJoinedTables.containsKey(table)) {
+			ArrayList<Table> children = directedJoinedTables.get(table);
+			return children;
+		}
+		return new ArrayList<Table>();
+	}
 
 	/**
 	 * Returns rows, folders, and join folders.
@@ -393,17 +402,26 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return ret;
 	}
 	
-	public ArrayList<ISoarDatabaseTreeItem> getDirectedJoinedChildren(boolean putInFolders) {		
+	public ArrayList<ISoarDatabaseTreeItem> getDirectedJoinedChildren(boolean putInFolders) {
+		return getDirectedJoinedChildrenOfType(null, putInFolders);
+	}
+	
+	public ArrayList<ISoarDatabaseTreeItem> getDirectedJoinedChildrenOfType(Table type, boolean putInFolders) {		
 		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		if (directedJoinedTables.containsKey(table)) {
-			ArrayList<Table> joinedTables = directedJoinedTables.get(table);
+			ArrayList<Table> joinedTables;
+			if (type == null) {
+				joinedTables = directedJoinedTables.get(table);
+			} else {
+				joinedTables = new ArrayList<Table>();
+				joinedTables.add(type);
+			}
 			for (Table t : joinedTables) {
 				SoarDatabaseJoinFolder folder = new SoarDatabaseJoinFolder(this, t);
 				if (putInFolders) {
 					ret.add(folder);
 				} else {
-					// args here don't matter
-					ret.addAll(folder.getChildren(true, true, true, true, true, true));
+					ret.addAll(folder.getChildren(true, true, false, true, true, true));
 				}
 			}
 		}
@@ -689,23 +707,36 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		
 		return ret;
 	}
-
-	public ArrayList<ISoarDatabaseTreeItem> getJoinedRowsFromTable(Table other) {
+	
+	public ArrayList<ISoarDatabaseTreeItem> getUndirectedJoinedRowsFromTable(Table other) {
 		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		
 		// First, add directionless joins.
 		if (tablesAreJoined(this.table, other)) {
+			boolean sameTable = (this.table == other);
 			String joinTableName = joinTableName(this.table, other);
 			Table[] orderedTables = orderJoinedTables(this.table, other);
 			String thisTableIdName = orderedTables[0] == this.table ? "first_id" : "second_id";
-			String otherTableIdName = orderedTables[1] == this.table ? "first_id" : "second_id";
-			String sql = "select * from " + joinTableName + " where " + thisTableIdName + "=?";
+			String otherTableIdName = orderedTables[0] == this.table ? "second_id" : "first_id";
+			String sql = null;
+			if (sameTable) {
+				sql = "select * from " + joinTableName + " where (" + thisTableIdName + "=?) or (" + otherTableIdName + "=?)";
+			} else {
+				sql = "select * from " + joinTableName + " where " + thisTableIdName + "=?";
+			}
 			StatementWrapper ps = db.prepareStatement(sql);
 			ps.setInt(1, id);
+			if (sameTable) {
+				ps.setInt(2, id);
+			}
 			ResultSet rs = ps.executeQuery();
 			try {
 				while (rs.next()) {
+					int thisId = rs.getInt(thisTableIdName);
 					int otherId = rs.getInt(otherTableIdName);
+					if (otherId == this.id) {
+						otherId = thisId;
+					}
 					SoarDatabaseRow row = new SoarDatabaseRow(other, otherId, db);
 					ret.add(row);
 				}
@@ -714,6 +745,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 				e.printStackTrace();
 			}
 		}
+		
+		return ret;
+	}
+	
+	public ArrayList<ISoarDatabaseTreeItem> getDirectedJoinedRowsFromTable(Table other) {
+		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		
 		// Add directed joins.
 		if (tablesAreDirectedJoined(this.table, other)) {
@@ -734,6 +771,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			}
 		}
 		
+		return ret;
+	}
+
+	public ArrayList<ISoarDatabaseTreeItem> getJoinedRowsFromTable(Table other) {
+		ArrayList<ISoarDatabaseTreeItem> ret = getDirectedJoinedRowsFromTable(other);
+		ret.addAll(getUndirectedJoinedRowsFromTable(other));
 		return ret;
 	}
 
@@ -791,7 +834,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		String joinTableName = joinTableName(first.table, second.table);
 		Table[] orderedTables = orderJoinedTables(first.table, second.table);
 		String firstTableIdName = orderedTables[0] == first.table ? "first_id" : "second_id";
-		String secondTableIdName = orderedTables[0] == second.table ? "first_id" : "second_id";
+		String secondTableIdName = orderedTables[0] == first.table ? "second_id" : "first_id";
 		String sql = "insert into " + joinTableName + " (" + firstTableIdName + ", " + secondTableIdName + ") values " + "(?,?)";
 		StatementWrapper ps = db.prepareStatement(sql);
 		ps.setInt(1, first.id);
@@ -811,11 +854,20 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			firstRow = secondRow;
 			secondRow = temp;
 		}
-		
-		String sql = "delete from " + SoarDatabaseRow.joinTableName(tables[0], tables[1]) + " where first_id=? and second_id=?";
+		boolean sameTable = (tables[0] == tables[1]);
+		String sql = null;
+		if (sameTable) {
+			sql = "delete from " + SoarDatabaseRow.joinTableName(tables[0], tables[1]) + " where (first_id=? and second_id=?) or (second_id=? and first_id=?)";
+		} else {
+			sql = "delete from " + SoarDatabaseRow.joinTableName(tables[0], tables[1]) + " where first_id=? and second_id=?";
+		}
 		StatementWrapper ps = db.prepareStatement(sql);
 		ps.setInt(1, firstRow.id);
 		ps.setInt(2, secondRow.id);
+		if (sameTable) {
+			ps.setInt(3, firstRow.id);
+			ps.setInt(4, secondRow.id);
+		}
 		ps.execute();
 	}
 
@@ -843,7 +895,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		ps.execute();
 		
 		// If the child is as orphan, delete the child.
-		if (child.isOrphan()) {
+		if (child != parent && child.isOrphan()) {
 			child.deleteAllChildren(true);
 		}
 	}
@@ -886,7 +938,14 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		ArrayList<Table> automaticChildren = SoarDatabaseRow.automaticChildren.get(childTable);
 		if (automaticChildren != null) {
 			for (Table t : automaticChildren) {
-				ret.createChild(t, "New " + t.shortName());
+				String newName = null;
+				if (t == Table.DATAMAP_IDENTIFIERS) {
+					// special case for root datamap node
+					newName = "<s>";
+				} else {
+					newName = "New " + t.shortName();
+				}
+				ret.createChild(t, newName);
 			}
 		}
 
@@ -1255,8 +1314,8 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 					valueMakes.length);
 		} else if (node instanceof RHSValue) {
 			boolean isConstant = ((RHSValue) node).isConstant();
-			boolean isFunctionCall = ((RHSValue) node).isConstant();
-			boolean isVariable = ((RHSValue) node).isConstant();
+			boolean isFunctionCall = ((RHSValue) node).isFunctionCall();
+			boolean isVariable = ((RHSValue) node).isVariable();
 			sqlArgs.add(new String[] { "is_constant",
 					isConstant ? sqlTrue : sqlFalse });
 			sqlArgs.add(new String[] { "is_function_call",
@@ -1297,7 +1356,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			childNodes = ((FunctionCall) node).getRHSValues().toArray();
 			Pair pair = ((FunctionCall) node).getFunctionName();
 			String variable = pair.getString();
-			sqlArgs.add(new String[] { "function_name", variable });
+			sqlArgs.add(new String[] { "function_name", "\"" + variable + "\"" });
 			name += " (variable: " + variable + ")";
 		} else if (node instanceof ValueMake) {
 			Object[] preferenceSpecifiers = objectsArrayFromIterator(((ValueMake) node)
@@ -1754,7 +1813,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		}
 		return ret;
 	}
-
+	
 	public String getText() {
 		String ret = null;
 		if (table == Table.RULES) {
@@ -1778,17 +1837,34 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return ret;
 	}
 
-	public void save(IDocument doc, SoarDatabaseEditorInput input) { //, ISoarProblemReporter reporter) {
+	public void setText(String text) {
+		if (table == Table.RULES) {
+			String sql = "update " + table.tableName()
+					+ " set raw_text=? where id=?";
+			StatementWrapper ps = db.prepareStatement(sql);
+			ps.setString(1, text);
+			ps.setInt(2, id);
+			ps.execute();
+		}
+	}
+
+	public void save(IDocument doc, SoarDatabaseEditorInput input) {
+		save(doc.get(), input);
+	}
+	
+	public void save(String text, SoarDatabaseEditorInput input) {
 		if (table == Table.RULES) {
 
 			// Update raw text.
-			String text = doc.get();
 			String sql = "update " + table.tableName() + " set raw_text=? where id=?";
 			StatementWrapper ps = db.prepareStatement(sql);
 
 			ps.setString(1, text);
 			ps.setInt(2, id);
 			ps.execute();
+			
+			// Remove comments
+			text = removeComments(text);
 
 			// Try to get AST from the text.
 			// Make sure text starts with "sp {" and ends with "}",
@@ -1839,34 +1915,73 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 					db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 
 				} catch (ParseException e) {
-					//e.printStackTrace();
+					// e.printStackTrace();
 					String message = e.getLocalizedMessage();
 					Token currentToken = e.currentToken;
 					Token errorToken = currentToken.next;
-					
+
 					// Get the range of the error, based on the string
 					// being parsed and the given column and row
 					int start = 0;
-					for (int i = 1; i < errorToken.beginLine; ) {
+					for (int i = 1; i < errorToken.beginLine;) {
 						char c = parseText.charAt(start);
 						if (c == '\n') {
 							++i;
 						}
 						++start;
 					}
-					
+
 					start += beginIndex;
 					// -1 for columns counting starting with 1
 					start += errorToken.beginColumn - 1;
-					
-		            int length = 2; //(errorToken.endOffset - errorToken.beginOffset) + 1;
-					input.addProblem(SoarProblem.createError(message, start, length));
+
+					int length = 2; // (errorToken.endOffset -
+									// errorToken.beginOffset) + 1;
+					if (input != null) {
+						input.addProblem(SoarProblem.createError(message, start, length));
+					}
 				}
 			} else {
-				System.out
-						.println("Production doesn't begin with \"sp {\" or doesn't end with \"}\"");
+				System.out.println("Production doesn't begin with \"sp {\" or doesn't end with \"}\"");
 			}
 		}
+	}
+	
+	public static String removeComments(String text) {
+		StringBuilder builder = new StringBuilder();
+		StringReader reader = new StringReader(text);
+		int i;
+		char c;
+		char lastChar = ' ';
+		boolean inComment = false;
+		boolean inString = false;
+		try {
+			while ((i = reader.read()) != -1) {
+				c = (char) i;
+				
+				if (c == '\n') {
+					inString = false;
+					inComment = false;
+				}
+				
+				if (c == '|' && (!inString || lastChar != '\\')) {
+					inString = !inString;
+				}
+				
+				if (!inString && c == '#') {
+					inComment = true;
+				}
+								
+				if (!inComment) {
+					builder.append(c);
+				}
+				
+				lastChar = c;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return builder.toString();
 	}
 
 	public SoarDatabaseConnection getDatabaseConnection() {

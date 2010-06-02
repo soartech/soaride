@@ -1,5 +1,6 @@
 package com.soartech.soar.ide.core.sql;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
@@ -29,7 +30,16 @@ public class SoarDatabaseJoinFolder implements ISoarDatabaseTreeItem {
 			boolean includeDirectionalJoinedItems,
 			boolean putDirectionalJoinedItemsInFolders,
 			boolean includeDatamapNodes) {
-		return row.getJoinedRowsFromTable(table);
+		if (includeJoinedItems && includeDirectionalJoinedItems) {
+			return row.getJoinedRowsFromTable(table);			
+		}
+		if (includeJoinedItems) {
+			return row.getJoinedRowsFromTable(table);
+		}
+		if (includeDirectionalJoinedItems) {
+			return row.getDirectedJoinedRowsFromTable(table);
+		}
+		return new ArrayList<ISoarDatabaseTreeItem>();
 	}
 
 	@Override

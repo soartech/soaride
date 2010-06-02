@@ -10,14 +10,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+
+import org.sqlite.SQLite;
+
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public class SoarDatabaseConnection {
 
 	private String driver = "org.sqlite.JDBC";
-	private String protocol = "jdbc:sqlite::memory:";
-	private String dbName = ""; // the name of the database
+	//private String protocol = "jdbc:sqlite::memory:";
+	private String protocol = "jdbc:sqlite:";
+	private String dbName = "database.db"; // the name of the database
+	private String connectionString = "jdbc:sqlite:database.db";
 	private String[] sqlFiles = { "agent.sql" , "rule.sql", "datamap.sql" };
 	private Connection conn;
 	public static final boolean debug = false;
@@ -32,7 +37,9 @@ public class SoarDatabaseConnection {
 		
 		// Connect to the database
 		try {
-			conn = DriverManager.getConnection(protocol + dbName + ";create=true");
+			
+			conn = DriverManager.getConnection(connectionString);
+			//conn = DriverManager.getConnection(protocol);
 			conn.setAutoCommit(false);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -43,7 +50,7 @@ public class SoarDatabaseConnection {
 		buildSchema();
 		
 		// Add items to schema for testing.
-		test();
+		// test();
 	}
 
 	public void addListener(ISoarDatabaseEventListener listener) {
