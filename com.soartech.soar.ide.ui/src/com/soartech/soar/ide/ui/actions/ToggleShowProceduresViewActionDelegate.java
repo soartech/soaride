@@ -64,7 +64,7 @@ public class ToggleShowProceduresViewActionDelegate
 			return;
 		}
 		
-		view.showProcedures(action.isChecked());
+		//view.showProcedures(action.isChecked());
 	}
 
 	/* (non-Javadoc)
@@ -92,7 +92,7 @@ public class ToggleShowProceduresViewActionDelegate
 		
 		initialized = true;
 		
-		IMemento memento = view.getMemento();
+		IMemento memento = null; // view.getMemento();
 		if(memento != null)
         {
     		String checked = memento.getString(ID);

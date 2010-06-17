@@ -115,7 +115,7 @@ public class FilterContributionItem extends ControlContribution
                 {
                     if(!textWidget.isDisposed())
                     {
-                        view.setFilterString(textWidget.getText());
+                        //view.setFilterString(textWidget.getText());
                     }
                 }});
         }

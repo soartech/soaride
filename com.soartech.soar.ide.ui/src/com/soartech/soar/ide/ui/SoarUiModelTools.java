@@ -28,6 +28,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
@@ -39,6 +40,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.editors.text.SoarEditor;
 import com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapEditor;
+import com.soartech.soar.ide.ui.editors.database.SoarDatabaseOperatorEditor;
 import com.soartech.soar.ide.ui.editors.database.SoarDatabaseTextEditor;
 
 /**
@@ -114,7 +116,7 @@ public class SoarUiModelTools
     }
     
 	/**
-     * Show a rule in an editor.
+     * Show a problem space in an editor.
      * 
      * @param page The workbench page
      * @param row The rule to display
@@ -133,6 +135,18 @@ public class SoarUiModelTools
 		}
 		return null;
     }
+    
+	public static IEditorPart showOperatorInEditor(IWorkbenchPage page, SoarDatabaseRow row) throws PartInitException {
+    	assert row.getTable() == Table.OPERATORS;
+    	
+        String editorId = SoarDatabaseOperatorEditor.ID;
+        IEditorInput input = row.getEditorInput();
+		if (input != null) {
+			IEditorPart part = page.openEditor(input, editorId);
+			return part;
+		}
+		return null;
+	}
     
     /**
      * Find the active Soar editor.

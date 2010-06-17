@@ -35,14 +35,18 @@ public class OpenDatabaseRowInEditorActionDelegate implements
 				try {
 					SoarUiModelTools.showRuleInEditor(targetPart.getSite().getPage(), selectedRow);
 				} catch (CoreException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			} else if (selectedTable == Table.PROBLEM_SPACES) {
 				try {
 					SoarUiModelTools.showProblemSpaceInEditor(targetPart.getSite().getPage(), selectedRow);
 				} catch (CoreException e) {
-					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}else if (selectedTable == Table.OPERATORS) {
+				try {
+					SoarUiModelTools.showOperatorInEditor(targetPart.getSite().getPage(), selectedRow);
+				} catch (CoreException e) {
 					e.printStackTrace();
 				}
 			}
@@ -60,7 +64,9 @@ public class OpenDatabaseRowInEditorActionDelegate implements
 			if (obj instanceof SoarDatabaseRow) {
 				selectedRow = (SoarDatabaseRow) obj;
 				Table selectedTable = selectedRow.getTable();
-				if (selectedTable == Table.RULES || selectedTable == Table.PROBLEM_SPACES) {
+				if (selectedTable == Table.RULES
+						|| selectedTable == Table.PROBLEM_SPACES
+						|| selectedTable == Table.OPERATORS) {
 					action.setEnabled(true);
 				}
 			}

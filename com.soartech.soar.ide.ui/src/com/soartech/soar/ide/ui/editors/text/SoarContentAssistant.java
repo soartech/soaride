@@ -75,15 +75,14 @@ extends ContentAssistant {
      *
      * @param configuration The current <code>SoarSourceEditorConfiguration</code>
      */
-    public SoarContentAssistant( SoarSourceEditorConfiguration configuration ) {
+    public SoarContentAssistant(SoarSourceEditorConfiguration configuration) {
 
         super();
-        this.setContentAssistProcessor( processor = new SoarCompletionProcessor(
-                configuration ),
-                IDocument.DEFAULT_CONTENT_TYPE );
+        this.setContentAssistProcessor(processor = new SoarCompletionProcessor(configuration),
+                IDocument.DEFAULT_CONTENT_TYPE);
         this.enableAutoActivation(true);
-        this.setProposalPopupOrientation( IContentAssistant.PROPOSAL_OVERLAY );
-        this.setInformationControlCreator( new SoarInformationControlCreator() );
+        this.setProposalPopupOrientation(IContentAssistant.PROPOSAL_OVERLAY);
+        this.setInformationControlCreator(new SoarInformationControlCreator());
     }
 
     /**
@@ -128,8 +127,7 @@ extends ContentAssistant {
  * @version $Revision: 578 $ $Date: 2006-08-24 13:03:28 -0400 (Thu, 24 Aug
  *          2006) $
  */
-class SoarCompletionProcessor
-extends TemplateCompletionProcessor {
+class SoarCompletionProcessor extends TemplateCompletionProcessor {
 
     private static final String DEFAULT_IMAGE = "$nl$/icons/template.gif";
     private SoarSourceEditorConfiguration   configuration = null;

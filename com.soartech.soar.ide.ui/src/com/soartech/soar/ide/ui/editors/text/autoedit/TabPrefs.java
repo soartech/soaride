@@ -48,6 +48,8 @@ public class TabPrefs implements IPropertyChangeListener
     {
     	IPreferenceStore prefs = EditorsUI.getPreferenceStore();
     	
+    	prefs.setDefault(SoarEditorPreferencePage.TAB_WIDTH, 3);
+    	
     	convertTabs = prefs.getBoolean(SoarEditorPreferencePage.CONVERT_TABS);
     	tabWidth = prefs.getInt(SoarEditorPreferencePage.TAB_WIDTH);
     	

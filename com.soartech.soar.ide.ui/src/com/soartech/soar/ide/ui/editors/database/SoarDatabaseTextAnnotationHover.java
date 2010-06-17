@@ -9,9 +9,9 @@ import com.soartech.soar.ide.core.model.SoarProblem;
 
 public class SoarDatabaseTextAnnotationHover implements IAnnotationHover {
 	
-	private SoarDatabaseTextEditor editor;
+	private ISoarDatabaseTextEditor editor;
 	
-	public SoarDatabaseTextAnnotationHover(SoarDatabaseTextEditor editor) {
+	public SoarDatabaseTextAnnotationHover(ISoarDatabaseTextEditor editor) {
 		super();
 		this.editor = editor;
 	}

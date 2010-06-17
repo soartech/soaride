@@ -19,7 +19,11 @@
  */
 package com.soartech.soar.ide.ui.views.explorer;
 
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
@@ -28,26 +32,34 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
-import com.soartech.soar.ide.core.model.ISoarElement;
 import com.soartech.soar.ide.core.model.ISoarModel;
 import com.soartech.soar.ide.core.model.ISoarModelListener;
 import com.soartech.soar.ide.core.model.SoarModelEvent;
@@ -56,11 +68,21 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseEventListener;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.SoarUiTools;
+import com.soartech.soar.ide.ui.actions.explorer.AddChildRowAction;
+import com.soartech.soar.ide.ui.actions.explorer.AddOperatorTemplateChildrenAction;
+import com.soartech.soar.ide.ui.actions.explorer.AddRuleTemplateChildrenAction;
+import com.soartech.soar.ide.ui.actions.explorer.AddSubstateAction;
+import com.soartech.soar.ide.ui.actions.explorer.ExportSoarDatabaseRowAction;
+import com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapAction;
+import com.soartech.soar.ide.ui.actions.explorer.RemoveJoinFromParentAction;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
+import com.soartech.soar.ide.ui.views.explorer.DragAndDrop.SoarDatabaseExplorerDragAdapter;
+import com.soartech.soar.ide.ui.views.explorer.DragAndDrop.SoarDatabaseExplorerDropAdapter;
 
 /**
  * Implementation of a ViewPart representing the Package Explorer for 
@@ -75,7 +97,7 @@ public class SoarExplorerView extends ViewPart
 {
     public static final String ID = "com.soartech.soar.ide.ui.views.SoarExplorerView";
     
-	private TreeViewer viewer;
+	private TreeViewer tree;
 	
 	/**
 	 * A copy of the memento for the soar explorer. The memento persists
@@ -97,24 +119,8 @@ public class SoarExplorerView extends ViewPart
 		new SoarExplorerFullViewContentProvider();
 	private ILabelProvider fullViewLabelProvider = SoarLabelProvider.createFullLabelProvider(null);
 	
-    /**
-	 * The content provider for the database view.
-	 */
-	private SoarExplorerDatabaseContentProvider databaseContentProvider =
-		new SoarExplorerDatabaseContentProvider(true, false, true, true, true, false);
 	private ILabelProvider databaseLabelProvider = SoarLabelProvider.createFullLabelProvider(null);
 	
-	/**
-	 * The viewer filter for the soar explorer.
-	 */
-	private SoarExplorerFilter viewerFilter = new SoarExplorerFilter();
-	
-	/**
-	 * The sorter for the soar explorer.
-	 */
-	private SoarExplorerSorter sorter = new SoarExplorerSorter();
-	
-    
 	/**
 	 * Constructor.
 	 */
@@ -123,59 +129,150 @@ public class SoarExplorerView extends ViewPart
 		super();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.part.WorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
-	 */
 	@Override
 	public void createPartControl(Composite parent) 
-	{
-		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+	{		
+		tree = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		
-		viewer.addDoubleClickListener(this);
-        viewer.setUseHashlookup(true); // this significantly improves update performance
+		tree.addDoubleClickListener(this);
+        tree.setUseHashlookup(true); // this significantly improves update performance
 		
-		viewer.setContentProvider(databaseContentProvider);
-		viewer.setLabelProvider(databaseLabelProvider);
-		viewer.addFilter(viewerFilter);
+		tree.setContentProvider(new SoarExplorerDatabaseContentProvider());
+		tree.setLabelProvider(databaseLabelProvider);
 		ISoarModel input = SoarCorePlugin.getDefault().getSoarModel();
-        viewer.setInput(input);
-        getSite().setSelectionProvider(viewer);
+        tree.setInput(input);
+        getSite().setSelectionProvider(tree);
 
         createContextMenu();
         makeActions();
-        
-		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
-		
-		FilterContributionItem filterContribution = new FilterContributionItem("text_filter", this);
-		toolbarManager.add(filterContribution);
-		
         SoarCorePlugin.getDefault().getSoarModel().getDatabase().addListener(this);
+        tree.addDragSupport(DND.DROP_MOVE, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseExplorerDragAdapter());
+        tree.addDropSupport(DND.DROP_MOVE, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseExplorerDropAdapter(tree));
+   	}
+	
+	private ArrayList<Action> actionsForRow(SoarDatabaseRow row, TreeSelection selection) {
+		ArrayList<Action> ret = new ArrayList<Action>();
+		Table table = row.getTable();
+		if (table == Table.PROBLEM_SPACES) {
+			ret.add(new AddChildRowAction(row, Table.OPERATORS, row, tree, false));
+			ret.add(new AddOperatorTemplateChildrenAction(row, tree));
+			ret.add(new AddChildRowAction(row, Table.RULES, row, tree, false));
+			ret.add(new AddRuleTemplateChildrenAction(row, tree));
+			ret.add(new AddSubstateAction(row, false, tree));
+			ret.add(new GenerateDatamapAction(row, tree));
+		}
+		if (table == Table.OPERATORS) {
+			ret.add(new AddChildRowAction(row, Table.RULES, row, tree, false));
+			ret.add(new AddRuleTemplateChildrenAction(row, tree));
+		}
+		RemoveJoinFromParentAction remove = new RemoveJoinFromParentAction(selection);
+		if (remove.isRunnable()) {
+			ret.add(remove);
+		}
+		ret.add(new ExportSoarDatabaseRowAction(row));
+		return ret;
 	}
-    
+	
+	private ArrayList<Action> actionsForFolder(SoarDatabaseRowFolder folder) {
+		ArrayList<Action> ret = new ArrayList<Action>();
+		ret.add(new AddChildRowAction(folder.getRow(), folder.getTable(), folder, tree, false));
+		return ret;
+	}
+	
     private void createContextMenu()
     {
-//        newWizardMenu = new NewWizardMenu(getSite().getWorkbenchWindow());
-        
-        MenuManager mgr = new MenuManager();
-        mgr.setRemoveAllWhenShown(true);
-        mgr.addMenuListener(new IMenuListener() {
-            public void menuAboutToShow(IMenuManager mgr) {
-                fillContextMenu(mgr);
-            }
+    	MenuManager manager = new MenuManager();
+        manager.addMenuListener(new IMenuListener() {
+
+			@Override
+			public void menuAboutToShow(IMenuManager manager) {
+				manager.removeAll();
+				ISelection selection = tree.getSelection();
+				if (selection instanceof TreeSelection) {
+					TreeSelection ts = (TreeSelection) selection;
+					Object obj = ts.getFirstElement();
+					if (obj instanceof SoarDatabaseRow) {
+						SoarDatabaseRow row = (SoarDatabaseRow) obj;
+						ArrayList<Action> actions = actionsForRow(row, ts);
+						for (Action action : actions) {
+							manager.add(action);
+						}
+					}
+					if (obj instanceof SoarDatabaseRowFolder) {
+						SoarDatabaseRowFolder folder = (SoarDatabaseRowFolder) obj;
+						ArrayList<Action> actions = actionsForFolder(folder);
+						for (Action action : actions) {
+							manager.add(action);
+						}
+					}
+				}
+			}
+        	
         });
-        Menu menu = mgr.createContextMenu(viewer.getControl());
-        viewer.getControl().setMenu(menu);
-        getSite().registerContextMenu(mgr, viewer);
-        
+        Menu menu = manager.createContextMenu(tree.getControl());
+        tree.getControl().setMenu(menu);
+        getSite().registerContextMenu(manager, tree);
     }
     
     private void makeActions() {
-    	//doubleClickAction = null;
-    }
+
+		tree.getControl().addKeyListener(new org.eclipse.swt.events.KeyListener() {
+
+			@Override
+			public void keyReleased(org.eclipse.swt.events.KeyEvent event) {
+
+			}
+
+			@Override
+			public void keyPressed(org.eclipse.swt.events.KeyEvent event) {
+				ISelection selection = tree.getSelection();
+				if (selection instanceof TreeSelection) {
+					TreeSelection ts = (TreeSelection) selection;
+					if (event.keyCode == KeyEvent.VK_DELETE && event.stateMask == (event.stateMask | SWT.CONTROL)) {
+						for (Object element : ts.toArray()) {
+							if (element instanceof SoarDatabaseRow) {
+								SoarDatabaseRow selectedRow = (SoarDatabaseRow) element;
+								Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+								String title = "Delete item?";
+								org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
+								String message = "Are you sure you want to delete \"" + selectedRow.getName() + "\"?\nThis action cannot be undone.";
+								String[] labels = new String[] { "OK", "Cancel" };
+								MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
+								int result = dialog.open();
+								if (result == 1) {
+									return;
+								}
+								selectedRow.deleteAllChildren(true);
+								tree.refresh();
+							}
+						}
+					}
+					
+					else if (event.keyCode == KeyEvent.VK_DELETE) {
+						for (Object element : ts.toArray()) {
+							if (element instanceof SoarDatabaseRow) {
+								RemoveJoinFromParentAction action = new RemoveJoinFromParentAction(ts);
+								if (action.isRunnable()) {
+									Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+									String title = "Delete item?";
+									org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
+									String message = "Are you sure you want to remove \"" + action.row.getName() + "\" from \"" + action.parent.getName() + "\"?";
+									String[] labels = new String[] { "OK", "Cancel" };
+									MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
+									int result = dialog.open();
+									if (result == 1) {
+										return;
+									}
+									action.run();
+								}
+							}
+						}
+					}
+				}
+			}
+		});
+	}
     
-    /* (non-Javadoc)
-	 * @see org.eclipse.ui.part.ViewPart#init(org.eclipse.ui.IViewSite, org.eclipse.ui.IMemento)
-	 */
 	@Override
 	public void init(IViewSite site, IMemento memento) throws PartInitException 
 	{
@@ -183,9 +280,6 @@ public class SoarExplorerView extends ViewPart
 		this.memento = memento;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.part.ViewPart#saveState(org.eclipse.ui.IMemento)
-	 */
 	@Override
 	public void saveState(IMemento memento) 
 	{
@@ -218,9 +312,6 @@ public class SoarExplorerView extends ViewPart
 		super.saveState(memento);
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.part.WorkbenchPart#dispose()
-	 */
 	@Override
 	public void dispose() 
 	{
@@ -248,20 +339,20 @@ public class SoarExplorerView extends ViewPart
 	 */
 	public void update()
 	{
-		if(viewer != null)
+		if(tree != null)
 		{
-            Control control = viewer.getControl();
+            Control control = tree.getControl();
             if(control != null && !control.isDisposed())
             {
     			//save the state of the expanded tree elements
-                Object[] expandedElements = viewer.getExpandedElements();
+                Object[] expandedElements = tree.getExpandedElements();
                 
                 control.setRedraw(false);
     			
-                viewer.refresh();
+                tree.refresh();
     			
     			//re-expand the tree to it's previous state
-                viewer.setExpandedElements(expandedElements);
+                tree.setExpandedElements(expandedElements);
                 control.setRedraw(true);
             }
 		}
@@ -275,74 +366,16 @@ public class SoarExplorerView extends ViewPart
 	{
 		if(showFullView)
 		{
-            viewer.setContentProvider(fullViewContentProvider);
-            viewer.setLabelProvider(fullViewLabelProvider);
+            tree.setContentProvider(fullViewContentProvider);
+            tree.setLabelProvider(fullViewLabelProvider);
 		}
 		else
 		{
-			viewer.setContentProvider(productionViewContentProvider);
-            viewer.setLabelProvider(productionViewLabelProvider);
+			tree.setContentProvider(productionViewContentProvider);
+            tree.setLabelProvider(productionViewLabelProvider);
 		}
 
 		update();
-	}
-	
-	/**
-	 * Switch the viewer sorter to the given sort value.
-	 *
-	 * @param checked Sort if true, unsort if false.
-	 */
-	public void switchViewerSorter(boolean sort)
-	{
-		if(sort)
-		{
-			viewer.setSorter(sorter);
-		}
-		else
-		{
-			viewer.setSorter(null);
-		}
-	}
-	
-	/**
-	 * Set the filter to show/hide the procedures. Update the viewer.
-	 * 
-	 */
-	public void showProcedures(boolean show)
-	{
-		viewerFilter.showProcedures(show);
-		
-		update();
-	}
-	
-	/**
-	 * Set the filter to show/hide the productions. Update the viewer.
-	 * 
-	 */
-	public void showProductions(boolean show)
-	{
-		viewerFilter.showProductions(show);
-		
-		update();
-	}
-	
-    /**
-     * Set the filter string.
-     * 
-     * @param text The new filter string
-     */
-    void setFilterString(String text)
-    {
-        viewerFilter.setFilterString(text);
-        update();
-    }
-    
-	/**
-	 * @return the memento
-	 */
-	public IMemento getMemento() 
-	{
-		return memento;
 	}
 	
 	/* (non-Javadoc)
@@ -351,26 +384,11 @@ public class SoarExplorerView extends ViewPart
 	@Override
 	public void setFocus() 
 	{
-		if(viewer != null)
+		if(tree != null)
         {
-            viewer.getControl().setFocus();
+            tree.getControl().setFocus();
         }
 	}
-	
-	/**
-	 * Return the correctly selected SoarElement.
-	 * 
-	 * @return The SoarElement
-	 */
-	private ISoarElement getSelectedSoarElement()
-    {
-		if(viewer == null)
-		{
-			return null;
-		}
-        
-        return SoarUiTools.getValueFromSelection(viewer.getSelection(), ISoarElement.class);
-    }
 
 	/* (non-Javadoc)
 	 * @see com.soartech.soar.ide.core.model.ISoarModelListener#onEvent(com.soartech.soar.ide.core.model.SoarModelEvent)
@@ -391,7 +409,7 @@ public class SoarExplorerView extends ViewPart
 	 */
 	public void doubleClick(DoubleClickEvent event) 
 	{
-		ISoarDatabaseTreeItem item = SoarUiTools.getValueFromSelection(viewer.getSelection(), ISoarDatabaseTreeItem.class);
+		ISoarDatabaseTreeItem item = SoarUiTools.getValueFromSelection(tree.getSelection(), ISoarDatabaseTreeItem.class);
 		if (item == null) {
 			return;
 		}
@@ -404,6 +422,12 @@ public class SoarExplorerView extends ViewPart
 			if (selectedTable == Table.RULES) {
 				try {
 					SoarUiModelTools.showRuleInEditor(page, selectedRow);
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
+			} else if (selectedTable == Table.OPERATORS) {
+				try {
+					SoarUiModelTools.showOperatorInEditor(page, selectedRow);
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
@@ -420,22 +444,19 @@ public class SoarExplorerView extends ViewPart
 	@Override
 	public void onEvent(SoarDatabaseEvent event, SoarDatabaseConnection db) {
 		
-		//Control control = viewer.getControl();
-		//control.setRedraw(false);
-		Object[] elements = viewer.getExpandedElements();
-		TreePath[] treePaths = viewer.getExpandedTreePaths();
-        viewer.refresh();
-		viewer.setExpandedElements(elements);
-		viewer.setExpandedTreePaths(treePaths);
-		//control.setRedraw(true);
+		if (event.type == SoarDatabaseEvent.Type.DATABASE_PATH_CHANGED) {
+			ISoarModel input = SoarCorePlugin.getDefault().getSoarModel();
+	        tree.setInput(input);
+		}
 		
-		// hack
-		// Freezes when tree is of infinite depth.
-		// viewer.expandAll();
+		Object[] elements = tree.getExpandedElements();
+		TreePath[] treePaths = tree.getExpandedTreePaths();
+        tree.refresh();
+		tree.setExpandedElements(elements);
+		tree.setExpandedTreePaths(treePaths);
 	}
 	
 	public TreeViewer getTreeViewer() {
-		return viewer;
+		return tree;
 	}
-
 }

@@ -64,7 +64,7 @@ public class ToggleShowProductionsViewActionDelegate
 			return;
 		}
 		
-		view.showProductions(action.isChecked());
+		// view.showProductions(action.isChecked());
 	}
 
 	/* (non-Javadoc)
@@ -92,7 +92,7 @@ public class ToggleShowProductionsViewActionDelegate
 		
 		initialized = true;
 		
-		IMemento memento = view.getMemento();
+		IMemento memento = null; // view.getMemento();
 		if(memento != null)
         {
     		String checked = memento.getString(ID);

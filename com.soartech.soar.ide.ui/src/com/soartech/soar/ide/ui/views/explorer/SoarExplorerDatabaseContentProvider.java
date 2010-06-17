@@ -11,30 +11,10 @@ import com.soartech.soar.ide.core.sql.EditableColumn;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider {
-
-	private boolean includeFolders;
-	private boolean includeItemsInFolders;
-	private boolean includeJoinedItems;
-	private boolean includeDirectionalJoinedItems;
-	private boolean putDirectionalJoinedItemsInFolders;
-	private boolean includeDatamapNodes;
-	
-	public SoarExplorerDatabaseContentProvider(boolean includeFolders,
-			boolean includeItemsInFolders,
-			boolean includeJoinedItems,
-			boolean includeDirectionalJoinedItems,
-			boolean putDirectionalJoinedItemsInFolders,
-			boolean includeDatamapNodes) {
-		this.includeFolders = includeFolders;
-		this.includeItemsInFolders = includeItemsInFolders;
-		this.includeJoinedItems = includeJoinedItems;
-		this.includeDirectionalJoinedItems = includeDirectionalJoinedItems;
-		this.putDirectionalJoinedItemsInFolders = putDirectionalJoinedItemsInFolders;
-		this.includeDatamapNodes = includeDatamapNodes;
-	}
 	
 	@Override
 	public Object[] getChildren(Object element) {
@@ -44,10 +24,57 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 			return ret;
 		}
 		else if (element instanceof ISoarDatabaseTreeItem) {
-			List<ISoarDatabaseTreeItem> ret = ((ISoarDatabaseTreeItem)element).getChildren(includeFolders, includeItemsInFolders, includeJoinedItems, includeDirectionalJoinedItems, putDirectionalJoinedItemsInFolders, includeDatamapNodes);
-			return ret.toArray();
+			if (element instanceof SoarDatabaseRow) {
+				SoarDatabaseRow row = (SoarDatabaseRow) element;
+				Table table = row.getTable();
+				if (table == Table.AGENTS) {	
+					boolean includeFolders = true;
+					boolean includeChildrenInFolders = false;
+					boolean includeJoinedItems = true;
+					boolean includeDirectionalJoinedItems = true;
+					boolean putDirectionalJoinedItemsInFolders = true;
+					boolean includeDatamapNodes = false;
+					return row.getChildren(
+							includeFolders,
+							includeChildrenInFolders,
+							includeJoinedItems,
+							includeDirectionalJoinedItems,
+							putDirectionalJoinedItemsInFolders,
+							includeDatamapNodes).toArray();
+				}
+				if (table == Table.PROBLEM_SPACES) {
+					ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
+					ret.addAll(row.getJoinedRowsFromTable(Table.RULES));
+					ret.addAll(row.getJoinedRowsFromTable(Table.OPERATORS));
+					ret.addAll(row.getDirectedJoinedChildrenOfType(Table.PROBLEM_SPACES, false));
+					return ret.toArray();
+				}
+				if (table == Table.OPERATORS) {
+					ArrayList<ISoarDatabaseTreeItem> ret = row.getJoinedRowsFromTable(Table.RULES);
+					return ret.toArray();
+				}
+				if (table == Table.RULES) {
+					return new Object[0];
+				}
+			}
+			if (element instanceof SoarDatabaseRowFolder) {
+				SoarDatabaseRowFolder folder = (SoarDatabaseRowFolder) element;
+				boolean includeFolders = true;
+				boolean includeChildrenInFolders = false;
+				boolean includeJoinedItems = true;
+				boolean includeDirectionalJoinedItems = true;
+				boolean putDirectionalJoinedItemsInFolders = true;
+				boolean includeDatamapNodes = false;
+				return folder.getChildren(
+						includeFolders,
+						includeChildrenInFolders,
+						includeJoinedItems,
+						includeDirectionalJoinedItems,
+						putDirectionalJoinedItemsInFolders,
+						includeDatamapNodes).toArray();
+			}
 		}
-		return new Object[]{};
+		return new Object[0];
 	}
 
 	@Override
@@ -69,8 +96,8 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 	@Override
 	public boolean hasChildren(Object element) {
 		if (element instanceof ISoarDatabaseTreeItem) {
-			List<ISoarDatabaseTreeItem> children = ((ISoarDatabaseTreeItem)element).getChildren(includeFolders, includeItemsInFolders, includeJoinedItems, includeDirectionalJoinedItems, putDirectionalJoinedItemsInFolders, includeDatamapNodes);
-			boolean ret = children.size() > 0;
+			Object[] children = getChildren(element);
+			boolean ret = children.length > 0;
 			return ret;
 		}
 		return false;
@@ -83,14 +110,10 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

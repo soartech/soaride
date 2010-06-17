@@ -27,6 +27,7 @@ import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 
 import com.soartech.soar.ide.ui.views.datamap.SoarDatamapView;
+import com.soartech.soar.ide.ui.views.explorer.SoarDatabaseItemView;
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerView;
 import com.soartech.soar.ide.ui.views.source.SoarElementSourceViewer;
 
@@ -53,49 +54,48 @@ public class SoarPerspective implements IPerspectiveFactory {
         
         String editorArea = layout.getEditorArea();
         
-        IFolderLayout folder= layout.createFolder("left", IPageLayout.LEFT, (float)0.25, editorArea); //$NON-NLS-1$
-        folder.addView("org.eclipse.jdt.ui.PackageExplorer");
+        IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, 0.25f, editorArea); //$NON-NLS-1$
         folder.addView(SoarExplorerView.ID);
-        folder.addPlaceholder(IPageLayout.ID_RES_NAV);
 
-        IFolderLayout datamapFolder = layout.createFolder("datamap", IPageLayout.BOTTOM, (float) 0.55, "left");
-        datamapFolder.addView(SoarDatamapView.ID);
+        IFolderLayout itemFolder = layout.createFolder("item", IPageLayout.BOTTOM, 0.6f, "left");
+        itemFolder.addView(SoarDatabaseItemView.ID);
 
-        IFolderLayout outputfolder= layout.createFolder("bottom", IPageLayout.BOTTOM, (float)0.75, editorArea); //$NON-NLS-1$
-        outputfolder.addView(IPageLayout.ID_PROBLEM_VIEW);
-        outputfolder.addView(SoarElementSourceViewer.ID);
+        //IFolderLayout outputfolder= layout.createFolder("bottom", IPageLayout.BOTTOM, (float)0.75, editorArea); //$NON-NLS-1$
+        //outputfolder.addView(IPageLayout.ID_PROBLEM_VIEW);
+        //outputfolder.addView(SoarElementSourceViewer.ID);
         //outputfolder.addView("com.soartech.soar.ide.debug.ui.commandline");
-        outputfolder.addPlaceholder(NewSearchUI.SEARCH_VIEW_ID);
-        outputfolder.addPlaceholder(IConsoleConstants.ID_CONSOLE_VIEW);
-        outputfolder.addPlaceholder(IPageLayout.ID_BOOKMARKS);
+        //outputfolder.addPlaceholder(NewSearchUI.SEARCH_VIEW_ID);
+        //outputfolder.addPlaceholder(IConsoleConstants.ID_CONSOLE_VIEW);
+        //outputfolder.addPlaceholder(IPageLayout.ID_BOOKMARKS);
         //outputfolder.addPlaceholder(IProgressConstants.PROGRESS_VIEW_ID);
         
-        layout.addView(IPageLayout.ID_OUTLINE, IPageLayout.RIGHT, (float)0.75, editorArea);
+        //layout.addView(IPageLayout.ID_OUTLINE, IPageLayout.RIGHT, (float)0.75, editorArea);
         
         layout.addActionSet(IDebugUIConstants.LAUNCH_ACTION_SET);
         layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);
 
         // views - Soar
         layout.addShowViewShortcut(SoarExplorerView.ID);
-        layout.addShowViewShortcut(SoarDatamapView.ID);
-        layout.addShowViewShortcut(SoarElementSourceViewer.ID);
-        layout.addShowViewShortcut("com.soartech.soar.ide.debug.ui.commandline");
+        layout.addShowViewShortcut(SoarDatabaseItemView.ID);
+        //layout.addShowViewShortcut(SoarDatamapView.ID);
+        //layout.addShowViewShortcut(SoarElementSourceViewer.ID);
+        //layout.addShowViewShortcut("com.soartech.soar.ide.debug.ui.commandline");
         
         // views - search
-        layout.addShowViewShortcut(NewSearchUI.SEARCH_VIEW_ID);
+        //layout.addShowViewShortcut(NewSearchUI.SEARCH_VIEW_ID);
         
         // views - debugging
-        layout.addShowViewShortcut(IConsoleConstants.ID_CONSOLE_VIEW);
+        //layout.addShowViewShortcut(IConsoleConstants.ID_CONSOLE_VIEW);
 
         // views - standard workbench
-        layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);
-        layout.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
-        layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);
-        layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
+        //layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);
+        //layout.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
+        //layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);
+        //layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
         
         // wizard actions in the "new" menu.
-        layout.addNewWizardShortcut("com.soartech.soar.ide.ui.NewSoarAgentWizard");
-        layout.addNewWizardShortcut("com.soartech.soar.ide.ui.NewSoarFolderWizard");//$NON-NLS-1$
-        layout.addNewWizardShortcut("com.soartech.soar.ide.ui.NewSoarFileWizard");//$NON-NLS-1$
+        //layout.addNewWizardShortcut("com.soartech.soar.ide.ui.NewSoarAgentWizard");
+        //layout.addNewWizardShortcut("com.soartech.soar.ide.ui.NewSoarFolderWizard");//$NON-NLS-1$
+        //layout.addNewWizardShortcut("com.soartech.soar.ide.ui.NewSoarFileWizard");//$NON-NLS-1$
     }
 }

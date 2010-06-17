@@ -288,13 +288,15 @@ public class SoarAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
         {
             //align indent with matching open paren
         	int openParenOffset = SoarPairMatcher.findMatchingOpenParen(document, offset - 1);
-            try {
-                int openParenLine = document.getLineOfOffset(openParenOffset);
-                int openParenLineStart = document.getLineOffset(openParenLine);
-                numSpaces = openParenOffset - openParenLineStart;
-            } catch (BadLocationException e) {
-                e.printStackTrace();
-            }
+			if (openParenOffset >= 0) {
+				try {
+					int openParenLine = document.getLineOfOffset(openParenOffset);
+					int openParenLineStart = document.getLineOffset(openParenLine);
+					numSpaces = openParenOffset - openParenLineStart;
+				} catch (BadLocationException e) {
+					e.printStackTrace();
+				}
+			}
         }
         else if((trimmed.startsWith("(") || trimmed.startsWith("^") || trimmed.startsWith("-^"))
                   && (trimmed.indexOf(")") == -1)

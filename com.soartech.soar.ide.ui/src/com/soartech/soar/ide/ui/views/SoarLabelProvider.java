@@ -47,6 +47,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorPluginImages;
+import com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapSuperstateAttribute;
 import com.soartech.soar.ide.ui.editors.text.SoarFoldingRegion;
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerFullViewContentProvider.SoarFolderHeader;
 
@@ -135,7 +136,7 @@ public class SoarLabelProvider extends LabelProvider implements
 						.get(SoarEditorPluginImages.IMG_SOAR);
 			} else if (table == Table.OPERATORS) {
 				return SoarEditorPluginImages
-						.get(SoarEditorPluginImages.IMG_SOAR);
+						.get(SoarEditorPluginImages.IMG_OPERATOR);
 			} else if (table == Table.DATAMAP_IDENTIFIERS) {
 				return SoarEditorPluginImages
 					.get(SoarEditorPluginImages.IMG_ATTRIBUTE);
@@ -155,7 +156,7 @@ public class SoarLabelProvider extends LabelProvider implements
 		} else if (element instanceof SoarDatabaseRowFolder || element instanceof SoarDatabaseJoinFolder) {
 			return SoarEditorPluginImages
 				.get(SoarEditorPluginImages.IMG_PROJECT);
-			}
+		}
 		return super.getImage(element);
 	}
 
@@ -222,6 +223,8 @@ public class SoarLabelProvider extends LabelProvider implements
 			return name + (mods.length() > 0 ? " (" + mods + ")" : mods);
 		} else if (element instanceof SoarFoldingRegion) {
 			return ((SoarFoldingRegion) element).getName();
+		}  else if (element instanceof SoarDatabaseDatamapSuperstateAttribute) {
+			return element.toString(); 
 		} else if (element instanceof String) {
 			return (String) element;
 		}

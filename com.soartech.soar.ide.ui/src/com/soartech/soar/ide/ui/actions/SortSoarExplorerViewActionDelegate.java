@@ -60,12 +60,13 @@ public class SortSoarExplorerViewActionDelegate implements IViewActionDelegate
 	{	
 		boolean checked = action.isChecked();
 		
-		view.switchViewerSorter(checked);
+		//view.switchViewerSorter(checked);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction, org.eclipse.jface.viewers.ISelection)
 	 */
+	
 	public void selectionChanged(IAction action, ISelection selection) 
 	{	
 		if(!initialized)
@@ -74,11 +75,13 @@ public class SortSoarExplorerViewActionDelegate implements IViewActionDelegate
 		}
 	}
 	
+	
 	/**
 	 * Initialize the view action delegate to its saved state.
 	 * 
 	 * @param action
 	 */
+	
 	private void initialize(IAction action)
 	{	
 		if(view == null)
@@ -88,7 +91,7 @@ public class SortSoarExplorerViewActionDelegate implements IViewActionDelegate
 		
 		initialized = true;
 		
-		IMemento memento = view.getMemento();
+		IMemento memento = null; //view.getMemento();
         if(memento != null)
         {
     		String checked = memento.getString(ID);
@@ -106,5 +109,6 @@ public class SortSoarExplorerViewActionDelegate implements IViewActionDelegate
 		
 		run(action);
 	}
+	
 
 }

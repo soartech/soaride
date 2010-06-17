@@ -83,7 +83,6 @@ public class SoarSourceEditorConfiguration extends SoarSourceViewerConfiguration
      */
     @Override
     public IContentAssistant getContentAssistant( ISourceViewer sourceViewer ) {
-
         return new SoarContentAssistant( this );
     }
 

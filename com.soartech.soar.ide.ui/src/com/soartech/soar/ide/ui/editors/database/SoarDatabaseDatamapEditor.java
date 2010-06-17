@@ -49,12 +49,12 @@ public class SoarDatabaseDatamapEditor extends EditorPart {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-
+		
 	}
 
 	@Override
 	public void doSaveAs() {
-
+		
 	}
 
 	@Override
@@ -64,9 +64,10 @@ public class SoarDatabaseDatamapEditor extends EditorPart {
 		setInput(input);
 		if (input instanceof SoarDatabaseEditorInput) {
 			proplemSpaceRow = ((SoarDatabaseEditorInput) input).getRow();
+			String description = input.getName();
+			setPartName(description);
 		} else {
-			throw new PartInitException(
-					"Input not instance of SoarDatabaseEditorInput");
+			throw new PartInitException("Input not instance of SoarDatabaseEditorInput");
 		}
 	}
 
@@ -84,7 +85,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart {
 	public void createPartControl(Composite parent) {
 		tree = new TreeViewer(parent, SWT.NONE);
 
-		tree.setContentProvider(new SoarExplorerDatabaseContentProvider(false, false, false, true, false, true));
+		tree.setContentProvider(new SoarDatabaseDatamapContentProvider());
 		tree.setLabelProvider(SoarLabelProvider.createFullLabelProvider(null));
 		tree.setInput(proplemSpaceRow);
 		
@@ -140,8 +141,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart {
 
 						for (final Table t : childTables) {
 							final String childTableName = t.tableName();
-							manager
-									.add(new Action("Add New " + childTableName) {
+							manager.add(new Action("Add New " + childTableName) {
 										@Override
 										public void run() {
 
@@ -389,8 +389,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart {
 									listDialog
 											.setContentProvider(existingAttributeContentProvider);
 									listDialog
-											.setLabelProvider(SoarLabelProvider
-													.createFullLabelProvider(null));
+											.setLabelProvider(new SoarDatabaseDatamapLabelProvider());
 									listDialog.setInput(row);
 									listDialog.open();
 									Object[] result = listDialog.getResult();
@@ -547,7 +546,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart {
 	}
 
 	// Convenience method for refreshing tree
-	private void refreshTree() {
+	public void refreshTree() {
 		Runnable runnable = new Runnable() {
 
 			@Override

@@ -92,7 +92,7 @@ public class SwitchSoarExplorerViewActionDelegate
 		
 		initialized = true;
 		
-		IMemento memento = view.getMemento();
+		IMemento memento = null; // view.getMemento();
         if(memento != null)
         {
     		String checked = memento.getString(ID);

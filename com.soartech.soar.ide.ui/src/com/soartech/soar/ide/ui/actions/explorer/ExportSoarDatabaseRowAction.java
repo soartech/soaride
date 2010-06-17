@@ -5,36 +5,29 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IViewActionDelegate;
-import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
-public class ExportProjectActionDelegate implements IViewActionDelegate {
-
-	StructuredSelection ss;
-	SoarDatabaseRow selectedRow;
+public class ExportSoarDatabaseRowAction extends Action {
+	
+	SoarDatabaseRow row;
+	
+	public ExportSoarDatabaseRowAction(SoarDatabaseRow row) {
+		super("Export " + row.getName());
+		this.row = row;
+	}
 	
 	@Override
-	public void init(IViewPart view) {
-		
-	}
-
-	@Override
-	public void run(IAction action) {
-		if (!action.isEnabled()) {
-			return;
-		}
+	public void run() {
+		super.run();
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
 		dialog.setText("Export Agent");
@@ -49,8 +42,8 @@ public class ExportProjectActionDelegate implements IViewActionDelegate {
 		if (write) {
 			try {
 				FileWriter writer = new FileWriter(file);
-				ArrayList<ISoarDatabaseTreeItem> children = selectedRow.getChildrenOfType(Table.RULES);
-				String agentName = selectedRow.getName();
+				ArrayList<ISoarDatabaseTreeItem> children = getRules();
+				String agentName = row.getName();
 				writer.write("# Begin agent \"" + agentName + "\"\n\n");
 				for (ISoarDatabaseTreeItem child : children) {
 					assert child instanceof SoarDatabaseRow;
@@ -70,19 +63,31 @@ public class ExportProjectActionDelegate implements IViewActionDelegate {
 		}
 	}
 
-	@Override
-	public void selectionChanged(IAction action, ISelection selection) {		
-		action.setEnabled(false);
-		if (selection instanceof StructuredSelection) {
-			ss = (StructuredSelection) selection;
-			Object obj = ss.getFirstElement();
-			if (obj instanceof SoarDatabaseRow) {
-				selectedRow = (SoarDatabaseRow) obj;
-				if (selectedRow.getTable() == Table.AGENTS) {
-					action.setEnabled(true);
+	private ArrayList<ISoarDatabaseTreeItem> getRules() {
+		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
+		
+		Table table = row.getTable();
+		if (table == Table.AGENTS) {
+			ret.addAll(row.getChildrenOfType(Table.RULES));
+		}
+		else if (table == Table.PROBLEM_SPACES) {
+			ret.addAll(row.getJoinedRowsFromTable(Table.RULES));
+			
+			ArrayList<ISoarDatabaseTreeItem> operators = row.getJoinedRowsFromTable(Table.OPERATORS);
+			for (ISoarDatabaseTreeItem item : operators) {
+				if (item instanceof SoarDatabaseRow) {
+					SoarDatabaseRow row = (SoarDatabaseRow) item;
+					ret.addAll(row.getJoinedRowsFromTable(Table.RULES));
 				}
 			}
 		}
+		else if (table == Table.OPERATORS) {
+			ret.addAll(row.getJoinedRowsFromTable(Table.RULES));
+		}
+		else if (table == Table.RULES) {
+			ret.add(row);
+		}
+		
+		return ret;
 	}
-
 }

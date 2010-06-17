@@ -20,10 +20,10 @@ public class AddAgentActionDelegate implements IViewActionDelegate {
 	@Override
 	public void run(IAction action) {
 		
-		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow() .getShell();
+		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		String title = "New Agent";
 		String message = "Enter Name:";
-		String initialValue = "New Agent";
+		String initialValue = "agent";
 		InputDialog dialog = new InputDialog(shell, title, message, initialValue, null);
 		dialog.open();
 		String result = dialog.getValue();
