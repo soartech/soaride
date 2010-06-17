@@ -1,10 +1,9 @@
 package com.soartech.soar.ide.core.sql;
 
-import java.util.List;
-
+import java.util.ArrayList;
 
 public interface ISoarDatabaseTreeItem {
-	List<ISoarDatabaseTreeItem> getChildren(boolean includeFolders,
+	ArrayList<ISoarDatabaseTreeItem> getChildren(boolean includeFolders,
 			boolean includeChildrenInFolders,
 			boolean includeJoinedItems,
 			boolean includeDirectionalJoinedItems,

@@ -19,6 +19,9 @@
  */
 package com.soartech.soar.ide.core;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Plugin;
@@ -33,6 +36,10 @@ import com.soartech.soar.ide.core.model.datamap.ISoarDatamap;
 import com.soartech.soar.ide.core.model.impl.InMemorySoarProduction;
 import com.soartech.soar.ide.core.model.impl.SoarModel;
 import com.soartech.soar.ide.core.model.impl.datamap.SoarDatamap;
+import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
+import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
+import com.soartech.soar.ide.core.sql.SoarDatabaseUtil;
+import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 
 /**
  * <code>SoarCorePlugin</code> The main plugin class to be used in the desktop.
@@ -181,5 +188,32 @@ public class SoarCorePlugin extends Plugin {
     {
         return new SoarDatamap();
     }
+
+	public void saveDatabaseAs(String path) {
+		String dump = SoarDatabaseUtil.sqlDump(getSoarModel().getDatabase());
+		//System.out.println("**************************DUMP");
+		//System.out.println(dump);
+		
+		String[] commands = dump.split(";");
+		
+		SoarDatabaseConnection conn = soarModel.getDatabase();
+		boolean eventsSupressed = conn.getSupressEvents();
+		conn.setSupressEvents(true);
+		conn.loadDatabaseConnection(path);
+		for (String command : commands) {
+			command = command.trim();
+			if (command.length() > 0) {
+				soarModel.getDatabase().execute(command);
+			}
+		}
+		conn.setSupressEvents(eventsSupressed);
+		conn.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
+	}
+
+	public void openProject(String path) {
+		SoarDatabaseConnection conn = soarModel.getDatabase();
+		conn.loadDatabaseConnection(path);
+		conn.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
+	}
 
 }

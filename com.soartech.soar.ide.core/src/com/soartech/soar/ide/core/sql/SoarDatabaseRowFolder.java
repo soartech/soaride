@@ -25,7 +25,7 @@ public class SoarDatabaseRowFolder implements ISoarDatabaseTreeItem {
 	
 	@Override
 	public String toString() {
-		return table.tableName();
+		return table.pluralEnglishName();
 	}
 
 	@Override

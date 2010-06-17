@@ -75,3 +75,11 @@ id integer primary key,
 first_id integer,
 second_id integer
 );
+
+-- directed joins for substates
+create table if not exists directed_join_problem_spaces_problem_spaces
+(
+id integer primary key,
+parent_id integer,
+child_id integer
+);

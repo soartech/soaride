@@ -19,6 +19,9 @@
  */
 package com.soartech.soar.ide.core.model.impl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,6 +51,7 @@ import com.soartech.soar.ide.core.model.SoarModelEvent;
 import com.soartech.soar.ide.core.model.SoarModelException;
 import com.soartech.soar.ide.core.model.SoarModelTools;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
+import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
 
 /**
  * Implementation of the ISoarModel interface. The instance of this object 
@@ -68,7 +72,7 @@ public class SoarModel extends AbstractSoarOpenable implements ISoarModel
     private List<SoarModelEvent> queuedEvents = new ArrayList<SoarModelEvent>();
     private int queuedTypedEvents[] = { 0, 0, 0 };
     
-    private SoarDatabaseConnection dbConn = new SoarDatabaseConnection();
+    private SoarDatabaseConnection dbConn;
     
     /**
      * Construct a new Soar model. This method should not be used by client code.
@@ -83,7 +87,13 @@ public class SoarModel extends AbstractSoarOpenable implements ISoarModel
         // when a project is opened so we can connect the model to it.
         getWorkspace().addResourceChangeListener(projectOpenListener, 
                 IResourceChangeEvent.POST_CHANGE);
+        
+       dbConn = new SoarDatabaseConnection(":memory:");
     }
+    
+	public void reloadDatabaseConnection(String path) {
+		dbConn.loadDatabaseConnection(path);
+	}
     
     /**
      * @return The buffer manager for the model
@@ -480,5 +490,4 @@ public class SoarModel extends AbstractSoarOpenable implements ISoarModel
         }
         
     }
-    
 }

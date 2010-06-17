@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,46 +12,43 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import org.sqlite.SQLite;
-
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public class SoarDatabaseConnection {
 
 	private String driver = "org.sqlite.JDBC";
-	//private String protocol = "jdbc:sqlite::memory:";
 	private String protocol = "jdbc:sqlite:";
-	private String dbName = "database.db"; // the name of the database
-	private String connectionString = "jdbc:sqlite:database.db";
 	private String[] sqlFiles = { "agent.sql" , "rule.sql", "datamap.sql" };
-	private Connection conn;
+	private Connection connection = null;
 	public static final boolean debug = false;
 
 	private ArrayList<ISoarDatabaseEventListener> listeners = new ArrayList<ISoarDatabaseEventListener>();
 	private boolean supressEvents = false;
 	
-	public SoarDatabaseConnection() {
-		
-		// Load the driver
+	public SoarDatabaseConnection(String path) {
 		loadDriver();
+		loadDatabaseConnection(path);
+		// test();
+	}
+
+	public void loadDatabaseConnection(String path) {
+		if (connection != null) {
+			try {
+				connection.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
 		
-		// Connect to the database
 		try {
-			
-			conn = DriverManager.getConnection(connectionString);
-			//conn = DriverManager.getConnection(protocol);
-			conn.setAutoCommit(false);
+			connection = DriverManager.getConnection(protocol + path);
+			connection.setAutoCommit(true);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		// Read the schema from files
 		buildSchema();
-		
-		// Add items to schema for testing.
-		// test();
 	}
 
 	public void addListener(ISoarDatabaseEventListener listener) {
@@ -125,14 +123,13 @@ public class SoarDatabaseConnection {
 	 */
 	private void buildSchema() {
 		try {
-			Statement s = conn.createStatement();
+			Statement s = connection.createStatement();
 			for (String filename : sqlFiles) {
 				executeFile(filename, s);
 			}
 			s.close();
-			conn.commit();
+			// conn.commit();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -296,7 +293,7 @@ public class SoarDatabaseConnection {
 		ResultSet ret = null;
 		Statement s;
 		try {
-			s = conn.createStatement();
+			s = connection.createStatement();
 			ret = s.executeQuery(sql);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -314,10 +311,10 @@ public class SoarDatabaseConnection {
 		}
 		Statement s;
 		try {
-			s = conn.createStatement();
+			s = connection.createStatement();
 			s.execute(sql);
 			s.close();
-			conn.commit();
+			//conn.commit();
 			fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -330,9 +327,20 @@ public class SoarDatabaseConnection {
 	
 	public StatementWrapper prepareStatement(String sql) {
 		try {
-			PreparedStatement ps = conn.prepareStatement(sql);
+			PreparedStatement ps = connection.prepareStatement(sql);
 			StatementWrapper ret = new StatementWrapper(ps, this, sql);
 			return ret;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public DatabaseMetaData getConnectionMetadata() {
+		try {
+			return connection.getMetaData();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

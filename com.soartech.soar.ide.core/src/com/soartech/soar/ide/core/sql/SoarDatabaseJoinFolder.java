@@ -24,7 +24,7 @@ public class SoarDatabaseJoinFolder implements ISoarDatabaseTreeItem {
 	}
 	
 	@Override
-	public List<ISoarDatabaseTreeItem> getChildren(boolean includeFolders,
+	public ArrayList<ISoarDatabaseTreeItem> getChildren(boolean includeFolders,
 			boolean includeChildrenInFolders,
 			boolean includeJoinedItems,
 			boolean includeDirectionalJoinedItems,
@@ -49,7 +49,7 @@ public class SoarDatabaseJoinFolder implements ISoarDatabaseTreeItem {
 	
 	@Override
 	public String toString() {
-		return table.tableName();
+		return table.pluralEnglishName();
 	}
 	
 	public SoarDatabaseRow getRow() {

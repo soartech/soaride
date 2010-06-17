@@ -57,7 +57,7 @@ create table if not exists positive_conditions
 (
 id integer primary key,
 condition_id integer,
-negated boolean,
+is_negated boolean,
 name varchar(100) not null,
 is_conjunction boolean not null
 );

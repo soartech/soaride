@@ -5,9 +5,12 @@ import java.io.StringReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
 import com.soartech.soar.ide.core.model.SoarProblem;
@@ -112,6 +115,18 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		public String idName() {
 			return shortName() + "_id";
 		}
+
+		public String soarName() {
+			return shortName().replace('_', '-');
+		}
+		
+		public String englishName() {
+			return shortName().replace('_', ' ');
+		}
+		
+		public String pluralEnglishName() {
+			return tableName().replace('_', ' ');
+		}
 	}
 
 	public static Table getTableNamed(String name) {
@@ -159,6 +174,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	private SoarDatabaseConnection db;
 	private String name = null;
 	private HashMap<Table, SoarDatabaseRowFolder> folders = new HashMap<Table, SoarDatabaseRowFolder>();
+	private SoarDatabaseEditorInput editorInput = null;
 	
 	private static boolean initted = false;
 
@@ -233,6 +249,35 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		ps.setString(1, name);
 		ps.setInt(2, id);
 		ps.execute();
+		this.name = name;
+	}
+	
+	/**
+	 * For datamap nodes.
+	 * 
+	 * Returns a String that shows the whole path to this node from the root node,
+	 * including the name of the problem space.
+	 * 
+	 * If no ancestor node is found, returns <code>getName()</code>.
+	 * @return
+	 */
+	public String getPathName() {
+		ArrayList<SoarDatabaseRow> path = getPathToAncestorNodeOfType(Table.PROBLEM_SPACES);
+		if (path == null) {
+			return getName();
+		}
+		StringBuffer buff = new StringBuffer();
+		String separator = ".";
+		final int stateNodeIndex = 1; // don't include "<s>" in the path -- use problem space name instead.
+		for (int i = 0; i < path.size(); ++i) {
+			if (i != stateNodeIndex) {
+				SoarDatabaseRow row = path.get(i);
+				buff.append(row.getName());
+				buff.append(separator);
+			}
+		}
+		String ret = buff.substring(0, buff.length() - separator.length());
+		return ret;
 	}
 	
 	/**
@@ -523,7 +568,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 
 	/**
-	 * Should only return a List of size 0 or 1.
+	 * Should only return a List of size 0 or 1,
+	 * unless table == PROBLEM_SPACES, in which
+	 * case there may be two parents: the Agent
+	 * and a superstate.
 	 * 
 	 * @return
 	 */
@@ -573,28 +621,40 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 
 	/**
-	 * Returns a list of all rows which are parents in a directional join with this row. 
-	 * @return
+	 * @return A list of all rows that are parents in a
+	 * directional join with this row.
 	 */
 	public ArrayList<SoarDatabaseRow> getDirectedJoinedParents() {
+		return getDirectedJoinedParentsOfType(null);
+	}
+	
+	/**
+	 * 
+	 * @param type The type of parent row to search for.
+	 * @return A list of all rows of type <code>type</code>
+	 * what are parents in a directional join with this row.
+	 */
+	public ArrayList<SoarDatabaseRow> getDirectedJoinedParentsOfType(Table type) {
 		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
 		ArrayList<Table> parentTables = getDirectedJoinParentTables(table);
 		for (Table parentTable : parentTables) {
-			String joinTableName = directedJoinTableName(parentTable, table);
-			String sql = "select * from " + joinTableName + " where child_id=?";
-			StatementWrapper sw = db.prepareStatement(sql);
-			sw.setInt(1, id);
-			ResultSet rs = sw.executeQuery();
-			try {
-				while (rs.next()) {
-					int id = rs.getInt("parent_id");
-					SoarDatabaseRow parentRow = new SoarDatabaseRow(parentTable, id, db);
-					ret.add(parentRow);
+			if (type == null || parentTable == type) {
+				String joinTableName = directedJoinTableName(parentTable, table);
+				String sql = "select * from " + joinTableName + " where child_id=?";
+				StatementWrapper sw = db.prepareStatement(sql);
+				sw.setInt(1, id);
+				ResultSet rs = sw.executeQuery();
+				try {
+					while (rs.next()) {
+						int id = rs.getInt("parent_id");
+						SoarDatabaseRow parentRow = new SoarDatabaseRow(parentTable, id, db);
+						ret.add(parentRow);
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
 				}
-			} catch (SQLException e) {
-				e.printStackTrace();
+				sw.close();
 			}
-			sw.close();
 		}
 		return ret;
 	}
@@ -642,6 +702,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	 * @return
 	 */
 	public SoarDatabaseRow getAncestorRow(Table type) {
+		SoarDatabaseRow ret = this;
 		if (table == type) {
 			return this;
 		}
@@ -668,7 +729,9 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 				}
 			}
 		}
-		SoarDatabaseRow ret = parents.get(0);
+		if (parents.size() > 0) {
+			ret = parents.get(0);
+		}
 		if (type == null || ret.getTable() == type) {
 			return ret;
 		} else {
@@ -676,16 +739,67 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		}
 	}
 	
+	/**
+	 * Returns the path to the closest ancestor node of the given type.
+	 * The list begins with the ancestor node and ends with this node.
+	 * Returns <code>null</code> if no ancestor node is found.
+	 * @param type
+	 * @return
+	 */
+	public ArrayList<SoarDatabaseRow> getPathToAncestorNodeOfType(Table type) {
+		LinkedList<ArrayList<SoarDatabaseRow>> paths = new LinkedList<ArrayList<SoarDatabaseRow>>();
+		ArrayList<SoarDatabaseRow> firstPath = new ArrayList<SoarDatabaseRow>();
+		firstPath.add(this);
+		paths.add(firstPath);
+		boolean searching = true;
+		
+		while (searching) {
+			searching = false;
+			for (ArrayList<SoarDatabaseRow> path : paths) {
+				paths.remove(path);
+				SoarDatabaseRow leaf = path.get(path.size() - 1);
+				ArrayList<SoarDatabaseRow> parents = leaf.getAllParents();
+				if (!searching && parents.size() > 0) {
+					searching = true;
+				}
+				for (int i = 0; i < parents.size(); ++i) {
+					SoarDatabaseRow parent = parents.get(i);
+					ArrayList<SoarDatabaseRow> newPath;
+					if (i == 0) {
+						newPath = path;
+					} else {
+						newPath = new ArrayList<SoarDatabaseRow>();
+						for (SoarDatabaseRow row : path) {
+							newPath.add(row);
+						}
+					}
+					newPath.add(parent);
+					if (parent.getTable() == type) {
+						Collections.reverse(newPath);
+						return newPath;
+					}
+					paths.add(newPath);
+				}
+			}
+		}
+		return null;
+	}
+	
 	public SoarDatabaseRow getTopLevelRow() {
 		return getAncestorRow(null);
 	}
 	
-	
 	public ArrayList<ISoarDatabaseTreeItem> getDescendantsOfType(Table type) {
-		return getDescendantsOfType(type, new HashSet<ISoarDatabaseTreeItem>());
+		HashSet<Table> types = new HashSet<Table>();
+		types.add(type);
+		return getDescendantsOfTypes(types, new HashSet<ISoarDatabaseTreeItem>());
 	}
 	
-	private ArrayList<ISoarDatabaseTreeItem> getDescendantsOfType(Table type, HashSet<ISoarDatabaseTreeItem> visitedRows) {
+	public ArrayList<ISoarDatabaseTreeItem> getDescendantsOfTypes(HashSet<Table> types) {
+		return getDescendantsOfTypes(types, new HashSet<ISoarDatabaseTreeItem>());
+	}
+	
+	private ArrayList<ISoarDatabaseTreeItem> getDescendantsOfTypes(HashSet<Table> types, HashSet<ISoarDatabaseTreeItem> visitedRows) {
 		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		
 		ArrayList<ISoarDatabaseTreeItem> children = getChildren(false, true, false, true, false, true);
@@ -695,9 +809,9 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 				
 				if (child instanceof SoarDatabaseRow) {
 					SoarDatabaseRow childRow = (SoarDatabaseRow) child;
-					ArrayList<ISoarDatabaseTreeItem> temp = childRow.getDescendantsOfType(type, visitedRows);
+					ArrayList<ISoarDatabaseTreeItem> temp = childRow.getDescendantsOfTypes(types, visitedRows);
 					ret.addAll(temp);
-					if (childRow.getTable() == type) {
+					if (types.contains(childRow.getTable())) {
 						ret.add(childRow);
 					}
 				}
@@ -817,7 +931,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return ret;
 	}
 
-	// Create a new undirected join entry between this row and the other row.
+	/**
+	 * Creates a new undirected join entry between two database rows.
+	 * @param first
+	 * @param second
+	 * @param db
+	 */
 	public static void joinRows(SoarDatabaseRow first, SoarDatabaseRow second,
 			SoarDatabaseConnection db) {
 
@@ -1438,6 +1557,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		directedJoinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_INTEGERS);
 		directedJoinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_FLOATS);
 		directedJoinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_STRINGS);
+		directedJoinTables(Table.PROBLEM_SPACES, Table.PROBLEM_SPACES); // Superstate relationships
 
 		// rule structure
 		addParent(Table.CONDITIONS, Table.RULES);
@@ -1691,24 +1811,36 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	public static boolean rowsAreJoined(SoarDatabaseRow first,
 			SoarDatabaseRow second, SoarDatabaseConnection db) {
 
+		boolean ret = false;
+		
 		String joinTableName = joinTableName(first.table, second.table);
 		if (joinTableName == null) {
 			// The tables are not joined.
-			return false;
+			return ret;
 		}
 		
 		Table[] orderedTables = orderJoinedTables(first.table, second.table);
 		String firstTableIdName = orderedTables[0] == first.table ? "first_id" : "second_id";
-		String secondTableIdName = orderedTables[0] == second.table ? "first_id" : "second_id";
-		
-		String sql = "select * from " + joinTableName + " where " + firstTableIdName + "=? and " + secondTableIdName + "=?";
+		String secondTableIdName = orderedTables[0] == first.table ? "second_id" : "first_id";
 
+		boolean sameTable = first.getTable() == second.getTable();
+
+		String sql = null;
+
+		if (!sameTable) {
+			sql = "select * from " + joinTableName + " where " + firstTableIdName + "=? and " + secondTableIdName + "=?";
+		} else {
+			sql = "select * from " + joinTableName + " where (" + firstTableIdName + "=? and " + secondTableIdName + "=?) or (" + firstTableIdName + "=? and " + secondTableIdName + "=?)";
+		}
 		StatementWrapper ps = db.prepareStatement(sql);
-		boolean ret = false;
-		
+
 		try {
 			ps.setInt(1, first.id);
 			ps.setInt(2, second.id);
+			if (sameTable) {
+				ps.setInt(3, second.id);
+				ps.setInt(4, first.id);
+			}
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
 				ret = true;
@@ -1796,7 +1928,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 
 	public IEditorInput getEditorInput() {
-		return new SoarDatabaseEditorInput(this);
+		if (editorInput == null) {
+			editorInput = new SoarDatabaseEditorInput(this);
+		}
+		return editorInput;
 	}
 
 	public boolean exists() {
@@ -1844,7 +1979,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			StatementWrapper ps = db.prepareStatement(sql);
 			ps.setString(1, text);
 			ps.setInt(2, id);
+			boolean eventsWereSuppresed = db.getSupressEvents();
+			db.setSupressEvents(true);
 			ps.execute();
+			db.setSupressEvents(eventsWereSuppresed);
+			db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED, this));
 		}
 	}
 
@@ -1912,8 +2051,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 						e.printStackTrace();
 					}
 					db.setSupressEvents(eventsWereSupresssed);
-					db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
-
+					db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED, this));
 				} catch (ParseException e) {
 					// e.printStackTrace();
 					String message = e.getLocalizedMessage();
