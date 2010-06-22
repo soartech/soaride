@@ -994,6 +994,9 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		if (!tablesAreDirectedJoined(parent.getTable(), child.getTable())) {
 			return;
 		}
+		if (rowsAreDirectedJoined(parent, child, parent.getDatabaseConnection())) {
+			return;
+		}
 		String joinTable = directedJoinTableName(parent.getTable(), child.getTable());
 		String sql = "insert into " + joinTable + " (parent_id, child_id) values (?,?)";
 		StatementWrapper ps = db.prepareStatement(sql);
@@ -1800,12 +1803,9 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	/**
 	 * Determine if the two rows are joined (undirected).
 	 * 
-	 * @param first
-	 *            The first row.
-	 * @param second
-	 *            The second row.
-	 * @param db
-	 *            The database connection.
+	 * @param first The first row.
+	 * @param second The second row.
+	 * @param db The database connection.
 	 * @return True if the rows are joined, otherwise false.
 	 */
 	public static boolean rowsAreJoined(SoarDatabaseRow first,
@@ -1841,6 +1841,44 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 				ps.setInt(3, second.id);
 				ps.setInt(4, first.id);
 			}
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				ret = true;
+			}
+			ps.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return ret;
+	}
+	
+	/**
+	 * Determine if the two rows are joined (undirected).
+	 * 
+	 * @param parent The parent row.
+	 * @param child The child row.
+	 * @param db The database connection.
+	 * @return True if the rows are joined, otherwise false.
+	 */
+	public static boolean rowsAreDirectedJoined(SoarDatabaseRow parent,
+			SoarDatabaseRow child, SoarDatabaseConnection db) {
+
+		boolean ret = false;
+		
+		if (!tablesAreDirectedJoined(parent.getTable(), child.getTable())) {
+			return false;
+		}
+		
+		String tableName = directedJoinTableName(parent.getTable(), child.getTable());
+
+		String sql = "select * from " + tableName + " where parent_id=? and child_id=?";
+		
+		StatementWrapper ps = db.prepareStatement(sql);
+
+		try {
+			ps.setInt(1, parent.id);
+			ps.setInt(2, child.id);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
 				ret = true;
@@ -1951,7 +1989,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	
 	public String getText() {
 		String ret = null;
-		if (table == Table.RULES) {
+		if (table == Table.RULES || table == Table.AGENTS) {
 			String sql = "select (raw_text) from " + table.tableName()
 					+ " where id=?";
 			StatementWrapper ps = db.prepareStatement(sql);
@@ -2082,6 +2120,14 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			} else {
 				System.out.println("Production doesn't begin with \"sp {\" or doesn't end with \"}\"");
 			}
+		} else if (table == Table.AGENTS) {
+			// Update raw text.
+			String sql = "update " + table.tableName() + " set raw_text=? where id=?";
+			StatementWrapper ps = db.prepareStatement(sql);
+
+			ps.setString(1, text);
+			ps.setInt(2, id);
+			ps.execute();
 		}
 	}
 	

@@ -25,7 +25,7 @@ public class SoarDatabaseRowStorage implements IStorage {
 	@Override
 	public InputStream getContents() throws CoreException {
 		Table rowTable = row.getTable();
-		if (rowTable == Table.RULES) {
+		if (rowTable == Table.RULES || rowTable == Table.AGENTS) {
 			return new ByteArrayInputStream(row.getText().getBytes());
 		}
 		else if (rowTable == Table.OPERATORS) {

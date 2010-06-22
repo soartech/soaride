@@ -1,7 +1,8 @@
 create table if not exists agents
 (
 id integer primary key,
-name varchar(100) not null
+name varchar(100) not null,
+raw_text text
 );
 
 create table if not exists problem_spaces

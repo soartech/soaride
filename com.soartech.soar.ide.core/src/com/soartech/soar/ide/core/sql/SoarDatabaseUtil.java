@@ -1,12 +1,9 @@
 package com.soartech.soar.ide.core.sql;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -14,7 +11,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.sun.imageio.plugins.common.InputStreamAdapter;
 
 public class SoarDatabaseUtil {
 	
@@ -177,41 +173,33 @@ public class SoarDatabaseUtil {
 	public static void alertError(String error, String filename, int line) {
 		System.out.println("Error: " + error + ", " + filename + ":" + line);
 	}
-	
-public static String sqlDump(SoarDatabaseConnection conn) {
-		
-	final boolean debug = false;
-		
+
+	public static String sqlDump(SoarDatabaseConnection conn) {
+
+		final boolean debug = false;
+
 		StringBuffer buff = new StringBuffer();
 		try {
 			DatabaseMetaData md = conn.getConnectionMetadata();
-			ResultSet tables = md.getTables(null, null, "%", null); // return all tables
-			String[] tableColumns = {
-					"TABLE_CAT",
-					"TABLE_SCHEM",
-					"TABLE_NAME",
-					"TABLE_TYPE",
-					"REMARKS",
-					"TYPE_CAT",
-					"TYPE_SCHEM",
-					"TYPE_NAME",
-					"SELF_REFERENCING_COL_NAME",
-					"REF_GENERATION"
-			};
+			ResultSet tables = md.getTables(null, null, "%", null); // return
+																	// all
+																	// tables
+			String[] tableColumns = { "TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "TABLE_TYPE", "REMARKS", "TYPE_CAT", "TYPE_SCHEM", "TYPE_NAME", "SELF_REFERENCING_COL_NAME", "REF_GENERATION" };
 			while (tables.next()) {
-				if (debug) System.out.println("\n***NEW TABLE***\n");
+				if (debug)
+					System.out.println("\n***NEW TABLE***\n");
 				/*
-				for (String tableColumn : tableColumns) {
-					String value = tables.getString(tableColumn);
-					System.out.println(tableColumn + ": " + value);
-				}
-				*/
-				
+				 * for (String tableColumn : tableColumns) { String value =
+				 * tables.getString(tableColumn); System.out.println(tableColumn
+				 * + ": " + value); }
+				 */
+
 				String tableName = tables.getString("TABLE_NAME");
 				String tableType = tables.getString("TABLE_TYPE");
-				
+
 				if (tableType.equalsIgnoreCase("TABLE")) {
-					if (debug || true) System.out.println(tableName);
+					if (debug || true)
+						System.out.println(tableName);
 					String sql = "select * from " + tableName;
 					ResultSet rs = conn.getResultSet(sql);
 					ResultSetMetaData rsmd = rs.getMetaData();
@@ -221,15 +209,18 @@ public static String sqlDump(SoarDatabaseConnection conn) {
 						String columnName = rsmd.getColumnName(column);
 						int columnType = rsmd.getColumnType(column);
 						String columnTypeName = rsmd.getColumnTypeName(column);
-						if (debug) System.out.println(columnName + " (" + columnType + ", " + columnTypeName + ")");
+						if (debug)
+							System.out.println(columnName + " (" + columnType + ", " + columnTypeName + ")");
 						columnTypes.add(new Integer(columnType));
 						columnNames.add(columnName);
 					}
-					
-					// Don't need to do this now that SoarDatabaseConnection.loadDatabaseConnection()
+
+					// Don't need to do this now that
+					// SoarDatabaseConnection.loadDatabaseConnection()
 					// handles building the schema.
 					// buff.append("drop table if exists " + tableName + ";\n");
-					// buff.append("create table if not exists " + tableName + " (\n");
+					// buff.append("create table if not exists " + tableName +
+					// " (\n");
 					ArrayList<String> columnTypeNames = new ArrayList<String>();
 					for (int column = 0; column < columnNames.size(); ++column) {
 						String columnName = columnNames.get(column);
@@ -239,8 +230,7 @@ public static String sqlDump(SoarDatabaseConnection conn) {
 							type = "integer primary key";
 						} else if (columnName.toLowerCase().endsWith("_id")) {
 							type = "integer";
-						} else if (columnName.toLowerCase().startsWith("has_")
-								|| columnName.toLowerCase().startsWith("is_")) {
+						} else if (columnName.toLowerCase().startsWith("has_") || columnName.toLowerCase().startsWith("is_")) {
 							type = "boolean";
 						} else if (columnName.equalsIgnoreCase("raw_text")) {
 							type = "text";
@@ -248,18 +238,14 @@ public static String sqlDump(SoarDatabaseConnection conn) {
 							type = "varchar(100)";
 						}
 						/*
-						buff.append(columnName + " " + type);
-						if (column + 1 < columnNames.size()) {
-							buff.append(",\n");
-						} else {
-							buff.append("\n");
-						}
-						*/
+						 * buff.append(columnName + " " + type); if (column + 1
+						 * < columnNames.size()) { buff.append(",\n"); } else {
+						 * buff.append("\n"); }
+						 */
 						columnTypeNames.add(type);
 					}
-					//buff.append(");\n");
-					
-					
+					// buff.append(");\n");
+
 					while (rs.next()) {
 						buff.append("insert into " + tableName + " (");
 						for (int i = 0; i < columnNames.size(); ++i) {
@@ -269,17 +255,17 @@ public static String sqlDump(SoarDatabaseConnection conn) {
 							}
 						}
 						buff.append(") values (");
-						if (debug) System.out.println();
+						if (debug)
+							System.out.println();
 						for (int i = 0; i < columnNames.size(); ++i) {
 							String columnName = columnNames.get(i);
 							Object value = rs.getObject(columnName);
-							if (debug) System.out.println(columnName + ": " + (value == null ? "NULL" : value + " (" + value.getClass().getSimpleName()) + ")");
+							if (debug)
+								System.out.println(columnName + ": " + (value == null ? "NULL" : value + " (" + value.getClass().getSimpleName()) + ")");
 							String valueSql = (value == null ? "NULL" : "" + value);
-							if (value != null
-									&& (columnTypeNames.get(i).equalsIgnoreCase("text")
-									|| columnTypeNames.get(i).startsWith("varchar"))) {
+							if (value != null && (columnTypeNames.get(i).equalsIgnoreCase("text") || columnTypeNames.get(i).startsWith("varchar"))) {
 								buff.append("\"" + valueSql + "\"");
-							} else { 
+							} else {
 								buff.append("" + valueSql);
 							}
 							if (i + 1 < columnNames.size()) {
@@ -293,7 +279,7 @@ public static String sqlDump(SoarDatabaseConnection conn) {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		return buff.toString();
 	}
 }
