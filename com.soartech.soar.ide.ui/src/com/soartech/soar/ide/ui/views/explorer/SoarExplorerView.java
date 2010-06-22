@@ -38,7 +38,6 @@ import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -79,6 +78,7 @@ import com.soartech.soar.ide.ui.actions.explorer.AddRuleTemplateChildrenAction;
 import com.soartech.soar.ide.ui.actions.explorer.AddSubstateAction;
 import com.soartech.soar.ide.ui.actions.explorer.ExportSoarDatabaseRowAction;
 import com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapAction;
+import com.soartech.soar.ide.ui.actions.explorer.GenerateProjectStructureAction;
 import com.soartech.soar.ide.ui.actions.explorer.RemoveJoinFromParentAction;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
 import com.soartech.soar.ide.ui.views.explorer.DragAndDrop.SoarDatabaseExplorerDragAdapter;
@@ -153,6 +153,9 @@ public class SoarExplorerView extends ViewPart
 	private ArrayList<Action> actionsForRow(SoarDatabaseRow row, TreeSelection selection) {
 		ArrayList<Action> ret = new ArrayList<Action>();
 		Table table = row.getTable();
+		if (table == Table.AGENTS) {
+			ret.add(new GenerateProjectStructureAction(row));
+		}
 		if (table == Table.PROBLEM_SPACES) {
 			ret.add(new AddChildRowAction(row, Table.OPERATORS, row, tree, false));
 			ret.add(new AddOperatorTemplateChildrenAction(row, tree));
@@ -434,6 +437,12 @@ public class SoarExplorerView extends ViewPart
 			} else if (selectedTable == Table.PROBLEM_SPACES) {
 				try {
 					SoarUiModelTools.showProblemSpaceInEditor(page, selectedRow);
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
+			} else if (selectedTable == Table.AGENTS) {
+				try {
+					SoarUiModelTools.showAgentInEditor(page, selectedRow);
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}

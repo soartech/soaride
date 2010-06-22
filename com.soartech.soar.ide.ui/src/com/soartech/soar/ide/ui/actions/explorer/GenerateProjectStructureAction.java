@@ -1,0 +1,430 @@
+package com.soartech.soar.ide.ui.actions.explorer;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.ListDialog;
+
+import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
+import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.TraversalUtil;
+import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.Triple;
+import com.soartech.soar.ide.ui.views.SoarLabelProvider;
+
+public class GenerateProjectStructureAction extends Action {
+	
+	SoarDatabaseRow row;
+	Shell shell;
+	static final boolean debug = true;
+	
+	private void debug(String message) {
+		if (!debug) return;
+		System.out.println(message);
+	}
+	
+	public GenerateProjectStructureAction(SoarDatabaseRow row) {
+		super ("Generate project stucture");
+		assert row.getTable() == Table.AGENTS;
+		this.row = row;
+		shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
+	}
+	
+	@Override
+	public void run() {
+		super.run();
+		
+		debug("GenerateProjectStructureAction.run()");
+		
+		HashMap<String, SoarDatabaseRow> problemSpaces = TraversalUtil.getProblemSpacesMap(row);
+		HashMap<String, SoarDatabaseRow> operators = TraversalUtil.getOperatorsMap(row);
+		
+		debug("HashMap<String, SoarDatabaseRow> problemSpaces = " + problemSpaces);
+		debug("HashMap<String, SoarDatabaseRow> operators = " + operators);
+		
+		ArrayList<ISoarDatabaseTreeItem> rules = TraversalUtil.getRelatedRules(row);
+		
+		debug("ArrayList<ISoarDatabaseTreeItem> rules = " + rules);
+		debug("ITERATE OVER RULES");
+		for (ISoarDatabaseTreeItem item : rules) {
+			assert item instanceof SoarDatabaseRow;
+			SoarDatabaseRow rule = (SoarDatabaseRow) item;
+			assert rule.getTable() == Table.RULES;
+			
+			debug("RULE: " + rule);
+			
+			ArrayList<Triple> triples = TraversalUtil.getTriplesForRule(rule);
+			
+			debug("ArrayList<Triple> triples = " + triples);
+			
+			// a collection of triples whose variable is the current state.
+			ArrayList<Triple> stateTriples = new ArrayList<Triple>();
+			ArrayList<String> stateVariables = new ArrayList<String>();
+			
+			// a collection of variables which are values in a triple whose attribute is "operator".
+			ArrayList<String> operatorVariables = new ArrayList<String>();
+			
+			// Gather state and operator variables
+			for (Triple triple : triples) {
+				// If the attribute contains a 'keyword', add variable to list
+				if (triple.hasState || stateVariables.contains(triple.variable.name)) {
+					
+					debug("Triple has state: " + triple);
+					
+					stateTriples.add(triple);
+					stateVariables.add(triple.variable.name);
+				}
+				if (triple.attribute.equals("operator")) {
+					
+					debug("Triple has operator: " + triple);
+					
+					operatorVariables.add(triple.valueAsString());
+				}
+			}
+			
+			// a collection of variables which are values in a triple whose attribute is "operator".
+			ArrayList<String> superstateVariables = new ArrayList<String>();
+			
+			// Gather superstate variables
+			for (Triple triple : stateTriples) {
+				if (triple.attributeIsConstant()) {
+					if (triple.attribute.equals("superstate")) {
+						if (triple.valueIsVariable()) {
+							superstateVariables.add(triple.valueAsString());
+							
+							debug("Triple has superstate: " + triple);
+							
+						}
+					}
+				}
+			}
+			
+			// TODO
+			// Find all triples whose variable is in operatorVariables, whose attribute is "name", and whose value is a constant.
+			// The collection of all these constants are the names of related operators.
+			// For each operator name, add this rule to the operator.
+			// Either find an existing operator of the appropriate name, or create one from scratch.
+			// Even better is to find an operator of the right name that is already joined to this rule.
+			// If there is more than one operator with that name (shouldn't happen), signal an error.
+			// Confirm with the user before making any changes to the database.
+			
+			debug("FIND OPERATORS");
+			
+			ArrayList<String> relatedOperatorNames = new ArrayList<String>();
+			for (Triple triple : triples) {
+				if (operatorVariables.contains(triple.variable.name)) {
+					if (triple.attribute.equals("name")) {
+						if (triple.valueIsConstant()) {
+							debug("Triple has operator: " + triple);
+							relatedOperatorNames.add(triple.valueAsString());
+						}
+					}
+				}
+			}
+			for (String operatorName : relatedOperatorNames) {
+				SoarDatabaseRow operator = operators.get(operatorName);
+				if (operator != null) {
+					// Operator with the right name exists
+					proposeJoin(rule, operator);
+				} else {
+					// Operator with the right name doesn't exist
+					proposeCreateAndJoin(rule, Table.OPERATORS, operatorName);
+				}
+			}
+			// update operators
+			operators = TraversalUtil.getOperatorsMap(row);
+			
+			debug("Updated operators: " + operators);
+			
+			// TODO
+			// Find all triples whose variable is in superstateVariables, whose attribute is "name", and whose value is a constant.
+			// The collection of all these constants are the names of related states.
+			// If this rule has no related operators: for each state name, add this rule to the state.
+			// Either find an existing state of the appropriate name, or create one from scratch.
+			// Even better is to find a state of the right name that is already joined to this rule.
+			// If there is more than one state with that name (shouldn't happen), signal an error.
+			// Confirm with the user before making any changes to the database.
+			debug("FIND PROBLEM SPACES");
+			ArrayList<String> relatedStateNames = new ArrayList<String>();
+			for (Triple triple : triples) {
+				if (stateVariables.contains(triple.variable.name)) {
+					if (triple.attribute.equals("name")) {
+						if (triple.valueIsConstant()) {
+							debug("Triple has constant: " + triple);
+							relatedStateNames.add(triple.valueAsString());
+						}
+					}
+				}
+			}
+			if (relatedOperatorNames.size() == 0) {
+				for (String stateName : relatedStateNames) {
+					SoarDatabaseRow state = problemSpaces.get(stateName);
+					if (state != null) {
+						// Operator with the right name exists
+						proposeJoin(rule, state);
+					} else {
+						// Operator with the right name doesn't exist
+						proposeCreateAndJoin(rule, Table.PROBLEM_SPACES, stateName);
+					}
+				}
+			} else {
+				for (String relatedOperatorName : relatedOperatorNames) {
+					SoarDatabaseRow relatedOperator = operators.get(relatedOperatorName);
+					if (relatedOperator != null) {
+						for (String stateName : relatedStateNames) {
+							SoarDatabaseRow state = problemSpaces.get(stateName);
+							if (state != null) {
+								// Operator with the right name exists
+								proposeJoin(relatedOperator, state);
+							} else {
+								// Operator with the right name doesn't exist
+								proposeCreateAndJoin(relatedOperator, Table.PROBLEM_SPACES, stateName);
+							}							
+						}
+					}
+				}
+			}
+			// update problem spaces
+			problemSpaces = TraversalUtil.getProblemSpacesMap(row);
+			debug("Updates problem spaces: " + problemSpaces);
+			
+			// TODO
+			// Find all triples which have a sueprstate variable as their variable, "name" as their attribute, and a constant as their value.
+			// The value of each of those triples are the related superstates.
+			// For each related state (see above), for each superstate, if the states are not joined, propose a join.
+			// Confirm with the user before making any changes to the database.
+			debug("FIND SUPERSTATES");
+			ArrayList<String> relatedSuperstateNames = new ArrayList<String>();
+			for (Triple triple : triples) {
+				if (superstateVariables.contains(triple.variable.name)) {
+					if (triple.attribute.equals("name")) {
+						if (triple.valueIsConstant()) {
+							debug("Triple has superstate: " + triple);
+							relatedSuperstateNames.add(triple.valueAsString());
+						}
+					}
+				}
+			}
+			for (String relatedStateName : relatedStateNames) {
+				SoarDatabaseRow relatedState = problemSpaces.get(relatedStateName);
+				if (relatedState != null) {
+					for (String relatedSuperstateName : relatedSuperstateNames) {
+						SoarDatabaseRow superstate = problemSpaces.get(relatedSuperstateName);
+						if (superstate != null) {
+							proposeDirectedJoin(relatedState, superstate);
+						} else {
+							proposeCreateAndDirectedJoin(relatedState, Table.PROBLEM_SPACES, relatedSuperstateName);
+						}
+					}
+				}
+			}
+
+			/*
+			// If variable is in a list, and attribute matches a 'keyword',
+			// add to a proposal.
+			HashSet<String> stateNames = new HashSet<String>();
+			for (Triple triple : triples) {
+				String variable = triple.variable.name;
+				String attribute = triple.attribute;
+
+				if (stateVariables.contains(variable) && attribute.equals("name")) {
+					String stateName = triple.valueAsString();
+					proposeAddRuleToState(row, stateName);
+					stateNames.add(stateName);
+				}
+				else if (operatorVariables.contains(variable) && attribute.equals("name")) {
+					proposeAddRuleToOperator(row, triple.valueAsString());
+				}
+			}
+			
+			for (Triple triple : triples) {
+				String variable = triple.variable.name;
+				String attribute = triple.attribute;
+				if (stateVariables.contains(variable) && attribute.equals("superstate")) {
+					proposeAddStateToSuperstate(row, stateNames, triple.valueAsString());
+				}
+			}
+			*/
+		}
+	}
+	
+	private void proposeJoin(SoarDatabaseRow first, SoarDatabaseRow second) {
+		
+		debug("Proposing join. First: " + first + ", second: " + second);
+		
+		if (SoarDatabaseRow.rowsAreJoined(first, second, first.getDatabaseConnection())) {
+			return;
+		}
+		String title = "Join project elements?";
+		String message = "Join the " + first.getTable().englishName() + " \"" + first.getName() + "\" to the " + second.getTable().englishName() + " \"" + second.getName() + "\"?";
+		String[] options = { "OK", "Cancel" };
+		Image image = MessageDialog.getDefaultImage();
+		MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, options, 0);
+		int result = dialog.open();
+		if (result == 0) {
+			SoarDatabaseRow.joinRows(first, second, first.getDatabaseConnection());
+		}
+	}
+	
+	/**
+	 * 
+	 * @param first Child row
+	 * @param second Parent row
+	 */
+	private void proposeDirectedJoin(SoarDatabaseRow first, SoarDatabaseRow second) {
+		debug("Proposing directed join. First: " + first + ", second: " + second);
+		if (SoarDatabaseRow.rowsAreDirectedJoined(second, first, first.getDatabaseConnection())) {
+			return;
+		}
+		String title = "Join project elements?";
+		String message = "Join the " + first.getTable().englishName() + " \"" + first.getName() + "\" to the " + second.getTable().englishName() + " \"" + second.getName() + "\"?";
+		String[] options = { "OK", "Cancel" };
+		Image image = MessageDialog.getDefaultImage();
+		MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, options, 0);
+		int result = dialog.open();
+		if (result == 0) {
+			SoarDatabaseRow.directedJoinRows(second, first, first.getDatabaseConnection());
+		}
+	}
+	
+	private void proposeCreateAndJoin(SoarDatabaseRow first, Table type, String second) {
+		debug("Proposing create and join. First: " + first + ", second: " + second);
+		String title = "Create and join project elements?";
+		String message = "Create a " + type.englishName() + " \"" + second + "\" and join the " + first.getTable().englishName() + " \"" + first.getName() + "\" to it?";
+		String[] options = { "OK", "Cancel" };
+		Image image = MessageDialog.getDefaultImage();
+		MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, options, 0);
+		int result = dialog.open();
+		if (result == 0) {
+			SoarDatabaseRow agent = first.getTopLevelRow();
+			SoarDatabaseRow newRow = agent.createChild(type, second);
+			SoarDatabaseRow.joinRows(first, newRow, first.getDatabaseConnection());
+		}
+	}
+	
+	/**
+	 * 
+	 * @param first The existing child row.
+	 * @param type The type of parent row to create.
+	 * @param second The name of the parent row to create.
+	 */
+	private void proposeCreateAndDirectedJoin(SoarDatabaseRow first, Table type, String second) {
+		debug("Proposing create and directed join. First: " + first + ", second: " + second);
+		String title = "Create and join project elements?";
+		String message = "Create a " + type.englishName() + " \"" + second + "\" and join the " + first.getTable().englishName() + " \"" + first.getName() + "\" to it?";
+		String[] options = { "OK", "Cancel" };
+		Image image = MessageDialog.getDefaultImage();
+		MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, options, 0);
+		int result = dialog.open();
+		if (result == 0) {
+			SoarDatabaseRow agent = first.getTopLevelRow();
+			SoarDatabaseRow newRow = agent.createChild(type, second);
+			SoarDatabaseRow.directedJoinRows(newRow, first, first.getDatabaseConnection());
+		}
+	}
+	
+	/*
+	 * 
+	 */
+	
+	private void proposeAddRuleToState(SoarDatabaseRow rule, String stateName) {
+		SoarDatabaseRow state = getRowOfTypeNamed(Table.PROBLEM_SPACES, stateName);
+		if (!SoarDatabaseRow.rowsAreJoined(rule, state, rule.getDatabaseConnection())) {
+			proposeJoin(rule, state);
+		}
+	}
+	
+	private void proposeAddStateToSuperstate(SoarDatabaseRow rule, HashSet<String> stateNames, String superstateName) {
+		
+		// First, find the states currently joined to the operator.
+		ArrayList<ISoarDatabaseTreeItem> states = rule.getJoinedRowsFromTable(Table.PROBLEM_SPACES);
+		
+		// If there are none, don't propose a join.
+		if (states.size() == 0) return;
+		
+		// If there is one whose name is in stateNames, propose that join.
+		// If there is more than one, choose from those states.
+		ArrayList<SoarDatabaseRow> problemSpaces = new ArrayList<SoarDatabaseRow>();
+		for (ISoarDatabaseTreeItem item : states) {
+			assert item instanceof SoarDatabaseRow;
+			SoarDatabaseRow state = (SoarDatabaseRow) item;
+			assert state.getTable() == Table.PROBLEM_SPACES;
+			String stateName = state.getName();
+			if (stateNames.contains(stateName)) {
+				problemSpaces.add(state);
+			}
+		}
+		
+		if (problemSpaces.size() == 1) {
+			SoarDatabaseRow state = problemSpaces.get(0);
+			SoarDatabaseRow superstate = getRowOfTypeNamed(Table.PROBLEM_SPACES, superstateName);
+			proposeJoin(state, superstate);
+		} else if (problemSpaces.size() > 1) {
+			SoarDatabaseRow problemSpace = getRowFromList(problemSpaces, Table.PROBLEM_SPACES);
+			SoarDatabaseRow superstate = getRowOfTypeNamed(Table.PROBLEM_SPACES, superstateName);
+			proposeJoin(problemSpace, superstate);
+		} else {
+			SoarDatabaseRow problemSpace = getRowFromList(states, Table.PROBLEM_SPACES);
+			SoarDatabaseRow superstate = getRowOfTypeNamed(Table.PROBLEM_SPACES, superstateName);
+			proposeJoin(problemSpace, superstate);
+		}
+	}
+	
+	private SoarDatabaseRow getRowFromList(ArrayList<?> list, Table type) {
+		String title = "Select " + type.englishName();
+		String message = null;
+		Object[] selectedItems = openListDialog(list, title, message);
+		if (selectedItems.length > 0) {
+			return (SoarDatabaseRow) selectedItems[0];
+		}
+		return null;
+	}
+	
+	private void proposeAddRuleToOperator(SoarDatabaseRow rule, String operatorName) {
+		SoarDatabaseRow operator = getRowOfTypeNamed(Table.OPERATORS, operatorName);
+		proposeJoin(rule, operator);
+	}
+		
+	private SoarDatabaseRow getRowOfTypeNamed(Table type, String name) {
+		ArrayList<ISoarDatabaseTreeItem> rowsOfType = row.getJoinedRowsFromTable(type);
+		ArrayList<SoarDatabaseRow> rowsWithName = new ArrayList<SoarDatabaseRow>();
+		for (ISoarDatabaseTreeItem item : rowsOfType) {
+			assert item instanceof SoarDatabaseRow;
+			SoarDatabaseRow row = (SoarDatabaseRow) item;
+			assert row.getTable() == type;
+			if (row.getName().equals(name)) {
+				rowsWithName.add(row);
+			}
+		}
+		if (rowsWithName.size() == 1) {
+			return rowsWithName.get(0);
+		}
+		
+		// TODO: Let the user choose from the ArrayList through a ListDialog
+		Object[] selectedItems = openListDialog(rowsWithName, "Select " + type.englishName(), null);
+		if (selectedItems.length > 0) {
+			return (SoarDatabaseRow) selectedItems[0];
+		}
+		
+		return null;
+	}
+	
+	private Object[] openListDialog(ArrayList<?> items, String title, String message) {
+		ListDialog dialog = new ListDialog(shell);
+		dialog.setContentProvider(new ArrayContentProvider());
+		dialog.setLabelProvider(SoarLabelProvider.createFullLabelProvider(null));
+		dialog.setTitle(title);
+		dialog.setMessage(message);
+		dialog.setInput(items);
+		dialog.open();
+		Object[] result = dialog.getResult();
+		return result;
+	}
+}

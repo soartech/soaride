@@ -12,140 +12,16 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.PlatformUI;
 
-import com.soartech.soar.ide.core.model.ast.Constant;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
+import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.TraversalUtil;
+import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.Triple;
+import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.Variable;
 import com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapEditor;
 
 public class GenerateDatamapAction extends Action {
 
-	public class Triple {
-
-		// This is a String that begins with '<' and ends with '>'.
-		public Variable variable;
-
-		// This is a String. If it begins with '<' and ends with '>',
-		// it's a variable. Otherwise, it's a constant.
-		public String attribute;
-
-		// This is a list of all datamap nodes that the triple matches against.
-		// It gets filled as the existing datamap is traversed and new
-		// datamap nodes are propsed and added.
-		public ArrayList<SoarDatabaseRow> nodes = new ArrayList<SoarDatabaseRow>();
-
-		/**
-		 * @return True if the attribute is a variable
-		 * (it begins with '<' and ends with '>'), false
-		 * if it's a constant.
-		 */
-		public boolean attributeIsVariable() {
-			int lastIndex = attribute.length() - 1;
-			return attribute.indexOf('<') == 0 && attribute.lastIndexOf('>') == lastIndex;
-		}
-
-		public boolean attributeIsConstant() {
-			return !attributeIsVariable();
-		}
-
-		/**
-		 * @return True if the value is a variable
-		 * (it's a String that begins with '<' and ends with '>'), false
-		 * otherwise.
-		 */
-		public boolean valueIsVariable() {
-			if (!valueIsString()) {
-				return false;
-			}
-			String stringValue = (String) value;
-			int lastIndex = stringValue.length() - 1;
-			return stringValue.indexOf('<') == 0 && stringValue.lastIndexOf('>') == lastIndex;
-		}
-
-		// This is either a String, Integer, or Float.
-		public Object value;
-
-		public boolean valueIsString() {
-			return value.getClass() == String.class;
-		}
-
-		public boolean valueIsInteger() {
-			return value.getClass() == Integer.class;
-		}
-
-		public boolean valueIsFloat() {
-			return value.getClass() == Float.class;
-		}
-
-		public Triple(String variable, String attribute, int value, SoarDatabaseRow rule) {
-			init(variable, attribute, new Integer(value), rule);
-		}
-
-		public Triple(String variable, String attribute, float value, SoarDatabaseRow rule) {
-			init(variable, attribute, new Float(value), rule);
-		}
-
-		public Triple(String variable, String attribute, String value, SoarDatabaseRow rule) {
-			init(variable, attribute, value, rule);
-		}
-
-		protected void init(String variable, String attribute, Object value, SoarDatabaseRow rule) {
-			this.variable = new Variable(variable, rule);
-			this.attribute = attribute;
-			this.value = value;
-			assert rule.getTable() == Table.RULES;
-			assert valueIsString() || valueIsInteger() || valueIsFloat();
-		}
-
-		@Override
-		public String toString() {
-			return "(" + variable.name + " ^" + attribute + " " + value.toString() + ")";
-		}
-	}
-
-	public class Variable {
-
-		// e.g. "<s>"
-		public String name;
-
-		public SoarDatabaseRow rule;
-
-		public Variable(String name, SoarDatabaseRow rule) {
-			assert rule == null || rule.getTable() == Table.RULES;
-			this.name = name;
-			this.rule = rule;
-		}
-
-		@Override
-		public int hashCode() {
-			if (rule != null) {
-				return name.hashCode() + rule.hashCode();
-			}
-			return name.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof Variable) {
-				Variable other = (Variable) obj;
-				if (this.rule == null && other.rule == null) {
-					boolean ret = this.name.equals(other.name);
-					return ret;
-				}
-				boolean ret = this.name.equals(other.name) && this.rule.equals(other.rule);
-				return ret;
-			}
-			return false;
-		}
-
-		@Override
-		public String toString() {
-			if (rule != null) {
-				return name + " (" + rule.getName() + ")";
-			}
-			return name;
-		}
-	}
 
 	SoarDatabaseRow problemSpace;
 	TreeViewer tree;
@@ -174,12 +50,12 @@ public class GenerateDatamapAction extends Action {
 				if (item instanceof SoarDatabaseRow) {
 					assert ((SoarDatabaseRow) item).getTable() == Table.RULES;
 
-					ArrayList<Triple> triples = new ArrayList<Triple>();
 					SoarDatabaseRow row = (SoarDatabaseRow) item;
+					ArrayList<Triple> triples = TraversalUtil.getTriplesForRule(row);
 
 					// System.out.println("Visiting rule: " + row.getName());
 
-					visitRuleNode(row, triples, new StringBuffer(), new ArrayList<String>(), new StringBuffer(), false, false, false, row, 0);
+//					TraversalUtil.visitRuleNode(row, triples, new StringBuffer(), new ArrayList<String>(), new StringBuffer(), false, false, false, row, 0);
 
 					// debug
 					/*
@@ -224,8 +100,7 @@ public class GenerateDatamapAction extends Action {
 												assert secondRow.getTable() == Table.DATAMAP_IDENTIFIERS;
 												if (!SoarDatabaseRow.rowsAreJoined(firstRow, secondRow, firstRow.getDatabaseConnection())) {
 													// Propose joining rows.
-													// Only propse these joins
-													// once
+													// Only propse these joins once
 													String firstName = firstRow.getPathName();
 													String secondName = secondRow.getPathName();
 													if (firstName.compareTo(secondName) < 0) {
@@ -363,154 +238,5 @@ public class GenerateDatamapAction extends Action {
 		Table table = attribute.getTable();
 		return (table == Table.DATAMAP_STRINGS) || (table == Table.DATAMAP_ENUMERATIONS) || (table == Table.DATAMAP_IDENTIFIERS && triple.valueIsVariable())
 				|| (table == Table.DATAMAP_INTEGERS && triple.valueIsInteger()) || (table == Table.DATAMAP_FLOATS && triple.valueIsFloat());
-	}
-
-	private void visitRuleNode(SoarDatabaseRow row, ArrayList<Triple> triples, StringBuffer currentVariable, ArrayList<String> currentAttributes, StringBuffer currentValue, boolean testingAttribute,
-			boolean testingValue, boolean inDisjunctionTest, SoarDatabaseRow rule, int depth) {
-
-		// Variables to hold new variables, attributes or values.
-		String newVariable = null;
-		String newAttribute = null;
-		String newValue = null;
-
-		// Remember when we enter a disjunction test so that we can
-		// remove the 'inDisjunctionTest' flag when we're done.
-		boolean enteredDisjunctionTest = false;
-		boolean wasInDisjunctionTest = inDisjunctionTest;
-
-		// Switch on table value.
-		Table table = row.getTable();
-
-		// Possibly set flags
-		if (table == Table.ATTRIBUTE_TESTS || (table == Table.RHS_VALUES && !testingValue)) {
-			testingAttribute = true;
-		} else if (table == Table.VALUE_TESTS || table == Table.VALUE_MAKES) {
-			testingValue = true;
-		} else if (table == Table.DISJUNCTION_TESTS) {
-			inDisjunctionTest = true;
-			enteredDisjunctionTest = true;
-		}
-
-		// Possibly gather new variable or new value.
-		else if (table == Table.CONDITION_FOR_ONE_IDENTIFIERS || table == Table.VAR_ATTR_VAL_MAKES) {
-			newVariable = (String) row.getColumnValue("variable");
-		} else if (table == Table.SINGLE_TESTS) {
-			Boolean isConstant = ((Integer) row.getColumnValue("is_constant")) != 0;
-			if (!isConstant) {
-				String variable = (String) row.getColumnValue("variable");
-				if (testingAttribute) {
-					newAttribute = variable;
-				} else if (testingValue) {
-					newValue = variable;
-				}
-			}
-		} else if (table == Table.CONSTANTS) {
-			Integer constantType = (Integer) row.getColumnValue("constant_type");
-			if (constantType == Constant.FLOATING_CONST) {
-				Float floatingConst = (Float) row.getColumnValue("floating_const");
-				if (testingAttribute) {
-					newAttribute = "" + floatingConst;
-				} else if (testingValue) {
-					newValue = "" + floatingConst;
-				}
-			} else if (constantType == Constant.INTEGER_CONST) {
-				Integer integerConst = (Integer) row.getColumnValue("integer_const");
-				if (testingAttribute) {
-					newAttribute = "" + integerConst;
-				} else if (testingValue) {
-					newValue = "" + integerConst;
-				}
-			} else if (constantType == Constant.SYMBOLIC_CONST) {
-				String symbolicConst = (String) row.getColumnValue("symbolic_const");
-				if (testingAttribute) {
-					newAttribute = symbolicConst;
-				} else if (testingValue) {
-					newValue = symbolicConst;
-				}
-			}
-		} else if (table == Table.RHS_VALUES) {
-			boolean isVariable = ((Integer) row.getColumnValue("is_variable")) != 0;
-			if (isVariable) {
-				String variable = (String) row.getColumnValue("variable");
-				if (testingAttribute) {
-					newAttribute = variable;
-				} else if (testingValue) {
-					newValue = variable;
-				}
-			}
-		}
-
-		// Now we maybe have the new variable, attribute or value.
-		// Depending on parse state flags, update state and / or produce a new
-		// triple.
-		if (newVariable != null) {
-			currentVariable.replace(0, currentVariable.length(), newVariable);
-		} else if (newAttribute != null) {
-			if (currentAttributes.size() > 0 && !inDisjunctionTest) {
-				// Dot notation, add triple
-
-				// Make a new variable out of the current attribute.
-				String recentAttribute = currentAttributes.get(currentAttributes.size() - 1);
-				newVariable = "<_" + recentAttribute + ">";
-
-				// Create new triple using the current variable and attribute
-				// and the new variable
-				Triple newTriple = new Triple(currentVariable.toString(), recentAttribute, newVariable, rule);
-				triples.add(newTriple);
-
-				// Set current variable to the newly created variable.
-				currentVariable.replace(0, currentVariable.length(), newVariable);
-			}
-
-			// If we're not in a disjunction test, clear the attributes list
-			// before adding the new one
-			if (!inDisjunctionTest) {
-				currentAttributes.clear();
-			}
-
-			// Add new attribute to attributes list.
-			currentAttributes.add(newAttribute);
-
-		} else if (newValue != null) {
-
-			// Set the current value to the new value.
-			currentValue.replace(0, currentValue.length(), newValue);
-		}
-
-		// If we have a variable, attributes and a value, produce a new triple
-		// for each attribute and wipe clean the attributes and value.
-		if (currentVariable.length() > 0 && currentAttributes.size() > 0 && currentValue.length() > 0) {
-			for (int i = 0; i < currentAttributes.size(); ++i) {
-				String attribute = currentAttributes.get(i);
-				Triple newTriple = new Triple(currentVariable.toString(), attribute, currentValue.toString(), rule);
-				triples.add(newTriple);
-			}
-			currentValue.replace(0, currentValue.length(), "");
-
-			// Unless we're in a disjunction test, clear the attributes list.
-			if (!inDisjunctionTest) {
-				currentAttributes.clear();
-			}
-		}
-
-		// Visit children
-		ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
-		for (ISoarDatabaseTreeItem item : children) {
-			if (item instanceof SoarDatabaseRow) {
-				SoarDatabaseRow child = (SoarDatabaseRow) item;
-				/*
-				for (int i = 0; i < depth; ++i) {
-					System.out.print("    ");
-				}
-				System.out.println(child.toString());
-				*/
-				visitRuleNode(child, triples, currentVariable, currentAttributes, currentValue, testingAttribute, testingValue, inDisjunctionTest, rule, depth + 1);
-			}
-		}
-
-		// Remove temporary flags
-		if (enteredDisjunctionTest) {
-			inDisjunctionTest = wasInDisjunctionTest;
-		}
 	}
 }

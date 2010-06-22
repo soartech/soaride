@@ -72,7 +72,7 @@ public class AddOperatorTemplateChildrenAction extends Action {
 		if (parentTable == Table.PROBLEM_SPACES) {
 			ArrayList<Rule> rules = new ArrayList<Rule>();
 			String operatorName = "initialize-" + parentName;
-			String name = "propose*" + operatorName;
+			String name = problemSpace + "*propose*" + operatorName;
 			String body =
 					  "sp {" + name + "\n"
 					+ "   (state <s> ^superstate nil\n"
@@ -83,7 +83,7 @@ public class AddOperatorTemplateChildrenAction extends Action {
 					+ "}";
 			rules.add(new Rule(name, body));
 			
-			name = "apply*" + operatorName;
+			name = problemSpace + "*apply*" + operatorName;
 			body =
 					  "sp {" + name + "\n"
 					+ "   (state <s> ^operator <o>)\n"
@@ -149,7 +149,7 @@ public class AddOperatorTemplateChildrenAction extends Action {
 			TreeSelection ts = (TreeSelection) selection;
 			TreePath[] paths = ts.getPathsFor(parent);
 			for (TreePath path : paths) { // can't imagine why length would be more than 1
-				Object segment = path.getSegment(path.getSegmentCount() - 2);
+				Object segment = path.getSegment(path.getSegmentCount() - 1);
 				if (segment instanceof SoarDatabaseRow) {
 					SoarDatabaseRow ret = (SoarDatabaseRow) segment;
 					if (ret.getTable() == Table.PROBLEM_SPACES) {

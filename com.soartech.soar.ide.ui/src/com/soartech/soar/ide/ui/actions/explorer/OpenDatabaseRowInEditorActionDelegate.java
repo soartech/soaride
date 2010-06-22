@@ -21,7 +21,6 @@ public class OpenDatabaseRowInEditorActionDelegate implements
 
 	@Override
 	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
-		// TODO Auto-generated method stub
 		action.setText("Show in editor");
         this.targetPart = targetPart;
 	}
@@ -43,9 +42,15 @@ public class OpenDatabaseRowInEditorActionDelegate implements
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
-			}else if (selectedTable == Table.OPERATORS) {
+			} else if (selectedTable == Table.OPERATORS) {
 				try {
 					SoarUiModelTools.showOperatorInEditor(targetPart.getSite().getPage(), selectedRow);
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
+			} else if (selectedTable == Table.AGENTS) {
+				try {
+					SoarUiModelTools.showAgentInEditor(targetPart.getSite().getPage(), selectedRow);
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
@@ -66,8 +71,14 @@ public class OpenDatabaseRowInEditorActionDelegate implements
 				Table selectedTable = selectedRow.getTable();
 				if (selectedTable == Table.RULES
 						|| selectedTable == Table.PROBLEM_SPACES
-						|| selectedTable == Table.OPERATORS) {
+						|| selectedTable == Table.OPERATORS
+						|| selectedTable == Table.AGENTS) {
 					action.setEnabled(true);
+					if (selectedTable == Table.PROBLEM_SPACES) {
+						action.setText("Show datamap in editor");
+					} else {
+						action.setText("Show " + selectedTable.englishName() + " in editor");
+					}
 				}
 			}
 			else {
@@ -75,5 +86,4 @@ public class OpenDatabaseRowInEditorActionDelegate implements
 			}
 		}
 	}
-
 }

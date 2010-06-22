@@ -15,6 +15,7 @@ import org.eclipse.ui.PlatformUI;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
+import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.TraversalUtil;
 
 public class ExportSoarDatabaseRowAction extends Action {
 	
@@ -42,52 +43,34 @@ public class ExportSoarDatabaseRowAction extends Action {
 		if (write) {
 			try {
 				FileWriter writer = new FileWriter(file);
-				ArrayList<ISoarDatabaseTreeItem> children = getRules();
+				ArrayList<ISoarDatabaseTreeItem> children = TraversalUtil.getRelatedRules(row);
 				String agentName = row.getName();
-				writer.write("# Begin agent \"" + agentName + "\"\n\n");
+				writer.write("# Begin export of " + row.getTable().englishName() + " \"" + agentName + "\"\n");
+				
+				if (row.getTable() == Table.AGENTS) {
+					String agentText = row.getText();
+					if (agentText.length() > 0) {
+						writer.write("# Begin Soar commands for agent \"" + row.getName() +"\"\n");
+						writer.write(agentText);
+						writer.write("\n# End Soar commands for agent \"" + row.getName() +"\"\n");
+					}
+				}
+				
 				for (ISoarDatabaseTreeItem child : children) {
 					assert child instanceof SoarDatabaseRow;
 					SoarDatabaseRow childRow = (SoarDatabaseRow) child;
 					assert childRow.getTable() == Table.RULES;
 					String ruleText = childRow.getText();
 					String ruleName = childRow.getName();
-					writer.write("# Begin rule \"" + ruleName + "\"\n\n");
+					writer.write("# Begin rule \"" + ruleName + "\"\n");
 					writer.write(ruleText);
-					writer.write("\n\n# End rule \"" + ruleName + "\"\n");
+					writer.write("\n# End rule \"" + ruleName + "\"\n");
 				}
-				writer.write("# End agent \"" + agentName + "\"\n");
+				writer.write("# End export of " + row.getTable().englishName() + " \"" + agentName + "\"\n");
 				writer.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	private ArrayList<ISoarDatabaseTreeItem> getRules() {
-		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
-		
-		Table table = row.getTable();
-		if (table == Table.AGENTS) {
-			ret.addAll(row.getChildrenOfType(Table.RULES));
-		}
-		else if (table == Table.PROBLEM_SPACES) {
-			ret.addAll(row.getJoinedRowsFromTable(Table.RULES));
-			
-			ArrayList<ISoarDatabaseTreeItem> operators = row.getJoinedRowsFromTable(Table.OPERATORS);
-			for (ISoarDatabaseTreeItem item : operators) {
-				if (item instanceof SoarDatabaseRow) {
-					SoarDatabaseRow row = (SoarDatabaseRow) item;
-					ret.addAll(row.getJoinedRowsFromTable(Table.RULES));
-				}
-			}
-		}
-		else if (table == Table.OPERATORS) {
-			ret.addAll(row.getJoinedRowsFromTable(Table.RULES));
-		}
-		else if (table == Table.RULES) {
-			ret.add(row);
-		}
-		
-		return ret;
 	}
 }

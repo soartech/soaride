@@ -147,6 +147,18 @@ public class SoarUiModelTools
 		}
 		return null;
 	}
+
+	public static IEditorPart showAgentInEditor(IWorkbenchPage page, SoarDatabaseRow row) throws PartInitException {
+    	assert row.getTable() == Table.AGENTS;
+    	
+        String editorId = SoarDatabaseTextEditor.ID;
+        IEditorInput input = row.getEditorInput();
+		if (input != null) {
+			IEditorPart part = page.openEditor(input, editorId);
+			return part;
+		}
+		return null;
+	}
     
     /**
      * Find the active Soar editor.

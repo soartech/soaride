@@ -1,6 +1,7 @@
 package com.soartech.soar.ide.ui.views.explorer;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import org.eclipse.jdt.internal.corext.refactoring.structure.MoveInstanceMethodProcessor.ThisReferenceFinder;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -9,6 +10,7 @@ import org.eclipse.jface.viewers.Viewer;
 import com.soartech.soar.ide.core.model.ISoarModel;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
@@ -36,12 +38,79 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 						includeDirectionalJoinedItems,
 						putDirectionalJoinedItemsInFolders,
 						includeDatamapNodes);
+				ret = sortItems(ret);
 				return ret.toArray();
 			} catch (AbstractMethodError e) {
 				e.printStackTrace();
 			}
 		}
 		return new Object[0];
+	}
+	
+	private ArrayList<ISoarDatabaseTreeItem> sortItems(ArrayList<ISoarDatabaseTreeItem> items) {
+		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
+		HashSet<ISoarDatabaseTreeItem> added = new HashSet<ISoarDatabaseTreeItem>();
+		
+		/* Order like this:
+		 * Rules:
+		 *   Propose
+		 *   Evaluate / Select
+		 *   Apply
+		 *   Others
+		 * Operators
+		 * Problem Spaces
+		 * Agents
+		 * Others 
+		 */
+		
+		// Add rules
+		String[] terms = {"propose", "evaluate/select", "apply"};
+		
+		for (String term : terms) {
+			String[] termSegments = term.split("/");
+			for (ISoarDatabaseTreeItem item : items) {
+				if (item instanceof SoarDatabaseRow) {
+					SoarDatabaseRow row = (SoarDatabaseRow) item;
+					boolean matchesTerm = false;
+					for (String termSegment : termSegments) {
+						if (row.getName().toLowerCase().contains(termSegment)) {
+							matchesTerm = true;
+						}
+					}
+					if (row.getTable() == Table.RULES
+							&& matchesTerm
+							&& !added.contains(row)) {
+						ret.add(row);
+						added.add(row);
+					}
+				}
+			}
+		}
+		
+		// Add other table types
+		Table[] tables = {Table.OPERATORS, Table.PROBLEM_SPACES, Table.AGENTS};
+		for (Table table : tables) {
+			for (ISoarDatabaseTreeItem item : items) {
+				if (item instanceof SoarDatabaseRow) {
+					SoarDatabaseRow row = (SoarDatabaseRow) item;
+					if (row.getTable() == table
+							&& !added.contains(row)) {
+						ret.add(row);
+						added.add(row);
+					}
+				}
+			}
+		}
+		
+		// Add all others
+		for (ISoarDatabaseTreeItem item : items) {
+			if(!added.contains(item)) {
+				ret.add(item);
+				added.add(item);
+			}
+		}
+		
+		return ret;
 	}
 
 	@Override
