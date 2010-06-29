@@ -127,6 +127,15 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		public String pluralEnglishName() {
 			return tableName().replace('_', ' ');
 		}
+		
+		public boolean isDatamapTable() {
+			return this == 	DATAMAP_IDENTIFIERS
+					|| this == DATAMAP_ENUMERATIONS
+					|| this == DATAMAP_ENUMERATION_VALUES
+					|| this == DATAMAP_INTEGERS
+					|| this == DATAMAP_FLOATS
+					|| this == DATAMAP_STRINGS;
+		}
 	}
 
 	public static Table getTableNamed(String name) {
@@ -539,6 +548,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			return true;
 		}
 		return false;
+	}
+	
+	public boolean isDatamapNode() {
+		return table.isDatamapTable();
 	}
 	
 	public boolean hasChildrenOfType(Table type) {
@@ -2170,5 +2183,20 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 
 	public SoarDatabaseConnection getDatabaseConnection() {
 		return db;
+	}
+	
+	// Tree conent providers can use this as a flag to know
+	// not to get more children.
+	boolean terminal = false;
+	public void setTerminal(boolean terminal) {
+		this.terminal = terminal;
+	}
+	public boolean isTerminal() {
+		return terminal;
+	}
+	
+	@Override
+	public SoarDatabaseRow getRow() {
+		return this;
 	}
 }

@@ -11,4 +11,5 @@ public interface ISoarDatabaseTreeItem {
 			boolean includeDatamapNodes);
 
 	boolean hasChildren();
+	SoarDatabaseRow getRow();
 }

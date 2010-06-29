@@ -20,7 +20,8 @@ Bundle-ClassPath: soareditor.jar,
  lib/jacl.jar,
  lib/tcljava.jar,
  lib/jdom.jar,
- lib/sqlitejdbc-v056.jar
+ lib/sqlitejdbc-v056.jar,
+ lib/soar-debugger-api-9.3.0.jar
 Export-Package: com.soartech.soar.editor.docs,
  com.soartech.soar.editor.model,
  com.soartech.soar.ide.console,

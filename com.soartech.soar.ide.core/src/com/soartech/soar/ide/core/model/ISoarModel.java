@@ -26,6 +26,8 @@ import org.eclipse.core.resources.IWorkspace;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 
+import edu.umich.soar.debugger.jmx.SoarCommandLineMXBean;
+
 /**
  * The root interface of the  Soar model. This is the main entry point for
  * access to all Soar objects. The single instance can be retrieved through
@@ -97,4 +99,6 @@ public interface ISoarModel extends ISoarElement, ISoarOpenable
     ITclHelpModel getTclHelpModel();
     
     SoarDatabaseConnection getDatabase();
+
+	void setCommandLineProxy(SoarCommandLineMXBean proxy);
 }

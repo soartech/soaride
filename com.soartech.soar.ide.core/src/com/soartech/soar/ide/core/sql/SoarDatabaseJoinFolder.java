@@ -34,7 +34,7 @@ public class SoarDatabaseJoinFolder implements ISoarDatabaseTreeItem {
 			return row.getJoinedRowsFromTable(table);			
 		}
 		if (includeJoinedItems) {
-			return row.getJoinedRowsFromTable(table);
+			return row.getUndirectedJoinedRowsFromTable(table);
 		}
 		if (includeDirectionalJoinedItems) {
 			return row.getDirectedJoinedRowsFromTable(table);

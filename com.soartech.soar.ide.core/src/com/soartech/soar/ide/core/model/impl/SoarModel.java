@@ -53,6 +53,8 @@ import com.soartech.soar.ide.core.model.SoarModelTools;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
 
+import edu.umich.soar.debugger.jmx.SoarCommandLineMXBean;
+
 /**
  * Implementation of the ISoarModel interface. The instance of this object 
  * should only be accessed through SoarModelManager.
@@ -73,6 +75,7 @@ public class SoarModel extends AbstractSoarOpenable implements ISoarModel
     private int queuedTypedEvents[] = { 0, 0, 0 };
     
     private SoarDatabaseConnection dbConn;
+    private SoarCommandLineMXBean proxy;
     
     /**
      * Construct a new Soar model. This method should not be used by client code.
@@ -490,4 +493,13 @@ public class SoarModel extends AbstractSoarOpenable implements ISoarModel
         }
         
     }
+
+	@Override
+	public void setCommandLineProxy(SoarCommandLineMXBean proxy) {
+		this.proxy = proxy;
+	}
+	
+	public SoarCommandLineMXBean getCommandLineProxy() {
+		return proxy;
+	}
 }
