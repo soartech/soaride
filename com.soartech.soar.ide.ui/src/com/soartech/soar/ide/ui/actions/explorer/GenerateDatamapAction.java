@@ -17,20 +17,18 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.TraversalUtil;
 import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.Triple;
-import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.Variable;
 import com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapEditor;
 
 public class GenerateDatamapAction extends Action {
 
 
 	SoarDatabaseRow problemSpace;
-	TreeViewer tree;
 	Shell shell;
+	public boolean applyAll = false;;
 	
-	public GenerateDatamapAction(SoarDatabaseRow problemSpace, TreeViewer tree) {
+	public GenerateDatamapAction(SoarDatabaseRow problemSpace) {
 		super ("Generate datamap");
 		this.problemSpace = problemSpace;
-		this.tree = tree;
 	}
 
 	@Override
@@ -41,11 +39,11 @@ public class GenerateDatamapAction extends Action {
 			ArrayList<ISoarDatabaseTreeItem> joinedRules = problemSpace.getJoinedRowsFromTable(Table.RULES);
 			ArrayList<ISoarDatabaseTreeItem> joinedOperators = problemSpace.getJoinedRowsFromTable(Table.OPERATORS);
 			for (ISoarDatabaseTreeItem item : joinedOperators) {
-				if (item instanceof SoarDatabaseRow) {
-					SoarDatabaseRow operator = (SoarDatabaseRow) item;
-					joinedRules.addAll(operator.getJoinedRowsFromTable(Table.RULES));
-				}
+				assert item instanceof SoarDatabaseRow;
+				SoarDatabaseRow operator = (SoarDatabaseRow) item;
+				joinedRules.addAll(operator.getJoinedRowsFromTable(Table.RULES));
 			}
+			
 			for (ISoarDatabaseTreeItem item : joinedRules) {
 				if (item instanceof SoarDatabaseRow) {
 					assert ((SoarDatabaseRow) item).getTable() == Table.RULES;
@@ -53,25 +51,17 @@ public class GenerateDatamapAction extends Action {
 					SoarDatabaseRow row = (SoarDatabaseRow) item;
 					ArrayList<Triple> triples = TraversalUtil.getTriplesForRule(row);
 
-					// System.out.println("Visiting rule: " + row.getName());
-
-//					TraversalUtil.visitRuleNode(row, triples, new StringBuffer(), new ArrayList<String>(), new StringBuffer(), false, false, false, row, 0);
-
-					// debug
-					/*
-					System.out.println("***Triples:");
-					for (Triple triple : triples) {
-						System.out.println(triple.toString());
-					}
-					*/
-
 					// Recursively visit existing datamap,
 					// proposing corrections where conflicts arise.
 					ArrayList<ISoarDatabaseTreeItem> childIdentifiers = problemSpace.getChildrenOfType(Table.DATAMAP_IDENTIFIERS);
 					for (ISoarDatabaseTreeItem childIdentifier : childIdentifiers) {
 						SoarDatabaseRow child = (SoarDatabaseRow) childIdentifier;
-						HashSet<Variable> variableSet = new HashSet<Variable>();
-						variableSet.add(new Variable("<s>", null));
+						HashSet<String> variableSet = new HashSet<String>();
+						for (Triple t : triples) {
+							if (t.hasState) {
+								variableSet.add(t.variable);
+							}
+						}
 						HashSet<SoarDatabaseRow> visitedNodes = new HashSet<SoarDatabaseRow>();
 						HashSet<Triple> usedTriples = new HashSet<Triple>();
 						visitDatamapNode(child, variableSet, triples, visitedNodes, usedTriples);
@@ -81,50 +71,56 @@ public class GenerateDatamapAction extends Action {
 					// Find attributes whose values are variables with the same
 					// name.
 					// propose to link those attributes.
-
-					for (Triple firstTriple : triples) {
-						if (firstTriple.valueIsVariable()) {
-							for (Triple secondTriple : triples) {
-								if (firstTriple != secondTriple) {
-									// Here are two triples.
-									// See if they have attributes with the same
-									// name.
-									if (firstTriple.value.equals(secondTriple.value)) {
-										// Check each node from the first
-										// against each node from the second.
-										for (SoarDatabaseRow firstRow : firstTriple.nodes) {
-											for (SoarDatabaseRow secondRow : secondTriple.nodes) {
-												// If the two rows aren't
-												// joined, propose joining them.
-												assert firstRow.getTable() == Table.DATAMAP_IDENTIFIERS;
-												assert secondRow.getTable() == Table.DATAMAP_IDENTIFIERS;
-												if (!SoarDatabaseRow.rowsAreJoined(firstRow, secondRow, firstRow.getDatabaseConnection())) {
-													// Propose joining rows.
-													// Only propse these joins once
-													String firstName = firstRow.getPathName();
-													String secondName = secondRow.getPathName();
-													if (firstName.compareTo(secondName) < 0) {
-
-														String title = "Link Datamap Attributes?";
-														String message = "Datamap atrributes appear to point to the same variable.\nLink these attributes?\n\n" + firstName + "\n" + secondName;
-														String[] options = { "OK", "Cancel" };
-														Image image = MessageDialog.getDefaultImage();
-														MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, options, 0);
-														int result = dialog.open();
-														if (result == 0) {
-															SoarDatabaseRow.joinRows(firstRow, secondRow, firstRow.getDatabaseConnection());
-														}
-													}
-												}
-											}
-										}
-									}
+					proposeLinksWithTriples(triples);
+				}
+			}
+			
+			// Build structure from substates
+			// In the suture, make this recursive (or something)
+			// to include arbitraarily deep substates
+			ArrayList<ISoarDatabaseTreeItem> substates = problemSpace.getDirectedJoinedChildrenOfType(Table.PROBLEM_SPACES, false);
+			for (ISoarDatabaseTreeItem item : substates) {
+				assert item instanceof SoarDatabaseRow;
+				SoarDatabaseRow susbtate = (SoarDatabaseRow) item;
+				ArrayList<ISoarDatabaseTreeItem> substateRules = susbtate.getJoinedRowsFromTable(Table.RULES);
+				ArrayList<ISoarDatabaseTreeItem> susbtateOperators = susbtate.getJoinedRowsFromTable(Table.OPERATORS);
+				for (ISoarDatabaseTreeItem opItem : susbtateOperators) {
+					assert opItem instanceof SoarDatabaseRow;
+					SoarDatabaseRow operator = (SoarDatabaseRow) opItem;
+					substateRules.addAll(operator.getJoinedRowsFromTable(Table.RULES));
+				}
+				
+				for (ISoarDatabaseTreeItem ruleItem : substateRules) {
+					if (ruleItem instanceof SoarDatabaseRow) {
+						assert ((SoarDatabaseRow) ruleItem).getTable() == Table.RULES;
+						SoarDatabaseRow substateRule = (SoarDatabaseRow) ruleItem;
+						ArrayList<Triple> substateTriples = TraversalUtil.getTriplesForRule(substateRule);
+						ArrayList<Triple> triples = TraversalUtil.getTriplesForSuperstate(substateTriples);
+						
+						// Recursively visit existing datamap,
+						// proposing corrections where conflicts arise.
+						ArrayList<ISoarDatabaseTreeItem> childIdentifiers = problemSpace.getChildrenOfType(Table.DATAMAP_IDENTIFIERS);
+						for (ISoarDatabaseTreeItem childIdentifier : childIdentifiers) {
+							SoarDatabaseRow child = (SoarDatabaseRow) childIdentifier;
+							HashSet<String> variableSet = new HashSet<String>();
+							for (Triple t : triples) {
+								if (t.hasState) {
+									variableSet.add(t.variable);
 								}
 							}
+							HashSet<SoarDatabaseRow> visitedNodes = new HashSet<SoarDatabaseRow>();
+							HashSet<Triple> usedTriples = new HashSet<Triple>();
+							visitDatamapNode(child, variableSet, triples, visitedNodes, usedTriples);
 						}
-					}
 
+						// Finally, find attributes that should be linked.
+						// Find attributes whose values are variables with the same
+						// name.
+						// propose to link those attributes.
+						proposeLinksWithTriples(triples);
+					}
 				}
+				
 			}
 
 			// reload datamaps
@@ -138,8 +134,56 @@ public class GenerateDatamapAction extends Action {
 			}
 		}
 	}
+	
+	private void proposeLinksWithTriples(ArrayList<Triple> triples) {
+		for (Triple firstTriple : triples) {
+			if (firstTriple.valueIsVariable()) {
+				for (Triple secondTriple : triples) {
+					if (firstTriple != secondTriple) {
+						// Here are two triples.
+						// See if they have attributes with the same
+						// name.
+						if (firstTriple.value.equals(secondTriple.value)) {
+							// Check each node from the first
+							// against each node from the second.
+							for (SoarDatabaseRow firstRow : firstTriple.nodes) {
+								for (SoarDatabaseRow secondRow : secondTriple.nodes) {
+									// If the two rows aren't
+									// joined, propose joining them.
+									assert firstRow.getTable() == Table.DATAMAP_IDENTIFIERS;
+									assert secondRow.getTable() == Table.DATAMAP_IDENTIFIERS;
+									if (!SoarDatabaseRow.rowsAreJoined(firstRow, secondRow, firstRow.getDatabaseConnection())) {
+										// Propose joining rows.
+										// Only propse these joins once
+										String firstName = firstRow.getPathName();
+										String secondName = secondRow.getPathName();
+										if (firstName.compareTo(secondName) < 0) {
+											boolean link = applyAll;
+											if (!link) {
+												String title = "Link Datamap Attributes?";
+												String message = "Datamap atrributes appear to point to the same variable.\nLink these attributes?\n\n" + firstName + "\n" + secondName;
+												String[] options = { "OK", "Apply All", "Cancel" };
+												Image image = MessageDialog.getDefaultImage();
+												MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, options, 0);
+												int result = dialog.open();
+												if (result == 1) applyAll = true;
+												if (result == 0 || applyAll) link = true;
+											}
+											if (link) {
+												SoarDatabaseRow.joinRows(firstRow, secondRow, firstRow.getDatabaseConnection());
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
-	private void visitDatamapNode(SoarDatabaseRow node, HashSet<Variable> variableSet, ArrayList<Triple> triples, HashSet<SoarDatabaseRow> visitedNodes, HashSet<Triple> usedTriples) {
+	private void visitDatamapNode(SoarDatabaseRow node, HashSet<String> variableSet, ArrayList<Triple> triples, HashSet<SoarDatabaseRow> visitedNodes, HashSet<Triple> usedTriples) {
 		
 		// This method is recursive, but each node should only be visited once.
 		if (visitedNodes.contains(node)) {
@@ -147,7 +191,8 @@ public class GenerateDatamapAction extends Action {
 		}
 
 		for (Triple triple : triples) {
-			if (variableSetContainsMatchingVariable(variableSet, triple.variable)) {
+			System.out.println(triple.toString());
+			if (variableSet.contains(triple.variable)) {
 				boolean matched = false;
 				ArrayList<ISoarDatabaseTreeItem> nodeAttributes = node.getDirectedJoinedChildren(false);
 				for (ISoarDatabaseTreeItem item : nodeAttributes) {
@@ -172,20 +217,25 @@ public class GenerateDatamapAction extends Action {
 					if (!usedTriples.contains(triple)) {
 						// Propose a new datamap attribute to match the given
 						// triple.
-						String title = "Generate Datamap Node?";
-						String message = "No datamap node for triple in rule \"" + triple.variable.rule + "\":\n" + triple + "\n\nGenerate node?";
-						String[] options = { "OK", "Cancel" };
-						Image image = MessageDialog.getDefaultImage();
-						MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, options, 0);
-						int result = dialog.open();
-						if (result == 0) {
+						boolean apply = applyAll;
+						if (!apply) {
+							String title = "Generate Datamap Node?";
+							String message = "No datamap node for triple in rule \"" + triple.rule + "\":\n" + triple + "\n\nGenerate node?";
+							String[] options = { "OK", "Apply All", "Cancel" };
+							Image image = MessageDialog.getDefaultImage();
+							MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, options, 0);
+							int result = dialog.open();
+							if (result == 1) applyAll = true;
+							if (result == 0 || applyAll) apply = true;
+						}
+						if (apply) {
 							SoarDatabaseRow newNode = generateDatamapNodeForTriple(node, triple);
 							// Remember that this triple was used
 							usedTriples = new HashSet<Triple>(usedTriples);
 							usedTriples.add(triple);
 							triple.nodes.add(newNode);
 						}
-					} 
+					}
 					/* 
 					else {
 						System.out.println("Triple already used. Avoiding recursive node generation.");
@@ -200,10 +250,10 @@ public class GenerateDatamapAction extends Action {
 		for (ISoarDatabaseTreeItem item : nodeAttributes) {
 			SoarDatabaseRow attribute = (SoarDatabaseRow) item;
 			if (attribute.getTable() == Table.DATAMAP_IDENTIFIERS) {
-				HashSet<Variable> nextVariableSet = new HashSet<Variable>();
+				HashSet<String> nextVariableSet = new HashSet<String>();
 				for (Triple triple : triples) {
-					if (variableSetContainsMatchingVariable(variableSet, triple.variable) && triple.attribute.equals(attribute.getName()) && triple.valueIsVariable()) {
-						nextVariableSet.add(new Variable((String) triple.value, triple.variable.rule));
+					if (variableSet.contains(triple.variable) && triple.attribute.equals(attribute.getName()) && triple.valueIsVariable()) {
+						nextVariableSet.add(triple.value);
 					}
 				}
 				visitedNodes = new HashSet<SoarDatabaseRow>(visitedNodes);
@@ -225,7 +275,8 @@ public class GenerateDatamapAction extends Action {
 		return ret;
 	}
 
-	private boolean variableSetContainsMatchingVariable(HashSet<Variable> variables, Variable variable) {
+	/*
+	private boolean variableSetContainsMatchingVariable(HashSet<String> variables, String variable) {
 		if (variables.contains(variable)) {
 			return true;
 		}
@@ -233,6 +284,7 @@ public class GenerateDatamapAction extends Action {
 		boolean ret = variables.contains(newVariable);
 		return ret;
 	}
+	*/
 
 	private boolean typesMatch(SoarDatabaseRow attribute, Triple triple) {
 		Table table = attribute.getTable();

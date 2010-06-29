@@ -35,7 +35,11 @@ public class RemoveJoinFromParentAction extends Action {
 	public void run() {
 		super.run();
 		if (parent != null) {
-			SoarDatabaseRow.unjoinRows(parent, row, parent.getDatabaseConnection());
+			if (SoarDatabaseRow.rowsAreJoined(parent, row, parent.getDatabaseConnection())) {
+				SoarDatabaseRow.unjoinRows(parent, row, parent.getDatabaseConnection());
+			} else if (SoarDatabaseRow.rowsAreDirectedJoined(parent, row, parent.getDatabaseConnection())) {
+				SoarDatabaseRow.directedUnjoinRows(parent, row, parent.getDatabaseConnection());
+			}
 		}
 	}
 	

@@ -226,6 +226,14 @@
               menubarPath="com.soartech.soar.ide.ui.soarMenu/soarMenuGroup"
               style="push"
               tooltip="Open an existing Soar project."/>
+        <action
+              class="com.soartech.soar.ide.ui.actions.SpawnSoarDebuggerActionDelegate"
+              icon="icons/newsoaragent.gif"
+              id="com.soartech.soar.ide.ui.actions.SpawnSoarDebuggerActionDelegate"
+              label="Spawn Soar Debugger..."
+              menubarPath="com.soartech.soar.ide.ui.soarMenu/soarMenuGroup"
+              style="push"
+              tooltip="Open an existing Soar project."/>
      </actionSet>
   </extension>
   <extension
@@ -360,18 +368,6 @@
     </objectContribution>
     <objectContribution
           adaptable="false"
-          id="com.soartech.soar.ide.ui.SoarDatabaseRowFolderObjectContribution"
-          objectClass="com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder">
-          <action
-             class="com.soartech.soar.ide.ui.actions.explorer.ImportRulesActionDelegate"
-             enablesFor="*"
-             id="com.soartech.soar.ide.ui.importRules"
-             label="Import Rules"
-             menubarPath="additions"
-             tooltip="Imports rules from a text file."/>
-    </objectContribution>
-    <objectContribution
-          adaptable="false"
           id="com.soartech.soar.ide.ui.SoarDatabaseJoinFolderObjectContribution"
           objectClass="com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder">
           <action
@@ -386,13 +382,6 @@
              id="com.soartech.soar.ide.ui.RemoveJoinedRow"
              label="Remove Existing Rule..."
              menubarPath="additions"/>
-          <action
-             class="com.soartech.soar.ide.ui.actions.explorer.ImportRulesActionDelegate"
-             enablesFor="*"
-             id="com.soartech.soar.ide.ui.importRules"
-             label="Import Rules"
-             menubarPath="additions"
-             tooltip="Imports rules from a text file."/>
     </objectContribution>
     <viewerContribution
           id="com.soartech.soar.ide.ui.actions.FormatSoarDocumentViewerContribution"
@@ -473,6 +462,24 @@
     <viewContribution
           id="com.soartech.soar.ide.ui.SoarExplorerContribution"
           targetID="com.soartech.soar.ide.ui.views.SoarExplorerView">
+       <action
+             class="com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapsActionDelegate"
+             id="com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapsActionDelegate"
+             label="Generate Datamaps"
+             toolbarPath="additions"
+             tooltip="Automatiaclly generates a datamap for each problem space."/>
+       <action
+             class="com.soartech.soar.ide.ui.actions.explorer.GenerateAgentStructureActionDelegate"
+             id="com.soartech.soar.ide.ui.actions.explorer.GenerateProjectStructureActionDelegate"
+             label="Generate Agent Structure"
+             toolbarPath="additions"
+             tooltip="Automatiaclly generates agent structure."/>
+       <action
+             class="com.soartech.soar.ide.ui.actions.explorer.ImportRulesActionDelegate"
+             id="com.soartech.soar.ide.ui.actions.explorer.ImportRules"
+             label="Import Rules"
+             toolbarPath="additions"
+             tooltip="Imports rules from a text file."/>
        <action
              class="com.soartech.soar.ide.ui.actions.explorer.AddAgentActionDelegate"
              id="com.soartech.soar.ide.ui.actions.explorer.AddAgent"

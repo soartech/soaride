@@ -3,14 +3,15 @@ package com.soartech.soar.ide.ui.views.explorer;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import org.eclipse.jdt.internal.corext.refactoring.structure.MoveInstanceMethodProcessor.ThisReferenceFinder;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
 import com.soartech.soar.ide.core.model.ISoarModel;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
+import com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
@@ -30,6 +31,20 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 			return ret;
 		}
 		if (element instanceof ISoarDatabaseTreeItem) {
+			if (element instanceof SoarDatabaseRow) {
+				SoarDatabaseRow row = (SoarDatabaseRow) element;
+				if (row.isTerminal()) {
+					return new Object[0];
+				}
+				if (row.isDatamapNode()) {
+					ArrayList<ISoarDatabaseTreeItem> ret = row.getUndirectedJoinedRowsFromTable(row.getTable());
+					for (ISoarDatabaseTreeItem item : ret) {
+						assert item instanceof SoarDatabaseRow;
+						((SoarDatabaseRow)item).setTerminal(true);
+					}
+					return ret.toArray();
+				}
+			}
 			try {
 				ArrayList<ISoarDatabaseTreeItem> ret = ((ISoarDatabaseTreeItem)element).getChildren(
 						includeFolders,

@@ -54,15 +54,20 @@ public class SoarEditorPreferencePage extends PreferencePage
 {
 	public static final String TAB_WIDTH = "SoarEditorPreferencePage.tabWidth";
 	public static final String CONVERT_TABS = "SoarEditorPreferencePage.convertTabs";
+	public static final String SOAR_PATH = "SoarEditorPreferencePage.soarPath";
 	
-	private int initialTabWidth = 0;
+	private int initialTabWidth = 3;
 	private boolean initialConvertTabs = true;
+	private String initialSoarPath = "";
 	
 	private Label tabWidthLabel;
 	private Text tabWidthText;
 	private Link tabWidthLink;
 	
 	private Button convertTabsButton;
+	
+	private Label soarPathLabel;
+	private Text soarPathText;
     
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.preference.PreferencePage#createContents(org.eclipse.swt.widgets.Composite)
@@ -79,8 +84,8 @@ public class SoarEditorPreferencePage extends PreferencePage
 		prefComposite.setLayout(layout);
 		        
 		createNumberSpaces(prefComposite, parent);
-		
 		createUseTabsToSpaces(prefComposite);
+		createSoarPath(prefComposite, parent);
 		
 		return prefComposite;
 	}
@@ -132,7 +137,7 @@ public class SoarEditorPreferencePage extends PreferencePage
 		convertTabsButton.setSelection(initialConvertTabs);
 		
 		GridData buttonData = new GridData();
-		buttonData.horizontalSpan = 2;
+		buttonData.horizontalSpan = 3;
 		convertTabsButton.setLayoutData(buttonData);
 		
 		convertTabsButton.addSelectionListener(new SelectionListener() {
@@ -143,6 +148,19 @@ public class SoarEditorPreferencePage extends PreferencePage
 				enableTabWidthText(convertTabsButton.getSelection());
 			}
 		});
+	}
+	
+	private void createSoarPath(Composite parent, final Composite pageParent)
+	{
+		soarPathLabel = new Label(parent, SWT.LEFT);
+		soarPathLabel.setText("Path to Soar installation:");
+		soarPathText = new Text(parent, SWT.BORDER | SWT.LEFT);
+		soarPathText.setText(initialSoarPath);
+		
+		GridData pathData = new GridData();
+		pathData.horizontalSpan = 2;
+		pathData.widthHint = 300;
+		soarPathText.setLayoutData(pathData);
 	}
 	
 	private void enableTabWidthText(boolean enable)
@@ -180,6 +198,7 @@ public class SoarEditorPreferencePage extends PreferencePage
 		
 		initialTabWidth = prefs.getInt(TAB_WIDTH);
 		initialConvertTabs = prefs.getBoolean(CONVERT_TABS);
+		initialSoarPath = prefs.getString(SOAR_PATH);
 	}
 
 	/* (non-Javadoc)
@@ -210,6 +229,7 @@ public class SoarEditorPreferencePage extends PreferencePage
 		
 		tabWidthText.setText(Integer.toString(prefs.getDefaultInt(TAB_WIDTH)));
 		convertTabsButton.setSelection(prefs.getDefaultBoolean(CONVERT_TABS));
+		soarPathText.setText(prefs.getDefaultString(SOAR_PATH));
 		
 		enableTabWidthText(prefs.getDefaultBoolean(CONVERT_TABS));
 	}
@@ -224,6 +244,7 @@ public class SoarEditorPreferencePage extends PreferencePage
 						
 		prefs.setValue(TAB_WIDTH, Integer.parseInt(tabWidthText.getText()));
 		prefs.setValue(CONVERT_TABS, convertTabsButton.getSelection());
+		prefs.setValue(SOAR_PATH, soarPathText.getText());
 	}
 
 	/* (non-Javadoc)

@@ -168,7 +168,17 @@ public class SoarLabelProvider extends LabelProvider implements
 	@Override
 	public String getText(Object element) {
 		if (element instanceof ISoarDatabaseTreeItem) {
-			return element.toString();
+			String ret = element.toString();
+			
+			// Maybe add asterix if element has linked items
+			if (element instanceof SoarDatabaseRow) {
+				SoarDatabaseRow row = (SoarDatabaseRow) element;
+				if (row.getUndirectedJoinedRowsFromTable(row.getTable()).size() > 0) {
+					ret += "*";
+				}
+			}
+			return ret;
+			
 		} else if (element instanceof ISoarProject) {
 			ISoarProject project = (ISoarProject) element;
 

@@ -1,17 +1,24 @@
 package com.soartech.soar.ide.ui.views.explorer;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchPartSite;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.Page;
 import org.eclipse.ui.part.ViewPart;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
@@ -23,6 +30,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
+import com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapEditor;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
 
 public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEventListener, ISelectionListener, IDoubleClickListener {
@@ -40,8 +48,47 @@ public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEvent
         tree.setInput(input);
         getSite().setSelectionProvider(tree);
         SoarCorePlugin.getDefault().getSoarModel().getDatabase().addListener(this);
-        getSite().getPage().addPostSelectionListener(this);
+        // getSite().getPage().addPostSelectionListener(this);
+        IWorkbenchPartSite site = getSite();
+        IWorkbenchPage page = site.getPage();
+        page.addPostSelectionListener(this);
+        
         tree.addDoubleClickListener(this);
+		tree.getControl().addKeyListener(new org.eclipse.swt.events.KeyListener() {
+
+			@Override
+			public void keyPressed(KeyEvent event) {
+				if (event.keyCode == java.awt.event.KeyEvent.VK_DELETE) {
+					// TODO
+					// un-link joined datamap items
+					TreeSelection ts = (TreeSelection) tree.getSelection();
+					for (TreePath tp : ts.getPaths()) {
+						int segments = tp.getSegmentCount();
+						if (segments > 1) {
+							Object childObject = tp.getLastSegment();
+							Object parentObject = tp.getSegment(segments - 2);
+							if (childObject instanceof SoarDatabaseRow && parentObject instanceof SoarDatabaseRow) {
+								SoarDatabaseRow child = (SoarDatabaseRow) childObject;
+								SoarDatabaseRow parent = (SoarDatabaseRow) parentObject;
+								Table childTable = child.getTable();
+								Table parentTable = parent.getTable();
+								if (childTable == parentTable && childTable.isDatamapTable()) {
+									if (SoarDatabaseRow.rowsAreJoined(parent, child, parent.getDatabaseConnection())) {
+										proposeUnlinkRows(parent, child);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			@Override
+			public void keyReleased(KeyEvent event) {
+				
+			}
+			
+		});
 	}
 
 	@Override
@@ -62,7 +109,7 @@ public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEvent
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 		Class<?> clazz = part.getClass();
-		if (clazz == SoarExplorerView.class) {
+		if (clazz == SoarExplorerView.class || clazz == SoarDatabaseDatamapEditor.class) {
 			if (selection instanceof IStructuredSelection) {
 				IStructuredSelection ss = (IStructuredSelection) selection;
 				if (!ss.isEmpty()) {
@@ -112,5 +159,19 @@ public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEvent
 				}
 			}
 		}
+	}
+	
+	private void proposeUnlinkRows(SoarDatabaseRow first, SoarDatabaseRow second) {
+		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		String title = "Unlink items?";
+		org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
+		String message = "Unlink \"" + first.getName() + "\" and \"" + second.getName() + "\"?";
+		String[] labels = new String[] { "OK", "Cancel" };
+		MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
+		int result = dialog.open();
+		if (result == 1) {
+			return;
+		}
+		SoarDatabaseRow.unjoinRows(first, second, first.getDatabaseConnection());
 	}
 }

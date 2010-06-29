@@ -78,7 +78,6 @@ import com.soartech.soar.ide.ui.actions.explorer.AddRuleTemplateChildrenAction;
 import com.soartech.soar.ide.ui.actions.explorer.AddSubstateAction;
 import com.soartech.soar.ide.ui.actions.explorer.ExportSoarDatabaseRowAction;
 import com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapAction;
-import com.soartech.soar.ide.ui.actions.explorer.GenerateProjectStructureAction;
 import com.soartech.soar.ide.ui.actions.explorer.RemoveJoinFromParentAction;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
 import com.soartech.soar.ide.ui.views.explorer.DragAndDrop.SoarDatabaseExplorerDragAdapter;
@@ -154,7 +153,7 @@ public class SoarExplorerView extends ViewPart
 		ArrayList<Action> ret = new ArrayList<Action>();
 		Table table = row.getTable();
 		if (table == Table.AGENTS) {
-			ret.add(new GenerateProjectStructureAction(row));
+			//ret.add(new GenerateAgentStructureActionDelegate(row));
 		}
 		if (table == Table.PROBLEM_SPACES) {
 			ret.add(new AddChildRowAction(row, Table.OPERATORS, row, tree, false));
@@ -162,7 +161,7 @@ public class SoarExplorerView extends ViewPart
 			ret.add(new AddChildRowAction(row, Table.RULES, row, tree, false));
 			ret.add(new AddRuleTemplateChildrenAction(row, tree));
 			ret.add(new AddSubstateAction(row, false, tree));
-			ret.add(new GenerateDatamapAction(row, tree));
+			ret.add(new GenerateDatamapAction(row));
 		}
 		if (table == Table.OPERATORS) {
 			ret.add(new AddChildRowAction(row, Table.RULES, row, tree, false));
@@ -257,7 +256,7 @@ public class SoarExplorerView extends ViewPart
 								RemoveJoinFromParentAction action = new RemoveJoinFromParentAction(ts);
 								if (action.isRunnable()) {
 									Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-									String title = "Delete item?";
+									String title = "Remove item?";
 									org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
 									String message = "Are you sure you want to remove \"" + action.row.getName() + "\" from \"" + action.parent.getName() + "\"?";
 									String[] labels = new String[] { "OK", "Cancel" };

@@ -10,6 +10,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -19,6 +20,8 @@ import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
@@ -30,16 +33,22 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.part.EditorPart;
 
+import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.sql.EditableColumn;
+import com.soartech.soar.ide.core.sql.ISoarDatabaseEventListener;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
+import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEditorInput;
+import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
 import com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
+import com.soartech.soar.ide.ui.actions.explorer.LinkDatamapRowsAction;
+import com.soartech.soar.ide.ui.editors.database.dragdrop.SoarDatabaseDatamapDragAdapter;
+import com.soartech.soar.ide.ui.editors.database.dragdrop.SoarDatabaseDatamapDropAdapter;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
-import com.soartech.soar.ide.ui.views.explorer.SoarExplorerDatabaseContentProvider;
 
-public class SoarDatabaseDatamapEditor extends EditorPart {
+public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDatabaseEventListener {
 
 	public static final String ID = "com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapEditor";
 
@@ -84,6 +93,8 @@ public class SoarDatabaseDatamapEditor extends EditorPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		tree = new TreeViewer(parent, SWT.NONE);
+		
+        getSite().setSelectionProvider(tree);
 
 		tree.setContentProvider(new SoarDatabaseDatamapContentProvider());
 		tree.setLabelProvider(SoarLabelProvider.createFullLabelProvider(null));
@@ -315,48 +326,6 @@ public class SoarDatabaseDatamapEditor extends EditorPart {
 									}
 								}
 							});
-
-							// Create content provider for choosing an existing attribute
-							final IStructuredContentProvider existingAttributeContentProvider = new IStructuredContentProvider() {
-
-								@Override
-								public void inputChanged(Viewer arg0,
-										Object arg1, Object arg2) {
-								}
-
-								@Override
-								public void dispose() {
-								}
-
-								@Override
-								public Object[] getElements(Object input) {
-									if (input instanceof SoarDatabaseRow) {
-										SoarDatabaseRow problemSpace = row
-												.getAncestorRow(Table.PROBLEM_SPACES);
-										if (problemSpace != null) {
-											ArrayList<ISoarDatabaseTreeItem> rootDatamapNodes = problemSpace
-													.getChildrenOfType(Table.DATAMAP_IDENTIFIERS);
-											if (rootDatamapNodes.size() > 0
-													&& rootDatamapNodes.get(0) instanceof SoarDatabaseRow) {
-												SoarDatabaseRow rootDatamapNode = (SoarDatabaseRow) rootDatamapNodes
-														.get(0);
-												ArrayList<ISoarDatabaseTreeItem> descendants = rootDatamapNode
-														.getDescendantsOfType(Table.DATAMAP_IDENTIFIERS);
-												return descendants.toArray();
-											}
-										} else {
-											try {
-												throw new Exception(
-														"Ancestor row of type PROBLEM_SPACES not found: "
-																+ row);
-											} catch (Exception e) {
-												e.printStackTrace();
-											}
-										}
-									}
-									return new Object[] {};
-								}
-							};
 							
 							final IStructuredContentProvider linkedAttributesContentProvider = new IStructuredContentProvider() {
 
@@ -377,76 +346,6 @@ public class SoarDatabaseDatamapEditor extends EditorPart {
 									return new Object[] {};
 								}
 							};
-
-							manager.add(new Action("Add Linked Attribute") {
-								@Override
-								public void run() {
-									Shell shell = PlatformUI.getWorkbench()
-											.getActiveWorkbenchWindow()
-											.getShell();
-									ListDialog listDialog = new ListDialog(
-											shell);
-									listDialog
-											.setContentProvider(existingAttributeContentProvider);
-									listDialog
-											.setLabelProvider(new SoarDatabaseDatamapLabelProvider());
-									listDialog.setInput(row);
-									listDialog.open();
-									Object[] result = listDialog.getResult();
-									if (result != null
-											&& result.length > 0
-											&& result[0] instanceof SoarDatabaseRow) {
-										SoarDatabaseRow linked = (SoarDatabaseRow) result[0];
-										
-										SoarDatabaseRow.joinRows(row,
-												linked,
-												row.getDatabaseConnection());
-										
-										// copy children relationships so that linked attributes share the same substructure
-										ArrayList<ISoarDatabaseTreeItem> thisChildren = row.getDirectedJoinedChildren(false);
-										ArrayList<ISoarDatabaseTreeItem> otherChildren = linked.getDirectedJoinedChildren(false);
-										
-										for (ISoarDatabaseTreeItem item : thisChildren) {
-											if (item instanceof SoarDatabaseRow) {
-												SoarDatabaseRow child = (SoarDatabaseRow) item;
-												if (!otherChildren.contains(child)) {
-													SoarDatabaseRow.directedJoinRows(linked, child, linked.getDatabaseConnection());
-												}
-											}
-										}
-										
-										for (ISoarDatabaseTreeItem item : otherChildren) {
-											if (item instanceof SoarDatabaseRow) {
-												SoarDatabaseRow child = (SoarDatabaseRow) item;
-												if (!thisChildren.contains(child)) {
-													SoarDatabaseRow.directedJoinRows(row, child, row.getDatabaseConnection());
-												}
-											}
-										}
-										
-										refreshTree();
-										tree.setExpandedState(row, true);
-									}
-								};
-							});
-							
-							manager.add(new Action("Show Linked Attributes") {
-								@Override
-								public void run() {
-									Shell shell = PlatformUI.getWorkbench()
-											.getActiveWorkbenchWindow()
-											.getShell();
-									ListDialog listDialog = new ListDialog(
-											shell);
-									listDialog
-											.setContentProvider(linkedAttributesContentProvider);
-									listDialog
-											.setLabelProvider(SoarLabelProvider
-													.createFullLabelProvider(null));
-									listDialog.setInput(row);
-									listDialog.open();
-								};
-							});
 
 							manager.add(new Action("Remove Linked Attribute") {
 								@Override
@@ -485,6 +384,10 @@ public class SoarDatabaseDatamapEditor extends EditorPart {
 
 		Menu menu = manager.createContextMenu(tree.getTree());
 		tree.getTree().setMenu(menu);
+		
+		tree.addDragSupport(DND.DROP_MOVE, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseDatamapDragAdapter());
+        tree.addDropSupport(DND.DROP_MOVE, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseDatamapDropAdapter(tree));
+        SoarCorePlugin.getDefault().getSoarModel().getDatabase().addListener(this);
 	}
 
 	@Override
@@ -563,5 +466,10 @@ public class SoarDatabaseDatamapEditor extends EditorPart {
 		};
 		
 		Display.findDisplay(Thread.currentThread()).asyncExec(runnable);
+	}
+
+	@Override
+	public void onEvent(SoarDatabaseEvent event, SoarDatabaseConnection db) {
+		refreshTree();
 	}
 }

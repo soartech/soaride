@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="lib" path="/com.soartech.soar.ide.core/lib/sqlitejdbc-v056.jar"/>
+	<classpathentry kind="lib" path="/com.soartech.soar.ide.core/lib/soar-debugger-api-9.3.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
