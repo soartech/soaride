@@ -19,9 +19,6 @@
  */
 package com.soartech.soar.ide.core.model.impl;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,9 +47,13 @@ import com.soartech.soar.ide.core.model.ITclHelpModel;
 import com.soartech.soar.ide.core.model.SoarModelEvent;
 import com.soartech.soar.ide.core.model.SoarModelException;
 import com.soartech.soar.ide.core.model.SoarModelTools;
+import com.soartech.soar.ide.core.sql.ISoarDatabaseEventListener;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
+import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
+import edu.umich.soar.debugger.jmx.SoarCommandLineClient;
 import edu.umich.soar.debugger.jmx.SoarCommandLineMXBean;
 
 /**
@@ -491,14 +492,14 @@ public class SoarModel extends AbstractSoarOpenable implements ISoarModel
                 }
             }
         }
-        
     }
 
-	@Override
+    @Override
 	public void setCommandLineProxy(SoarCommandLineMXBean proxy) {
 		this.proxy = proxy;
 	}
 	
+    @Override
 	public SoarCommandLineMXBean getCommandLineProxy() {
 		return proxy;
 	}

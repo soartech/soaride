@@ -101,4 +101,5 @@ public interface ISoarModel extends ISoarElement, ISoarOpenable
     SoarDatabaseConnection getDatabase();
 
 	void setCommandLineProxy(SoarCommandLineMXBean proxy);
+	SoarCommandLineMXBean getCommandLineProxy();
 }
