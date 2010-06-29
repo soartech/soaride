@@ -95,12 +95,14 @@ class SoarDatabaseCompletionProcessor extends TemplateCompletionProcessor {
 			}
 		}
 
+		/*
 		if (cursorText.trim().length() == 0) {
 			String ruleName = row.getName().toLowerCase().replace(' ', '-');
 			String proposal = "sp {" + ruleName + "\n   (state <s> ^\n\n}";
 			CompletionProposal proposeSp = new CompletionProposal(proposal, 0, 0, 20 + ruleName.length());
 			list.add(proposeSp);
 		}
+		*/
 
 		HashSet<String> proposals = new HashSet<String>();
 		if (parenDepth > 0) {
@@ -122,8 +124,13 @@ class SoarDatabaseCompletionProcessor extends TemplateCompletionProcessor {
 				list.add(proposeSp);
 			}
 		}
-    	
-    	return list.toArray(new ICompletionProposal[]{});
+		
+		ICompletionProposal[] thisRet = list.toArray(new ICompletionProposal[]{});
+		ICompletionProposal[] superRet = super.computeCompletionProposals(viewer, offset);
+		ICompletionProposal[] ret = new ICompletionProposal[thisRet.length + superRet.length];
+		System.arraycopy(thisRet, 0, ret, 0, thisRet.length);
+		System.arraycopy(superRet, 0, ret, thisRet.length, superRet.length);
+		return ret;
     }
 
     public static class ProposalInfo implements Comparable<ProposalInfo>

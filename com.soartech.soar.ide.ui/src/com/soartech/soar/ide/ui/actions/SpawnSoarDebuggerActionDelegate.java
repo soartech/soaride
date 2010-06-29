@@ -1,6 +1,7 @@
 package com.soartech.soar.ide.ui.actions;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import org.eclipse.jface.action.IAction;
@@ -39,38 +40,15 @@ public class SpawnSoarDebuggerActionDelegate implements IWorkbenchWindowActionDe
 
 	@Override
 	public void run(IAction action) {
-        try {
-        	SoarCommandLineClient scli = new SoarCommandLineClient("/home/miller/Applications/Soar/svn");
-        } catch (Exception e) {
-        	e.printStackTrace();
-        }
 		String path = EditorsUI.getPreferenceStore().getString(SoarEditorPreferencePage.SOAR_PATH);
-		try {
-		SoarCommandLineClient client = new SoarCommandLineClient("/home/miller/Applications/Soar/svn");
+		SoarCommandLineClient client = new SoarCommandLineClient(path);
 		SoarCommandLineMXBean proxy;
+		try {
 			proxy = client.startDebuggerGetProxy();
 			if (proxy != null) {
 				SoarCorePlugin.getDefault().getSoarModel().setCommandLineProxy(proxy);
-				SoarExplorerView explorerView = (SoarExplorerView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(SoarExplorerView.ID);
-				Tree tree = explorerView.getTreeViewer().getTree();
-				StructuredSelection ss = (StructuredSelection) explorerView.getTreeViewer().getSelection();
-				if (ss.size() > 0) {
-					ISoarDatabaseTreeItem treeItem = (ISoarDatabaseTreeItem) ss.getFirstElement();
-					SoarDatabaseRow treeRow = treeItem.getRow();
-					SoarDatabaseRow agent = treeRow.getAncestorRow(Table.AGENTS);
-					ArrayList<ISoarDatabaseTreeItem> rules = agent.getJoinedRowsFromTable(Table.RULES);
-					for (ISoarDatabaseTreeItem rule : rules) {
-						SoarDatabaseRow row = (SoarDatabaseRow) rule;
-						if (row.getTable() == Table.RULES) {
-							String text = row.getText();
-							proxy.executeCommandLine(text);
-						}
-					}
-				}
 			}
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

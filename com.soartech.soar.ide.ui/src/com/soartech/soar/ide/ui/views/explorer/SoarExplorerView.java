@@ -83,6 +83,8 @@ import com.soartech.soar.ide.ui.views.SoarLabelProvider;
 import com.soartech.soar.ide.ui.views.explorer.DragAndDrop.SoarDatabaseExplorerDragAdapter;
 import com.soartech.soar.ide.ui.views.explorer.DragAndDrop.SoarDatabaseExplorerDropAdapter;
 
+import edu.umich.soar.debugger.jmx.SoarCommandLineMXBean;
+
 /**
  * Implementation of a ViewPart representing the Package Explorer for 
  * the Soar IDE.
@@ -172,6 +174,10 @@ public class SoarExplorerView extends ViewPart
 			ret.add(remove);
 		}
 		ret.add(new ExportSoarDatabaseRowAction(row));
+		SoarCommandLineMXBean proxy = SoarCorePlugin.getDefault().getSoarModel().getCommandLineProxy(); 
+		if (proxy != null) {
+			ret.add(new ExportSoarDatabaseRowAction(row, proxy));
+		}
 		return ret;
 	}
 	
