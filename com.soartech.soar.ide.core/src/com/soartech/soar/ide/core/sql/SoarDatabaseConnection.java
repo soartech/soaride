@@ -25,6 +25,7 @@ public class SoarDatabaseConnection {
 
 	private ArrayList<ISoarDatabaseEventListener> listeners = new ArrayList<ISoarDatabaseEventListener>();
 	private boolean supressEvents = false;
+	private String currentPath;
 	
 	public SoarDatabaseConnection(String path) {
 		loadDriver();
@@ -33,6 +34,7 @@ public class SoarDatabaseConnection {
 	}
 
 	public void loadDatabaseConnection(String path) {
+		currentPath = path;
 		if (connection != null) {
 			try {
 				connection.close();
@@ -122,6 +124,8 @@ public class SoarDatabaseConnection {
 	 * Connects to the database
 	 */
 	private void buildSchema() {
+		boolean eventsSuppressed = getSupressEvents();
+		setSupressEvents(true);
 		try {
 			Statement s = connection.createStatement();
 			for (String filename : sqlFiles) {
@@ -132,6 +136,7 @@ public class SoarDatabaseConnection {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		setSupressEvents(eventsSuppressed);
 	}
 
 	private void executeFile(String filename, Statement s) {
@@ -345,5 +350,13 @@ public class SoarDatabaseConnection {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	/**
+	 * 
+	 * @return True if this connection is to a sqlite database file.
+	 */
+	public boolean isSavedToDisk() {
+		return !currentPath.equals(":memory:");
 	}
 }

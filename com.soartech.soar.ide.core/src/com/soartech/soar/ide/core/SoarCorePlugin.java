@@ -210,10 +210,27 @@ public class SoarCorePlugin extends Plugin {
 		conn.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
 	}
 
+	/**
+	 * Replaces the current database connection with one that reads
+	 * from the file at the specified path, and fires a
+	 * <code>SoarDatabaseEvent</code> of type
+	 * <code>DATABASE_PATH_CHANGED</code>.
+	 * @param path
+	 */
 	public void openProject(String path) {
 		SoarDatabaseConnection conn = soarModel.getDatabase();
 		conn.loadDatabaseConnection(path);
 		conn.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
+	}
+	
+	/**
+	 * Replaces the current database connection with one that reads
+	 * from the file at the specified path, and fires a
+	 * <code>SoarDatabaseEvent</code> of type
+	 * <code>DATABASE_PATH_CHANGED</code>.
+	 */
+	public void newProject() {
+		openProject(":memory:"); 
 	}
 
 }
