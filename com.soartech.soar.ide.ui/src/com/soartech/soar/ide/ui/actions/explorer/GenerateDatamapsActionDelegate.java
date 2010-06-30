@@ -8,64 +8,59 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IViewActionDelegate;
-import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
+import com.soartech.soar.ide.ui.SoarUiModelTools;
 
-public class GenerateDatamapsActionDelegate implements IViewActionDelegate {
+public class GenerateDatamapsActionDelegate implements IWorkbenchWindowActionDelegate {
 
 	StructuredSelection ss;
 	boolean applyAll;
 	SoarDatabaseRow row;
 	Shell shell;
-	
-	@Override
-	public void init(IViewPart part) {
-		
-	}
+	public boolean forceApplyAll = false;
 
 	@Override
 	public void run(IAction action) {
-		applyAll = false;
-		shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-		if (ss != null) {
-			Object element = ss.getFirstElement();
-			if (element != null) {
-				if (element instanceof ISoarDatabaseTreeItem) {
-					ISoarDatabaseTreeItem item = (ISoarDatabaseTreeItem) element;
-					row = item.getRow();
-					SoarDatabaseRow agent = row.getAncestorRow(Table.AGENTS);
-					ArrayList<ISoarDatabaseTreeItem> problemSpaces = agent.getChildrenOfType(Table.PROBLEM_SPACES);
-					for (ISoarDatabaseTreeItem psItem : problemSpaces) {
-						assert psItem instanceof SoarDatabaseRow;
-						SoarDatabaseRow ps = (SoarDatabaseRow) psItem;
-						assert ps.getTable() == Table.PROBLEM_SPACES;
-						GenerateDatamapAction generateAction = new GenerateDatamapAction(ps);
-						generateAction.applyAll = applyAll;
-						generateAction.run();
-						applyAll = generateAction.applyAll;
-					}
-					return;
-				}
-			}
+		SoarDatabaseRow agent = SoarUiModelTools.selectAgent();
+		if (agent != null) {
+			runWithAgent(agent);
 		}
-		String title = "No Agent Selected";
-		org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
-		String message = "Cannot generate agent structure: No agent selected";
-		String[] labels = new String[] { "OK" };
-		MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.ERROR, labels, 0);
-		dialog.open();
 	}
 
+	public void runWithAgent(SoarDatabaseRow agent) {
+		assert agent.getTable() == Table.AGENTS;
+		applyAll = forceApplyAll;
+		ArrayList<ISoarDatabaseTreeItem> problemSpaces = agent.getChildrenOfType(Table.PROBLEM_SPACES);
+		for (ISoarDatabaseTreeItem psItem : problemSpaces) {
+			assert psItem instanceof SoarDatabaseRow;
+			SoarDatabaseRow ps = (SoarDatabaseRow) psItem;
+			assert ps.getTable() == Table.PROBLEM_SPACES;
+			GenerateDatamapAction generateAction = new GenerateDatamapAction(ps);
+			generateAction.applyAll = applyAll;
+			generateAction.run();
+			applyAll = generateAction.applyAll;
+		}
+	}
+	
 	@Override
 	public void selectionChanged(IAction action, ISelection selection) {
 		if (selection instanceof StructuredSelection) {
 			this.ss = (StructuredSelection) selection;
 		}
+	}
+
+	@Override
+	public void dispose() {
+	}
+
+	@Override
+	public void init(IWorkbenchWindow arg0) {
 	}
 
 }

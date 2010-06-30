@@ -7,10 +7,8 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.IObjectActionDelegate;
-import org.eclipse.ui.IViewActionDelegate;
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
@@ -19,7 +17,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerView;
 
-public class AddAgentActionDelegate implements IViewActionDelegate {
+public class AddAgentActionDelegate implements IWorkbenchWindowActionDelegate {
 
 	SoarExplorerView explorer;
 	
@@ -54,15 +52,14 @@ public class AddAgentActionDelegate implements IViewActionDelegate {
 	}
 
 	@Override
-	public void init(IViewPart part) {
-		if (part instanceof SoarExplorerView) {
-			explorer = (SoarExplorerView) part;
-		}
+	public void selectionChanged(IAction arg0, ISelection arg1) {
 	}
 
 	@Override
-	public void selectionChanged(IAction arg0, ISelection arg1) {
-		// TODO Auto-generated method stub
-		
+	public void dispose() {
+	}
+
+	@Override
+	public void init(IWorkbenchWindow arg0) {
 	}
 }

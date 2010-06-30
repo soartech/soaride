@@ -20,19 +20,27 @@
 package com.soartech.soar.ide.ui;
 
 
+import java.util.ArrayList;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.ListDialog;
+import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 
+import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.model.ISoarElement;
 import com.soartech.soar.ide.core.model.ISoarSourceRange;
 import com.soartech.soar.ide.core.model.ISoarSourceReference;
@@ -178,4 +186,29 @@ public class SoarUiModelTools
         }
         return (SoarEditor) editor;
     }
+    
+    public static void closeAllEditors(boolean save) {
+    	PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeAllEditors(save);
+    }
+
+	public static SoarDatabaseRow selectAgent() {
+		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getSoarModel().getDatabase().selectAllFromTable(Table.AGENTS);
+		if (agents.size() == 0) {
+			return null;
+		}
+		if (agents.size() == 1) {
+			return agents.get(0);
+		}
+		
+		ListDialog dialog = new ListDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
+		dialog.setContentProvider(new ArrayContentProvider());
+		dialog.setLabelProvider(new LabelProvider());
+		dialog.setInput(agents);
+		dialog.open();
+		Object[] result = dialog.getResult();
+		if (result != null && result.length > 0) {
+			return (SoarDatabaseRow) result[0];
+		}
+		return null;
+	}
 }

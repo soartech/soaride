@@ -450,6 +450,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 
 	// Convenience method for refreshing tree
 	public void refreshTree() {
+		/*
 		Runnable runnable = new Runnable() {
 
 			@Override
@@ -466,6 +467,15 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 		};
 		
 		Display.findDisplay(Thread.currentThread()).asyncExec(runnable);
+		*/
+		try {
+			//Object[] elements = tree.getExpandedElements();
+			TreePath[] paths = tree.getExpandedTreePaths();
+			tree.setInput(proplemSpaceRow);
+			tree.setExpandedTreePaths(paths);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
