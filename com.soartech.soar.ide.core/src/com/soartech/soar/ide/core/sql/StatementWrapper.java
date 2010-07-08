@@ -11,6 +11,7 @@ public class StatementWrapper {
 	private PreparedStatement ps;
 	SoarDatabaseConnection db;
 	private String sql;
+	private SoarDatabaseRow row;
 
 	public StatementWrapper(PreparedStatement ps, SoarDatabaseConnection db, String sql) {
 		this.ps = ps;
@@ -41,6 +42,14 @@ public class StatementWrapper {
 			e.printStackTrace();
 		}
 	}
+	
+	public void setRow(SoarDatabaseRow row) {
+		this.row = row;
+	}
+	
+	public SoarDatabaseRow getRow() {
+		return row;
+	}
 
 	/**
 	 * Also closes PreparedStatement.
@@ -56,7 +65,7 @@ public class StatementWrapper {
 		try {
 			ps.execute();
 			ps.close();
-			db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
+			db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED, row));
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

@@ -37,6 +37,8 @@ public class SoarDatabaseUtil {
 		for (int filesIndex = 0; filesIndex < files.size(); ++filesIndex) {
 			try {
 				File file = files.get(filesIndex);
+				System.out.println(file.getPath());
+
 				FileReader reader = new FileReader(file);
 				String basePath = file.getPath();
 				int lastSlashIndex = basePath.lastIndexOf(File.separatorChar);
@@ -59,9 +61,12 @@ public class SoarDatabaseUtil {
 				int i = 0;
 
 				while ((i = reader.read()) != -1) {
+					
 					c = (char) i;
 					buffer.append(c);
 					error = null;
+					
+					System.out.print(c);
 
 					if (c == '\n') {
 						++lineNumber;
@@ -109,7 +114,7 @@ public class SoarDatabaseUtil {
 					// pushd, popd, source
 					// These are newline-delimited
 					if (c == '\n') {
-						String line = buffer.toString().trim().toLowerCase();
+						String line = buffer.toString().trim();
 						String[] tokens = line.split("\\s"); // "\s" for whitespace
 
 						if (tokens.length > 0) {
@@ -161,13 +166,72 @@ public class SoarDatabaseUtil {
 	
 	public static SoarDatabaseRow importRule(String rule, SoarDatabaseRow row) {
 		// Get the name of the rule
-		int nameIndex = rule.indexOf('{') + 1;
-		int parenIndex = rule.indexOf('(');
-		String name = rule.substring(nameIndex, parenIndex).trim();
+		String name = getNameFromRule(rule);
 		SoarDatabaseRow child = row.createChild(Table.RULES, name);
-		child.setText(rule);
+		child.setText(rule, true);
 		child.save(rule, null);
 		return child;
+	}
+	
+	private static String getNameFromRule(String rule) {
+		int nameIndex = findChar('{', rule, 0);
+		if (nameIndex == -1) return null;
+		nameIndex = findWhitespace(rule, nameIndex + 1, true);
+		int endNameIndex = findWhitespace(rule, nameIndex, false);
+		if (endNameIndex == -1) return null;
+		return rule.substring(nameIndex, endNameIndex);
+	}
+	
+	/**
+	 * 
+	 * @param str The string to search in.
+	 * @param start The starting point of the search.
+	 * @param invert If true, search for non-whitespace instead of whitespace.
+ 	 * @return The index of the first whitespace (or non-whitespace) character
+ 	 * that isn't on a Soar-commented line, beginning at startIndex.
+	 */
+	private static int findWhitespace(String str, int startIndex, boolean invert) {
+		boolean comment = false;
+		for (int i = 0; i < str.length(); ++i) {
+			char current = str.charAt(i);
+			if (current == '#') comment = true;
+			if (current == '\n') comment = false;
+			if (comment) continue;
+			if (invert) {
+				if ((!Character.isWhitespace(current)) && i >= startIndex) {
+					return i;
+				}
+			} else {
+				if (Character.isWhitespace(current) && i >= startIndex) {
+					return i;
+				}
+			}
+		}
+		
+		return -1;
+	}
+	
+	/**
+	 * @param c The character to look for.
+	 * @param str The string to look in.
+	 * @param start The index to begin searching in (use 0 to search the whole string).
+	 * @return The first index of the character <code>c</code> that doesn't occur on a Soar-commented line,
+	 * or -1 if the character isn't found.
+	 */
+	private static int findChar(char c, String str, int start) {
+		
+		boolean comment = false;
+		for (int i = 0; i < str.length(); ++i) {
+			char current = str.charAt(i);
+			if (current == '#') comment = true;
+			if (current == '\n') comment = false;
+			if (comment) continue;
+			if (current == c && i >= start) {
+				return i;
+			}
+		}
+		
+		return -1;
 	}
 	
 	public static void alertError(String error, String filename, int line) {

@@ -762,6 +762,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	public ArrayList<SoarDatabaseRow> getPathToAncestorNodeOfType(Table type) {
 		LinkedList<ArrayList<SoarDatabaseRow>> paths = new LinkedList<ArrayList<SoarDatabaseRow>>();
 		ArrayList<SoarDatabaseRow> firstPath = new ArrayList<SoarDatabaseRow>();
+		HashSet<SoarDatabaseRow> exploredRows = new HashSet<SoarDatabaseRow>();
 		firstPath.add(this);
 		paths.add(firstPath);
 		boolean searching = true;
@@ -772,8 +773,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 				paths.remove(path);
 				SoarDatabaseRow leaf = path.get(path.size() - 1);
 				ArrayList<SoarDatabaseRow> parents = leaf.getAllParents();
-				if (!searching && parents.size() > 0) {
-					searching = true;
+				for (SoarDatabaseRow parent : parents) {
+					if (!exploredRows.contains(parent)) {
+						searching = true;
+					} else {
+						exploredRows.add(parent);
+					}
 				}
 				for (int i = 0; i < parents.size(); ++i) {
 					SoarDatabaseRow parent = parents.get(i);
@@ -2023,7 +2028,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return ret;
 	}
 
-	public void setText(String text) {
+	public void setText(String text, boolean suppressEvents) {
 		if (table == Table.RULES) {
 			String sql = "update " + table.tableName()
 					+ " set raw_text=? where id=?";
@@ -2031,7 +2036,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			ps.setString(1, text);
 			ps.setInt(2, id);
 			boolean eventsWereSuppresed = db.getSupressEvents();
-			db.setSupressEvents(true);
+			db.setSupressEvents(suppressEvents);
 			ps.execute();
 			db.setSupressEvents(eventsWereSuppresed);
 			db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED, this));
@@ -2051,6 +2056,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 
 			ps.setString(1, text);
 			ps.setInt(2, id);
+			ps.setRow(this);
 			ps.execute();
 			
 			// Remove comments
@@ -2090,7 +2096,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 				SoarParser parser = new SoarParser(reader);
 				try {
 					SoarProductionAst ast = parser.soarProduction();
-					System.out.println("Parsed rule:\n" + ast);
+					//System.out.println("Parsed rule:\n" + ast);
 
 					// insert into database
 					boolean eventsWereSupresssed = db.getSupressEvents();
@@ -2180,6 +2186,26 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		}
 		return builder.toString();
 	}
+	
+	public boolean isRootProblemSpace() {
+		if (getTable() != Table.PROBLEM_SPACES) {
+			return false;
+		}
+		Integer isRoot = (Integer) getColumnValue("is_root");
+		if (isRoot == null) {
+			return false;
+		}
+		return isRoot != 0;
+	}
+	
+	public void setIsRootProblemSpace(boolean isRoot) {
+		if (getTable() != Table.PROBLEM_SPACES) {
+			return;
+		}
+		updateValue("is_root", isRoot ? "1" : "0");
+		SoarDatabaseEvent event = new SoarDatabaseEvent(Type.DATABASE_CHANGED, this);
+		getDatabaseConnection().fireEvent(event);
+	}
 
 	public SoarDatabaseConnection getDatabaseConnection() {
 		return db;
@@ -2191,6 +2217,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	public void setTerminal(boolean terminal) {
 		this.terminal = terminal;
 	}
+	
 	public boolean isTerminal() {
 		return terminal;
 	}

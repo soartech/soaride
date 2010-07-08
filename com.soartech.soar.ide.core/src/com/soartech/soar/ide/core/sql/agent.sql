@@ -9,7 +9,10 @@ create table if not exists problem_spaces
 (
 id integer primary key,
 agent_id int,
-name varchar(100) not null
+name varchar(100) not null,
+-- whether this is a root problem space on its agent
+-- 1 for true, 0 for false
+is_root int
 );
 
 create table if not exists operators
