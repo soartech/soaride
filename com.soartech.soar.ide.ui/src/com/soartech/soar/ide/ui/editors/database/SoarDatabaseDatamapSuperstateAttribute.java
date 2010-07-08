@@ -1,13 +1,12 @@
 package com.soartech.soar.ide.ui.editors.database;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
-public class SoarDatabaseDatamapSuperstateAttribute {
+public class SoarDatabaseDatamapSuperstateAttribute implements ISoarDatabaseTreeItem {
 
 	SoarDatabaseRow substate;
 	SoarDatabaseRow superstate;
@@ -17,11 +16,11 @@ public class SoarDatabaseDatamapSuperstateAttribute {
 		this.superstate = superstate;
 	}
 
-	public List<Object> getChildren(SoarDatabaseDatamapContentProvider contentProvider) {
+	public ArrayList<ISoarDatabaseTreeItem> getChildren(SoarDatabaseDatamapContentProvider contentProvider) {
 		
 		assert substate.getTable() == Table.PROBLEM_SPACES;
 		
-		ArrayList<Object> ret = new ArrayList<Object>();
+		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		
 		if (superstate == null) {
 			return ret;
@@ -34,7 +33,9 @@ public class SoarDatabaseDatamapSuperstateAttribute {
 				// this is superstate's <s>
 				Object[] ar = contentProvider.getChildren(superstateChild);
 				for (Object obj : ar) {
-					ret.add(obj);
+					if (obj instanceof ISoarDatabaseTreeItem) {
+						ret.add((ISoarDatabaseTreeItem)obj);
+					}
 				}
 			}
 		}
@@ -51,5 +52,21 @@ public class SoarDatabaseDatamapSuperstateAttribute {
 			return "superstate (none)";
 		}
 		return "superstate (" + superstate.getName() + ")";
+	}
+
+	@Override
+	public ArrayList<ISoarDatabaseTreeItem> getChildren(boolean includeFolders, boolean includeChildrenInFolders, boolean includeJoinedItems, boolean includeDirectionalJoinedItems,
+			boolean putDirectionalJoinedItemsInFolders, boolean includeDatamapNodes) {
+		return superstate.getChildren(includeFolders, includeChildrenInFolders, includeJoinedItems, includeDirectionalJoinedItems, putDirectionalJoinedItemsInFolders, includeDatamapNodes);
+	}
+
+	@Override
+	public SoarDatabaseRow getRow() {
+		return superstate;
+	}
+
+	@Override
+	public boolean hasChildren() {
+		return superstate.hasChildren();
 	}
 }

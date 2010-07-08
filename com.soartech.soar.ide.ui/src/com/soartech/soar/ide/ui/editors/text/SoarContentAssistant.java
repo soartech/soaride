@@ -607,7 +607,7 @@ class SoarCompletionProcessor extends TemplateCompletionProcessor {
     protected TemplateContextType getContextType( ITextViewer viewer,
             IRegion region ) {
         return SoarEditorUIPlugin.getDefault().getContextTypeRegistry()
-        .getContextType( SoarContext.SOAR_CONTEXT_TYPE );
+        .getContextType( SoarOperatorContext.SOAR_CONTEXT_TYPE );
     }
 
     /*

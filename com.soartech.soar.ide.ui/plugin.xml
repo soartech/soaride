@@ -285,24 +285,201 @@
   	 
 	<extension
         point="org.eclipse.ui.editors.templates">
+
+           <!-- BEGIN OPERATOR CONTEXT TEMPLATES -->
+           
      <contextType
-           class="com.soartech.soar.ide.ui.editors.text.SoarContext"
-           id="com.soartech.soar.ide.ui.soar.file"
-           name="Soar Production"/>
+           class="com.soartech.soar.ide.ui.editors.text.SoarOperatorContext"
+           id="com.soartech.soar.ide.ui.editors.text.SoarOperatorContext"
+           name="Soar Operator Context"/>
      <template
            autoinsert="true"
-           contextTypeId="com.soartech.soar.ide.ui.soar.file"
-           description="Soar Production"
+           contextTypeId="com.soartech.soar.ide.ui.editors.text.SoarOperatorContext"
+           description="Compare Operator"
            icon="icons/soar.gif"
-           id="com.soartech.soar.ide.ui.soar.production"
+           id="com.soartech.soar.ide.ui.soar.operator.compareOperator"
            name="sp">
         <pattern>
-           sp { ${productionname}
-   ( state &lt;s&gt; ^${state} ${value} )
+sp {${problemspace}*compare*${operator}
+   (state &lt;s&gt; ^name ${problemspace}
+              ^operator &lt;op1&gt; +
+                        &lt;op2&gt; +)
+   (&lt;op1&gt; ^name ${operator})
+   (&lt;op2&gt; ^name)
 --&gt;
+   (&lt;s&gt; ^operator &lt;op1&gt; &gt; &lt;op2&gt;)
 }
         </pattern>
      </template>
+     
+     <template
+           autoinsert="true"
+           contextTypeId="com.soartech.soar.ide.ui.editors.text.SoarOperatorContext"
+           description="Apply Operator"
+           icon="icons/soar.gif"
+           id="com.soartech.soar.ide.ui.soar.operator.applyOperator"
+           name="sp">
+        <pattern>
+sp {${problemspace}*apply*${operator}
+   (state &lt;s&gt; ^operator &lt;op&gt;)
+   (&lt;op&gt; ^name ${operator})
+--&gt;
+   (&lt;s&gt;)
+}
+        </pattern>
+     </template>
+     
+     <template
+           autoinsert="true"
+           contextTypeId="com.soartech.soar.ide.ui.editors.text.SoarOperatorContext"
+           description="Elaborate Substate"
+           icon="icons/soar.gif"
+           id="com.soartech.soar.ide.ui.soar.operator.elaborateSubstate"
+           name="sp">
+        <pattern>
+sp {${problemspace}*elaborate-state*substate
+   (state &lt;s&gt; ^name ${problemspace}
+              ^superstate.operator &lt;so&gt;)
+   (&lt;so&gt; ^name ${superstateoperator})
+--&gt;
+   (&lt;s&gt;)
+}
+        </pattern>
+     </template>
+     
+     <template
+           autoinsert="true"
+           contextTypeId="com.soartech.soar.ide.ui.editors.text.SoarOperatorContext"
+           description="Propose Operator"
+           icon="icons/soar.gif"
+           id="com.soartech.soar.ide.ui.soar.operator.proposeOperator"
+           name="sp">
+        <pattern>
+sp {${problemspace}*propose*${operator}
+   (state &lt;s&gt; ^name ${problemspace})
+--&gt;
+   (&lt;s&gt; ^operator &lt;op&gt; + =)
+   (&lt;op&gt; ^name ${operator})
+}
+        </pattern>
+     </template>
+     
+     <template
+           autoinsert="true"
+           contextTypeId="com.soartech.soar.ide.ui.editors.text.SoarOperatorContext"
+           description="Elaborate State"
+           icon="icons/soar.gif"
+           id="com.soartech.soar.ide.ui.soar.operator.elaborateState"
+           name="sp">
+        <pattern>
+sp {${problemspace}*elaborate-operator*${operator}
+   (state &lt;s&gt; ^name ${problemspace})
+--&gt;
+   (&lt;s&gt;)
+}
+        </pattern>
+     </template>
+     
+     <!-- END OPERATOR CONTEXT TEMPLATES -->
+     
+     <!-- BEGIN RULE CONTEXT TEMPLATES -->
+
+     
+     <contextType
+           class="com.soartech.soar.ide.ui.editors.text.SoarRuleContext"
+           id="com.soartech.soar.ide.ui.editors.text.SoarRuleContext"
+           name="Soar Rule Context"/>
+           
+     <template
+           autoinsert="true"
+           contextTypeId="com.soartech.soar.ide.ui.editors.text.SoarRuleContext"
+           description="Compare Operator"
+           icon="icons/soar.gif"
+           id="com.soartech.soar.ide.ui.soar.rule.compareOperator"
+           name="sp">
+        <pattern>
+sp {${rule}
+   (state &lt;s&gt; ^name ${problemspace}
+              ^operator &lt;op1&gt; +
+                        &lt;op2&gt; +)
+   (&lt;op1&gt; ^name ${operator})
+   (&lt;op2&gt; ^name)
+--&gt;
+   (&lt;s&gt; ^operator &lt;op1&gt; &gt; &lt;op2&gt;)
+}
+        </pattern>
+     </template>
+     
+     <template
+           autoinsert="true"
+           contextTypeId="com.soartech.soar.ide.ui.editors.text.SoarRuleContext"
+           description="Apply Operator"
+           icon="icons/soar.gif"
+           id="com.soartech.soar.ide.ui.soar.rule.applyOperator"
+           name="sp">
+        <pattern>
+sp {${rule}
+   (state &lt;s&gt; ^operator &lt;op&gt;)
+   (&lt;op&gt; ^name ${operator})
+--&gt;
+   (&lt;s&gt;)
+}
+        </pattern>
+     </template>
+     
+     <template
+           autoinsert="true"
+           contextTypeId="com.soartech.soar.ide.ui.editors.text.SoarRuleContext"
+           description="Elaborate Substate"
+           icon="icons/soar.gif"
+           id="com.soartech.soar.ide.ui.soar.rule.elaborateSubstate"
+           name="sp">
+        <pattern>
+sp {${rule}
+   (state &lt;s&gt; ^name ${problemspace}
+              ^superstate.operator &lt;so&gt;)
+   (&lt;so&gt; ^name ${superstateoperator})
+--&gt;  
+   (&lt;s&gt;)
+}
+        </pattern>
+     </template>
+     
+     <template
+           autoinsert="true"
+           contextTypeId="com.soartech.soar.ide.ui.editors.text.SoarRuleContext"
+           description="Propose Operator"
+           icon="icons/soar.gif"
+           id="com.soartech.soar.ide.ui.soar.rule.proposeOperator"
+           name="sp">
+        <pattern>
+sp {${rule}
+   (state &lt;s&gt; ^name ${problemspace})
+--&gt;
+   (&lt;s&gt; ^operator &lt;op&gt; + =)
+   (&lt;op&gt; ^name ${operator})
+}
+        </pattern>
+     </template>
+     
+     <template
+           autoinsert="true"
+           contextTypeId="com.soartech.soar.ide.ui.editors.text.SoarRuleContext"
+           description="Elaborate State"
+           icon="icons/soar.gif"
+           id="com.soartech.soar.ide.ui.soar.rule.elaborateState"
+           name="sp">
+        <pattern>
+sp {${rule}
+   (state &lt;s&gt; ^name ${problemspace})
+--&gt;
+   (&lt;s&gt;)
+}
+        </pattern>
+     </template>
+     
+     <!-- END RULE CONTEXT TEMPLATES -->
+     
   </extension>
  <extension
        point="org.eclipse.ui.popupMenus">
@@ -440,7 +617,7 @@
           name="Soar Explorer"/>
     <view
           category="com.soartech.soar.ide.ui.SoarCategory"
-          class="com.soartech.soar.ide.ui.views.explorer.SoarDatabaseItemView"
+          class="com.soartech.soar.ide.ui.views.itemdetail.SoarDatabaseItemView"
           icon="icons/package.gif"
           id="com.soartech.soar.ide.ui.views.SoarDatabaseItemView"
           name="Item Detail"/>

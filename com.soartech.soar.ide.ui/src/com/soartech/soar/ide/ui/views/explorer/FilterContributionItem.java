@@ -48,12 +48,17 @@ public class FilterContributionItem extends ControlContribution
 	private Text textWidget;
     private SoarExplorerView view;
     private Timer timer = new Timer("Explorer View Filter Timer", true);
-	private TimerTask timerTask = null; 
+	private TimerTask timerTask = null;
+	public static String filterID = "com.soartech.soar.ide.ui.views.explorer.FilterContributionItem.filter";
+	public static String searchID = "com.soartech.soar.ide.ui.views.explorer.FilterContributionItem.search";
     
-	protected FilterContributionItem(String id, SoarExplorerView view) 
+	// as opposed to filter
+	boolean search = false;
+	
+	protected FilterContributionItem(SoarExplorerView view, boolean search) 
 	{
-		super(id);
-		
+		super(search ? searchID : filterID);
+		this.search = search;
         this.view = view;
 	}
 
@@ -70,7 +75,7 @@ public class FilterContributionItem extends ControlContribution
         composite.setLayout(layout);
         
         Label label = new Label(composite, SWT.NONE | SWT.RIGHT);
-        label.setText("Filter: ");
+        label.setText(search ? "Search: " : "Filter: ");
 		textWidget = new Text(composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
 		textWidget.addModifyListener(new Listener());
 		textWidget.setLayoutData(new RowData(100, 12));
@@ -115,9 +120,14 @@ public class FilterContributionItem extends ControlContribution
                 {
                     if(!textWidget.isDisposed())
                     {
-                        //view.setFilterString(textWidget.getText());
+                    	if (search) {
+                    		view.setSearchString(textWidget.getText());
+                    	} else {
+                    		view.setFilterString(textWidget.getText());
+                    	}
                     }
-                }});
+                }
+            });
         }
     };
 }

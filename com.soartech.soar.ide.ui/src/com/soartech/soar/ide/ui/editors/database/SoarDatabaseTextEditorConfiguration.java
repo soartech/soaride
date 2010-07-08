@@ -10,6 +10,7 @@ import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 
+import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.ui.editors.text.SoarRuleScanner;
 import com.soartech.soar.ide.ui.editors.text.autoedit.SoarAutoEditStrategy;
 
@@ -19,6 +20,7 @@ public class SoarDatabaseTextEditorConfiguration extends
 	ISoarDatabaseTextEditor editor;
 	SoarRuleScanner ruleScanner = new SoarRuleScanner();
 	SoarAutoEditStrategy strategy = new SoarAutoEditStrategy();
+	SoarDatabaseRow row;
 	
 	public SoarDatabaseTextEditorConfiguration(ISoarDatabaseTextEditor editor) {
 		this.editor = editor;
@@ -29,9 +31,6 @@ public class SoarDatabaseTextEditorConfiguration extends
        return new SoarDatabaseTextAnnotationHover(editor);
     }
     
-    /* (non-Javadoc)
-     * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getPresentationReconciler(org.eclipse.jface.text.source.ISourceViewer)
-     */
     @Override
     public IPresentationReconciler getPresentationReconciler( ISourceViewer sourceViewer ) {
 
@@ -42,21 +41,22 @@ public class SoarDatabaseTextEditorConfiguration extends
         return reconciler;
     }
     
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getAutoEditStrategies(org.eclipse.jface.text.source.ISourceViewer, java.lang.String)
-	 */
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) 
 	{
 		return new IAutoEditStrategy[] {strategy};
 	}
 	
-    /* (non-Javadoc)
-     * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getContentAssistant(org.eclipse.jface.text.source.ISourceViewer)
-     */
     @Override
     public IContentAssistant getContentAssistant( ISourceViewer sourceViewer ) {
         return new SoarDatabaseContentAssistant( this );
     }
+
+	public void setRow(SoarDatabaseRow row) {
+		this.row = row;
+	}
 	
+	public SoarDatabaseRow getRow() {
+		return row;
+	}
 }

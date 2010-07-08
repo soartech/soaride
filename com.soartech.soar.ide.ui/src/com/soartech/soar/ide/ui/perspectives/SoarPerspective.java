@@ -27,8 +27,8 @@ import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 
 import com.soartech.soar.ide.ui.views.datamap.SoarDatamapView;
-import com.soartech.soar.ide.ui.views.explorer.SoarDatabaseItemView;
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerView;
+import com.soartech.soar.ide.ui.views.itemdetail.SoarDatabaseItemView;
 import com.soartech.soar.ide.ui.views.source.SoarElementSourceViewer;
 
 /**

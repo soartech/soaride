@@ -54,68 +54,17 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 
 			ArrayList<Triple> triples = TraversalUtil.getTriplesForRule(rule);
 
-			// a collection of triples whose variable is the current
-			// state.
-			ArrayList<Triple> stateTriples = new ArrayList<Triple>();
-			ArrayList<String> stateVariables = new ArrayList<String>();
-
-			// a collection of variables which are values in a
-			// triple whose attribute is "operator".
-			ArrayList<String> operatorVariables = new ArrayList<String>();
-
-			// Gather state and operator variables
-			for (Triple triple : triples) {
-				// If the attribute contains a 'keyword', add
-				// variable to list
-				if (triple.hasState || stateVariables.contains(triple.variable)) {
-
-					stateTriples.add(triple);
-					stateVariables.add(triple.variable);
-				}
-				if (triple.attribute.equals("operator")) {
-
-					operatorVariables.add(triple.value);
-				}
-			}
-
-			// a collection of variables which are values in a
-			// triple whose attribute is "operator".
-			ArrayList<String> superstateVariables = new ArrayList<String>();
-
-			// Gather superstate variables
-			for (Triple triple : stateTriples) {
-				if (triple.attributeIsConstant()) {
-					if (triple.attribute.equals("superstate")) {
-						if (triple.valueIsVariable()) {
-							superstateVariables.add(triple.value);
-						}
-					}
-				}
-			}
-
-			// Find all triples whose variable is in
-			// operatorVariables, whose attribute is "name", and
-			// whose value is a constant.
-			// The collection of all these constants are the names
-			// of related operators.
-			// For each operator name, add this rule to the
-			// operator.
-			// Either find an existing operator of the appropriate
-			// name, or create one from scratch.
-			// Even better is to find an operator of the right name
-			// that is already joined to this rule.
-			// If there is more than one operator with that name
-			// (shouldn't happen), signal an error.
-			// Confirm with the user before making any changes to
-			// the database.
+			// Find all triples which match <s>.operator.name and whose value is a constant.
+			// The collection of all these constants are the names of related operators.
+			// For each operator name, add this rule to the operator.
+			// Either find an existing operator of the appropriate name, or create one from scratch.
+			// Even better is to find an operator of the right name that is already joined to this rule.
+			// If there is more than one operator with that name (shouldn't happen), signal an error.
+			// Confirm with the user before making any changes to the database.
 			ArrayList<String> relatedOperatorNames = new ArrayList<String>();
 			for (Triple triple : triples) {
-				if (operatorVariables.contains(triple.variable)) {
-					if (triple.attribute.equals("name")) {
-						if (triple.valueIsConstant()) {
-							relatedOperatorNames.add(triple.value);
-						}
-					}
+				if (triple.isOperatorName() && triple.valueIsConstant()) {
+					relatedOperatorNames.add(triple.value);
 				}
 			}
 			for (String operatorName : relatedOperatorNames) {
@@ -134,29 +83,17 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 			// update operators
 			operators = TraversalUtil.getOperatorsMap(agent);
 
-			// Find all triples whose variable is in
-			// stateVariables, whose attribute is "name", and
-			// whose value is a constant.
-			// The collection of all these constants are the names
-			// of related states.
-			// If this rule has no related operators: for each state
-			// name, add this rule to the state.
-			// Either find an existing state of the appropriate
-			// name, or create one from scratch.
-			// Even better is to find a state of the right name that
-			// is already joined to this rule.
-			// If there is more than one state with that name
-			// (shouldn't happen), signal an error.
-			// Confirm with the user before making any changes to
-			// the database.
+			// Find all triples which match <s>.name and whose value is a constant.
+			// The collection of all these constants are the names of related states.
+			// If this rule has no related operators: for each state name, add this rule to the state.
+			// Either find an existing state of the appropriate name, or create one from scratch.
+			// Even better is to find a state of the right name that is already joined to this rule.
+			// If there is more than one state with that name (shouldn't happen), signal an error.
+			// Confirm with the user before making any changes to the database.
 			ArrayList<String> relatedStateNames = new ArrayList<String>();
 			for (Triple triple : triples) {
-				if (stateVariables.contains(triple.variable)) {
-					if (triple.attribute.equals("name")) {
-						if (triple.valueIsConstant()) {
-							relatedStateNames.add(triple.value);
-						}
-					}
+				if (triple.isStateName() && triple.valueIsConstant()) {
+					relatedStateNames.add(triple.value);
 				}
 			}
 			if (relatedOperatorNames.size() == 0) {
@@ -199,24 +136,15 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 			// update problem spaces
 			problemSpaces = TraversalUtil.getProblemSpacesMap(agent);
 
-			// Find all triples which have a superstate variable as
-			// their variable, "name" as their attribute, and a
-			// constant as their value.
-			// The value of each of those triples are the related
-			// superstates.
+			// Find all triples which match <s>.superstate.name and have a constant as their value.
+			// The value of each of those triples are the related superstates.
 			// For each related state (see above), for each
-			// superstate, if the states are not joined, propose a
-			// join.
-			// Confirm with the user before making any changes to
-			// the database.
+			// superstate, if the states are not joined, propose a join.
+			// Confirm with the user before making any changes to the database.
 			ArrayList<String> relatedSuperstateNames = new ArrayList<String>();
 			for (Triple triple : triples) {
-				if (superstateVariables.contains(triple.variable)) {
-					if (triple.attribute.equals("name")) {
-						if (triple.valueIsConstant()) {
-							relatedSuperstateNames.add(triple.value);
-						}
-					}
+				if (triple.isSuperstateName() && triple.valueIsConstant()) {
+					relatedSuperstateNames.add(triple.value);
 				}
 			}
 			for (String relatedStateName : relatedStateNames) {

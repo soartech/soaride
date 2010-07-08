@@ -43,7 +43,9 @@ public class SoarDatabaseOperatorEditor extends AbstractSoarDatabaseTextEditor i
 			IDocument doc = getDocumentProvider().getDocument(input);
 			Pattern regex = Pattern.compile("sp \\{([^\\}]*)\\}");
 			Matcher matcher = regex.matcher(doc.get());
+			boolean hasRule = false;
 			while (matcher.find()) {
+				hasRule = true;
 				String match = matcher.group();
 				String matchBody = matcher.group(1);
 				int nameBeginIndex = match.indexOf('{') + 1;
@@ -65,38 +67,39 @@ public class SoarDatabaseOperatorEditor extends AbstractSoarDatabaseTextEditor i
 					rule = operator.getTopLevelRow().createChild(Table.RULES, ruleName);
 					SoarDatabaseRow.joinRows(operator, rule, operator.getDatabaseConnection());
 				}
-					String ruleText = rule.getText();
-					StringBuffer newRuleText = new StringBuffer();
-					Matcher ruleMatcher = regex.matcher(ruleText);
-					int lastIndex = 0;
-					boolean matched = false;
-					while (ruleMatcher.find()) {
-						matched = true;
-						int matchStart = ruleMatcher.start();
-						newRuleText.append(ruleText.substring(lastIndex, matchStart));
-						newRuleText.append("sp {");
-						newRuleText.append(matchBody);
-						newRuleText.append("}");
-						lastIndex = ruleMatcher.end();
-					}
-					newRuleText.append(ruleText.substring(lastIndex));
-					
-					if (!matched) {				
-						newRuleText.append("sp {");
-						newRuleText.append(matchBody);
-						newRuleText.append("}");
-					}
-					
-					// TODO debug
-					//System.out.println("New Rule Body:\n" + newRuleText.toString());
-					
-					rule.setText(newRuleText.toString());
+				String ruleText = rule.getText();
+				StringBuffer newRuleText = new StringBuffer();
+				Matcher ruleMatcher = regex.matcher(ruleText);
+				int lastIndex = 0;
+				boolean matched = false;
+				while (ruleMatcher.find()) {
+					matched = true;
+					int matchStart = ruleMatcher.start();
+					newRuleText.append(ruleText.substring(lastIndex, matchStart));
+					newRuleText.append("sp {");
+					newRuleText.append(matchBody);
+					newRuleText.append("}");
+					lastIndex = ruleMatcher.end();
+				}
+				newRuleText.append(ruleText.substring(lastIndex));
+
+				if (!matched) {
+					newRuleText.append("sp {");
+					newRuleText.append(matchBody);
+					newRuleText.append("}");
+				}
+
+				// TODO debug
+				// System.out.println("New Rule Body:\n" +
+				// newRuleText.toString());
+
+				rule.save(newRuleText.toString(), input);
 			}
 			
 			input.clearProblems();
 			clearAnnotations();
-			SoarDatabaseRow row = input.getSoarDatabaseStorage().getRow();
-			row.save(doc, input);
+			//SoarDatabaseRow row = input.getSoarDatabaseStorage().getRow();
+			//row.save(doc, input);
 			ArrayList<SoarProblem> problems = input.getProblems();
 			for (SoarProblem problem : problems) {
 				SoarDatabaseTextAnnotation annotation = new SoarDatabaseTextAnnotation();
@@ -104,6 +107,9 @@ public class SoarDatabaseOperatorEditor extends AbstractSoarDatabaseTextEditor i
 				addAnnotation(annotation, position);
 			}
 			getVerticalRuler().update();
+			if (!hasRule) {
+				this.doRevertToSaved();
+			}
 		}
 	}
 	
@@ -119,7 +125,7 @@ public class SoarDatabaseOperatorEditor extends AbstractSoarDatabaseTextEditor i
 	public void onEvent(SoarDatabaseEvent event, SoarDatabaseConnection db) {
 		if (event.type == Type.DATABASE_CHANGED) {
 			ArrayList<ISoarDatabaseTreeItem> rules = this.input.getRow().getJoinedRowsFromTable(Table.RULES);
-			if (event.row != null && rules.contains(event.row)) {
+			if (event.row != null && rules.contains(event.row) || event.row == this.input.getRow()) {
 				this.doRevertToSaved();
 			}
 		}

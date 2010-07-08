@@ -1,4 +1,4 @@
-package com.soartech.soar.ide.ui.views.explorer;
+package com.soartech.soar.ide.ui.views.itemdetail;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -18,7 +18,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.Page;
 import org.eclipse.ui.part.ViewPart;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
@@ -32,10 +31,11 @@ import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapEditor;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
+import com.soartech.soar.ide.ui.views.explorer.SoarExplorerView;
 
 public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEventListener, ISelectionListener, IDoubleClickListener {
     public static final String ID = "com.soartech.soar.ide.ui.views.SoarDatabaseItemView";
-
+    
 	TreeViewer tree;
 	
 	@Override
@@ -43,7 +43,8 @@ public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEvent
 		tree = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
         tree.setUseHashlookup(true); // this significantly improves update performance
 		tree.setContentProvider(new SoarDatabaseItemContentProvider());
-		tree.setLabelProvider(SoarLabelProvider.createFullLabelProvider(null));
+//		tree.setLabelProvider(SoarLabelProvider.createFullLabelProvider(null));
+		tree.setLabelProvider(new SoarDatabaseItemLabelProvider());
 		ISoarModel input = SoarCorePlugin.getDefault().getSoarModel();
         tree.setInput(input);
         getSite().setSelectionProvider(tree);
@@ -59,8 +60,6 @@ public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEvent
 			@Override
 			public void keyPressed(KeyEvent event) {
 				if (event.keyCode == java.awt.event.KeyEvent.VK_DELETE) {
-					// TODO
-					// un-link joined datamap items
 					TreeSelection ts = (TreeSelection) tree.getSelection();
 					for (TreePath tp : ts.getPaths()) {
 						int segments = tp.getSegmentCount();

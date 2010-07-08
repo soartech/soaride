@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import com.soartech.soar.ide.core.model.ast.Constant;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
@@ -22,7 +21,66 @@ public class TraversalUtil {
 		ArrayList<String> stateVariables = new ArrayList<String>();
 		visitRuleNode(rule, triples, stateVariables);
 		appleStateToTriples(triples, stateVariables);
+		
+		addAttributePathInformationToTriples(triples);
+		
+		// TODO debug
+		System.out.println("Triples for rule: " + rule.getName());
+		for (Triple triple : triples) {
+			System.out.println(triple);
+			ArrayList<ArrayList<String>> paths = triple.getAttributePathsFromState();
+			if (paths != null) {
+				for (ArrayList<String> path : paths) {
+					System.out.print("<s>");
+					for (String p : path) {
+						System.out.print("." + p);
+					}
+					System.out.println();
+				}
+			}
+		}
+		
 		return triples;
+	}
+	
+	/**
+	 * Records attribute path information for each triple from root node state <s>
+	 * @param triples
+	 */
+	private static void addAttributePathInformationToTriples(ArrayList<Triple> triples) {
+		HashMap<String, ArrayList<Triple>> triplesWithVariable = new HashMap<String, ArrayList<Triple>>();
+		HashMap<String, ArrayList<Triple>> triplesWithValue = new HashMap<String, ArrayList<Triple>>();
+		for (Triple triple : triples) {
+			ArrayList<Triple> variableList = triplesWithVariable.get(triple.variable);
+			if (variableList == null) {
+				variableList = new ArrayList<Triple>();
+				triplesWithVariable.put(triple.variable, variableList);
+			}
+			variableList.add(triple);
+			
+			if (triple.valueIsVariable()) {
+				ArrayList<Triple> valueList = triplesWithValue.get(triple.value);
+				if (valueList == null) {
+					valueList = new ArrayList<Triple>();
+					triplesWithValue.put(triple.value, valueList);
+				}
+				valueList.add(triple);			
+			}
+		}
+		
+		for (Triple triple : triples) {
+			ArrayList<Triple> parentTriples = triplesWithValue.get(triple.variable);
+			if (parentTriples != null) {
+				triple.parentTriples = parentTriples;
+			}
+		}
+	}
+
+	static boolean debug = false;
+
+	private static void debug(String str) {
+		if (!debug) return;
+		System.out.println(str);
 	}
 	
 	private static void appleStateToTriples(ArrayList<Triple> triples, ArrayList<String> stateVariables) {
@@ -36,7 +94,7 @@ public class TraversalUtil {
 	}
 	
 	private static void visitRuleNode(SoarDatabaseRow row, ArrayList<Triple> triples, ArrayList<String> stateVariables) {
-		System.out.println("visitRuleNode");
+		debug("visitRuleNode");
 		ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
 		for (ISoarDatabaseTreeItem item : children) {
 			assert item instanceof SoarDatabaseRow;
@@ -59,7 +117,7 @@ public class TraversalUtil {
 	}
 	
 	private static void visitConditionForOneIdentifier(SoarDatabaseRow row, ArrayList<Triple> triples, String variable) {
-		System.out.println("visitConditionForOneIdentifier");
+		debug("visitConditionForOneIdentifier");
 		ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
 		for (ISoarDatabaseTreeItem item : children) {
 			assert item instanceof SoarDatabaseRow;
@@ -71,7 +129,7 @@ public class TraversalUtil {
 				visitAttributeValueTest(child, attributes, values);
 				ArrayList<String> variables = new ArrayList<String>();
 				variables.add(variable);
-				System.out.println("Values: " + values + " (visitConditionForOneIdentifier)");
+				debug("Values: " + values + " (visitConditionForOneIdentifier)");
 				ArrayList<Triple> newTriples = triplesForVariablesNamesAttributes(variables, attributes, values);
 				triples.addAll(newTriples);
 			} else {
@@ -88,16 +146,16 @@ public class TraversalUtil {
 			singleAttribute.add(attribute);
 			attributesList.add(singleAttribute);
 		}
-		System.out.println("Values: " + values + " (triplesForVariablesNamesAttributesShortList)");
+		debug("Values: " + values + " (triplesForVariablesNamesAttributesShortList)");
 		if (values == null) {
-			System.out.println("NULL");
+			debug("NULL");
 		}
 		ArrayList<Triple> ret = triplesForVariablesNamesAttributes(variables, attributesList, values);
 		return ret;
 	}
 	
 	private static ArrayList<Triple> triplesForVariablesNamesAttributes(ArrayList<String> variables, ArrayList<ArrayList<String>> attributes, ArrayList<String> values) {
-		System.out.println("triplesForVariablesNamesAttributes, values: " + values);
+		debug("triplesForVariablesNamesAttributes, values: " + values);
 		ArrayList<Triple> ret = new ArrayList<Triple>();
 		ArrayList<String> newVariables = new ArrayList<String>();
 		if (attributes.size() > 0) {
@@ -139,7 +197,7 @@ public class TraversalUtil {
 				for (int i = 1; i < attributes.size(); ++i) {
 					newAttributes.add(attributes.get(i));
 				}
-				System.out.println("Values: " + values + " (triplesForVariablesNamesAttributes)");
+				debug("Values: " + values + " (triplesForVariablesNamesAttributes)");
 				ArrayList<Triple> recurse = triplesForVariablesNamesAttributes(newVariables, newAttributes, values);
 				ret.addAll(recurse);
 			}
@@ -148,7 +206,7 @@ public class TraversalUtil {
 	}
 	
 	private static void visitAttributeValueTest(SoarDatabaseRow row, ArrayList<ArrayList<String>> attributes, ArrayList<String> values) {
-		System.out.println("visitAttributeValueTest");
+		debug("visitAttributeValueTest");
 		ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
 		for (ISoarDatabaseTreeItem item : children) {
 			assert item instanceof SoarDatabaseRow;
@@ -167,7 +225,7 @@ public class TraversalUtil {
 	}
 	
 	private static void visitAttributeTest(SoarDatabaseRow row, ArrayList<String> attributes) {
-		System.out.println("visitAttributeTest");
+		debug("visitAttributeTest");
 		ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
 		for (ISoarDatabaseTreeItem item : children) {
 			assert item instanceof SoarDatabaseRow;
@@ -186,18 +244,19 @@ public class TraversalUtil {
 	}
 	
 	private static void visitDisjunctionTest(SoarDatabaseRow row, ArrayList<String> names) {
-		System.out.println("visitDisjunctionTest");
+		debug("visitDisjunctionTest");
 		ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
 		for (ISoarDatabaseTreeItem item : children) {
 			assert item instanceof SoarDatabaseRow;
 			SoarDatabaseRow child = (SoarDatabaseRow) item;
-			assert child.getTable() == Table.CONSTANTS;
-			visitConstant(child, names);
+			if (child.getTable() == Table.CONSTANTS) {
+				visitConstant(child, names);
+			}
 		}
 	}
 	
 	private static void visitConjunctiveTest(SoarDatabaseRow row, ArrayList<String> names) {
-		System.out.println("visitConjunctiveTest");
+		debug("visitConjunctiveTest");
 		ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
 		for (ISoarDatabaseTreeItem item : children) {
 			assert item instanceof SoarDatabaseRow;
@@ -214,7 +273,7 @@ public class TraversalUtil {
 	
 	
 	private static void visitValueTest(SoarDatabaseRow row, ArrayList<String> values) {
-		System.out.println("visitValueTest");
+		debug("visitValueTest");
 		ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
 		for (ISoarDatabaseTreeItem item : children) {
 			assert item instanceof SoarDatabaseRow;
@@ -231,15 +290,16 @@ public class TraversalUtil {
 	}
 	
 	private static void visitSingleTest(SoarDatabaseRow row, ArrayList<String> names) {
-		System.out.println("visitSingleTest");
+		debug("visitSingleTest");
 		boolean isConstant = ((Integer) row.getColumnValue("is_constant") == 1);
 		if (isConstant) {
 			ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
 			for (ISoarDatabaseTreeItem item : children) {
 				assert item instanceof SoarDatabaseRow;
 				SoarDatabaseRow child = (SoarDatabaseRow) item;
-				assert child.getTable() == Table.CONSTANTS;
-				visitConstant(child, names);
+				if (child.getTable() == Table.CONSTANTS) {
+					visitConstant(child, names);
+				}
 			}
 		} else {
 			String variable = "" + row.getColumnValue("variable");
@@ -248,13 +308,13 @@ public class TraversalUtil {
 	}
 	
 	private static void visitConstant(SoarDatabaseRow row, ArrayList<String> names) {
-		System.out.println("visitConstant");
+		debug("visitConstant");
 		Object name = row.getColumnValue("symbolic_const");
 		names.add("" + name);
 	}
 	
 	private static void visitVarAttrValMake(SoarDatabaseRow row, ArrayList<Triple> triples, String variable) {
-		System.out.println("visitVarAttrValMake");
+		debug("visitVarAttrValMake");
 		ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
 		for (ISoarDatabaseTreeItem item : children) {
 			assert item instanceof SoarDatabaseRow;
@@ -274,7 +334,7 @@ public class TraversalUtil {
 	}
 
 	private static void visitAttributeValueMake(SoarDatabaseRow row, ArrayList<String> attributes, ArrayList<String> values) {
-		System.out.println("visitAttributeValueMake, values: " + values);
+		debug("visitAttributeValueMake, values: " + values);
 		ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
 		for (ISoarDatabaseTreeItem item : children) {
 			assert item instanceof SoarDatabaseRow;
@@ -296,19 +356,28 @@ public class TraversalUtil {
 	}
 	
 	private static void visitRHSValue(SoarDatabaseRow row, ArrayList<String> names) {
-		System.out.println("visitRHSValue");
-		ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
-		for (ISoarDatabaseTreeItem item : children) {
-			assert item instanceof SoarDatabaseRow;
-			SoarDatabaseRow child = (SoarDatabaseRow) item;
-			assert child.getTable() == Table.CONSTANTS;
-			String name = "" + child.getColumnValue("symbolic_const");
+		debug("visitRHSValue");
+		assert row.getTable() == Table.RHS_VALUES;
+		Object objIsVariable = row.getColumnValue("is_variable");
+		if (((Integer) objIsVariable) == 1) {
+			String name = "" + row.getColumnValue("variable");
 			names.add(name);
+		}
+		if (((Integer) row.getColumnValue("is_constant")) == 1) {
+			ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
+			for (ISoarDatabaseTreeItem item : children) {
+				assert item instanceof SoarDatabaseRow;
+				SoarDatabaseRow child = (SoarDatabaseRow) item;
+				if (child.getTable() == Table.CONSTANTS) {
+					String name = "" + child.getColumnValue("symbolic_const");
+					names.add(name);
+				}
+			}	
 		}
 	}
 	
 	private static void visitValueMake(SoarDatabaseRow row, ArrayList<String> values) {
-		System.out.println("visitValueMake, values: " + values);
+		debug("visitValueMake, values: " + values);
 		ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
 		for (ISoarDatabaseTreeItem item : children) {
 			assert item instanceof SoarDatabaseRow;

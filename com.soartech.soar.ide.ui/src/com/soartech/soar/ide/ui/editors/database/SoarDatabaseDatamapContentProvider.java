@@ -1,7 +1,6 @@
 package com.soartech.soar.ide.ui.editors.database;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -12,10 +11,9 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public class SoarDatabaseDatamapContentProvider implements ITreeContentProvider {
 
-	@Override
-	public Object[] getChildren(Object element) {
+	private ArrayList<ISoarDatabaseTreeItem> getChildren(ISoarDatabaseTreeItem element, boolean includeLinkedChildren) {
 		if (element instanceof SoarDatabaseRow) {
-			// should be true
+			// should usually be true
 			SoarDatabaseRow row = (SoarDatabaseRow) element;
 			boolean includeFolders = false;
 			boolean includeItemsInFolders = false;
@@ -23,18 +21,18 @@ public class SoarDatabaseDatamapContentProvider implements ITreeContentProvider 
 			boolean includeDirectionalJoinedItems = true;
 			boolean putDirectionalJoinedItemsInFolders = false;
 			boolean includeDatamapNodes = true;
-			ArrayList<Object> ret = new ArrayList<Object>();
+			ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 			ret.addAll(row.getChildren(includeFolders,
 					includeItemsInFolders,
 					includeJoinedItems,
 					includeDirectionalJoinedItems,
 					putDirectionalJoinedItemsInFolders,
 					includeDatamapNodes));
-
+			
 			// If this is the root node (the problem space), don't show substates.
 			if (row.getTable() == Table.PROBLEM_SPACES) {
-				ArrayList<Object> temp = new ArrayList<Object>();
-				for (Object item : ret) {
+				ArrayList<ISoarDatabaseTreeItem> temp = new ArrayList<ISoarDatabaseTreeItem>();
+				for (ISoarDatabaseTreeItem item : ret) {
 					if (item instanceof SoarDatabaseRow &&
 							((SoarDatabaseRow)item).getTable() != Table.PROBLEM_SPACES) {
 						temp.add(item);
@@ -74,14 +72,26 @@ public class SoarDatabaseDatamapContentProvider implements ITreeContentProvider 
 				}
 			}
 			
-			return ret.toArray();
+			if (includeLinkedChildren) {
+				ArrayList<ISoarDatabaseTreeItem> linkedRows = row.getJoinedRowsFromTable(row.getTable());
+				for (ISoarDatabaseTreeItem item : linkedRows) {
+					ret.addAll(getChildren(item, false));
+				}
+			}
+			
+			return ret;
 		}
 		
 		if (element instanceof SoarDatabaseDatamapSuperstateAttribute) {
-			return ((SoarDatabaseDatamapSuperstateAttribute)element).getChildren(this).toArray();
+			return ((SoarDatabaseDatamapSuperstateAttribute)element).getChildren(this);
 		}
 		
-		return new Object[0];
+		return new ArrayList<ISoarDatabaseTreeItem>();
+	}
+	
+	@Override
+	public Object[] getChildren(Object element) {
+		return getChildren((SoarDatabaseRow)element, true).toArray();
 	}
 
 	@Override

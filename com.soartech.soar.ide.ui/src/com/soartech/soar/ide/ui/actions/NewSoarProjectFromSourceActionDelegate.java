@@ -6,12 +6,9 @@ import java.util.ArrayList;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
@@ -24,8 +21,6 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.actions.explorer.GenerateAgentStructureActionDelegate;
 import com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapsActionDelegate;
-import com.soartech.soar.ide.ui.actions.explorer.ImportRulesActionDelegate;
-import com.soartech.soar.ide.ui.views.explorer.SoarExplorerView;
 
 public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowActionDelegate {
 	
@@ -39,7 +34,18 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 
 	@Override
 	public void run(IAction action) {
+		
+		boolean savedToDisk = SoarCorePlugin.getDefault().getSoarModel().getDatabase().isSavedToDisk();
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		
+		if (!savedToDisk) {
+			MessageDialog message = new MessageDialog(shell, "Create new project?", null, "Create new project? Unsaved changes will be lost.", MessageDialog.QUESTION, new String[] {"OK", "Cancel"}, 0);
+			int result = message.open();
+			if (result != 0) {
+				return;
+			}
+		}
+		
 		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
 		String path = dialog.open();
 		if (path == null) {
@@ -50,14 +56,9 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 			return;
 		}
 		
-		if (SoarCorePlugin.getDefault().getSoarModel().getDatabase().isSavedToDisk()) {
+		if (savedToDisk) {
 			SoarUiModelTools.closeAllEditors(true);
 		} else {
-			MessageDialog message = new MessageDialog(shell, "Create new project?", null, "Create new project? Unsaved changes will be lost.", MessageDialog.QUESTION, new String[] {"OK", "Cancel"}, 0);
-			int result = message.open();
-			if (result != 0) {
-				return;
-			}
 			SoarUiModelTools.closeAllEditors(false);
 		}
 		

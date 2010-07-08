@@ -37,8 +37,9 @@ import org.eclipse.ui.forms.FormColors;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import com.soartech.soar.ide.ui.editors.text.SoarContext;
+import com.soartech.soar.ide.ui.editors.text.SoarOperatorContext;
 import com.soartech.soar.ide.ui.editors.text.SoarEditorMessages;
+import com.soartech.soar.ide.ui.editors.text.SoarRuleContext;
 import com.soartech.soar.ide.ui.editors.text.SyntaxColorManager;
 
 /**
@@ -190,7 +191,8 @@ public class SoarEditorUIPlugin extends AbstractUIPlugin
         if (contextRegistry == null)
         {
             contextRegistry = new ContributionContextTypeRegistry();
-            contextRegistry.addContextType(SoarContext.SOAR_CONTEXT_TYPE);
+            contextRegistry.addContextType(SoarOperatorContext.SOAR_CONTEXT_TYPE);
+            contextRegistry.addContextType(SoarRuleContext.SOAR_CONTEXT_TYPE);
         }
         return contextRegistry;
     }

@@ -97,7 +97,7 @@ public class AddChildRowAction extends Action {
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		String title = "New " + childTable.englishName();
 		String message = "Enter Name:";
-		String initialValue = childTable.soarName();
+		String initialValue = childTable.soarName() + "-name";
 		InputDialog dialog = new InputDialog(shell, title, message, initialValue, null);
 		dialog.open();
 		String result = dialog.getValue();

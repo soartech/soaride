@@ -1,4 +1,4 @@
-package com.soartech.soar.ide.ui.views.explorer;
+package com.soartech.soar.ide.ui.views.itemdetail;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -9,10 +9,9 @@ import org.eclipse.jface.viewers.Viewer;
 import com.soartech.soar.ide.core.model.ISoarModel;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
-import com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
-import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
+import com.sun.xml.internal.ws.developer.MemberSubmissionEndpointReference.Elements;
 
 public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 
@@ -46,7 +45,8 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 				}
 			}
 			try {
-				ArrayList<ISoarDatabaseTreeItem> ret = ((ISoarDatabaseTreeItem)element).getChildren(
+				ISoarDatabaseTreeItem item = (ISoarDatabaseTreeItem)element;
+				ArrayList<ISoarDatabaseTreeItem> ret = item.getChildren(
 						includeFolders,
 						includeItemsInFolders,
 						includeJoinedItems,
@@ -62,7 +62,7 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 		return new Object[0];
 	}
 	
-	private ArrayList<ISoarDatabaseTreeItem> sortItems(ArrayList<ISoarDatabaseTreeItem> items) {
+	public static ArrayList<ISoarDatabaseTreeItem> sortItems(ArrayList<ISoarDatabaseTreeItem> items) {
 		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		HashSet<ISoarDatabaseTreeItem> added = new HashSet<ISoarDatabaseTreeItem>();
 		
@@ -79,24 +79,24 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 		 */
 		
 		// Add rules
-		String[] terms = {"propose", "evaluate/select", "apply"};
+		String[] terms = {"elaborate-state", "propose", "evaluate", "compare", "elaborate-operator", "apply"};
 		
 		for (String term : terms) {
 			String[] termSegments = term.split("/");
 			for (ISoarDatabaseTreeItem item : items) {
 				if (item instanceof SoarDatabaseRow) {
 					SoarDatabaseRow row = (SoarDatabaseRow) item;
-					boolean matchesTerm = false;
-					for (String termSegment : termSegments) {
-						if (row.getName().toLowerCase().contains(termSegment)) {
-							matchesTerm = true;
+					if (row.getTable() == Table.RULES) {
+						boolean matchesTerm = false;
+						for (String termSegment : termSegments) {
+							if (row.getName().toLowerCase().contains(termSegment)) {
+								matchesTerm = true;
+							}
 						}
-					}
-					if (row.getTable() == Table.RULES
-							&& matchesTerm
-							&& !added.contains(row)) {
-						ret.add(row);
-						added.add(row);
+						if (row.getTable() == Table.RULES && matchesTerm && !added.contains(row)) {
+							ret.add(row);
+							added.add(row);
+						}
 					}
 				}
 			}
@@ -141,7 +141,23 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 	@Override
 	public Object[] getElements(Object element) {
 		if (element.getClass().isArray()) {
-			return (Object[]) element;
+			Object[] ar = (Object[]) element;
+			if (ar.length > 0) {
+				Object firstElement = ar[0];
+				if (firstElement instanceof SoarDatabaseRow) {
+					SoarDatabaseRow row = (SoarDatabaseRow) firstElement;
+					if (row.isDatamapNode()) {
+						ArrayList<ISoarDatabaseTreeItem> ret = row.getUndirectedJoinedRowsFromTable(row.getTable());
+						ret.add(row);
+						for (ISoarDatabaseTreeItem item : ret) {
+							assert item instanceof SoarDatabaseRow;
+							((SoarDatabaseRow) item).setTerminal(true);
+						}
+						return ret.toArray();
+					}
+				}
+			}
+			return ar;
 		}
 		return getChildren(element);
 	}

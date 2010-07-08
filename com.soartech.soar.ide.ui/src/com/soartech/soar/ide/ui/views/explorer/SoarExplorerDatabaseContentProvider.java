@@ -1,20 +1,22 @@
 package com.soartech.soar.ide.ui.views.explorer;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
 import com.soartech.soar.ide.core.model.ISoarModel;
-import com.soartech.soar.ide.core.sql.EditableColumn;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
+import com.soartech.soar.ide.ui.views.itemdetail.SoarDatabaseItemContentProvider;
 
 public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider {
+	
+	String filter = "";
+	String search = "";
 	
 	@Override
 	public Object[] getChildren(Object element) {
@@ -24,6 +26,7 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 			return ret;
 		}
 		else if (element instanceof ISoarDatabaseTreeItem) {
+			ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 			if (element instanceof SoarDatabaseRow) {
 				SoarDatabaseRow row = (SoarDatabaseRow) element;
 				Table table = row.getTable();
@@ -34,24 +37,32 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 					boolean includeDirectionalJoinedItems = true;
 					boolean putDirectionalJoinedItemsInFolders = true;
 					boolean includeDatamapNodes = false;
-					return row.getChildren(
+					ArrayList<ISoarDatabaseTreeItem> ar = new ArrayList<ISoarDatabaseTreeItem>();
+					for (ISoarDatabaseTreeItem item : row.getChildrenOfType(Table.PROBLEM_SPACES)) {
+						if (item instanceof SoarDatabaseRow) {
+							SoarDatabaseRow ps = (SoarDatabaseRow) item;
+							if (ps.getTable() == Table.PROBLEM_SPACES && ps.isRootProblemSpace()) {
+								ar.add(ps);
+							}
+						}
+					}
+					ar.addAll(row.getChildren(
 							includeFolders,
 							includeChildrenInFolders,
 							includeJoinedItems,
 							includeDirectionalJoinedItems,
 							putDirectionalJoinedItemsInFolders,
-							includeDatamapNodes).toArray();
+							includeDatamapNodes));
+					return ar.toArray();
 				}
 				if (table == Table.PROBLEM_SPACES) {
-					ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 					ret.addAll(row.getJoinedRowsFromTable(Table.RULES));
 					ret.addAll(row.getJoinedRowsFromTable(Table.OPERATORS));
 					ret.addAll(row.getDirectedJoinedChildrenOfType(Table.PROBLEM_SPACES, false));
-					return ret.toArray();
+					ret = SoarDatabaseItemContentProvider.sortItems(ret);
 				}
 				if (table == Table.OPERATORS) {
-					ArrayList<ISoarDatabaseTreeItem> ret = row.getJoinedRowsFromTable(Table.RULES);
-					return ret.toArray();
+					ret = row.getJoinedRowsFromTable(Table.RULES);
 				}
 				if (table == Table.RULES) {
 					return new Object[0];
@@ -65,16 +76,42 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 				boolean includeDirectionalJoinedItems = true;
 				boolean putDirectionalJoinedItemsInFolders = true;
 				boolean includeDatamapNodes = false;
-				return folder.getChildren(
+				ret = folder.getChildren(
 						includeFolders,
 						includeChildrenInFolders,
 						includeJoinedItems,
 						includeDirectionalJoinedItems,
 						putDirectionalJoinedItemsInFolders,
-						includeDatamapNodes).toArray();
+						includeDatamapNodes);
 			}
+			ret = SoarDatabaseItemContentProvider.sortItems(ret);
+			ret = filter(ret);
+			return ret.toArray();
 		}
 		return new Object[0];
+	}
+	
+	private ArrayList<ISoarDatabaseTreeItem> filter(ArrayList<ISoarDatabaseTreeItem> list) {
+		if (filter.length() == 0 && search.length() == 0) return list;
+		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
+		for (ISoarDatabaseTreeItem item : list) {
+			boolean add = true;
+			if (item instanceof SoarDatabaseRow) {
+				SoarDatabaseRow row = (SoarDatabaseRow) item;
+				String name = row.getName();
+				if (filter.length() != 0 && !name.contains(filter)) {
+					add = false;
+				}
+				String text = row.getText();
+				if (search.length() != 0 && row.getTable() == Table.RULES && !text.contains(search)) {
+					add = false;
+				}
+			}
+			if (add) {
+				ret.add(item);
+			}
+		}
+		return ret;
 	}
 
 	@Override
@@ -114,6 +151,14 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+	}
+	
+	public void setFilter(String filter) {
+		this.filter = filter.trim();
+	}
+	
+	public void setSearch(String search) {
+		this.search = search.trim();
 	}
 
 }

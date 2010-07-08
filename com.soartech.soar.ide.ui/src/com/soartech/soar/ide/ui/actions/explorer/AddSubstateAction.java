@@ -42,7 +42,7 @@ public class AddSubstateAction extends Action {
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		String title = "New Substate";
 		String message = "Enter Name:";
-		String initialValue = Table.PROBLEM_SPACES.soarName();
+		String initialValue = Table.PROBLEM_SPACES.soarName() + "-name";
 		InputDialog dialog = new InputDialog(shell, title, message, initialValue, null);
 		dialog.open();
 		String result = dialog.getValue();

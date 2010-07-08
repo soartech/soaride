@@ -28,7 +28,7 @@ public class ExportSoarDatabaseRowAction extends Action {
 	SoarCommandLineMXBean proxy = null;
 	
 	public ExportSoarDatabaseRowAction(SoarDatabaseRow row) {
-		super("Export " + row.getName() + " to file");
+		super("Export " + row.getName() + " to file...");
 		this.row = row;
 	}
 	
@@ -94,14 +94,14 @@ public class ExportSoarDatabaseRowAction extends Action {
 		try {
 			ArrayList<ISoarDatabaseTreeItem> children = TraversalUtil.getRelatedRules(row);
 			String agentName = row.getName();
-			writer.write("# Begin export of " + row.getTable().englishName() + " \"" + agentName + "\"\n");
+			//writer.write("# Begin export of " + row.getTable().englishName() + " \"" + agentName + "\"\n");
 
 			if (row.getTable() == Table.AGENTS) {
 				String agentText = row.getText();
 				if (agentText.length() > 0) {
-					writer.write("# Begin Soar commands for agent \"" + row.getName() + "\"\n");
+					//writer.write("# Begin Soar commands for agent \"" + row.getName() + "\"\n");
 					writer.write(agentText);
-					writer.write("\n# End Soar commands for agent \"" + row.getName() + "\"\n");
+					//writer.write("\n# End Soar commands for agent \"" + row.getName() + "\"\n");
 				}
 			}
 
@@ -111,11 +111,11 @@ public class ExportSoarDatabaseRowAction extends Action {
 				assert childRow.getTable() == Table.RULES;
 				String ruleText = childRow.getText();
 				String ruleName = childRow.getName();
-				writer.write("# Begin rule \"" + ruleName + "\"\n");
+				//writer.write("# Begin rule \"" + ruleName + "\"\n");
 				writer.write(ruleText);
-				writer.write("\n# End rule \"" + ruleName + "\"\n");
+				//writer.write("\n# End rule \"" + ruleName + "\"\n");
 			}
-			writer.write("# End export of " + row.getTable().englishName() + " \"" + agentName + "\"\n");
+			//writer.write("# End export of " + row.getTable().englishName() + " \"" + agentName + "\"\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

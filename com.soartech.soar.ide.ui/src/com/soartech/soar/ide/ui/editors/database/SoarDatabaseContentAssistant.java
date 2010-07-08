@@ -27,12 +27,13 @@ import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
-import com.soartech.soar.ide.ui.editors.text.SoarContext;
+import com.soartech.soar.ide.ui.editors.text.SoarOperatorContext;
 import com.soartech.soar.ide.ui.editors.text.SoarInformationControlCreator;
+import com.soartech.soar.ide.ui.editors.text.SoarRuleContext;
 
 public class SoarDatabaseContentAssistant extends ContentAssistant {
 
-    /**
+	/**
      * Constructor for a <code>SoarContentAssistant</code> object.
      *
      * @param configuration The current <code>SoarSourceEditorConfiguration</code>
@@ -55,7 +56,7 @@ public class SoarDatabaseContentAssistant extends ContentAssistant {
  *          2006) $
  */
 class SoarDatabaseCompletionProcessor extends TemplateCompletionProcessor {
-
+	
     private static final String DEFAULT_IMAGE = "$nl$/icons/template.gif";
     private SoarDatabaseTextEditorConfiguration configuration = null;
 
@@ -127,6 +128,7 @@ class SoarDatabaseCompletionProcessor extends TemplateCompletionProcessor {
 		
 		ICompletionProposal[] thisRet = list.toArray(new ICompletionProposal[]{});
 		ICompletionProposal[] superRet = super.computeCompletionProposals(viewer, offset);
+		
 		ICompletionProposal[] ret = new ICompletionProposal[thisRet.length + superRet.length];
 		System.arraycopy(thisRet, 0, ret, 0, thisRet.length);
 		System.arraycopy(superRet, 0, ret, thisRet.length, superRet.length);
@@ -278,10 +280,22 @@ class SoarDatabaseCompletionProcessor extends TemplateCompletionProcessor {
      *      org.eclipse.jface.text.IRegion)
      */
     @Override
-    protected TemplateContextType getContextType( ITextViewer viewer,
-            IRegion region ) {
-        return SoarEditorUIPlugin.getDefault().getContextTypeRegistry()
-        .getContextType( SoarContext.SOAR_CONTEXT_TYPE );
+    protected TemplateContextType getContextType( ITextViewer viewer, IRegion region ) {
+		Table configurationTable = configuration.getRow().getTable();
+		if (configurationTable == Table.RULES) {
+			TemplateContextType context = SoarEditorUIPlugin.getDefault().getContextTypeRegistry().getContextType(SoarRuleContext.SOAR_CONTEXT_TYPE);
+			if (context instanceof SoarRuleContext) {
+				((SoarRuleContext) context).setConfiguration(configuration);
+			}
+			return context;
+		} else if (configurationTable == Table.OPERATORS) {
+			TemplateContextType context = SoarEditorUIPlugin.getDefault().getContextTypeRegistry().getContextType(SoarOperatorContext.SOAR_CONTEXT_TYPE);
+			if (context instanceof SoarOperatorContext) {
+				((SoarOperatorContext) context).setConfiguration(configuration);
+			}
+			return context;
+		}
+		return null;
     }
 
     /*
@@ -311,7 +325,6 @@ class SoarDatabaseCompletionProcessor extends TemplateCompletionProcessor {
      */
     @Override
     protected Template[] getTemplates( String contextTypeId ) {
-        return SoarEditorUIPlugin.getDefault().getTemplateStore()
-        .getTemplates();
+        return SoarEditorUIPlugin.getDefault().getTemplateStore().getTemplates();
     }
 }

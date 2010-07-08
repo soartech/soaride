@@ -31,10 +31,11 @@ import com.soartech.soar.ide.ui.editors.text.SoarPairMatcher;
 public class AbstractSoarDatabaseTextEditor extends TextEditor implements ISoarDatabaseTextEditor {
 
 	SoarDatabaseEditorInput input;
+	SoarDatabaseTextEditorConfiguration configuration;
 	
 	public AbstractSoarDatabaseTextEditor() {
 		super();
-		SourceViewerConfiguration configuration = new SoarDatabaseTextEditorConfiguration(this);
+		configuration = new SoarDatabaseTextEditorConfiguration(this);
 		setSourceViewerConfiguration(configuration);
 	}
 	
@@ -43,6 +44,7 @@ public class AbstractSoarDatabaseTextEditor extends TextEditor implements ISoarD
 		super.doSetInput(input);
 		if (input instanceof SoarDatabaseEditorInput) {
 			this.input = (SoarDatabaseEditorInput) input;
+			configuration.setRow(this.input.getRow());
 		}
 	}
 	

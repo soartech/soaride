@@ -160,11 +160,9 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 													.getWorkbench()
 													.getActiveWorkbenchWindow()
 													.getShell();
-											String title = "New "
-													+ childTableName;
+											String title = "New " + childTableName;
 											String message = "Enter Name:";
-											String initialValue = "New "
-													+ childTableName;
+											String initialValue = t.soarName() + "-name";
 											InputDialog dialog = new InputDialog(
 													shell, title, message,
 													initialValue, null);
@@ -299,8 +297,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 										String title = "New "
 												+ resultTable.shortName();
 										String message = "Enter Name:";
-										String initialValue = "New "
-												+ resultTable.shortName();
+										String initialValue = resultTable.soarName() + "-name";
 										InputDialog dialog = new InputDialog(
 												shell, title, message,
 												initialValue, null);
@@ -308,10 +305,12 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 										String resultString = dialog.getValue();
 										if (resultString != null
 												&& resultString.length() > 0) {
-											SoarDatabaseRow child = row.createJoinedChild(resultTable, resultString);
+											/* SoarDatabaseRow child = */ row.createJoinedChild(resultTable, resultString);
 											
 											// also add child to linked attributes
 											// Get linked attributes
+											// Do this on content provider side instead
+											/*
 											ArrayList<ISoarDatabaseTreeItem> linked = row.getUndirectedJoinedRowsFromTable(row.getTable());
 											for (ISoarDatabaseTreeItem item : linked) {
 												if (item instanceof SoarDatabaseRow) {
@@ -319,7 +318,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 													SoarDatabaseRow.directedJoinRows(other, child, row.getDatabaseConnection());
 												}
 											}
-											
+											*/
 											refreshTree();
 											tree.setExpandedState(row, true);
 										}
@@ -450,11 +449,13 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 
 	// Convenience method for refreshing tree
 	public void refreshTree() {
+		// Async execution was giving errors -- "Widget is disposed"
 		/*
 		Runnable runnable = new Runnable() {
 
 			@Override
 			public void run() {
+			*/
 				try {
 					Object[] elements = tree.getExpandedElements();
 					TreePath[] paths = tree.getExpandedTreePaths();
@@ -463,19 +464,12 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-			}			
+				/*
+			}
 		};
 		
 		Display.findDisplay(Thread.currentThread()).asyncExec(runnable);
 		*/
-		try {
-			//Object[] elements = tree.getExpandedElements();
-			TreePath[] paths = tree.getExpandedTreePaths();
-			tree.setInput(proplemSpaceRow);
-			tree.setExpandedTreePaths(paths);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Override

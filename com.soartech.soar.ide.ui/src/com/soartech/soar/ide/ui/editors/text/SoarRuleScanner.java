@@ -58,7 +58,6 @@ public class SoarRuleScanner extends RuleBasedScanner {
      * @param The associated <code>SoarSourceEditorConfiguration</code>
      */
     public SoarRuleScanner() {
-
         super();
         initializeRules();
     }
@@ -82,33 +81,33 @@ public class SoarRuleScanner extends RuleBasedScanner {
     public void initializeRules() {
     	
     	setDefaultReturnToken(
-                new Token( new TextAttribute( 
-                      SyntaxColorManager.getForegroundColor() ) )
+                new Token(new TextAttribute( 
+                      SyntaxColorManager.getForegroundColor()))
         );    	
         
         // Add rules to the ruleList
         ArrayList<IRule> ruleList = new ArrayList<IRule>();
-        ruleList.add( commandRule = new CommandRule() );
-        ruleList.add( new BlockCommentRule() );
+        ruleList.add(commandRule = new CommandRule());
+        ruleList.add(new BlockCommentRule());
         // TODO: DisjunctionRule must be added before VariableRule because
         // of some ambiguity issues.  Should probably figure out where
         // the conflict occurs.
-        ruleList.add( new DisjunctionRule() );        
-        ruleList.add( variableRule = new VariableRule() );
-        ruleList.add( tclVariableRule = new TclVariableRule() );
-        ruleList.add( new InlineCommentRule() );
-        ruleList.add( new BraceRule() );
-        ruleList.add( new ArrowRule() );
-        ruleList.add( new FunctionRule() );
-        ruleList.add( new TclRule() );
-        ruleList.add( new StringRule() );
-        ruleList.add( new PreprocessedTclRule() );
-        ruleList.add( new FlagRule() );
+        ruleList.add(new DisjunctionRule());        
+        ruleList.add(variableRule = new VariableRule());
+        ruleList.add(tclVariableRule = new TclVariableRule());
+        ruleList.add(new InlineCommentRule());
+        ruleList.add(new BraceRule());
+        ruleList.add(new ArrowRule());
+        ruleList.add(new FunctionRule());
+        ruleList.add(new TclRule());
+        ruleList.add(new StringRule());
+        ruleList.add(new PreprocessedTclRule());
+        ruleList.add(new FlagRule());
         
         IRule[] rules = new IRule[ ruleList.size() ];
-        ruleList.toArray( rules );
+        ruleList.toArray(rules);
 
-        setRules( rules );
+        setRules(rules);
     }
 
     /* (non-Javadoc)

@@ -76,7 +76,7 @@ public class GenerateDatamapAction extends Action {
 			}
 			
 			// Build structure from substates
-			// In the suture, make this recursive (or something)
+			// In the future, make this recursive (or something)
 			// to include arbitraarily deep substates
 			ArrayList<ISoarDatabaseTreeItem> substates = problemSpace.getDirectedJoinedChildrenOfType(Table.PROBLEM_SPACES, false);
 			for (ISoarDatabaseTreeItem item : substates) {
@@ -191,7 +191,7 @@ public class GenerateDatamapAction extends Action {
 		}
 
 		for (Triple triple : triples) {
-			System.out.println(triple.toString());
+			//System.out.println(triple.toString());
 			if (variableSet.contains(triple.variable)) {
 				boolean matched = false;
 				ArrayList<ISoarDatabaseTreeItem> nodeAttributes = node.getDirectedJoinedChildren(false);

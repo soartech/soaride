@@ -31,6 +31,9 @@ public class LinkDatamapRowsAction extends Action {
 				first.getDatabaseConnection());
 		
 		// copy children relationships so that linked attributes share the same substructure
+		// Actually, don't do this -- make the illusion that the items are shared on the
+		// content provider side instead.
+		/*
 		ArrayList<ISoarDatabaseTreeItem> firstChildren = first.getDirectedJoinedChildren(false);
 		ArrayList<ISoarDatabaseTreeItem> secondChildren = second.getDirectedJoinedChildren(false);
 		
@@ -51,5 +54,6 @@ public class LinkDatamapRowsAction extends Action {
 				}
 			}
 		}
+		*/
 	}
 }

@@ -38,7 +38,6 @@ import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -72,12 +71,12 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.SoarUiTools;
+import com.soartech.soar.ide.ui.actions.explorer.AddAgentActionDelegate;
 import com.soartech.soar.ide.ui.actions.explorer.AddChildRowAction;
-import com.soartech.soar.ide.ui.actions.explorer.AddOperatorTemplateChildrenAction;
-import com.soartech.soar.ide.ui.actions.explorer.AddRuleTemplateChildrenAction;
 import com.soartech.soar.ide.ui.actions.explorer.AddSubstateAction;
 import com.soartech.soar.ide.ui.actions.explorer.ExportSoarDatabaseRowAction;
 import com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapAction;
+import com.soartech.soar.ide.ui.actions.explorer.MarkProblemSpaceRootAction;
 import com.soartech.soar.ide.ui.actions.explorer.RemoveJoinFromParentAction;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
 import com.soartech.soar.ide.ui.views.explorer.DragAndDrop.SoarDatabaseExplorerDragAdapter;
@@ -122,6 +121,8 @@ public class SoarExplorerView extends ViewPart
 	
 	private ILabelProvider databaseLabelProvider = SoarLabelProvider.createFullLabelProvider(null);
 	
+	SoarExplorerDatabaseContentProvider contentProvider = new SoarExplorerDatabaseContentProvider();
+	
 	/**
 	 * Constructor.
 	 */
@@ -138,7 +139,7 @@ public class SoarExplorerView extends ViewPart
 		tree.addDoubleClickListener(this);
         tree.setUseHashlookup(true); // this significantly improves update performance
 		
-		tree.setContentProvider(new SoarExplorerDatabaseContentProvider());
+		tree.setContentProvider(contentProvider);
 		tree.setLabelProvider(databaseLabelProvider);
 		ISoarModel input = SoarCorePlugin.getDefault().getSoarModel();
         tree.setInput(input);
@@ -149,6 +150,9 @@ public class SoarExplorerView extends ViewPart
         SoarCorePlugin.getDefault().getSoarModel().getDatabase().addListener(this);
         tree.addDragSupport(DND.DROP_MOVE, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseExplorerDragAdapter());
         tree.addDropSupport(DND.DROP_MOVE, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseExplorerDropAdapter(tree));
+        
+        getViewSite().getActionBars().getToolBarManager().add(new FilterContributionItem(this, true));
+        getViewSite().getActionBars().getToolBarManager().add(new FilterContributionItem(this, false));
    	}
 	
 	private ArrayList<Action> actionsForRow(SoarDatabaseRow row, TreeSelection selection) {
@@ -159,15 +163,16 @@ public class SoarExplorerView extends ViewPart
 		}
 		if (table == Table.PROBLEM_SPACES) {
 			ret.add(new AddChildRowAction(row, Table.OPERATORS, row, tree, false));
-			ret.add(new AddOperatorTemplateChildrenAction(row, tree));
+			//ret.add(new AddOperatorTemplateChildrenAction(row, tree));
 			ret.add(new AddChildRowAction(row, Table.RULES, row, tree, false));
-			ret.add(new AddRuleTemplateChildrenAction(row, tree));
+			//ret.add(new AddRuleTemplateChildrenAction(row, tree));
+			ret.add(new MarkProblemSpaceRootAction(row, tree));
 			ret.add(new AddSubstateAction(row, false, tree));
 			ret.add(new GenerateDatamapAction(row));
 		}
 		if (table == Table.OPERATORS) {
 			ret.add(new AddChildRowAction(row, Table.RULES, row, tree, false));
-			ret.add(new AddRuleTemplateChildrenAction(row, tree));
+			//ret.add(new AddRuleTemplateChildrenAction(row, tree));
 		}
 		RemoveJoinFromParentAction remove = new RemoveJoinFromParentAction(selection);
 		if (remove.isRunnable()) {
@@ -212,6 +217,9 @@ public class SoarExplorerView extends ViewPart
 						for (Action action : actions) {
 							manager.add(action);
 						}
+					}
+					if (obj == null) {
+						manager.add(new AddAgentActionDelegate());
 					}
 				}
 			}
@@ -463,14 +471,24 @@ public class SoarExplorerView extends ViewPart
 	        tree.setInput(input);
 		}
 		
-		Object[] elements = tree.getExpandedElements();
-		TreePath[] treePaths = tree.getExpandedTreePaths();
+		//Object[] elements = tree.getExpandedElements();
+		//TreePath[] treePaths = tree.getExpandedTreePaths();
         tree.refresh();
-		tree.setExpandedElements(elements);
-		tree.setExpandedTreePaths(treePaths);
+		//tree.setExpandedElements(elements);
+		//tree.setExpandedTreePaths(treePaths);
 	}
 	
 	public TreeViewer getTreeViewer() {
 		return tree;
+	}
+
+	public void setFilterString(String text) {
+		contentProvider.setFilter(text);
+		tree.refresh();
+	}
+	
+	public void setSearchString(String text) {
+		contentProvider.setSearch(text);
+		tree.refresh();
 	}
 }

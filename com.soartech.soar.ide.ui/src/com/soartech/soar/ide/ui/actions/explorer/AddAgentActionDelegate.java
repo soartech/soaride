@@ -1,5 +1,6 @@
 package com.soartech.soar.ide.ui.actions.explorer;
 
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -17,17 +18,20 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerView;
 
-public class AddAgentActionDelegate implements IWorkbenchWindowActionDelegate {
+public class AddAgentActionDelegate extends Action implements IWorkbenchWindowActionDelegate {
 
 	SoarExplorerView explorer;
 	
+	public AddAgentActionDelegate() {
+		super("Add Agent");
+	}
+	
 	@Override
-	public void run(IAction action) {
-		
+	public void run() {
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		String title = "New Agent";
 		String message = "Enter Name:";
-		String initialValue = "agent";
+		String initialValue = Table.AGENTS.soarName() + "-name";
 		InputDialog dialog = new InputDialog(shell, title, message, initialValue, null);
 		dialog.open();
 		String result = dialog.getValue();
@@ -49,6 +53,11 @@ public class AddAgentActionDelegate implements IWorkbenchWindowActionDelegate {
 				}
 			}
 		}
+	}
+	
+	@Override
+	public void run(IAction action) {
+		run();
 	}
 
 	@Override
