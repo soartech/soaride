@@ -73,7 +73,7 @@ public class SoarDatabaseDatamapContentProvider implements ITreeContentProvider 
 			}
 			
 			if (includeLinkedChildren) {
-				ArrayList<ISoarDatabaseTreeItem> linkedRows = row.getJoinedRowsFromTable(row.getTable());
+				ArrayList<ISoarDatabaseTreeItem> linkedRows = row.getUndirectedJoinedRowsFromTable(row.getTable());
 				for (ISoarDatabaseTreeItem item : linkedRows) {
 					ret.addAll(getChildren(item, false));
 				}

@@ -21,10 +21,9 @@ import com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapEditor;
 
 public class GenerateDatamapAction extends Action {
 
-
 	SoarDatabaseRow problemSpace;
 	Shell shell;
-	public boolean applyAll = false;;
+	public boolean applyAll = false;
 	
 	public GenerateDatamapAction(SoarDatabaseRow problemSpace) {
 		super ("Generate datamap");

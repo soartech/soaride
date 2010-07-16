@@ -190,6 +190,19 @@ public class SoarUiModelTools
     public static void closeAllEditors(boolean save) {
     	PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeAllEditors(save);
     }
+    
+    public static void closeEditorsForInput(IWorkbenchPage page, SoarDatabaseRow row, boolean save) {
+    	IEditorInput rowInput = row.getEditorInput();
+    	IEditorReference[] references = page.getEditorReferences();
+    	for (IEditorReference reference : references) {
+    		IEditorPart part = reference.getEditor(false);
+    		if (part == null) continue;
+    		IEditorInput partInput = part.getEditorInput();
+    		if (rowInput.equals(partInput)) {
+    			page.closeEditor(part, save);
+    		}
+    	}
+    }
 
 	public static SoarDatabaseRow selectAgent() {
 		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getSoarModel().getDatabase().selectAllFromTable(Table.AGENTS);

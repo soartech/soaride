@@ -67,6 +67,12 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 				if (table == Table.RULES) {
 					return new Object[0];
 				}
+				if (table == Table.TAGS) {
+					ret.addAll(row.getUndirectedJoinedRowsFromTable(Table.OPERATORS));
+					ret.addAll(row.getUndirectedJoinedRowsFromTable(Table.RULES));
+					ret.addAll(row.getUndirectedJoinedRowsFromTable(Table.PROBLEM_SPACES));
+					ret = SoarDatabaseItemContentProvider.sortItems(ret);
+				}
 			}
 			if (element instanceof SoarDatabaseRowFolder) {
 				SoarDatabaseRowFolder folder = (SoarDatabaseRowFolder) element;

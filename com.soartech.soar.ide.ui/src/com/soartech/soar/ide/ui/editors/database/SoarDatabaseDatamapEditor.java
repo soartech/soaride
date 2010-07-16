@@ -47,6 +47,7 @@ import com.soartech.soar.ide.ui.actions.explorer.LinkDatamapRowsAction;
 import com.soartech.soar.ide.ui.editors.database.dragdrop.SoarDatabaseDatamapDragAdapter;
 import com.soartech.soar.ide.ui.editors.database.dragdrop.SoarDatabaseDatamapDropAdapter;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
+import com.soartech.soar.ide.ui.views.itemdetail.SoarDatabaseItemLabelProvider;
 
 public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDatabaseEventListener {
 
@@ -151,8 +152,8 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 						final String rowName = row.getName();
 
 						for (final Table t : childTables) {
-							final String childTableName = t.tableName();
-							manager.add(new Action("Add New " + childTableName) {
+							final String childTableName = t.englishName();
+							manager.add(new Action("Add new " + childTableName) {
 										@Override
 										public void run() {
 
@@ -357,8 +358,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 									listDialog
 											.setContentProvider(linkedAttributesContentProvider);
 									listDialog
-											.setLabelProvider(SoarLabelProvider
-													.createFullLabelProvider(null));
+											.setLabelProvider(new SoarDatabaseItemLabelProvider());
 									listDialog.setInput(row);
 									listDialog.open();
 									Object[] result = listDialog.getResult();
@@ -442,7 +442,10 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 		}
 		*/
 		
+		boolean eventsWereSupressed = rowToDelete.getDatabaseConnection().getSupressEvents();
+		rowToDelete.getDatabaseConnection().setSupressEvents(true);
 		rowToDelete.deleteAllChildren(true);
+		rowToDelete.getDatabaseConnection().setSupressEvents(eventsWereSupressed);
 		selectedRow = null;
 		refreshTree();
 	}
@@ -450,26 +453,24 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 	// Convenience method for refreshing tree
 	public void refreshTree() {
 		// Async execution was giving errors -- "Widget is disposed"
-		/*
-		Runnable runnable = new Runnable() {
-
-			@Override
-			public void run() {
-			*/
-				try {
-					Object[] elements = tree.getExpandedElements();
-					TreePath[] paths = tree.getExpandedTreePaths();
-					tree.setInput(proplemSpaceRow);
-					tree.setExpandedTreePaths(paths);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				/*
-			}
-		};
 		
-		Display.findDisplay(Thread.currentThread()).asyncExec(runnable);
-		*/
+		  Runnable runnable = new Runnable() {
+		  
+		  @Override public void run() {
+
+		try {
+			Object[] elements = tree.getExpandedElements();
+			TreePath[] paths = tree.getExpandedTreePaths();
+			tree.setInput(proplemSpaceRow);
+			tree.setExpandedTreePaths(paths);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		  } };
+		  
+		  Display.findDisplay(Thread.currentThread()).asyncExec(runnable);
+		 
 	}
 
 	@Override

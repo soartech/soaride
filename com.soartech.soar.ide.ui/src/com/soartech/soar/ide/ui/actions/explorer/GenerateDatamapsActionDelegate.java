@@ -16,6 +16,7 @@ import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
+import com.soartech.soar.ide.ui.actions.NewGenerateDatamapAction;
 
 public class GenerateDatamapsActionDelegate implements IWorkbenchWindowActionDelegate {
 
@@ -41,8 +42,7 @@ public class GenerateDatamapsActionDelegate implements IWorkbenchWindowActionDel
 			assert psItem instanceof SoarDatabaseRow;
 			SoarDatabaseRow ps = (SoarDatabaseRow) psItem;
 			assert ps.getTable() == Table.PROBLEM_SPACES;
-			GenerateDatamapAction generateAction = new GenerateDatamapAction(ps);
-			generateAction.applyAll = applyAll;
+			NewGenerateDatamapAction generateAction = new NewGenerateDatamapAction(ps, applyAll);
 			generateAction.run();
 			applyAll = generateAction.applyAll;
 		}

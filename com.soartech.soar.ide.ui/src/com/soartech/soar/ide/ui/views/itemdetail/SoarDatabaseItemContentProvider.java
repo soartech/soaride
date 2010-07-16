@@ -103,7 +103,7 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 		}
 		
 		// Add other table types
-		Table[] tables = {Table.OPERATORS, Table.PROBLEM_SPACES, Table.AGENTS};
+		Table[] tables = {Table.RULES, Table.OPERATORS, Table.PROBLEM_SPACES, Table.AGENTS};
 		for (Table table : tables) {
 			for (ISoarDatabaseTreeItem item : items) {
 				if (item instanceof SoarDatabaseRow) {

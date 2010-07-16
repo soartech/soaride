@@ -140,15 +140,20 @@ public class SoarLabelProvider extends LabelProvider implements
 			} else if (table == Table.DATAMAP_IDENTIFIERS) {
 				return SoarEditorPluginImages
 					.get(SoarEditorPluginImages.IMG_ATTRIBUTE);
-			} else if (table == Table.DATAMAP_ENUMERATIONS ||
-					table == Table.DATAMAP_INTEGERS ||
-					table == Table.DATAMAP_FLOATS ||
-					table == Table.DATAMAP_STRINGS) {
+			} else if (table == Table.DATAMAP_ENUMERATIONS) {
+				return SoarEditorPluginImages.get(SoarEditorPluginImages.IMG_ENUMERATION);
+			} else if (table == Table.DATAMAP_STRINGS) {
 				return SoarEditorPluginImages
-					.get(SoarEditorPluginImages.IMG_PROCEDURE);
+					.get(SoarEditorPluginImages.IMG_STRING);
+			} else if (table == Table.DATAMAP_FLOATS) {
+				return SoarEditorPluginImages
+				.get(SoarEditorPluginImages.IMG_FLOAT);		
+			} else if (table == Table.DATAMAP_INTEGERS) {
+				return SoarEditorPluginImages
+				.get(SoarEditorPluginImages.IMG_INTEGER);
 			} else if (table == Table.DATAMAP_ENUMERATION_VALUES) {
 				return SoarEditorPluginImages
-				.get(SoarEditorPluginImages.IMG_PRODUCTION);
+				.get(SoarEditorPluginImages.IMG_ENUMERATION_VALUE);
 			} else if (table == Table.TAGS) {
 				return SoarEditorPluginImages
 				.get(SoarEditorPluginImages.IMG_TAG);

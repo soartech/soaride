@@ -71,6 +71,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.SoarUiTools;
+import com.soartech.soar.ide.ui.actions.NewGenerateDatamapAction;
 import com.soartech.soar.ide.ui.actions.explorer.AddAgentActionDelegate;
 import com.soartech.soar.ide.ui.actions.explorer.AddChildRowAction;
 import com.soartech.soar.ide.ui.actions.explorer.AddSubstateAction;
@@ -168,7 +169,8 @@ public class SoarExplorerView extends ViewPart
 			//ret.add(new AddRuleTemplateChildrenAction(row, tree));
 			ret.add(new MarkProblemSpaceRootAction(row, tree));
 			ret.add(new AddSubstateAction(row, false, tree));
-			ret.add(new GenerateDatamapAction(row));
+			//ret.add(new GenerateDatamapAction(row));
+			ret.add(new NewGenerateDatamapAction(row, false));
 		}
 		if (table == Table.OPERATORS) {
 			ret.add(new AddChildRowAction(row, Table.RULES, row, tree, false));
@@ -258,6 +260,11 @@ public class SoarExplorerView extends ViewPart
 								if (result == 1) {
 									return;
 								}
+								
+								IWorkbench workbench = SoarEditorUIPlugin.getDefault().getWorkbench();
+						        IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
+								SoarUiModelTools.closeEditorsForInput(page, selectedRow, false);
+								
 								selectedRow.deleteAllChildren(true);
 								tree.refresh();
 							}
@@ -279,6 +286,7 @@ public class SoarExplorerView extends ViewPart
 									if (result == 1) {
 										return;
 									}
+
 									action.run();
 								}
 							}

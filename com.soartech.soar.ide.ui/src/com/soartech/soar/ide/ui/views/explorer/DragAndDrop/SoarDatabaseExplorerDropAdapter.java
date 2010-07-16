@@ -22,11 +22,16 @@ public class SoarDatabaseExplorerDropAdapter extends ViewerDropAdapter {
 	// Maps tables onto types of rown that can be dragged onto them,
 	// resulting in a directed join.
 	HashMap<Table, HashSet<Table>> directedChildren;
+	
+	// Maps tables that can be dragged onto each other in either direction,
+	// resulting in an undirected join.
+	//HashMap<Table, HashSet<Table>> undirectedJoins;
 
 	SoarDatabaseRow target;
 	
 	public SoarDatabaseExplorerDropAdapter(Viewer viewer) {
 		super(viewer);
+		
 		undirectedChildren = new HashMap<Table, HashSet<Table>>();
 		HashSet<Table> problemSpaceChildren = new HashSet<Table>();
 		problemSpaceChildren.add(Table.OPERATORS);
@@ -35,11 +40,25 @@ public class SoarDatabaseExplorerDropAdapter extends ViewerDropAdapter {
 		HashSet<Table> operatorChildren = new HashSet<Table>();
 		operatorChildren.add(Table.RULES);
 		undirectedChildren.put(Table.OPERATORS, operatorChildren);
+		HashSet<Table> tagChildren = new HashSet<Table>();
+		tagChildren.add(Table.RULES);
+		tagChildren.add(Table.PROBLEM_SPACES);
+		tagChildren.add(Table.OPERATORS);
+		undirectedChildren.put(Table.TAGS, tagChildren);
 		
 		directedChildren = new HashMap<Table, HashSet<Table>>();
 		problemSpaceChildren = new HashSet<Table>();
 		problemSpaceChildren.add(Table.PROBLEM_SPACES);
 		directedChildren.put(Table.PROBLEM_SPACES, problemSpaceChildren);
+		
+		/*
+		undirectedJoins = new HashMap<Table, HashSet<Table>>();
+		HashSet<Table> tagJoins = new HashSet<Table>();
+		tagJoins.add(Table.PROBLEM_SPACES);
+		tagJoins.add(Table.OPERATORS);
+		tagJoins.add(Table.RULES);
+		undirectedJoins.put(Table.TAGS, tagJoins);
+		*/
 	}
 
 	@Override
@@ -57,6 +76,18 @@ public class SoarDatabaseExplorerDropAdapter extends ViewerDropAdapter {
 				SoarDatabaseRow.directedJoinRows(target, row, target.getDatabaseConnection());
 				ret = true;
 			}
+			/*
+			set = undirectedJoins.get(target.getTable());
+			if (set != null && set.contains(row.getTable())) {
+				SoarDatabaseRow.joinRows(row, target, row.getDatabaseConnection());
+				ret = true;
+			}
+			set = undirectedJoins.get(row.getTable());
+			if (set != null && set.contains(target.getTable())) {
+				SoarDatabaseRow.joinRows(row, target, row.getDatabaseConnection());
+				ret = true;
+			}
+			*/
 		}
 		return ret;
 	}

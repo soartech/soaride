@@ -3,10 +3,10 @@ package com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
@@ -37,7 +37,10 @@ public class Triple {
     // This gets populated by TraveralUtil#addAttributePathInformationToTriples.
     public ArrayList<Triple> parentTriples;
     
-    private ArrayList<ArrayList<String>> attributePaths = null;
+    // Similar to parent triples but for children
+    public ArrayList<Triple> childTriples;
+    
+    private ArrayList<ArrayList<Triple>> attributePaths = null;
 
 	public Triple(String variable, String attribute, String value, SoarDatabaseRow rule) {
 		this.variable = variable;
@@ -66,9 +69,7 @@ public class Triple {
 	 * otherwise.
 	 */
 	public boolean valueIsVariable() {
-		if (!valueIsString()) {
-			return false;
-		}
+		if (value == null) return false;
 		String stringValue = (String) value;
 		int lastIndex = stringValue.length() - 1;
 		return stringValue.indexOf('<') == 0 && stringValue.lastIndexOf('>') == lastIndex;
@@ -79,7 +80,7 @@ public class Triple {
 	}
 
 	public boolean valueIsString() {
-		return value.getClass() == String.class;
+		return !valueIsVariable() && !valueIsInteger() && !valueIsFloat();
 	}
 
 	@Override
@@ -103,41 +104,50 @@ public class Triple {
 	 * 
 	 * @return The list of the list of attribute Strings to get from state &lt;s&gt; to this Triple's variable.
 	 */
-	public ArrayList<ArrayList<String>> getAttributePathsFromState() {
+	public ArrayList<ArrayList<Triple>> getTriplePathsFromState() {
 		
 		if (attributePaths != null) return attributePaths;
 		
 		//if (parentTriples == null) return null;
-		HashSet<Triple> visited = new HashSet<Triple>();
-		visited.add(this);
-		ArrayList<ArrayList<String>> ret = new ArrayList<ArrayList<String>>();
-		class TriplePathPair {
-			public Triple triple;
-			public ArrayList<String> path;
-			public TriplePathPair(Triple triple, ArrayList<String> path) {
-				this.triple = triple; this.path = path;
+		ArrayList<ArrayList<Triple>> ret = new ArrayList<ArrayList<Triple>>();
+		class TriplePath {
+			public ArrayList<Triple> path;
+			public HashSet<Triple> visited;
+			public TriplePath(Triple triple) {
+				path = new ArrayList<Triple>();
+				path.add(triple);
+				visited = new HashSet<Triple>();
+				visited.add(triple);
+			}			
+			private TriplePath(Triple triple, ArrayList<Triple> path, HashSet<Triple> visited) {
+				this.path = path;
+				this.visited = visited;
+			}
+			public TriplePath next(Triple triple) {
+				TriplePath ret = new TriplePath(triple, new ArrayList<Triple>(path), new HashSet<Triple>(visited));
+				ret.path.add(triple);
+				ret.visited.add(triple);
+				return ret;
+			}
+			public Triple last() {
+				return path.get(path.size() - 1);
 			}
 		}
 		
-		ArrayList<TriplePathPair> leaves = new ArrayList<TriplePathPair>();
-		ArrayList<String> initialPath = new ArrayList<String>();
-		initialPath.add(this.attribute);
-		leaves.add(new TriplePathPair(this, initialPath));
+		ArrayList<TriplePath> leaves = new ArrayList<TriplePath>();
+		leaves.add(new TriplePath(this));
 		
 		while (leaves.size() > 0) {
-			ArrayList<TriplePathPair> newLeaves = new ArrayList<TriplePathPair>();
-			for (TriplePathPair pair : leaves) {
-				if (pair.triple.hasState) {
-					ret.add(pair.path);
+			ArrayList<TriplePath> newLeaves = new ArrayList<TriplePath>();
+			for (TriplePath path : leaves) {
+				if (path.last().hasState) {
+					ret.add(path.path);
 				}
 				else {
-					ArrayList<Triple> triples = pair.triple.parentTriples;
+					ArrayList<Triple> triples = path.last().parentTriples;
 					for (Triple triple : triples) {
-						if (!visited.contains(triple)) {
-							visited.add(triple);
-							ArrayList<String> triplePath = new ArrayList<String>(pair.path);
-							triplePath.add(triple.attribute);
-							newLeaves.add(new TriplePathPair(triple, triplePath));
+						if (!path.visited.contains(triple)) {
+							newLeaves.add(path.next(triple));
 						}
 					}
 				}
@@ -145,7 +155,7 @@ public class Triple {
 			leaves = newLeaves;
 		}
 		
-		for (ArrayList<String> ar : ret) {
+		for (ArrayList<Triple> ar : ret) {
 			Collections.reverse(ar);
 		}
 		
@@ -155,8 +165,21 @@ public class Triple {
 		return ret;
 	}
 	
+	public ArrayList<ArrayList<String>> getAttributePathsFromState() {
+		ArrayList<ArrayList<Triple>> triplePaths = getTriplePathsFromState();
+		ArrayList<ArrayList<String>> ret = new ArrayList<ArrayList<String>>();
+		for (ArrayList<Triple> triplePath : triplePaths) {
+			ArrayList<String> stringPath = new ArrayList<String>(); 
+			for (Triple triple : triplePath) {
+				stringPath.add(triple.attribute);
+			}
+			ret.add(stringPath);
+		}
+		return ret;
+	}
+	
 	public boolean matchesPath(String[] matchPath) {
-		ArrayList<ArrayList<String>> paths =  getAttributePathsFromState();
+		ArrayList<ArrayList<String>> paths = getAttributePathsFromState();
 		if (paths == null) return false;
 		for (ArrayList<String> path : paths) {
 			if (path.size() == matchPath.length) {
@@ -174,6 +197,41 @@ public class Triple {
 		return false;
 	}
 	
+	/**
+	 * 
+	 * @return The list of all datamap rows that correspond to this Triple.
+	 */
+	public ArrayList<SoarDatabaseRow> getDatamapRowsFromProblemSpace(SoarDatabaseRow problemSpace) {
+		assert problemSpace.getTable() == Table.PROBLEM_SPACES;
+		SoarDatabaseRow root = (SoarDatabaseRow) problemSpace.getChildrenOfType(Table.DATAMAP_IDENTIFIERS).get(0);
+		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
+		ArrayList<ArrayList<String>> paths = getAttributePathsFromState();
+		
+		for (ArrayList<String> path : paths) {
+			ArrayList<SoarDatabaseRow> currentRows = new ArrayList<SoarDatabaseRow>();
+			currentRows.add(root);
+			for (int i = 0; i < path.size(); ++i) {
+				String attribute = path.get(i);
+				ArrayList<SoarDatabaseRow> childRows = new ArrayList<SoarDatabaseRow>();
+				for (SoarDatabaseRow currentRow : currentRows) {
+					ArrayList<ISoarDatabaseTreeItem> childItems = currentRow.getDirectedJoinedChildren(false);
+					for (ISoarDatabaseTreeItem childItem : childItems) {
+						SoarDatabaseRow childRow = (SoarDatabaseRow) childItem;
+						if (childRow.getTable() == Table.DATAMAP_IDENTIFIERS || i == path.size() - 1) {
+							if (attribute.equals(childRow.getName())) {
+								childRows.add(childRow);
+							}
+						}
+					}
+				}
+				currentRows = childRows;
+			}
+			ret.addAll(currentRows);
+		}
+		
+		return ret;
+	}
+	
 	public boolean isStateName() {
 		return matchesPath(new String[] {"name"});
 	}
@@ -188,5 +246,29 @@ public class Triple {
 	
 	public boolean isSuperstateOperatorName() {
 		return matchesPath(new String[] {"superstate", "operator", "name"});
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Triple)) return false;
+		Triple other = (Triple) obj;
+		return this.variable.equals(other.variable)
+				&& this.attribute.equals(other.attribute)
+				&& this.value.equals(other.value);
+	}
+	
+	public static void main(String[] args) {
+		Triple t1 = new Triple("<s>", "a", "<v>", null);
+		Triple t2 = new Triple("<s>", "a", "<v>", null);
+		Triple t3 = new Triple("<s>", "a2", "<v2>", null);
+		System.out.println("t1: " + t1 + "\nt2: " + t2 + "\nt3: " + t3);
+		System.out.println("t1 == t1: " + (t1 == t1));
+		System.out.println("t1 == t2: " + (t1 == t2));
+		System.out.println("t1 == t3: " + (t1 == t3));
+		System.out.println("t2 == t3: " + (t2 == t3));
+		System.out.println("t1.equals(t1): " + (t1.equals(t1)));
+		System.out.println("t1.equals(t2): " + (t1.equals(t2)));
+		System.out.println("t1.equals(t3): " + (t1.equals(t3)));
+		System.out.println("t2.equals(t3): " + (t2.equals(t3)));
 	}
 }

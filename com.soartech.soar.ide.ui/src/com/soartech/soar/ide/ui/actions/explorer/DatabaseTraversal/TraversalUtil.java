@@ -21,11 +21,15 @@ public class TraversalUtil {
 		ArrayList<String> stateVariables = new ArrayList<String>();
 		visitRuleNode(rule, triples, stateVariables);
 		appleStateToTriples(triples, stateVariables);
-		
 		addAttributePathInformationToTriples(triples);
 		
+		// TODO
+		// Add dummy triple pointing to root node.
+		
 		// TODO debug
+		
 		System.out.println("Triples for rule: " + rule.getName());
+		/*
 		for (Triple triple : triples) {
 			System.out.println(triple);
 			ArrayList<ArrayList<String>> paths = triple.getAttributePathsFromState();
@@ -39,6 +43,7 @@ public class TraversalUtil {
 				}
 			}
 		}
+		*/
 		
 		return triples;
 	}
@@ -72,6 +77,12 @@ public class TraversalUtil {
 			ArrayList<Triple> parentTriples = triplesWithValue.get(triple.variable);
 			if (parentTriples != null) {
 				triple.parentTriples = parentTriples;
+			}
+			if (triple.valueIsVariable()) {
+				ArrayList<Triple> childTriples = triplesWithVariable.get(triple.value);
+				if (childTriples != null) {
+					triple.childTriples = childTriples;
+				}
 			}
 		}
 	}
@@ -369,7 +380,15 @@ public class TraversalUtil {
 				assert item instanceof SoarDatabaseRow;
 				SoarDatabaseRow child = (SoarDatabaseRow) item;
 				if (child.getTable() == Table.CONSTANTS) {
-					String name = "" + child.getColumnValue("symbolic_const");
+					String[] constTypes = {"integer_const", "floating_const", "symbolic_const"};
+					Object value = null;
+					for (String constType : constTypes) {
+						value = child.getColumnValue(constType);
+						if (value != null) {
+							break;
+						}
+					}
+					String name = "" + value;
 					names.add(name);
 				}
 			}	
