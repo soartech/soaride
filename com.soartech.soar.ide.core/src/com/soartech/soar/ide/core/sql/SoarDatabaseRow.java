@@ -39,6 +39,7 @@ import com.soartech.soar.ide.core.model.ast.SoarParser;
 import com.soartech.soar.ide.core.model.ast.SoarProductionAst;
 import com.soartech.soar.ide.core.model.ast.Test;
 import com.soartech.soar.ide.core.model.ast.Token;
+import com.soartech.soar.ide.core.model.ast.TokenMgrError;
 import com.soartech.soar.ide.core.model.ast.ValueMake;
 import com.soartech.soar.ide.core.model.ast.ValueTest;
 import com.soartech.soar.ide.core.model.ast.VarAttrValMake;
@@ -959,7 +960,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			SoarDatabaseConnection db) {
 
 		// First, make sure that the rows are joinable.
-		assert tablesAreJoined(first.table, second.table);
+		if (!tablesAreJoined(first.table, second.table)) {
+			// TODO
+			// figure out why this happens
+			return;
+		}
 
 		// Make sure these rows aren't already joined.
 		boolean alreadyJoined = rowsAreJoined(first, second, db);
@@ -1584,6 +1589,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		addParent(Table.CONDITIONS, Table.RULES);
 		addParent(Table.POSITIVE_CONDITIONS, Table.CONDITIONS);
 		addParent(Table.CONDITION_FOR_ONE_IDENTIFIERS, Table.POSITIVE_CONDITIONS);
+		addParent(Table.CONDITIONS, Table.POSITIVE_CONDITIONS);
 		addParent(Table.ATTRIBUTE_VALUE_TESTS, Table.CONDITION_FOR_ONE_IDENTIFIERS);
 		addParent(Table.ATTRIBUTE_TESTS, Table.ATTRIBUTE_VALUE_TESTS);
 		addParent(Table.VALUE_TESTS, Table.ATTRIBUTE_VALUE_TESTS);
@@ -2129,6 +2135,30 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 					start += beginIndex;
 					// -1 for columns counting starting with 1
 					start += errorToken.beginColumn - 1;
+
+					int length = 2; // (errorToken.endOffset -
+									// errorToken.beginOffset) + 1;
+					if (input != null) {
+						input.addProblem(SoarProblem.createError(message, start, length));
+					}
+				} catch (TokenMgrError e) {
+					// e.printStackTrace();
+					String message = e.getLocalizedMessage();
+
+					// Get the range of the error, based on the string
+					// being parsed and the given column and row
+					int start = 0;
+					for (int i = 1; i < e.getErrorLine();) {
+						char c = parseText.charAt(start);
+						if (c == '\n') {
+							++i;
+						}
+						++start;
+					}
+
+					start += beginIndex;
+					// -1 for columns counting starting with 1
+					start += e.getErrorColumn() - 1;
 
 					int length = 2; // (errorToken.endOffset -
 									// errorToken.beginOffset) + 1;

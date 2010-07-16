@@ -910,7 +910,9 @@ public Token getNextToken()
       while (curChar <= 32 && (0x100002600L & (1L << curChar)) != 0L)
          curChar = input_stream.BeginToken();
    }
+   
    catch (java.io.IOException e1) { continue EOFLoop; }
+
    jjmatchedKind = 0x7fffffff;
    jjmatchedPos = 0;
    curPos = jjMoveStringLiteralDfa0_0();
