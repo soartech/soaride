@@ -844,7 +844,6 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	public ArrayList<ISoarDatabaseTreeItem> getUndirectedJoinedRowsFromTable(Table other) {
 		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		
-		// First, add directionless joins.
 		if (tablesAreJoined(this.table, other)) {
 			boolean sameTable = (this.table == other);
 			String joinTableName = joinTableName(this.table, other);
@@ -858,6 +857,9 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 				sql = "select * from " + joinTableName + " where " + thisTableIdName + "=?";
 			}
 			StatementWrapper ps = db.prepareStatement(sql);
+			if (ps == null) {
+				System.out.println("Null statement");
+			}
 			ps.setInt(1, id);
 			if (sameTable) {
 				ps.setInt(2, id);
@@ -1576,7 +1578,13 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		joinTables(Table.TAGS, Table.PROBLEM_SPACES); // Tags
 		joinTables(Table.TAGS, Table.OPERATORS);
 		joinTables(Table.TAGS, Table.RULES);
-		//directedJoinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_IDENTIFIERS);
+		
+		// For linked attributes
+		joinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_IDENTIFIERS);
+		joinTables(Table.DATAMAP_INTEGERS, Table.DATAMAP_INTEGERS);
+		joinTables(Table.DATAMAP_FLOATS, Table.DATAMAP_FLOATS);
+		joinTables(Table.DATAMAP_STRINGS, Table.DATAMAP_STRINGS);
+		joinTables(Table.DATAMAP_ENUMERATIONS, Table.DATAMAP_ENUMERATIONS);
 		
 		// Declare directional joined tables.
 		directedJoinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_IDENTIFIERS);

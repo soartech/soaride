@@ -111,8 +111,36 @@ parent_id integer,
 child_id integer
 );
 
--- Undirected join table for linked attributes:
+-- Undirected join tables for linked attributes:
 create table if not exists join_datamap_identifiers_datamap_identifiers
+(
+id integer primary key,
+first_id integer,
+second_id integer
+);
+
+create table if not exists join_datamap_integers_datamap_integers
+(
+id integer primary key,
+first_id integer,
+second_id integer
+);
+
+create table if not exists join_datamap_floats_datamap_floats
+(
+id integer primary key,
+first_id integer,
+second_id integer
+);
+
+create table if not exists join_datamap_strings_datamap_strings
+(
+id integer primary key,
+first_id integer,
+second_id integer
+);
+
+create table if not exists join_datamap_enumerations_datamap_enumerations
 (
 id integer primary key,
 first_id integer,
