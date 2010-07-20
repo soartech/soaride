@@ -26,9 +26,24 @@ public class LinkDatamapRowsAction extends Action {
 			return;
 		}
 		
+		ArrayList<ISoarDatabaseTreeItem> otherSeconds = second.getUndirectedJoinedRowsFromTable(second.getTable());
+		ArrayList<ISoarDatabaseTreeItem> otherFirsts = first.getUndirectedJoinedRowsFromTable(first.getTable());
+		
 		SoarDatabaseRow.joinRows(first,
 				second,
 				first.getDatabaseConnection());
+		
+		for (ISoarDatabaseTreeItem item : otherSeconds) {
+			SoarDatabaseRow.joinRows(first,
+					(SoarDatabaseRow) item,
+					first.getDatabaseConnection());	
+		}
+		
+		for (ISoarDatabaseTreeItem item : otherFirsts) {
+			SoarDatabaseRow.joinRows(second,
+					(SoarDatabaseRow) item,
+					second.getDatabaseConnection());	
+		}
 		
 		// copy children relationships so that linked attributes share the same substructure
 		// Actually, don't do this -- make the illusion that the items are shared on the

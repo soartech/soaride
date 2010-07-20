@@ -43,6 +43,7 @@ public class SoarDatabaseDatamapContentProvider implements ITreeContentProvider 
 			
 			// If this is root node (<s>), show supstate attributes if they exist.
 			// If they do, remove all other "superstate" attributes.
+			/*
 			if (row.getTable() == Table.DATAMAP_IDENTIFIERS) {
 				ArrayList<SoarDatabaseRow> parents = row.getParents();
 				for (SoarDatabaseRow parent : parents) {
@@ -71,6 +72,7 @@ public class SoarDatabaseDatamapContentProvider implements ITreeContentProvider 
 					}
 				}
 			}
+			*/
 			
 			if (includeLinkedChildren) {
 				ArrayList<ISoarDatabaseTreeItem> linkedRows = row.getUndirectedJoinedRowsFromTable(row.getTable());

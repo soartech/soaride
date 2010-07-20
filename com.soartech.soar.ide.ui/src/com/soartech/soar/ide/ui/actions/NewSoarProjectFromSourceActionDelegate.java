@@ -133,7 +133,7 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 				}
 			});
 			
-			new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
+			new ProgressMonitorDialog(shell).run(false, false, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					// Generate datamap structure

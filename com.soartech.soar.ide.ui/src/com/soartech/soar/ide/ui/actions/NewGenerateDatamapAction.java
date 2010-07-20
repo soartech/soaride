@@ -1,6 +1,7 @@
 package com.soartech.soar.ide.ui.actions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -14,8 +15,11 @@ import org.eclipse.ui.dialogs.ListSelectionDialog;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
+import com.soartech.soar.ide.ui.actions.explorer.LinkDatamapRowsAction;
 import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.TraversalUtil;
 import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.Triple;
+import com.soartech.soar.ide.ui.editors.text.resolvers.ProblemSpaceTemplateResolver;
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 class TerminalPath {
 	public ArrayList<Triple> path;
@@ -211,14 +215,23 @@ public class NewGenerateDatamapAction extends Action {
 		return problemSpace;
 	}
 	
+	@Override
+	public void run() {
+		this.run((IProgressMonitor)null);
+	}
+	
 	public void run(IProgressMonitor monitor) {
-		shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		try {
+			shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}
 		if (problemSpace == null) {
 			return;
 		}
 		
 		ArrayList<Triple> allTriples = new ArrayList<Triple>();
-		System.out.println("Running Generate Datamap Action with rules: " + joinedRules.size());
+		
 		for (int i = 0; i < joinedRules.size(); ++i) {
 			if (monitor != null) {
 				monitor.worked(1);
@@ -354,6 +367,31 @@ public class NewGenerateDatamapAction extends Action {
 			//System.out.println("About to apply correction: " + obj);
 			Correction correction = (Correction) obj;
 			correction.applyLinks();
+		}
+		
+		// For each superstate attribute, and superstate.superstate attribute, etc.,
+		// link that attribute with ancestor problem spaces' <s> node.
+		ArrayList<SoarDatabaseRow> superstates = problemSpace.getDirectedJoinedParentsOfType(Table.PROBLEM_SPACES);
+		while (superstates.size() > 0) {
+			ArrayList<ISoarDatabaseTreeItem> superstateAtributes = root.getDirectedJoinedChildrenOfType(Table.DATAMAP_IDENTIFIERS, false);
+			ArrayList<ISoarDatabaseTreeItem> nextSueprstateAttributes = new ArrayList<ISoarDatabaseTreeItem>();
+			for (ISoarDatabaseTreeItem item : superstateAtributes) {
+				SoarDatabaseRow attribute = (SoarDatabaseRow) item;
+				if (attribute.getName().equals("superstate")) {
+					for (SoarDatabaseRow superstate : superstates) {
+						SoarDatabaseRow superstateRoot = (SoarDatabaseRow) superstate.getChildrenOfType(Table.DATAMAP_IDENTIFIERS).get(0);
+						LinkDatamapRowsAction linkAction = new LinkDatamapRowsAction(attribute, superstateRoot);
+						linkAction.run();
+					}
+					nextSueprstateAttributes.addAll(attribute.getDirectedJoinedChildrenOfType(Table.DATAMAP_IDENTIFIERS, false));
+				}
+			}
+			ArrayList<SoarDatabaseRow> newSuperstates = new ArrayList<SoarDatabaseRow>();
+			for (SoarDatabaseRow superstate : superstates) {
+				newSuperstates.addAll(superstate.getDirectedJoinedParentsOfType(Table.PROBLEM_SPACES));
+			}
+			superstates = newSuperstates;
+			superstateAtributes = nextSueprstateAttributes;
 		}
 	}
 	

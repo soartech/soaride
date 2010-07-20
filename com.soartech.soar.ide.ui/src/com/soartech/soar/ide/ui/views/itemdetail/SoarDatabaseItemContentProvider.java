@@ -1,6 +1,8 @@
 package com.soartech.soar.ide.ui.views.itemdetail;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -53,7 +55,7 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 						includeDirectionalJoinedItems,
 						putDirectionalJoinedItemsInFolders,
 						includeDatamapNodes);
-				ret = sortItems(ret);
+				ret = sortExplorerItems(ret);
 				return ret.toArray();
 			} catch (AbstractMethodError e) {
 				e.printStackTrace();
@@ -62,7 +64,7 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 		return new Object[0];
 	}
 	
-	public static ArrayList<ISoarDatabaseTreeItem> sortItems(ArrayList<ISoarDatabaseTreeItem> items) {
+	public static ArrayList<ISoarDatabaseTreeItem> sortExplorerItems(ArrayList<ISoarDatabaseTreeItem> items) {
 		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		HashSet<ISoarDatabaseTreeItem> added = new HashSet<ISoarDatabaseTreeItem>();
 		

@@ -59,7 +59,7 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 					ret.addAll(row.getJoinedRowsFromTable(Table.RULES));
 					ret.addAll(row.getJoinedRowsFromTable(Table.OPERATORS));
 					ret.addAll(row.getDirectedJoinedChildrenOfType(Table.PROBLEM_SPACES, false));
-					ret = SoarDatabaseItemContentProvider.sortItems(ret);
+					ret = SoarDatabaseItemContentProvider.sortExplorerItems(ret);
 				}
 				if (table == Table.OPERATORS) {
 					ret.addAll(row.getJoinedRowsFromTable(Table.RULES));
@@ -72,7 +72,7 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 					ret.addAll(row.getUndirectedJoinedRowsFromTable(Table.OPERATORS));
 					ret.addAll(row.getUndirectedJoinedRowsFromTable(Table.RULES));
 					ret.addAll(row.getUndirectedJoinedRowsFromTable(Table.PROBLEM_SPACES));
-					ret = SoarDatabaseItemContentProvider.sortItems(ret);
+					ret = SoarDatabaseItemContentProvider.sortExplorerItems(ret);
 				}
 			}
 			if (element instanceof SoarDatabaseRowFolder) {
@@ -91,7 +91,7 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 						putDirectionalJoinedItemsInFolders,
 						includeDatamapNodes);
 			}
-			ret = SoarDatabaseItemContentProvider.sortItems(ret);
+			ret = SoarDatabaseItemContentProvider.sortExplorerItems(ret);
 			ret = filter(ret);
 			return ret.toArray();
 		}

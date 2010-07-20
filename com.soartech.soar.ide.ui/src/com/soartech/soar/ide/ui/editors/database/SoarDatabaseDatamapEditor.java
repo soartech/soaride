@@ -56,6 +56,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 	private SoarDatabaseRow proplemSpaceRow;
 	private SoarDatabaseRow selectedRow;
 	private TreeViewer tree;
+	private Composite parent;
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
@@ -93,6 +94,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 
 	@Override
 	public void createPartControl(Composite parent) {
+		this.parent = parent;
 		tree = new TreeViewer(parent, SWT.NONE);
 		
         getSite().setSelectionProvider(tree);
@@ -347,34 +349,30 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 								}
 							};
 
-							manager.add(new Action("Remove Linked Attribute") {
-								@Override
-								public void run() {
-									Shell shell = PlatformUI.getWorkbench()
-											.getActiveWorkbenchWindow()
-											.getShell();
-									ListDialog listDialog = new ListDialog(
-											shell);
-									listDialog
-											.setContentProvider(linkedAttributesContentProvider);
-									listDialog
-											.setLabelProvider(new SoarDatabaseItemLabelProvider());
-									listDialog.setInput(row);
-									listDialog.open();
-									Object[] result = listDialog.getResult();
-									if (result != null
-											&& result.length > 0
-											&& result[0] instanceof SoarDatabaseRow) {
-										SoarDatabaseRow linked = (SoarDatabaseRow) result[0];
-										SoarDatabaseRow.unjoinRows(row,
-												linked,
-												row.getDatabaseConnection());
+							if (row.getUndirectedJoinedRowsFromTable(row.getTable()).size() > 0) {
+								manager.add(new Action("Remove Links") {
+									@Override
+									public void run() {
 										
+										Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+										String title = "Remove Links?";
+										org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
+										String message = "Remove all links from \"" + row.getName() + "\"?";
+										String[] labels = new String[] {"OK", "Cancel"};
+										MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
+										int result = dialog.open();
+										if (result == 1) {
+											return;
+										}
+										
+										for (ISoarDatabaseTreeItem item : row.getUndirectedJoinedRowsFromTable(row.getTable())) {
+											SoarDatabaseRow.unjoinRows(row, (SoarDatabaseRow) item, row.getDatabaseConnection());
+										}
 										refreshTree();
 										tree.setExpandedState(row, true);
-									}
-								};
-							});
+									};
+								});
+							}
 						}
 					}
 				}
@@ -452,7 +450,12 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 
 	// Convenience method for refreshing tree
 	public void refreshTree() {
-		// Async execution was giving errors -- "Widget is disposed"
+		
+		if (tree.getTree().isDisposed()) {
+			// AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+			// WHY DOES THIS HAPPENNNNNNNNNNNNNNNNNNNNNNNNNN???????????????????????!?!?!?!?!?!?!?
+			System.out.println("WIDGET DISPOSED!!!!");
+		}
 		
 		  Runnable runnable = new Runnable() {
 		  
