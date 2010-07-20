@@ -62,7 +62,8 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 					ret = SoarDatabaseItemContentProvider.sortItems(ret);
 				}
 				if (table == Table.OPERATORS) {
-					ret = row.getJoinedRowsFromTable(Table.RULES);
+					ret.addAll(row.getJoinedRowsFromTable(Table.RULES));
+					ret.addAll(row.getJoinedRowsFromTable(Table.PROBLEM_SPACES));
 				}
 				if (table == Table.RULES) {
 					return new Object[0];

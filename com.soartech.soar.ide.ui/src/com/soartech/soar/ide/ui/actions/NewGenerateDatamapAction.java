@@ -3,6 +3,7 @@ package com.soartech.soar.ide.ui.actions;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -69,8 +70,10 @@ class Correction {
 				currentRow = createJoinedChildIfNotExists(currentRow, Table.DATAMAP_IDENTIFIERS, triple.attribute);
 			} else if (triple.valueIsInteger()) {
 				currentRow = createJoinedChildIfNotExists(currentRow, Table.DATAMAP_INTEGERS, triple.attribute);
+				editMinMaxValues(currentRow, triple);
 			} else if (triple.valueIsFloat()) {
 				currentRow = createJoinedChildIfNotExists(currentRow, Table.DATAMAP_FLOATS, triple.attribute);
+				editMinMaxValues(currentRow, triple);
 			} else if (triple.valueIsString()) {
 				ArrayList<ISoarDatabaseTreeItem> enumerations = currentRow.getDirectedJoinedChildrenOfType(Table.DATAMAP_ENUMERATIONS, false);
 				SoarDatabaseRow enumeration = null;
@@ -103,15 +106,68 @@ class Correction {
 		tail = currentRow;
 	}
 	
+	/**
+	 * Edits min_value and max_value to include the value of the triple.
+	 * @param row
+	 * @param triple
+	 */
+	private static void editMinMaxValues(SoarDatabaseRow row, Triple triple) {
+		assert row.getTable() == Table.DATAMAP_FLOATS || row.getTable() == Table.DATAMAP_INTEGERS;
+		Object minVal = row.getColumnValue("min_value");
+		Object maxVal = row.getColumnValue("max_value");
+		if (triple.valueIsFloat()) {
+			Double minValue = (Double) minVal;
+			Double maxValue = (Double) maxVal;
+			double value = Double.parseDouble(triple.value);
+			if (minValue == null) {
+				minValue = value;
+			}
+			if (maxValue == null) {
+				maxValue = value;
+			}
+			if (value < minValue) {
+				minValue = value;
+			}
+			if (value > maxValue) {
+				maxValue = value;
+			}
+			if (!minValue.equals(minVal)) {
+				row.updateValue("min_value", "" + minValue);
+			}
+			if (!maxValue.equals(maxVal)) {
+				row.updateValue("max_value", "" + maxValue);
+			}
+		}
+		else if (triple.valueIsInteger()) {
+			Integer minValue = (Integer) minVal;
+			Integer maxValue = (Integer) maxVal;
+			int value = Integer.parseInt(triple.value);
+			if (minValue == null) {
+				minValue = value;
+			}
+			if (maxValue == null) {
+				maxValue = value;
+			}
+			if (value < minValue) {
+				minValue = value;
+			}
+			if (value > maxValue) {
+				maxValue = value;
+			}
+			if (!minValue.equals(minVal)) {
+				row.updateValue("min_value", "" + minValue);
+			}
+			if (!maxValue.equals(maxVal)) {
+				row.updateValue("max_value", "" + maxValue);
+			}
+		}
+	}
+	
 	public void applyLinks() {
 		for (Triple link : links) {
-			System.out.println("About to apply link: " + link);
 			ArrayList<SoarDatabaseRow> rows = link.getDatamapRowsFromProblemSpace(row.getAncestorRow(Table.PROBLEM_SPACES));
-			System.out.println("got rows: " + link);
 			for (SoarDatabaseRow row : rows) {
-				System.out.println("About to apply to row: " + row);
 				SoarDatabaseRow.joinRows(row, tail, row.getDatabaseConnection());
-				System.out.println("Applied to row");
 			}
 		}
 	}
@@ -133,29 +189,41 @@ public class NewGenerateDatamapAction extends Action {
 	SoarDatabaseRow problemSpace;
 	Shell shell;
 	public boolean applyAll = false;
+	ArrayList<ISoarDatabaseTreeItem> joinedRules;
 	
 	public NewGenerateDatamapAction(SoarDatabaseRow problemSpace, boolean applyAll) {
 		super ("Generate datamap");
 		this.problemSpace = problemSpace;
 		this.applyAll = applyAll;
+		joinedRules = problemSpace.getJoinedRowsFromTable(Table.RULES);
+		ArrayList<ISoarDatabaseTreeItem> joinedOperators = problemSpace.getJoinedRowsFromTable(Table.OPERATORS);
+		for (ISoarDatabaseTreeItem item : joinedOperators) {
+			SoarDatabaseRow operator = (SoarDatabaseRow) item;
+			joinedRules.addAll(operator.getJoinedRowsFromTable(Table.RULES));
+		}
 	}
 	
-	@Override
-	public void run() {
+	public int getJoinedRulesSize() {
+		return joinedRules.size();
+	}
+	
+	public SoarDatabaseRow getProblemSpace() {
+		return problemSpace;
+	}
+	
+	public void run(IProgressMonitor monitor) {
 		shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		if (problemSpace == null) {
 			return;
 		}
-		ArrayList<ISoarDatabaseTreeItem> joinedRules = problemSpace.getJoinedRowsFromTable(Table.RULES);
-		ArrayList<ISoarDatabaseTreeItem> joinedOperators = problemSpace.getJoinedRowsFromTable(Table.OPERATORS);
-		for (ISoarDatabaseTreeItem item : joinedOperators) {
-			assert item instanceof SoarDatabaseRow;
-			SoarDatabaseRow operator = (SoarDatabaseRow) item;
-			joinedRules.addAll(operator.getJoinedRowsFromTable(Table.RULES));
-		}
-
-		ArrayList<Triple> allTriples = new ArrayList<Triple>();	
-		for (ISoarDatabaseTreeItem item : joinedRules) {
+		
+		ArrayList<Triple> allTriples = new ArrayList<Triple>();
+		System.out.println("Running Generate Datamap Action with rules: " + joinedRules.size());
+		for (int i = 0; i < joinedRules.size(); ++i) {
+			if (monitor != null) {
+				monitor.worked(1);
+			}
+			ISoarDatabaseTreeItem item = joinedRules.get(i);
 			assert item instanceof SoarDatabaseRow;
 			SoarDatabaseRow row = (SoarDatabaseRow) item;
 			assert row.getTable() == Table.RULES;
@@ -167,10 +235,12 @@ public class NewGenerateDatamapAction extends Action {
 		ArrayList<TerminalPath> paths = terminalPathsForTriples(allTriples);
 		
 		// TODO debug
+		/*
 		System.out.println("Got paths:");
 		for (TerminalPath path : paths) {
 			System.out.println(path);
 		}
+		*/
 		
 		// Compare each path with existing datamap.
 		// Propose corrections where paths diverge with datamap.
@@ -227,12 +297,12 @@ public class NewGenerateDatamapAction extends Action {
 				if (childNodes.size() == 0) {
 					
 					// TODO debug
-					System.out.println("No more child nodes.");
+					// System.out.println("No more child nodes.");
 					
 					for (SoarDatabaseRow leafNode : currentNodes) {
 						
 						// TODO debug
-						System.out.println("Leaf: " + leafNode);
+						// System.out.println("Leaf: " + leafNode);
 						
 						ArrayList<Triple> addition = new ArrayList<Triple>();
 						for (int j = i; j < path.size(); ++j) {
@@ -250,10 +320,12 @@ public class NewGenerateDatamapAction extends Action {
 		}
 		
 		// TODO debug
+		/*
 		System.out.println("Proposing corrections:");
 		for (Correction c : corrections) {
 			System.out.println(c);
 		}
+		*/
 		
 		Object[] result = corrections.toArray();
 		if (!applyAll) {
@@ -265,10 +337,12 @@ public class NewGenerateDatamapAction extends Action {
 		}
 		
 		// TODO debug
+		/*
 		System.out.println("User selected correction:");
 		for (Object obj : result) {
 			System.out.println("" + obj);
 		}
+		*/
 		
 		// Apply corrections
 		for (Object obj : result) {
@@ -277,12 +351,10 @@ public class NewGenerateDatamapAction extends Action {
 		}
 		
 		for (Object obj : result) {
-			System.out.println("About to apply correction: " + obj);
+			//System.out.println("About to apply correction: " + obj);
 			Correction correction = (Correction) obj;
 			correction.applyLinks();
 		}
-		
-		System.out.println("Done with datamap.");
 	}
 	
 	private ArrayList<TerminalPath> terminalPathsForTriples(ArrayList<Triple> triples) {
@@ -357,10 +429,12 @@ public class NewGenerateDatamapAction extends Action {
 							addVariablesToHashSet(path, usedVariables);
 							
 							// TODO debug
+							/*
 							System.out.println("Added path: " + path);
 							System.out.println("terminal: " + terminal);
 							System.out.println("loops: " + loops);
 							System.out.println("loopsIntoPath: " + loopsIntoPath + '\n');
+							*/
 						}
 					}
 				}

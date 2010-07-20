@@ -25,7 +25,7 @@ public class ImportRulesActionDelegate implements IWorkbenchWindowActionDelegate
 			dialog.setText("Choose a Soar file to import");
 			String path = dialog.open();
 			File file = new File(path);
-			SoarDatabaseUtil.importRules(file, agent);
+			SoarDatabaseUtil.importRules(file, agent, null);
 		}
 	}
 

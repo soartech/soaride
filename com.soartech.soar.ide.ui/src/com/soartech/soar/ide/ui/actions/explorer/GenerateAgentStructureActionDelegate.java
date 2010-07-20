@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -35,23 +36,37 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 	public void run(IAction action) {
 		SoarDatabaseRow agent = SoarUiModelTools.selectAgent();
 		if (agent != null) {
-			runWithAgent(agent);
+			runWithAgent(agent, null);
 		}
 	}
 	
-	public void runWithAgent(SoarDatabaseRow agent) {
+	public void runWithAgent(SoarDatabaseRow agent, IProgressMonitor monitor) {
 		assert agent.getTable() == Table.AGENTS;
 		HashMap<String, SoarDatabaseRow> problemSpaces = TraversalUtil.getProblemSpacesMap(agent);
 		HashMap<String, SoarDatabaseRow> operators = TraversalUtil.getOperatorsMap(agent);
 		ArrayList<ISoarDatabaseTreeItem> rules = TraversalUtil.getRelatedRules(agent);
+		
+		if (monitor != null) {
+			monitor.beginTask("Generating Agent Structure", rules.size());
+		}
 
 		applyAll = forceApplyAll;
 
-		for (ISoarDatabaseTreeItem ruleItem : rules) {
+		System.out.println("Running Generate Agent Structure Action");
+		
+		for (int i = 0; i < rules.size(); ++i) {
+			if (monitor != null) {
+				monitor.worked(1);
+			}
+			ISoarDatabaseTreeItem ruleItem = rules.get(i);
 			assert ruleItem instanceof SoarDatabaseRow;
 			SoarDatabaseRow rule = (SoarDatabaseRow) ruleItem;
 			assert rule.getTable() == Table.RULES;
 
+			if (monitor != null) {
+				monitor.subTask("Rule: " + rule.getName());
+			}
+			
 			ArrayList<Triple> triples = TraversalUtil.getTriplesForRule(rule);
 
 			// Find all triples which match <s>.operator.name and whose value is a constant.
@@ -71,10 +86,10 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 				SoarDatabaseRow operator = operators.get(operatorName);
 				if (operator != null) {
 					// Operator with the right name exists
-					proposeJoin(rule, operator);
+					proposeDirectedJoin(rule, operator);
 				} else {
 					// Operator with the right name doesn't exist
-					SoarDatabaseRow newRow = proposeCreateAndJoin(rule, Table.OPERATORS, operatorName);
+					SoarDatabaseRow newRow = proposeCreateAndDirectedJoin(rule, Table.OPERATORS, operatorName);
 					if (newRow != null) {
 						operators.put(operatorName, newRow);
 					}
@@ -101,11 +116,11 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 					SoarDatabaseRow state = problemSpaces.get(stateName);
 					if (state != null) {
 						// Operator with the right name exists
-						proposeJoin(rule, state);
+						proposeDirectedJoin(rule, state);
 					} else {
 						// Operator with the right name doesn't
 						// exist
-						SoarDatabaseRow newRow = proposeCreateAndJoin(rule, Table.PROBLEM_SPACES, stateName);
+						SoarDatabaseRow newRow = proposeCreateAndDirectedJoin(rule, Table.PROBLEM_SPACES, stateName);
 						if (newRow != null) {
 							problemSpaces.put(stateName, newRow);
 						}
@@ -118,13 +133,11 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 						for (String stateName : relatedStateNames) {
 							SoarDatabaseRow state = problemSpaces.get(stateName);
 							if (state != null) {
-								// Operator with the right name
-								// exists
-								proposeJoin(relatedOperator, state);
+								// Operator with the right name exists
+								proposeDirectedJoin(relatedOperator, state);
 							} else {
-								// Operator with the right name
-								// doesn't exist
-								SoarDatabaseRow newRow = proposeCreateAndJoin(relatedOperator, Table.PROBLEM_SPACES, stateName);
+								// Operator with the right name doesn't exist
+								SoarDatabaseRow newRow = proposeCreateAndDirectedJoin(relatedOperator, Table.PROBLEM_SPACES, stateName);
 								if (newRow != null) {
 									problemSpaces.put(stateName, newRow);
 								}
@@ -136,11 +149,43 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 			// update problem spaces
 			problemSpaces = TraversalUtil.getProblemSpacesMap(agent);
 
+			// Find all triples which match <s>.superstate.operator.name and have a constant as their value.
+			// The value of each of those triples are the related superstate operators.
+			// For each related state (see above), for each superstate operator, propose a join.
+			// Confirm with the user before making any changes to the database.
+			// Keep track of these superstate operators, and later propose to add them to superstates.
+			ArrayList<String> superstateOperators = new ArrayList<String>();
+			for (Triple triple : triples) {
+				if (triple.isSuperstateOperatorName() && triple.valueIsConstant()) {
+					superstateOperators.add(triple.value);
+				}
+			}
+			ArrayList<SoarDatabaseRow> superstateOperatorRows =  new ArrayList<SoarDatabaseRow>();
+			for (String relatedStateName : relatedStateNames) {
+				SoarDatabaseRow relatedState = problemSpaces.get(relatedStateName);
+				if (relatedState != null) {
+					for (String superstateOperatorName : superstateOperators) {
+						SoarDatabaseRow superstateOperator = operators.get(superstateOperatorName);
+						if (superstateOperator != null) {
+							superstateOperatorRows.add(superstateOperator);
+							proposeDirectedJoin(relatedState, superstateOperator);
+						} else {
+							SoarDatabaseRow newOperator = proposeCreateAndDirectedJoin(relatedState, Table.OPERATORS, superstateOperatorName);
+							if (newOperator != null) {
+								superstateOperatorRows.add(newOperator);
+							}
+						}
+					}
+				}
+			}
+			
 			// Find all triples which match <s>.superstate.name and have a constant as their value.
 			// The value of each of those triples are the related superstates.
-			// For each related state (see above), for each
-			// superstate, if the states are not joined, propose a join.
+			// For each related state (see above), for each superstate, if the states are not joined, propose a join.
+			// UNLESS there are superstate operators, in which case don't propose a join, but keep track of superstates still.
 			// Confirm with the user before making any changes to the database.
+			// Keep track of superstate rows to attatch them to superstate operators.
+			boolean hasSuperstateOperator = superstateOperatorRows.size() > 0;
 			ArrayList<String> relatedSuperstateNames = new ArrayList<String>();
 			for (Triple triple : triples) {
 				if (triple.isSuperstateName() && triple.valueIsConstant()) {
@@ -153,13 +198,29 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 					for (String relatedSuperstateName : relatedSuperstateNames) {
 						SoarDatabaseRow superstate = problemSpaces.get(relatedSuperstateName);
 						if (superstate != null) {
-							proposeDirectedJoin(relatedState, superstate);
+							if (!hasSuperstateOperator) {
+								proposeDirectedJoin(relatedState, superstate);
+							} else {
+								for (SoarDatabaseRow operator : superstateOperatorRows) {
+									proposeDirectedJoin(operator, superstate);
+								}
+							}
 						} else {
-							proposeCreateAndDirectedJoin(relatedState, Table.PROBLEM_SPACES, relatedSuperstateName);
+							if (!hasSuperstateOperator) {
+								proposeCreateAndDirectedJoin(relatedState, Table.PROBLEM_SPACES, relatedSuperstateName);
+							} else {
+								for (SoarDatabaseRow operator : superstateOperatorRows) {
+									proposeCreateAndDirectedJoin(operator, Table.PROBLEM_SPACES, relatedSuperstateName);
+								}						
+							}
 						}
 					}
 				}
 			}
+		}
+		
+		if (monitor != null) {
+			monitor.done();
 		}
 	}
 	
@@ -248,7 +309,7 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 	 * @param type The type of parent row to create.
 	 * @param second The name of the parent row to create.
 	 */
-	private void proposeCreateAndDirectedJoin(SoarDatabaseRow first, Table type, String second) {
+	private SoarDatabaseRow proposeCreateAndDirectedJoin(SoarDatabaseRow first, Table type, String second) {
 		boolean join = applyAll;
 		if (!join) {
 		String title = "Create and join project elements?";
@@ -264,7 +325,9 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 			SoarDatabaseRow agent = first.getTopLevelRow();
 			SoarDatabaseRow newRow = agent.createChild(type, second);
 			SoarDatabaseRow.directedJoinRows(newRow, first, first.getDatabaseConnection());
+			return newRow;
 		}
+		return null;
 	}
 	
 	/*
@@ -274,7 +337,7 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 	private void proposeAddRuleToState(SoarDatabaseRow rule, String stateName) {
 		SoarDatabaseRow state = getRowOfTypeNamed(Table.PROBLEM_SPACES, stateName);
 		if (!SoarDatabaseRow.rowsAreJoined(rule, state, rule.getDatabaseConnection())) {
-			proposeJoin(rule, state);
+			proposeDirectedJoin(rule, state);
 		}
 	}
 	
@@ -302,15 +365,15 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 		if (problemSpaces.size() == 1) {
 			SoarDatabaseRow state = problemSpaces.get(0);
 			SoarDatabaseRow superstate = getRowOfTypeNamed(Table.PROBLEM_SPACES, superstateName);
-			proposeJoin(state, superstate);
+			proposeDirectedJoin(state, superstate);
 		} else if (problemSpaces.size() > 1) {
 			SoarDatabaseRow problemSpace = getRowFromList(problemSpaces, Table.PROBLEM_SPACES);
 			SoarDatabaseRow superstate = getRowOfTypeNamed(Table.PROBLEM_SPACES, superstateName);
-			proposeJoin(problemSpace, superstate);
+			proposeDirectedJoin(problemSpace, superstate);
 		} else {
 			SoarDatabaseRow problemSpace = getRowFromList(states, Table.PROBLEM_SPACES);
 			SoarDatabaseRow superstate = getRowOfTypeNamed(Table.PROBLEM_SPACES, superstateName);
-			proposeJoin(problemSpace, superstate);
+			proposeDirectedJoin(problemSpace, superstate);
 		}
 	}
 	
@@ -326,7 +389,7 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 	
 	private void proposeAddRuleToOperator(SoarDatabaseRow rule, String operatorName) {
 		SoarDatabaseRow operator = getRowOfTypeNamed(Table.OPERATORS, operatorName);
-		proposeJoin(rule, operator);
+		proposeDirectedJoin(rule, operator);
 	}
 		
 	private SoarDatabaseRow getRowOfTypeNamed(Table type, String name) {

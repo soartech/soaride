@@ -163,9 +163,9 @@ public class SoarExplorerView extends ViewPart
 			//ret.add(new GenerateAgentStructureActionDelegate(row));
 		}
 		if (table == Table.PROBLEM_SPACES) {
-			ret.add(new AddChildRowAction(row, Table.OPERATORS, row, tree, false));
+			ret.add(new AddChildRowAction(row, Table.OPERATORS, row, tree, true));
 			//ret.add(new AddOperatorTemplateChildrenAction(row, tree));
-			ret.add(new AddChildRowAction(row, Table.RULES, row, tree, false));
+			ret.add(new AddChildRowAction(row, Table.RULES, row, tree, true));
 			//ret.add(new AddRuleTemplateChildrenAction(row, tree));
 			ret.add(new MarkProblemSpaceRootAction(row, tree));
 			ret.add(new AddSubstateAction(row, false, tree));
@@ -173,7 +173,8 @@ public class SoarExplorerView extends ViewPart
 			ret.add(new NewGenerateDatamapAction(row, false));
 		}
 		if (table == Table.OPERATORS) {
-			ret.add(new AddChildRowAction(row, Table.RULES, row, tree, false));
+			ret.add(new AddChildRowAction(row, Table.RULES, row, tree, true));
+			ret.add(new AddChildRowAction(row, Table.PROBLEM_SPACES, row, tree, true));
 			//ret.add(new AddRuleTemplateChildrenAction(row, tree));
 		}
 		RemoveJoinFromParentAction remove = new RemoveJoinFromParentAction(selection);

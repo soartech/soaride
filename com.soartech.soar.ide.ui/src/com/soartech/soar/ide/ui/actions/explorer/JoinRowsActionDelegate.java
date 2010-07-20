@@ -110,5 +110,4 @@ public class JoinRowsActionDelegate implements IObjectActionDelegate {
 			}
 		}
 	}
-
 }

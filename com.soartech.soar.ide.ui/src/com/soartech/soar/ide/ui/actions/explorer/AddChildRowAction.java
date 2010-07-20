@@ -22,26 +22,51 @@ public class AddChildRowAction extends Action {
 	Table childTable;
 	TreeViewer tree;
 	ISoarDatabaseTreeItem treeItem;
-	boolean existing;
+	boolean directed;
 
-	public AddChildRowAction(SoarDatabaseRow parent, Table childTable, ISoarDatabaseTreeItem treeItem, TreeViewer tree, boolean existing) {
-		super("Add " + (existing ? "existing" : "new") + " " + childTable.englishName());
+	public AddChildRowAction(SoarDatabaseRow parent, Table childTable, ISoarDatabaseTreeItem treeItem, TreeViewer tree, boolean directed) {
+		super("Add new " + childTable.englishName());
 		this.parent = parent;
 		this.tree = tree;
 		this.childTable = childTable;
 		this.treeItem = treeItem;
-		this.existing = existing;
+		this.directed = directed;
 	}
 
 	@Override
 	public void run() {
-		if (existing) {
-			runExisting();
-		} else {
-			runNew();
+		runNew();
+	}
+	
+	private void runNew() {
+		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		String title = "New " + childTable.englishName();
+		String message = "Enter Name:";
+		String initialValue = childTable.soarName() + "-name";
+		InputDialog dialog = new InputDialog(shell, title, message, initialValue, null);
+		dialog.open();
+		String result = dialog.getValue();
+
+		if (result != null && result.length() > 0) {
+			SoarDatabaseRow top = parent.getTopLevelRow();
+			if (top == parent) {
+				parent.createChild(childTable, result);
+			} else {
+				SoarDatabaseRow child = top.createChild(childTable, result);
+				if (directed) {
+					SoarDatabaseRow.directedJoinRows(parent, child, parent.getDatabaseConnection());
+				} else {
+					SoarDatabaseRow.joinRows(parent, child, parent.getDatabaseConnection());
+				}
+			}
+
+			if (treeItem != null) {
+				tree.setExpandedState(treeItem, true);
+			}
 		}
 	}
 
+	/*
 	private void runExisting() {
 		
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
@@ -85,35 +110,9 @@ public class AddChildRowAction extends Action {
 			SoarDatabaseRow selectedRow = (SoarDatabaseRow) result[0];
 			if (selectedRow.getTable() == childTable) {
 				// Should be true
-				
-				// be careful here
-				// this gets translated into SQL and executed
 				SoarDatabaseRow.joinRows(parent, selectedRow, parent.getDatabaseConnection());
 			}
 		}
 	}
-
-	private void runNew() {
-		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		String title = "New " + childTable.englishName();
-		String message = "Enter Name:";
-		String initialValue = childTable.soarName() + "-name";
-		InputDialog dialog = new InputDialog(shell, title, message, initialValue, null);
-		dialog.open();
-		String result = dialog.getValue();
-
-		if (result != null && result.length() > 0) {
-			SoarDatabaseRow top = parent.getTopLevelRow();
-			if (top == parent) {
-				parent.createChild(childTable, result);
-			} else {
-				SoarDatabaseRow child = top.createChild(childTable, result);
-				SoarDatabaseRow.joinRows(parent, child, parent.getDatabaseConnection());
-			}
-
-			if (treeItem != null) {
-				tree.setExpandedState(treeItem, true);
-			}
-		}
-	}
+	*/
 }

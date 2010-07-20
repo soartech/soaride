@@ -1,10 +1,14 @@
 package com.soartech.soar.ide.ui.actions;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
@@ -51,7 +55,7 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 		if (path == null) {
 			return;
 		}
-		File file = new File(path);
+		final File file = new File(path);
 		if (file == null || !file.exists()) {
 			return;
 		}
@@ -105,17 +109,45 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 			// shouldn't happen
 			return;
 		}
-		SoarDatabaseUtil.importRules(file, agent);
 		
-		// Create project structure
-		GenerateAgentStructureActionDelegate structure = new GenerateAgentStructureActionDelegate();
-		structure.forceApplyAll = true;
-		structure.runWithAgent(agent);
+		final SoarDatabaseRow finalAgent = agent;
 		
-		// Generate datamap structure
-		GenerateDatamapsActionDelegate datamaps = new GenerateDatamapsActionDelegate();
-		datamaps.forceApplyAll = true;
-		datamaps.runWithAgent(agent);
+		try {
+			new ProgressMonitorDialog(shell).run(false, false, new IRunnableWithProgress() {
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					//monitor.setTaskName("New Project From Existing Source");
+					monitor.beginTask("Importing Rules", IProgressMonitor.UNKNOWN);
+					SoarDatabaseUtil.importRules(file, finalAgent, monitor);
+					monitor.done();
+				}
+			});
+			
+			new ProgressMonitorDialog(shell).run(false, false, new IRunnableWithProgress() {
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					// Create project structure
+					GenerateAgentStructureActionDelegate structure = new GenerateAgentStructureActionDelegate();
+					structure.forceApplyAll = true;
+					structure.runWithAgent(finalAgent, monitor);
+				}
+			});
+			
+			new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					// Generate datamap structure
+					GenerateDatamapsActionDelegate datamaps = new GenerateDatamapsActionDelegate();
+					datamaps.forceApplyAll = true;
+					datamaps.runWithAgent(finalAgent, monitor);
+				}
+			});
+			
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

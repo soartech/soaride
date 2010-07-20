@@ -28,7 +28,7 @@ public class TraversalUtil {
 		
 		// TODO debug
 		
-		System.out.println("Triples for rule: " + rule.getName());
+		//System.out.println("Triples for rule: " + rule.getName());
 		/*
 		for (Triple triple : triples) {
 			System.out.println(triple);
@@ -77,6 +77,8 @@ public class TraversalUtil {
 			ArrayList<Triple> parentTriples = triplesWithValue.get(triple.variable);
 			if (parentTriples != null) {
 				triple.parentTriples = parentTriples;
+			} else {
+				triple.parentTriples = new ArrayList<Triple>();
 			}
 			if (triple.valueIsVariable()) {
 				ArrayList<Triple> childTriples = triplesWithVariable.get(triple.value);

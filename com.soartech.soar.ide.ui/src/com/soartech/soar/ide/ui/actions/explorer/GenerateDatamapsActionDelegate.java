@@ -2,6 +2,7 @@ package com.soartech.soar.ide.ui.actions.explorer;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -30,22 +31,41 @@ public class GenerateDatamapsActionDelegate implements IWorkbenchWindowActionDel
 	public void run(IAction action) {
 		SoarDatabaseRow agent = SoarUiModelTools.selectAgent();
 		if (agent != null) {
-			runWithAgent(agent);
+			runWithAgent(agent, null);
 		}
 	}
 
-	public void runWithAgent(SoarDatabaseRow agent) {
+	public void runWithAgent(SoarDatabaseRow agent, IProgressMonitor monitor) {
 		assert agent.getTable() == Table.AGENTS;
 		applyAll = forceApplyAll;
 		ArrayList<ISoarDatabaseTreeItem> problemSpaces = agent.getChildrenOfType(Table.PROBLEM_SPACES);
+		ArrayList<NewGenerateDatamapAction> actions = new ArrayList<NewGenerateDatamapAction>();
+		int totalRules = 0;
 		for (ISoarDatabaseTreeItem psItem : problemSpaces) {
 			assert psItem instanceof SoarDatabaseRow;
 			SoarDatabaseRow ps = (SoarDatabaseRow) psItem;
 			assert ps.getTable() == Table.PROBLEM_SPACES;
 			NewGenerateDatamapAction generateAction = new NewGenerateDatamapAction(ps, applyAll);
-			generateAction.run();
-			applyAll = generateAction.applyAll;
+			actions.add(generateAction);
+			totalRules += generateAction.getJoinedRulesSize();
+			System.out.println("Rules for ps: " + ps.getName() + ": " + totalRules);
 		}
+		
+		if (monitor != null) {
+			monitor.beginTask("Generating Datamaps", totalRules);
+		}
+		
+		for (NewGenerateDatamapAction generateAction : actions) {
+			if (monitor != null) {
+				monitor.subTask("Problem space: " + generateAction.getProblemSpace().getName());
+			}
+			generateAction.run(monitor);
+		}
+		
+		if (monitor != null) {
+			monitor.done();
+		}
+			
 	}
 	
 	@Override

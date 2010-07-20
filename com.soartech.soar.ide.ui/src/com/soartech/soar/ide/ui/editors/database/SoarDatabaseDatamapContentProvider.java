@@ -29,12 +29,12 @@ public class SoarDatabaseDatamapContentProvider implements ITreeContentProvider 
 					putDirectionalJoinedItemsInFolders,
 					includeDatamapNodes));
 			
-			// If this is the root node (the problem space), don't show substates.
+			// If this is the root node (the problem space), only show datamap nodes
 			if (row.getTable() == Table.PROBLEM_SPACES) {
 				ArrayList<ISoarDatabaseTreeItem> temp = new ArrayList<ISoarDatabaseTreeItem>();
 				for (ISoarDatabaseTreeItem item : ret) {
 					if (item instanceof SoarDatabaseRow &&
-							((SoarDatabaseRow)item).getTable() != Table.PROBLEM_SPACES) {
+							((SoarDatabaseRow)item).getTable().isDatamapTable()) {
 						temp.add(item);
 					}
 				}

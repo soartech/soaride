@@ -70,9 +70,8 @@ public class Triple {
 	 */
 	public boolean valueIsVariable() {
 		if (value == null) return false;
-		String stringValue = (String) value;
-		int lastIndex = stringValue.length() - 1;
-		return stringValue.indexOf('<') == 0 && stringValue.lastIndexOf('>') == lastIndex;
+		int lastIndex = value.length() - 1;
+		return value.indexOf('<') == 0 && value.lastIndexOf('>') == lastIndex;
 	}
 	
 	public boolean valueIsConstant() {
@@ -89,13 +88,16 @@ public class Triple {
 	}
 	
 	public boolean valueIsInteger() {
-		Pattern pattern = Pattern.compile("^\\d*$");
+		Pattern pattern = Pattern.compile("^-?\\d*$");
 		Matcher matcher = pattern.matcher(value);
 		return matcher.matches();
 	}
 	
-	public boolean valueIsFloat() {		
-		Pattern pattern = Pattern.compile("^\\d*(\\.\\d*)?$");
+	public boolean valueIsFloat() {
+		if (valueIsInteger()) {
+			return false;
+		}
+		Pattern pattern = Pattern.compile("^-?\\d*\\.\\d*$");
 		Matcher matcher = pattern.matcher(value);
 		return matcher.matches();
 	}
@@ -241,7 +243,7 @@ public class Triple {
 	}
 	
 	public boolean isSuperstateName() {
-		return matchesPath(new String[] {"superstaate", "name"});
+		return matchesPath(new String[] {"superstate", "name"});
 	}
 	
 	public boolean isSuperstateOperatorName() {

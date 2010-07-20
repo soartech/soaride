@@ -33,13 +33,6 @@ public class SoarDatabaseExplorerDropAdapter extends ViewerDropAdapter {
 		super(viewer);
 		
 		undirectedChildren = new HashMap<Table, HashSet<Table>>();
-		HashSet<Table> problemSpaceChildren = new HashSet<Table>();
-		problemSpaceChildren.add(Table.OPERATORS);
-		problemSpaceChildren.add(Table.RULES);
-		undirectedChildren.put(Table.PROBLEM_SPACES, problemSpaceChildren);
-		HashSet<Table> operatorChildren = new HashSet<Table>();
-		operatorChildren.add(Table.RULES);
-		undirectedChildren.put(Table.OPERATORS, operatorChildren);
 		HashSet<Table> tagChildren = new HashSet<Table>();
 		tagChildren.add(Table.RULES);
 		tagChildren.add(Table.PROBLEM_SPACES);
@@ -47,9 +40,15 @@ public class SoarDatabaseExplorerDropAdapter extends ViewerDropAdapter {
 		undirectedChildren.put(Table.TAGS, tagChildren);
 		
 		directedChildren = new HashMap<Table, HashSet<Table>>();
-		problemSpaceChildren = new HashSet<Table>();
+		HashSet<Table> problemSpaceChildren = new HashSet<Table>();
+		problemSpaceChildren.add(Table.OPERATORS);
+		problemSpaceChildren.add(Table.RULES);
 		problemSpaceChildren.add(Table.PROBLEM_SPACES);
 		directedChildren.put(Table.PROBLEM_SPACES, problemSpaceChildren);
+		HashSet<Table> operatorChildren = new HashSet<Table>();
+		operatorChildren.add(Table.RULES);
+		operatorChildren.add(Table.PROBLEM_SPACES);
+		directedChildren.put(Table.OPERATORS, operatorChildren);
 		
 		/*
 		undirectedJoins = new HashMap<Table, HashSet<Table>>();
