@@ -1568,14 +1568,15 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		addEditableColumnToTable(Table.DATAMAP_FLOATS, new EditableColumn("min_value", EditableColumn.Type.FLOAT));
 		addEditableColumnToTable(Table.DATAMAP_FLOATS, new EditableColumn("max_value", EditableColumn.Type.FLOAT));
 
-		// Declare joined tables.
-		joinTables(Table.RULES, Table.PROBLEM_SPACES);
-		joinTables(Table.RULES, Table.OPERATORS);
-		joinTables(Table.OPERATORS, Table.PROBLEM_SPACES);
-		joinTables(Table.TAGS, Table.PROBLEM_SPACES);
+		// Project structure
+		directedJoinTables(Table.PROBLEM_SPACES, Table.RULES); // Project
+		directedJoinTables(Table.OPERATORS, Table.RULES);
+		directedJoinTables(Table.PROBLEM_SPACES, Table.OPERATORS);
+		directedJoinTables(Table.OPERATORS, Table.PROBLEM_SPACES);
+		joinTables(Table.TAGS, Table.PROBLEM_SPACES); // Tags
 		joinTables(Table.TAGS, Table.OPERATORS);
 		joinTables(Table.TAGS, Table.RULES);
-		joinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_IDENTIFIERS);
+		//directedJoinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_IDENTIFIERS);
 		
 		// Declare directional joined tables.
 		directedJoinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_IDENTIFIERS);
@@ -2142,7 +2143,8 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 						input.addProblem(SoarProblem.createError(message, start, length));
 					}
 				} catch (TokenMgrError e) {
-					// e.printStackTrace();
+					e.printStackTrace();
+					/*
 					String message = e.getLocalizedMessage();
 
 					// Get the range of the error, based on the string
@@ -2165,6 +2167,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 					if (input != null) {
 						input.addProblem(SoarProblem.createError(message, start, length));
 					}
+					*/
 				}
 			} else {
 				System.out.println("Production doesn't begin with \"sp {\" or doesn't end with \"}\"");

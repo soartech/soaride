@@ -37,27 +37,39 @@ name varchar(100),
 agent_id integer
 );
 
---Join tables
-create table if not exists join_rules_problem_spaces
+-- Join tables
+
+-- Directed for project hierarchy
+
+create table if not exists directed_join_problem_spaces_rules
 (
 id integer primary key,
-first_id integer,
-second_id integer
+parent_id integer,
+child_id integer
 );
 
-create table if not exists join_rules_operators
+create table if not exists directed_join_operators_rules
 (
 id integer primary key,
-first_id integer,
-second_id integer
+parent_id integer,
+child_id integer
 );
 
-create table if not exists join_operators_problem_spaces
+create table if not exists directed_join_problem_spaces_operators
 (
 id integer primary key,
-first_id integer,
-second_id integer
+parent_id integer,
+child_id integer
 );
+
+create table if not exists directed_join_operators_problem_spaces
+(
+id integer primary key,
+parent_id integer,
+child_id integer
+);
+
+-- Undirected for tags
 
 create table if not exists join_tags_problem_spaces
 (
@@ -80,7 +92,8 @@ first_id integer,
 second_id integer
 );
 
--- directed joins for substates
+-- Directed for substates
+
 create table if not exists directed_join_problem_spaces_problem_spaces
 (
 id integer primary key,

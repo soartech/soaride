@@ -52,17 +52,6 @@ public class TokenMgrError extends Error
     * one of the above 4 values.
     */
    int errorCode;
-   
-   int errorColumn = -1;
-   int errorLine = -1;
-   
-   public int getErrorColumn() {
-	   return errorColumn;
-   }
-   
-   public int getErrorLine() {
-	   return errorLine;
-   }
 
    /**
     * Replaces unprintable characters by their espaced (or unicode escaped)
@@ -160,7 +149,5 @@ public class TokenMgrError extends Error
 
    public TokenMgrError(boolean EOFSeen, int lexState, int errorLine, int errorColumn, String errorAfter, char curChar, int reason) {
       this(LexicalError(EOFSeen, lexState, errorLine, errorColumn, errorAfter, curChar), reason);
-      this.errorColumn = errorColumn;
-      this.errorLine = errorLine;
    }
 }

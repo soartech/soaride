@@ -10,6 +10,8 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public class SoarDatabaseUtil {
@@ -20,7 +22,7 @@ public class SoarDatabaseUtil {
 	 * @param file
 	 * @param folder
 	 */
-	public static ArrayList<SoarDatabaseRow> importRules(File firstFile, SoarDatabaseRow row) {
+	public static ArrayList<SoarDatabaseRow> importRules(File firstFile, SoarDatabaseRow agent, IProgressMonitor monitor) {
 		
 		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
 		
@@ -33,11 +35,14 @@ public class SoarDatabaseUtil {
 
 		// This is the list of files that have been read, to avoid recursive souce commands.
 		ArrayList<File> readFiles = new ArrayList<File>();
+		
+		// The list of lines to add to the agent.
+		ArrayList<String> agentCommands = new ArrayList<String>();
 
 		for (int filesIndex = 0; filesIndex < files.size(); ++filesIndex) {
 			try {
 				File file = files.get(filesIndex);
-				System.out.println(file.getPath());
+				//System.out.println(file.getPath());
 
 				FileReader reader = new FileReader(file);
 				String basePath = file.getPath();
@@ -66,7 +71,7 @@ public class SoarDatabaseUtil {
 					buffer.append(c);
 					error = null;
 					
-					System.out.print(c);
+					// System.out.print(c);
 
 					if (c == '\n') {
 						++lineNumber;
@@ -104,16 +109,19 @@ public class SoarDatabaseUtil {
 						}
 						if (bracesDepth == 0 && insideProduction) {
 							insideProduction = false;
-							SoarDatabaseRow newRow = importRule(buffer.toString().trim(), row);
+							SoarDatabaseRow newRow = importRule(buffer.toString().trim(), agent);
 							ret.add(newRow);
 							buffer = new StringBuffer();
+							if (monitor != null) {
+								monitor.subTask("Imported rule: " + newRow.getName());
+							}
 						}
 					}
 
 					// look for other commands
 					// pushd, popd, source
 					// These are newline-delimited
-					if (c == '\n') {
+					if (bracesDepth == 0 && c == '\n') {
 						String line = buffer.toString().trim();
 						String[] tokens = line.split("\\s"); // "\s" for whitespace
 
@@ -127,11 +135,9 @@ public class SoarDatabaseUtil {
 								File newFile = fileForFilename(basePath, tokens[1], directoryStack);
 								files.add(newFile);
 							} else {
-								consumed = false;
+								agentCommands.add(buffer.toString());
 							}
-							if (consumed) {
-								buffer = new StringBuffer();
-							}
+							buffer = new StringBuffer();
 						}
 					}
 
@@ -149,6 +155,15 @@ public class SoarDatabaseUtil {
 				System.out.println("FILENOTFOUND");
 			}
 		}
+		
+		// Add commands to agent
+		StringBuffer agentText = new StringBuffer();
+		for (String command : agentCommands) {
+			agentText.append(command);
+		}
+		
+		agent.setText(agentText.toString(), true);
+		
 		return ret;
 	}
 		

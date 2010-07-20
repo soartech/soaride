@@ -74,14 +74,8 @@ TOKEN:
 	 // I know the variable looks weird but it does appear to be correct
 	 |<VARIABLE: "<" (["a"-"z","A"-"Z","0"-"9","$","%","&","*","+","-","/",":","=","?","_"])+ ">" >
 	 |<INTEGER_CONST: (["+","-"])? (["0"-"9"])+ >
-	 |<SYMBOLIC_CONST: (["a"-"z","A"-"Z","0"-"9","$","%","&","*","+","-","/","<","=",">","?","_"])(["a"-"z","A"-"Z","0"-"9","$","%","&","*","+","-","/",":","<","=",">","?","_"])* | ("|" (~["|"])* "|") >
-	 |<FLOATING_POINT_CONST: 
-	 					(["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)? (["f","F","d","D"])?
-	 				| "." (["0"-"9"])+ (<EXPONENT>)? (["f","F","d","D"])?
-	 				| (["0"-"9"])+ <EXPONENT> (["f","F","d","D"])?
-	 				| (["0"-"9"])+ (<EXPONENT>)? ["f","F","d","D"]
-	  >
-	 | < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+	 |<SYMBOLIC_CONST: (["a"-"z","A"-"Z","0"-"9","$","%","&","*","+","-","/",":","<","=",">","?","_"])+ | ("|" (~["|"])* "|") >
+	 |<FLOATING_POINT_CONST: (["+","-"])? (["0"-"9"])* "." (["0"-"9"])+ >
 }
 
 SoarProductionAst soarProduction() :
@@ -161,7 +155,7 @@ void handleDocumentationQuote(SoarProductionAst sp)
 	<RelationalTest>            ::=	 [<Relation>] <SingleTest>	
 	<Relation>					::=  '<>' | '<=>' | '<' | '<=' | '>=' | '>' | '='
 	<SingleTest>				::= <Constant> | VARIABLE
-	<Constant> 					::= INTEGER_CONST | SYMBOLIC_CONST | FLOATING_POINT_CONST	
+	<Constant> 					::= FLOATING_POINT_CONST | INTEGER_CONST | SYMBOLIC_CONST
 */
 
 // Ok
@@ -413,7 +407,15 @@ Constant constant() :
 	Token t;
 }
 {
-	t = <INTEGER_CONST>	{
+    t = <FLOATING_POINT_CONST> {
+        try {
+            return new Constant(Float.parseFloat(t.image), t.beginOffset, t.endOffset);
+        }
+        catch(NumberFormatException nfe) {
+            return new Constant(t.image, t.beginOffset, t.endOffset);
+        }
+    }
+	| t = <INTEGER_CONST>	{
 		try {
 			return new Constant(Integer.parseInt(t.image), t.beginOffset, t.endOffset);
 		}
@@ -423,14 +425,6 @@ Constant constant() :
 	}
 	| t = <SYMBOLIC_CONST> {
 		return new Constant(t.image, t.beginOffset, t.endOffset);
-	}
-	| t = <FLOATING_POINT_CONST> {
-		try {
-			return new Constant(Float.parseFloat(t.image), t.beginOffset, t.endOffset);
-		}
-		catch(NumberFormatException nfe) {
-			return new Constant(t.image, t.beginOffset, t.endOffset);
-		}
 	}
 }
 
