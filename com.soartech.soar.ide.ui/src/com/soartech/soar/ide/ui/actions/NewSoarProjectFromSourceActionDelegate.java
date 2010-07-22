@@ -111,7 +111,8 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 		}
 		
 		final SoarDatabaseRow finalAgent = agent;
-		
+		boolean eventsWereSupressed = agent.getDatabaseConnection().getSupressEvents();
+		agent.getDatabaseConnection().setSupressEvents(true);
 		try {
 			new ProgressMonitorDialog(shell).run(false, false, new IRunnableWithProgress() {
 				@Override
@@ -148,6 +149,7 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		agent.getDatabaseConnection().setSupressEvents(eventsWereSupressed);
 	}
 
 	@Override

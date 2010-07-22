@@ -62,8 +62,8 @@
            icon="icons/soar_file_16.gif"
            name="Soar Database Operator Editor"/>
      <editor
-           class="com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapEditor"
-           id="com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapEditor"
+           class="com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor"
+           id="com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor"
            icon="icons/soar_file_16.gif"
            name="Soar Database Datamap Editor"/>
   </extension>
@@ -518,27 +518,9 @@ sp {${rule}
           adaptable="false"
           id="com.soartech.soar.ide.ui.SoarDatabaseRowObjectContribution"
           objectClass="com.soartech.soar.ide.core.sql.SoarDatabaseRow">
-       <action
-             class="com.soartech.soar.ide.ui.actions.explorer.OpenDatabaseRowInEditorActionDelegate"
-             enablesFor="*"
-             id="com.soartech.soar.ide.ui.openRowInEditor"
-             label="Open in editor"
-             menubarPath="additions"
-             tooltip="Opens the selected database row in an editor."/>
-       <action
-             class="com.soartech.soar.ide.ui.actions.explorer.RenameDatabaseRowActionDelegate"
-             enablesFor="*"
-             id="com.soartech.soar.ide.ui.RenameSoarDatabaseRow"
-             label="Rename"
-             menubarPath="additions"
-             tooltip="Rename the selected database row."/>
-       <action
-             class="com.soartech.soar.ide.ui.actions.explorer.DeleteDatabaseRowActionDelegate"
-             enablesFor="*"
-             id="com.soartech.soar.ide.ui.DeleteSoarDatabaseRow"
-             label="Delete"
-             menubarPath="additions"
-             tooltip="Delete the selected database row."/>
+          
+          <!-- NO CONTRIBUTIONS -->
+          
     </objectContribution>
     <objectContribution
           adaptable="false"
@@ -621,6 +603,12 @@ sp {${rule}
           icon="icons/package.gif"
           id="com.soartech.soar.ide.ui.views.SoarDatabaseItemView"
           name="Item Detail"/>
+    <view
+          category="com.soartech.soar.ide.ui.SoarCategory"
+          class="com.soartech.soar.ide.ui.views.search.SoarDatabaseSearchResultsView"
+          icon="icons/package.gif"
+          id="com.soartech.soar.ide.ui.views.SoarDatabaseSearchResultsView"
+          name="Search Results"/>
     <!--
     <view
           allowMultiple="true"

@@ -29,8 +29,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
-import com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapEditor;
-import com.soartech.soar.ide.ui.views.SoarLabelProvider;
+import com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor;
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerView;
 
 public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEventListener, ISelectionListener, IDoubleClickListener {
@@ -41,20 +40,19 @@ public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEvent
 	@Override
 	public void createPartControl(Composite parent) {
 		tree = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-        tree.setUseHashlookup(true); // this significantly improves update performance
+        //tree.setUseHashlookup(true); // this significantly improves update performance
 		tree.setContentProvider(new SoarDatabaseItemContentProvider());
-//		tree.setLabelProvider(SoarLabelProvider.createFullLabelProvider(null));
 		tree.setLabelProvider(new SoarDatabaseItemLabelProvider());
 		ISoarModel input = SoarCorePlugin.getDefault().getSoarModel();
         tree.setInput(input);
         getSite().setSelectionProvider(tree);
-        SoarCorePlugin.getDefault().getSoarModel().getDatabase().addListener(this);
-        // getSite().getPage().addPostSelectionListener(this);
+        input.getDatabase().addListener(this);
         IWorkbenchPartSite site = getSite();
         IWorkbenchPage page = site.getPage();
         page.addPostSelectionListener(this);
         
         tree.addDoubleClickListener(this);
+        /*
 		tree.getControl().addKeyListener(new org.eclipse.swt.events.KeyListener() {
 
 			@Override
@@ -88,6 +86,7 @@ public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEvent
 			}
 			
 		});
+		*/
 	}
 
 	@Override
@@ -102,7 +101,14 @@ public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEvent
 	        tree.setInput(input);
 		}
 		
-		refreshTree();
+		tree.refresh();
+		/*
+		TreePath[] paths = tree.getExpandedTreePaths();
+		Object input = tree.getInput();
+		tree.setInput(null);
+		tree.setInput(input);
+		tree.setExpandedTreePaths(paths);
+		*/
 	}
 
 	@Override

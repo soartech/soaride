@@ -38,6 +38,7 @@ import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -67,6 +68,7 @@ import com.soartech.soar.ide.core.sql.ISoarDatabaseEventListener;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRow.JoinType;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
@@ -75,10 +77,14 @@ import com.soartech.soar.ide.ui.actions.NewGenerateDatamapAction;
 import com.soartech.soar.ide.ui.actions.explorer.AddAgentActionDelegate;
 import com.soartech.soar.ide.ui.actions.explorer.AddChildRowAction;
 import com.soartech.soar.ide.ui.actions.explorer.AddSubstateAction;
+import com.soartech.soar.ide.ui.actions.explorer.ChangeJoinTypeAction;
+import com.soartech.soar.ide.ui.actions.explorer.DeleteDatabaseRowAction;
 import com.soartech.soar.ide.ui.actions.explorer.ExportSoarDatabaseRowAction;
-import com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapAction;
+import com.soartech.soar.ide.ui.actions.explorer.ManageTagsAction;
 import com.soartech.soar.ide.ui.actions.explorer.MarkProblemSpaceRootAction;
+import com.soartech.soar.ide.ui.actions.explorer.OpenDatabaseRowInEditorAction;
 import com.soartech.soar.ide.ui.actions.explorer.RemoveJoinFromParentAction;
+import com.soartech.soar.ide.ui.actions.explorer.RenameDatabaseRowAction;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
 import com.soartech.soar.ide.ui.views.explorer.DragAndDrop.SoarDatabaseExplorerDragAdapter;
 import com.soartech.soar.ide.ui.views.explorer.DragAndDrop.SoarDatabaseExplorerDropAdapter;
@@ -134,18 +140,18 @@ public class SoarExplorerView extends ViewPart
 
 	@Override
 	public void createPartControl(Composite parent) 
-	{		
+	{
 		tree = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		
 		tree.addDoubleClickListener(this);
-        tree.setUseHashlookup(true); // this significantly improves update performance
+        //tree.setUseHashlookup(true); // this significantly improves update performance
 		
 		tree.setContentProvider(contentProvider);
 		tree.setLabelProvider(databaseLabelProvider);
 		ISoarModel input = SoarCorePlugin.getDefault().getSoarModel();
         tree.setInput(input);
         getSite().setSelectionProvider(tree);
-
+        
         createContextMenu();
         makeActions();
         SoarCorePlugin.getDefault().getSoarModel().getDatabase().addListener(this);
@@ -156,37 +162,99 @@ public class SoarExplorerView extends ViewPart
         getViewSite().getActionBars().getToolBarManager().add(new FilterContributionItem(this, false));
    	}
 	
-	private ArrayList<Action> actionsForRow(SoarDatabaseRow row, TreeSelection selection) {
-		ArrayList<Action> ret = new ArrayList<Action>();
+	private void addActionsForRow(SoarDatabaseRow row, TreeSelection selection, IMenuManager manager) {
 		Table table = row.getTable();
+		
+		manager.add(new OpenDatabaseRowInEditorAction(row));
+		manager.add(new RenameDatabaseRowAction(row));
+		manager.add(new DeleteDatabaseRowAction(row));
+		if (table != Table.TAGS) {
+			manager.add(new ManageTagsAction(row));
+		}
+		
+		manager.add(new Separator());
+		
 		if (table == Table.AGENTS) {
 			//ret.add(new GenerateAgentStructureActionDelegate(row));
 		}
 		if (table == Table.PROBLEM_SPACES) {
-			ret.add(new AddChildRowAction(row, Table.OPERATORS, row, tree, true));
+			manager.add(new AddChildRowAction(row, Table.OPERATORS, row, tree, true));
 			//ret.add(new AddOperatorTemplateChildrenAction(row, tree));
-			ret.add(new AddChildRowAction(row, Table.RULES, row, tree, true));
+			manager.add(new AddChildRowAction(row, Table.RULES, row, tree, true));
 			//ret.add(new AddRuleTemplateChildrenAction(row, tree));
-			ret.add(new MarkProblemSpaceRootAction(row, tree));
-			ret.add(new AddSubstateAction(row, false, tree));
+			manager.add(new MarkProblemSpaceRootAction(row, tree));
+			
+			// Add new impasse
+			MenuManager newImpasseMenu = new MenuManager("Add Impasse");
+			manager.add(newImpasseMenu);
+			JoinType[] childImpasses = new JoinType[] {
+					JoinType.TIE_IMPASSE,
+					JoinType.CONFLICT_IMPASSE,
+					JoinType.CONTRAINT__FAILURE_IMPASSE,
+					JoinType.NO__CHANGE_IMPASSE,
+					JoinType.STATE_NO__CHANGE_IMPASSE,
+					JoinType.OPERATOR_NO__CHANGE_IMPASSE};
+			for (JoinType type : childImpasses) {
+				newImpasseMenu.add(new AddSubstateAction(row, false, tree, type));
+			}
+			
+			// Change impasse type
+			SoarDatabaseRow parentRow = null;
+			TreePath[] paths = selection.getPathsFor(row);
+			if (paths.length > 0) {
+				TreePath path = paths[0];
+				int pathLength = path.getSegmentCount();
+				if (pathLength > 2) {
+					Object parentObj = path.getSegment(pathLength - 2);
+					if (parentObj instanceof SoarDatabaseRow) {
+						parentRow = (SoarDatabaseRow) parentObj;
+						Table parentTable = parentRow.getTable();
+						if (!(parentTable == Table.PROBLEM_SPACES || parentTable == Table.OPERATORS)) {
+							parentRow = null;
+						}
+					}
+				}
+			}
+			if (parentRow != null) {
+				JoinType[] impasses;
+				if (parentRow.getTable() == Table.PROBLEM_SPACES) {
+					impasses = new JoinType[] {
+							JoinType.TIE_IMPASSE,
+							JoinType.CONFLICT_IMPASSE,
+							JoinType.CONTRAINT__FAILURE_IMPASSE,
+							JoinType.NO__CHANGE_IMPASSE,
+							JoinType.STATE_NO__CHANGE_IMPASSE};
+				} else {
+					impasses = new JoinType[] {JoinType.OPERATOR_NO__CHANGE_IMPASSE};
+				}
+				MenuManager sub = new MenuManager("Change Impasse Type");
+				manager.add(sub);
+				for (JoinType joinType : impasses) {
+					sub.add(new ChangeJoinTypeAction(parentRow, row, joinType));
+				}
+			}
+			
 			//ret.add(new GenerateDatamapAction(row));
-			ret.add(new NewGenerateDatamapAction(row, false));
+			manager.add(new NewGenerateDatamapAction(row, false));
 		}
 		if (table == Table.OPERATORS) {
-			ret.add(new AddChildRowAction(row, Table.RULES, row, tree, true));
-			ret.add(new AddChildRowAction(row, Table.PROBLEM_SPACES, row, tree, true));
+			manager.add(new AddChildRowAction(row, Table.RULES, row, tree, true));
+			manager.add(new AddSubstateAction(row, false, tree, JoinType.OPERATOR_NO__CHANGE_IMPASSE));
 			//ret.add(new AddRuleTemplateChildrenAction(row, tree));
 		}
 		RemoveJoinFromParentAction remove = new RemoveJoinFromParentAction(selection);
 		if (remove.isRunnable()) {
-			ret.add(remove);
+			manager.add(remove);
 		}
-		ret.add(new ExportSoarDatabaseRowAction(row));
+
+		
+		manager.add(new Separator());
+		
+		manager.add(new ExportSoarDatabaseRowAction(row));
 		SoarCommandLineMXBean proxy = SoarCorePlugin.getDefault().getSoarModel().getCommandLineProxy(); 
 		if (proxy != null) {
-			ret.add(new ExportSoarDatabaseRowAction(row, proxy));
+			manager.add(new ExportSoarDatabaseRowAction(row, proxy));
 		}
-		return ret;
 	}
 	
 	private ArrayList<Action> actionsForFolder(SoarDatabaseRowFolder folder) {
@@ -209,10 +277,7 @@ public class SoarExplorerView extends ViewPart
 					Object obj = ts.getFirstElement();
 					if (obj instanceof SoarDatabaseRow) {
 						SoarDatabaseRow row = (SoarDatabaseRow) obj;
-						ArrayList<Action> actions = actionsForRow(row, ts);
-						for (Action action : actions) {
-							manager.add(action);
-						}
+						addActionsForRow(row, ts, manager);
 					}
 					if (obj instanceof SoarDatabaseRowFolder) {
 						SoarDatabaseRowFolder folder = (SoarDatabaseRowFolder) obj;
@@ -250,24 +315,7 @@ public class SoarExplorerView extends ViewPart
 					if (event.keyCode == KeyEvent.VK_DELETE && event.stateMask == (event.stateMask | SWT.CONTROL)) {
 						for (Object element : ts.toArray()) {
 							if (element instanceof SoarDatabaseRow) {
-								SoarDatabaseRow selectedRow = (SoarDatabaseRow) element;
-								Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-								String title = "Delete item?";
-								org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
-								String message = "Are you sure you want to delete \"" + selectedRow.getName() + "\"?\nThis action cannot be undone.";
-								String[] labels = new String[] { "OK", "Cancel" };
-								MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
-								int result = dialog.open();
-								if (result == 1) {
-									return;
-								}
-								
-								IWorkbench workbench = SoarEditorUIPlugin.getDefault().getWorkbench();
-						        IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
-								SoarUiModelTools.closeEditorsForInput(page, selectedRow, false);
-								
-								selectedRow.deleteAllChildren(true);
-								tree.refresh();
+								new DeleteDatabaseRowAction((SoarDatabaseRow) element).run();
 							}
 						}
 					}
@@ -277,17 +325,6 @@ public class SoarExplorerView extends ViewPart
 							if (element instanceof SoarDatabaseRow) {
 								RemoveJoinFromParentAction action = new RemoveJoinFromParentAction(ts);
 								if (action.isRunnable()) {
-									Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-									String title = "Remove item?";
-									org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
-									String message = "Are you sure you want to remove \"" + action.row.getName() + "\" from \"" + action.parent.getName() + "\"?";
-									String[] labels = new String[] { "OK", "Cancel" };
-									MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
-									int result = dialog.open();
-									if (result == 1) {
-										return;
-									}
-
 									action.run();
 								}
 							}
@@ -340,6 +377,7 @@ public class SoarExplorerView extends ViewPart
 	@Override
 	public void dispose() 
 	{
+        SoarCorePlugin.getDefault().getSoarModel().getDatabase().removeListener(this);
 		super.dispose();
 	}
 
@@ -442,7 +480,7 @@ public class SoarExplorerView extends ViewPart
 		if (item instanceof SoarDatabaseRow) {
 	        IWorkbench workbench = SoarEditorUIPlugin.getDefault().getWorkbench();
 	        IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
-			SoarDatabaseRow selectedRow = (SoarDatabaseRow) item;
+			SoarDatabaseRow selectedRow = item.getRow();
 			Table selectedTable = selectedRow.getTable();
 			if (selectedTable == Table.RULES) {
 				try {

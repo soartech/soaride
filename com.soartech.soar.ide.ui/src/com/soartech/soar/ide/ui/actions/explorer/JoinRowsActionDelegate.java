@@ -50,12 +50,10 @@ public class JoinRowsActionDelegate implements IObjectActionDelegate {
 						SoarDatabaseJoinFolder joinFolder = (SoarDatabaseJoinFolder) obj;
 						Table table = joinFolder.getTable();
 						SoarDatabaseRow topLevelRow = joinFolder.getRow().getTopLevelRow();
-						ArrayList<ISoarDatabaseTreeItem> children = topLevelRow.getChildrenOfType(selectedJoinFolder.getTable());
+						ArrayList<SoarDatabaseRow> children = topLevelRow.getChildrenOfType(selectedJoinFolder.getTable());
 						ArrayList<SoarDatabaseRow> filteredChildren = new ArrayList<SoarDatabaseRow>();
-						for (ISoarDatabaseTreeItem child : children) {
-							if (child instanceof SoarDatabaseRow) {
-								filteredChildren.add((SoarDatabaseRow) child);
-							}
+						for (SoarDatabaseRow child : children) {
+							filteredChildren.add(child);
 						}
 						return filteredChildren.toArray();
 					}

@@ -79,7 +79,7 @@ class Correction {
 				currentRow = createJoinedChildIfNotExists(currentRow, Table.DATAMAP_FLOATS, triple.attribute);
 				editMinMaxValues(currentRow, triple);
 			} else if (triple.valueIsString()) {
-				ArrayList<ISoarDatabaseTreeItem> enumerations = currentRow.getDirectedJoinedChildrenOfType(Table.DATAMAP_ENUMERATIONS, false);
+				ArrayList<ISoarDatabaseTreeItem> enumerations = currentRow.getDirectedJoinedChildrenOfType(Table.DATAMAP_ENUMERATIONS, false, false);
 				SoarDatabaseRow enumeration = null;
 				for (ISoarDatabaseTreeItem enumItem : enumerations) {
 					SoarDatabaseRow enumRow = (SoarDatabaseRow) enumItem;
@@ -92,10 +92,9 @@ class Correction {
 				if (enumeration == null) {
 					enumeration = createJoinedChildIfNotExists(currentRow, Table.DATAMAP_ENUMERATIONS, triple.attribute);
 				}
-				ArrayList<ISoarDatabaseTreeItem> enumValues = enumeration.getChildrenOfType(Table.DATAMAP_ENUMERATION_VALUES);
+				ArrayList<SoarDatabaseRow> enumValues = enumeration.getChildrenOfType(Table.DATAMAP_ENUMERATION_VALUES);
 				boolean hasValue = false;
-				for (ISoarDatabaseTreeItem valueItem : enumValues) {
-					SoarDatabaseRow valueRow = (SoarDatabaseRow) valueItem;
+				for (SoarDatabaseRow valueRow : enumValues) {
 					if (valueRow.getName() == triple.value) {
 						hasValue = true;
 						break;
@@ -177,7 +176,7 @@ class Correction {
 	}
 
 	private SoarDatabaseRow createJoinedChildIfNotExists(SoarDatabaseRow currentRow, Table table, String named) {
-		ArrayList<ISoarDatabaseTreeItem> childItems = currentRow.getDirectedJoinedChildrenOfType(table, false);
+		ArrayList<ISoarDatabaseTreeItem> childItems = currentRow.getDirectedJoinedChildrenOfType(table, false, false);
 		for (ISoarDatabaseTreeItem childItem : childItems) {
 			SoarDatabaseRow childRow = (SoarDatabaseRow) childItem;
 			if (childRow.getName().equals(named)) {
@@ -276,26 +275,25 @@ public class NewGenerateDatamapAction extends Action {
 					Triple triple = path.get(i);
 					ArrayList<ISoarDatabaseTreeItem> items = new ArrayList<ISoarDatabaseTreeItem>();
 					if (triple.valueIsVariable()) {
-						items.addAll(node.getDirectedJoinedChildrenOfType(Table.DATAMAP_IDENTIFIERS, false));
+						items.addAll(node.getDirectedJoinedChildrenOfType(Table.DATAMAP_IDENTIFIERS, false, false));
 					} else if (triple.valueIsInteger()) {
-						items.addAll(node.getDirectedJoinedChildrenOfType(Table.DATAMAP_INTEGERS, false));
+						items.addAll(node.getDirectedJoinedChildrenOfType(Table.DATAMAP_INTEGERS, false, false));
 					} else if (triple.valueIsFloat()) {
-						items.addAll(node.getDirectedJoinedChildrenOfType(Table.DATAMAP_FLOATS, false));
+						items.addAll(node.getDirectedJoinedChildrenOfType(Table.DATAMAP_FLOATS, false, false));
 					} else if (triple.valueIsString()) {
 						// Only add enums if they have a value that's correct
-						ArrayList<ISoarDatabaseTreeItem> enumItems = node.getDirectedJoinedChildrenOfType(Table.DATAMAP_ENUMERATIONS, false);
+						ArrayList<ISoarDatabaseTreeItem> enumItems = node.getDirectedJoinedChildrenOfType(Table.DATAMAP_ENUMERATIONS, false, false);
 						for (ISoarDatabaseTreeItem enumItem : enumItems) {
 							SoarDatabaseRow enumRow = (SoarDatabaseRow) enumItem;
-							ArrayList<ISoarDatabaseTreeItem> enumValues = enumRow.getChildrenOfType(Table.DATAMAP_ENUMERATION_VALUES);
-							for (ISoarDatabaseTreeItem enumValueItem : enumValues) {
-								SoarDatabaseRow enumValue = (SoarDatabaseRow) enumValueItem;
+							ArrayList<SoarDatabaseRow> enumValues = enumRow.getChildrenOfType(Table.DATAMAP_ENUMERATION_VALUES);
+							for (SoarDatabaseRow enumValue : enumValues) {
 								if (enumValue.getName().equals(triple.value)) {
 									items.add(enumItem);
 								}
 							}
 						}
 					}
-					items.addAll(node.getDirectedJoinedChildrenOfType(Table.DATAMAP_STRINGS, false));
+					items.addAll(node.getDirectedJoinedChildrenOfType(Table.DATAMAP_STRINGS, false, false));
 					for (ISoarDatabaseTreeItem item : items) {
 						assert item instanceof SoarDatabaseRow;
 						SoarDatabaseRow childRow = (SoarDatabaseRow) item;
@@ -373,7 +371,7 @@ public class NewGenerateDatamapAction extends Action {
 		// link that attribute with ancestor problem spaces' <s> node.
 		ArrayList<SoarDatabaseRow> superstates = problemSpace.getDirectedJoinedParentsOfType(Table.PROBLEM_SPACES);
 		while (superstates.size() > 0) {
-			ArrayList<ISoarDatabaseTreeItem> superstateAtributes = root.getDirectedJoinedChildrenOfType(Table.DATAMAP_IDENTIFIERS, false);
+			ArrayList<ISoarDatabaseTreeItem> superstateAtributes = root.getDirectedJoinedChildrenOfType(Table.DATAMAP_IDENTIFIERS, false, false);
 			ArrayList<ISoarDatabaseTreeItem> nextSueprstateAttributes = new ArrayList<ISoarDatabaseTreeItem>();
 			for (ISoarDatabaseTreeItem item : superstateAtributes) {
 				SoarDatabaseRow attribute = (SoarDatabaseRow) item;
@@ -383,7 +381,7 @@ public class NewGenerateDatamapAction extends Action {
 						LinkDatamapRowsAction linkAction = new LinkDatamapRowsAction(attribute, superstateRoot);
 						linkAction.run();
 					}
-					nextSueprstateAttributes.addAll(attribute.getDirectedJoinedChildrenOfType(Table.DATAMAP_IDENTIFIERS, false));
+					nextSueprstateAttributes.addAll(attribute.getDirectedJoinedChildrenOfType(Table.DATAMAP_IDENTIFIERS, false, false));
 				}
 			}
 			ArrayList<SoarDatabaseRow> newSuperstates = new ArrayList<SoarDatabaseRow>();

@@ -38,12 +38,10 @@ public class GenerateDatamapsActionDelegate implements IWorkbenchWindowActionDel
 	public void runWithAgent(SoarDatabaseRow agent, IProgressMonitor monitor) {
 		assert agent.getTable() == Table.AGENTS;
 		applyAll = forceApplyAll;
-		ArrayList<ISoarDatabaseTreeItem> problemSpaces = agent.getChildrenOfType(Table.PROBLEM_SPACES);
+		ArrayList<SoarDatabaseRow> problemSpaces = agent.getChildrenOfType(Table.PROBLEM_SPACES);
 		ArrayList<NewGenerateDatamapAction> actions = new ArrayList<NewGenerateDatamapAction>();
 		int totalRules = 0;
-		for (ISoarDatabaseTreeItem psItem : problemSpaces) {
-			assert psItem instanceof SoarDatabaseRow;
-			SoarDatabaseRow ps = (SoarDatabaseRow) psItem;
+		for (SoarDatabaseRow ps : problemSpaces) {
 			assert ps.getTable() == Table.PROBLEM_SPACES;
 			NewGenerateDatamapAction generateAction = new NewGenerateDatamapAction(ps, applyAll);
 			actions.add(generateAction);

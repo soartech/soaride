@@ -47,7 +47,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorPluginImages;
-import com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapSuperstateAttribute;
+import com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapSuperstateAttribute;
 import com.soartech.soar.ide.ui.editors.text.SoarFoldingRegion;
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerFullViewContentProvider.SoarFolderHeader;
 

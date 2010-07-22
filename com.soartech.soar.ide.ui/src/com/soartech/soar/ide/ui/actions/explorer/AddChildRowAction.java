@@ -24,13 +24,17 @@ public class AddChildRowAction extends Action {
 	ISoarDatabaseTreeItem treeItem;
 	boolean directed;
 
-	public AddChildRowAction(SoarDatabaseRow parent, Table childTable, ISoarDatabaseTreeItem treeItem, TreeViewer tree, boolean directed) {
-		super("Add new " + childTable.englishName());
+	public AddChildRowAction(SoarDatabaseRow parent, Table childTable, ISoarDatabaseTreeItem treeItem, TreeViewer tree, boolean directed, String displayName) {
+		super(displayName);
 		this.parent = parent;
 		this.tree = tree;
 		this.childTable = childTable;
 		this.treeItem = treeItem;
 		this.directed = directed;
+	}
+	
+	public AddChildRowAction(SoarDatabaseRow parent, Table childTable, ISoarDatabaseTreeItem treeItem, TreeViewer tree, boolean directed) {
+		this(parent, childTable, treeItem, tree, directed, "Add New " + childTable.englishName());
 	}
 
 	@Override

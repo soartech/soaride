@@ -11,6 +11,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
+import com.soartech.soar.ide.ui.actions.explorer.ChildProblemSpaceWrapper;
 import com.soartech.soar.ide.ui.views.itemdetail.SoarDatabaseItemContentProvider;
 
 public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider {
@@ -58,7 +59,7 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 				if (table == Table.PROBLEM_SPACES) {
 					ret.addAll(row.getJoinedRowsFromTable(Table.RULES));
 					ret.addAll(row.getJoinedRowsFromTable(Table.OPERATORS));
-					ret.addAll(row.getDirectedJoinedChildrenOfType(Table.PROBLEM_SPACES, false));
+					ret.addAll(row.getDirectedJoinedChildrenOfType(Table.PROBLEM_SPACES, false, true));
 					ret = SoarDatabaseItemContentProvider.sortExplorerItems(ret);
 				}
 				if (table == Table.OPERATORS) {
@@ -74,6 +75,7 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 					ret.addAll(row.getUndirectedJoinedRowsFromTable(Table.PROBLEM_SPACES));
 					ret = SoarDatabaseItemContentProvider.sortExplorerItems(ret);
 				}
+				ret = packageProblemSpaces(ret, row);
 			}
 			if (element instanceof SoarDatabaseRowFolder) {
 				SoarDatabaseRowFolder folder = (SoarDatabaseRowFolder) element;
@@ -92,13 +94,33 @@ public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider
 						includeDatamapNodes);
 			}
 			ret = SoarDatabaseItemContentProvider.sortExplorerItems(ret);
-			ret = filter(ret);
+			ret = filterAndSearch(ret);
 			return ret.toArray();
 		}
 		return new Object[0];
 	}
+
+	private ArrayList<ISoarDatabaseTreeItem> packageProblemSpaces(ArrayList<ISoarDatabaseTreeItem> list, SoarDatabaseRow parent) {
+		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
+		
+		for (ISoarDatabaseTreeItem item : list) {
+			if (item instanceof SoarDatabaseRow) {
+				SoarDatabaseRow row = (SoarDatabaseRow) item;
+				if (row.getTable() == Table.PROBLEM_SPACES) {
+					ChildProblemSpaceWrapper wrapper = new ChildProblemSpaceWrapper(parent, row);
+					ret.add(wrapper);
+				} else {
+					ret.add(item);
+				}
+			} else {
+				ret.add(item);
+			}
+		}
+		
+		return ret;
+	}
 	
-	private ArrayList<ISoarDatabaseTreeItem> filter(ArrayList<ISoarDatabaseTreeItem> list) {
+	private ArrayList<ISoarDatabaseTreeItem> filterAndSearch(ArrayList<ISoarDatabaseTreeItem> list) {
 		if (filter.length() == 0 && search.length() == 0) return list;
 		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		for (ISoarDatabaseTreeItem item : list) {

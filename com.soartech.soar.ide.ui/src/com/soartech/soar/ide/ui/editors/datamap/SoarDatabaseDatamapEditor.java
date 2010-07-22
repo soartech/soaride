@@ -1,4 +1,4 @@
-package com.soartech.soar.ide.ui.editors.database;
+package com.soartech.soar.ide.ui.editors.datamap;
 
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -13,12 +13,10 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
@@ -30,7 +28,6 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.part.EditorPart;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
@@ -43,15 +40,14 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
 import com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.soartech.soar.ide.ui.actions.explorer.LinkDatamapRowsAction;
 import com.soartech.soar.ide.ui.editors.database.dragdrop.SoarDatabaseDatamapDragAdapter;
 import com.soartech.soar.ide.ui.editors.database.dragdrop.SoarDatabaseDatamapDropAdapter;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
-import com.soartech.soar.ide.ui.views.itemdetail.SoarDatabaseItemLabelProvider;
+import com.soartech.soar.ide.ui.views.search.SoarDatabaseSearchResultsView;
 
 public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDatabaseEventListener {
 
-	public static final String ID = "com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapEditor";
+	public static final String ID = "com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor";
 
 	private SoarDatabaseRow proplemSpaceRow;
 	private SoarDatabaseRow selectedRow;
@@ -180,6 +176,15 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 										}
 									});
 						}
+						
+						if (table != Table.DATAMAP_ENUMERATION_VALUES) {
+							manager.add(new Action("Search for rules that test \"" + row.getName() + "\"") {
+								@Override
+								public void run() {
+									SoarDatabaseSearchResultsView.searchForRulesWithDatamapAttribute(row);
+								};
+							});
+						}
 
 						manager.add(new Action("Rename \"" + rowName + "\"") {
 							@Override
@@ -261,118 +266,60 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 							});
 						}
 
-						final ArrayList<ISoarDatabaseTreeItem> folders = row
-								.getDirectedJoinedChildren(true);
+						final ArrayList<ISoarDatabaseTreeItem> folders = row.getDirectedJoinedChildren(true);
 						if (folders.size() > 0) {
+							MenuManager sub = new MenuManager("Add New Attribute");
 
-							// Create content provider for choosing which type
-							// of attribute
-							final IStructuredContentProvider attributeTypeContentProvider = new IStructuredContentProvider() {
-
-								@Override
-								public void inputChanged(Viewer arg0,
-										Object arg1, Object arg2) {
-								}
-
-								@Override
-								public void dispose() {
-								}
-
-								@Override
-								public Object[] getElements(Object arg0) {
-									return folders.toArray();
-								}
-							};
-
-							manager.add(new Action("Add New Attribute") {
-								@Override
-								public void run() {
-									Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-									ListDialog listDialog = new ListDialog(shell);
-									listDialog.setContentProvider(attributeTypeContentProvider);
-									listDialog.setLabelProvider(SoarLabelProvider.createFullLabelProvider(null));
-									listDialog.setInput(new Object());
-									listDialog.open();
-									Object[] result = listDialog.getResult();
-									if (result[0] instanceof SoarDatabaseJoinFolder) {
-										Table resultTable = ((SoarDatabaseJoinFolder) result[0])
-												.getTable();
-										String title = "New "
-												+ resultTable.shortName();
+							manager.add(sub);
+							
+							for (ISoarDatabaseTreeItem item : folders) {
+								SoarDatabaseJoinFolder folder = (SoarDatabaseJoinFolder) item;
+								final Table folderTable = folder.getTable();
+								int spaceIndex = folderTable.englishName().indexOf(' ') + 1;
+								final String folderTableName = folderTable.englishName().substring(spaceIndex, spaceIndex + 1).toUpperCase() + folderTable.englishName().substring(spaceIndex + 1); 
+								sub.add(new Action(folderTableName) {
+									@Override
+									public void run() {
+										Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+										String title = "New " + folderTableName;
 										String message = "Enter Name:";
-										String initialValue = resultTable.soarName() + "-name";
-										InputDialog dialog = new InputDialog(
-												shell, title, message,
-												initialValue, null);
+										String initialValue = folderTable.soarName() + "-name";
+										InputDialog dialog = new InputDialog(shell, title, message, initialValue, null);
 										dialog.open();
 										String resultString = dialog.getValue();
-										if (resultString != null
-												&& resultString.length() > 0) {
-											/* SoarDatabaseRow child = */ row.createJoinedChild(resultTable, resultString);
-											
-											// also add child to linked attributes
-											// Get linked attributes
-											// Do this on content provider side instead
-											/*
-											ArrayList<ISoarDatabaseTreeItem> linked = row.getUndirectedJoinedRowsFromTable(row.getTable());
-											for (ISoarDatabaseTreeItem item : linked) {
-												if (item instanceof SoarDatabaseRow) {
-													SoarDatabaseRow other = (SoarDatabaseRow) item;
-													SoarDatabaseRow.directedJoinRows(other, child, row.getDatabaseConnection());
-												}
-											}
-											*/
+										if (resultString != null && resultString.length() > 0) {
+											row.createJoinedChild(folderTable, resultString);
 											refreshTree();
 											tree.setExpandedState(row, true);
 										}
 									}
-								}
-							});
-							
-							final IStructuredContentProvider linkedAttributesContentProvider = new IStructuredContentProvider() {
-
-								@Override
-								public void inputChanged(Viewer arg0,
-										Object arg1, Object arg2) {
-								}
-
-								@Override
-								public void dispose() {
-								}
-
-								@Override
-								public Object[] getElements(Object input) {
-									if (input instanceof SoarDatabaseRow) {
-										return row.getUndirectedJoinedRowsFromTable(row.getTable()).toArray();
-									}
-									return new Object[] {};
-								}
-							};
-
-							if (row.getUndirectedJoinedRowsFromTable(row.getTable()).size() > 0) {
-								manager.add(new Action("Remove Links") {
-									@Override
-									public void run() {
-										
-										Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-										String title = "Remove Links?";
-										org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
-										String message = "Remove all links from \"" + row.getName() + "\"?";
-										String[] labels = new String[] {"OK", "Cancel"};
-										MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
-										int result = dialog.open();
-										if (result == 1) {
-											return;
-										}
-										
-										for (ISoarDatabaseTreeItem item : row.getUndirectedJoinedRowsFromTable(row.getTable())) {
-											SoarDatabaseRow.unjoinRows(row, (SoarDatabaseRow) item, row.getDatabaseConnection());
-										}
-										refreshTree();
-										tree.setExpandedState(row, true);
-									};
 								});
 							}
+						}
+
+						if (row.getUndirectedJoinedRowsFromTable(row.getTable()).size() > 0) {
+							manager.add(new Action("Remove Links") {
+								@Override
+								public void run() {
+
+									Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+									String title = "Remove Links?";
+									org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
+									String message = "Remove all links from \"" + row.getName() + "\"?";
+									String[] labels = new String[] { "OK", "Cancel" };
+									MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
+									int result = dialog.open();
+									if (result == 1) {
+										return;
+									}
+
+									for (ISoarDatabaseTreeItem item : row.getUndirectedJoinedRowsFromTable(row.getTable())) {
+										SoarDatabaseRow.unjoinRows(row, (SoarDatabaseRow) item, row.getDatabaseConnection());
+									}
+									refreshTree();
+									tree.setExpandedState(row, true);
+								};
+							});
 						}
 					}
 				}
@@ -450,14 +397,8 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 
 	// Convenience method for refreshing tree
 	public void refreshTree() {
-		
-		if (tree.getTree().isDisposed()) {
-			// AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-			// WHY DOES THIS HAPPENNNNNNNNNNNNNNNNNNNNNNNNNN???????????????????????!?!?!?!?!?!?!?
-			System.out.println("WIDGET DISPOSED!!!!");
-		}
-		
-		  Runnable runnable = new Runnable() {
+
+		Runnable runnable = new Runnable() {
 		  
 		  @Override public void run() {
 
@@ -478,6 +419,12 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 
 	@Override
 	public void onEvent(SoarDatabaseEvent event, SoarDatabaseConnection db) {
+		
+		if (tree.getTree().isDisposed()) {
+	        SoarCorePlugin.getDefault().getSoarModel().getDatabase().removeListener(this);
+	        return;
+		}
+
 		refreshTree();
 	}
 }

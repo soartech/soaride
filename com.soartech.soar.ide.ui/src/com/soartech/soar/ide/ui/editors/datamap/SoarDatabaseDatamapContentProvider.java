@@ -1,4 +1,4 @@
-package com.soartech.soar.ide.ui.editors.database;
+package com.soartech.soar.ide.ui.editors.datamap;
 
 import java.util.ArrayList;
 

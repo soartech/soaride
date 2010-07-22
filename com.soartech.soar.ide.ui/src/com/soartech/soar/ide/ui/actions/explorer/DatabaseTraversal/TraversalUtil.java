@@ -455,10 +455,8 @@ public class TraversalUtil {
 	private static HashMap<String, SoarDatabaseRow> getSoarDatabaseRowMap(SoarDatabaseRow agent, Table table) {
 		assert agent.getTable() == Table.AGENTS;
 		HashMap<String, SoarDatabaseRow> ret = new HashMap<String, SoarDatabaseRow>();
-		ArrayList<ISoarDatabaseTreeItem> problemSpaces = agent.getChildrenOfType(table);
-		for (ISoarDatabaseTreeItem item : problemSpaces) {
-			assert item instanceof SoarDatabaseRow;
-			SoarDatabaseRow row = (SoarDatabaseRow) item;
+		ArrayList<SoarDatabaseRow> problemSpaces = agent.getChildrenOfType(table);
+		for (SoarDatabaseRow row : problemSpaces) {
 			assert row.getTable() == table;
 			ret.put(row.getName(), row);
 		}
@@ -498,6 +496,17 @@ public class TraversalUtil {
 			}
 		}
 		
+		return ret;
+	}
+
+	public static ArrayList<SoarDatabaseRow> getTagsForRow(SoarDatabaseRow row) {
+		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
+		ArrayList<SoarDatabaseRow> tags = row.getTopLevelRow().getChildrenOfType(Table.TAGS);
+		for (SoarDatabaseRow tag : tags) {
+			if (SoarDatabaseRow.rowsAreJoined(tag, row, tag.getDatabaseConnection())) {
+				ret.add(tag);
+			}
+		}
 		return ret;
 	}
 }

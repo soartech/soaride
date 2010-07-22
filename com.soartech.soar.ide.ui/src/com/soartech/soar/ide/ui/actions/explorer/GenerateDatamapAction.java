@@ -17,7 +17,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.TraversalUtil;
 import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.Triple;
-import com.soartech.soar.ide.ui.editors.database.SoarDatabaseDatamapEditor;
+import com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor;
 
 public class GenerateDatamapAction extends Action {
 
@@ -52,9 +52,8 @@ public class GenerateDatamapAction extends Action {
 
 					// Recursively visit existing datamap,
 					// proposing corrections where conflicts arise.
-					ArrayList<ISoarDatabaseTreeItem> childIdentifiers = problemSpace.getChildrenOfType(Table.DATAMAP_IDENTIFIERS);
-					for (ISoarDatabaseTreeItem childIdentifier : childIdentifiers) {
-						SoarDatabaseRow child = (SoarDatabaseRow) childIdentifier;
+					ArrayList<SoarDatabaseRow> childIdentifiers = problemSpace.getChildrenOfType(Table.DATAMAP_IDENTIFIERS);
+					for (SoarDatabaseRow child : childIdentifiers) {
 						HashSet<String> variableSet = new HashSet<String>();
 						for (Triple t : triples) {
 							if (t.hasState) {
@@ -77,7 +76,7 @@ public class GenerateDatamapAction extends Action {
 			// Build structure from substates
 			// In the future, make this recursive (or something)
 			// to include arbitraarily deep substates
-			ArrayList<ISoarDatabaseTreeItem> substates = problemSpace.getDirectedJoinedChildrenOfType(Table.PROBLEM_SPACES, false);
+			ArrayList<ISoarDatabaseTreeItem> substates = problemSpace.getDirectedJoinedChildrenOfType(Table.PROBLEM_SPACES, false, false);
 			for (ISoarDatabaseTreeItem item : substates) {
 				assert item instanceof SoarDatabaseRow;
 				SoarDatabaseRow susbtate = (SoarDatabaseRow) item;
@@ -98,9 +97,8 @@ public class GenerateDatamapAction extends Action {
 						
 						// Recursively visit existing datamap,
 						// proposing corrections where conflicts arise.
-						ArrayList<ISoarDatabaseTreeItem> childIdentifiers = problemSpace.getChildrenOfType(Table.DATAMAP_IDENTIFIERS);
-						for (ISoarDatabaseTreeItem childIdentifier : childIdentifiers) {
-							SoarDatabaseRow child = (SoarDatabaseRow) childIdentifier;
+						ArrayList<SoarDatabaseRow> childIdentifiers = problemSpace.getChildrenOfType(Table.DATAMAP_IDENTIFIERS);
+						for (SoarDatabaseRow child : childIdentifiers) {
 							HashSet<String> variableSet = new HashSet<String>();
 							for (Triple t : triples) {
 								if (t.hasState) {

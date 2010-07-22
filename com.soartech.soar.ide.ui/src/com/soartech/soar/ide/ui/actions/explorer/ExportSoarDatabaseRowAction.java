@@ -3,8 +3,6 @@ package com.soartech.soar.ide.ui.actions.explorer;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 
@@ -28,7 +26,7 @@ public class ExportSoarDatabaseRowAction extends Action {
 	SoarCommandLineMXBean proxy = null;
 	
 	public ExportSoarDatabaseRowAction(SoarDatabaseRow row) {
-		super("Export " + row.getName() + " to file...");
+		super("Export to File...");
 		this.row = row;
 	}
 	

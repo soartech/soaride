@@ -20,16 +20,13 @@
 package com.soartech.soar.ide.ui.perspectives;
 
 import org.eclipse.debug.ui.IDebugUIConstants;
-import org.eclipse.search.ui.NewSearchUI;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
-import org.eclipse.ui.console.IConsoleConstants;
 
-import com.soartech.soar.ide.ui.views.datamap.SoarDatamapView;
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerView;
 import com.soartech.soar.ide.ui.views.itemdetail.SoarDatabaseItemView;
-import com.soartech.soar.ide.ui.views.source.SoarElementSourceViewer;
+import com.soartech.soar.ide.ui.views.search.SoarDatabaseSearchResultsView;
 
 /**
  * <code>SoarPerspective</code> create layout for Soar editing.
@@ -54,11 +51,12 @@ public class SoarPerspective implements IPerspectiveFactory {
         
         String editorArea = layout.getEditorArea();
         
-        IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, 0.25f, editorArea); //$NON-NLS-1$
+        IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, 0.28f, editorArea); //$NON-NLS-1$
         folder.addView(SoarExplorerView.ID);
 
         IFolderLayout itemFolder = layout.createFolder("item", IPageLayout.BOTTOM, 0.6f, "left");
         itemFolder.addView(SoarDatabaseItemView.ID);
+        itemFolder.addView(SoarDatabaseSearchResultsView.ID);
 
         //IFolderLayout outputfolder= layout.createFolder("bottom", IPageLayout.BOTTOM, (float)0.75, editorArea); //$NON-NLS-1$
         //outputfolder.addView(IPageLayout.ID_PROBLEM_VIEW);
@@ -77,6 +75,7 @@ public class SoarPerspective implements IPerspectiveFactory {
         // views - Soar
         layout.addShowViewShortcut(SoarExplorerView.ID);
         layout.addShowViewShortcut(SoarDatabaseItemView.ID);
+        layout.addShowViewShortcut(SoarDatabaseSearchResultsView.ID);
         //layout.addShowViewShortcut(SoarDatamapView.ID);
         //layout.addShowViewShortcut(SoarElementSourceViewer.ID);
         //layout.addShowViewShortcut("com.soartech.soar.ide.debug.ui.commandline");

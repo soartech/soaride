@@ -1,4 +1,4 @@
-package com.soartech.soar.ide.ui.editors.database;
+package com.soartech.soar.ide.ui.editors.datamap;
 
 import java.util.ArrayList;
 
@@ -26,10 +26,8 @@ public class SoarDatabaseDatamapSuperstateAttribute implements ISoarDatabaseTree
 			return ret;
 		}
 		
-		ArrayList<ISoarDatabaseTreeItem> superstateChildren = superstate.getChildrenOfType(Table.DATAMAP_IDENTIFIERS);
-		for (ISoarDatabaseTreeItem item : superstateChildren) {
-			if (item instanceof SoarDatabaseRow) {
-				SoarDatabaseRow superstateChild = (SoarDatabaseRow) item;
+		ArrayList<SoarDatabaseRow> superstateChildren = superstate.getChildrenOfType(Table.DATAMAP_IDENTIFIERS);
+		for (SoarDatabaseRow superstateChild : superstateChildren) {
 				// this is superstate's <s>
 				Object[] ar = contentProvider.getChildren(superstateChild);
 				for (Object obj : ar) {
@@ -37,7 +35,6 @@ public class SoarDatabaseDatamapSuperstateAttribute implements ISoarDatabaseTree
 						ret.add((ISoarDatabaseTreeItem)obj);
 					}
 				}
-			}
 		}
 		return ret;
 	}
