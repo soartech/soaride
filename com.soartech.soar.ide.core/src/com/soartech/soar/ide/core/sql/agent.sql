@@ -41,6 +41,14 @@ agent_id integer
 
 -- Directed for project hierarchy
 
+create table if not exists directed_join_problem_spaces_problem_spaces
+(
+id integer primary key,
+parent_id integer,
+child_id integer,
+join_type integer -- What kind of impasse this is
+);
+
 create table if not exists directed_join_problem_spaces_rules
 (
 id integer primary key,
@@ -66,7 +74,8 @@ create table if not exists directed_join_operators_problem_spaces
 (
 id integer primary key,
 parent_id integer,
-child_id integer
+child_id integer,
+join_type integer -- What kind of impasse this is
 );
 
 -- Undirected for tags
@@ -92,11 +101,3 @@ first_id integer,
 second_id integer
 );
 
--- Directed for substates
-
-create table if not exists directed_join_problem_spaces_problem_spaces
-(
-id integer primary key,
-parent_id integer,
-child_id integer
-);

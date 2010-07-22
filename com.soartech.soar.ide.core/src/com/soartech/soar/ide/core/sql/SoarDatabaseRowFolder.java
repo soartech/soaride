@@ -20,7 +20,7 @@ public class SoarDatabaseRowFolder implements ISoarDatabaseTreeItem {
 			boolean includeDirectionalJoinedItems, 
 			boolean putDirectionalJoinedItemsInFolders, 
 			boolean includeDatamapNodes) {
-		return row.getChildrenOfType(table);
+		return new ArrayList<ISoarDatabaseTreeItem>(row.getChildrenOfType(table));
 	}
 	
 	@Override

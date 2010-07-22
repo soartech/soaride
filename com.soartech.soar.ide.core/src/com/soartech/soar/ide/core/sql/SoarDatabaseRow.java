@@ -122,11 +122,13 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		}
 		
 		public String englishName() {
-			return shortName().replace('_', ' ');
+			String ret = shortName().replace('_', ' ');
+			return ret.substring(0, 1).toUpperCase() + ret.substring(1);
 		}
 		
 		public String pluralEnglishName() {
-			return tableName().replace('_', ' ');
+			String ret = tableName().replace('_', ' ');
+			return ret.substring(0, 1).toUpperCase() + ret.substring(1);
 		}
 		
 		public boolean isDatamapTable() {
@@ -147,6 +149,55 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		}
 		return null;
 	}
+
+	public enum JoinType {
+		NONE,
+		TIE_IMPASSE,
+		CONFLICT_IMPASSE,
+		CONTRAINT__FAILURE_IMPASSE,
+		NO__CHANGE_IMPASSE,
+		STATE_NO__CHANGE_IMPASSE,
+		OPERATOR_NO__CHANGE_IMPASSE,
+		;
+		
+		public static JoinType typeForInt(int i) {
+			JoinType[] values = JoinType.values();
+			if (i < 0 || i >= values.length) {
+				return JoinType.NONE;
+			}
+			return values[i];
+		}
+		
+		public String englishName() {
+			String[] tokens = toString().toLowerCase().replace("__", "-").split("_");
+			StringBuffer buff = new StringBuffer();
+			for (int i = 0; i < tokens.length; ++i) {
+				buff.append(tokens[i].substring(0, 1).toUpperCase() + tokens[i].substring(1));
+				if (i < tokens.length) {
+					buff.append(" ");
+				}
+			}
+			return buff.toString();
+		}
+		
+		public String shortEnglishName() {
+			String[] tokens = englishName().split(" ");
+			StringBuffer buff = new StringBuffer();
+			for (int i = 0; i + 1 < tokens.length; ++i) {
+				buff.append(tokens[i].substring(0, 1).toUpperCase() + tokens[i].substring(1));
+				if (i + 2 < tokens.length) {
+					buff.append(" ");
+				}
+			}
+			return buff.toString();
+		}
+	}
+	
+	// Assign a join type to each row
+	// This is a little messy because, in fact, the join type depends on
+	// which parent the row was found from. So, a row may have more than
+	// one valid join type.
+	protected JoinType joinType = JoinType.NONE;
 	
 	// Maps a table onto its possible child tables.
 	private static HashMap<Table, ArrayList<Table>> childTables = new HashMap<Table, ArrayList<Table>>();
@@ -182,7 +233,6 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	private Table table;
 	private int id;
 	private SoarDatabaseConnection db;
-	private String name = null;
 	private HashMap<Table, SoarDatabaseRowFolder> folders = new HashMap<Table, SoarDatabaseRowFolder>();
 	private SoarDatabaseEditorInput editorInput = null;
 	
@@ -229,13 +279,19 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 				}
 			}
 		}
+		
+		/*
+		// This happend in ChildProblemSpaceWrapper now.
+		if (joinType != JoinType.NONE) {
+			ret += " (" + joinType.englishName() + ")";
+		}
+		*/
+		
 		return ret;
 	}
 
 	public String getName() {
-		if (name != null) {
-			return name;
-		}
+		String name = null;
 		String sql = "select (name) from " + table.tableName() + " where id=?";
 		StatementWrapper ps = db.prepareStatement(sql);
 		ps.setInt(1, id);
@@ -259,7 +315,6 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		ps.setString(1, name);
 		ps.setInt(2, id);
 		ps.execute();
-		this.name = name;
 	}
 	
 	/**
@@ -458,10 +513,14 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 	
 	public ArrayList<ISoarDatabaseTreeItem> getDirectedJoinedChildren(boolean putInFolders) {
-		return getDirectedJoinedChildrenOfType(null, putInFolders);
+		return getDirectedJoinedChildrenOfTypeNamed(null, null, putInFolders, false);
 	}
 	
-	public ArrayList<ISoarDatabaseTreeItem> getDirectedJoinedChildrenOfType(Table type, boolean putInFolders) {		
+	public ArrayList<ISoarDatabaseTreeItem> getDirectedJoinedChildrenOfType(Table type, boolean putInFolders, boolean assignJoinTypes) {		
+		return getDirectedJoinedChildrenOfTypeNamed(type, null, putInFolders, assignJoinTypes);
+	}
+	
+	public ArrayList<ISoarDatabaseTreeItem> getDirectedJoinedChildrenOfTypeNamed(Table type, String name, boolean putInFolders, boolean assignJoinTypes) {		
 		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		if (directedJoinedTables.containsKey(table)) {
 			ArrayList<Table> joinedTables;
@@ -476,10 +535,30 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 				if (putInFolders) {
 					ret.add(folder);
 				} else {
-					ret.addAll(folder.getChildren(true, true, false, true, true, true));
+					if (name != null) {
+						for (ISoarDatabaseTreeItem item : folder.getChildren(true, true, false, true, true, true)) {
+							if (item instanceof SoarDatabaseRow && ((SoarDatabaseRow) item).getName().equals(name)) {
+								ret.add(item);
+							}
+						}
+					}
+					else {
+						ret.addAll(folder.getChildren(true, true, false, true, true, true));
+					}
 				}
 			}
 		}
+		
+		if (assignJoinTypes) {
+			for (ISoarDatabaseTreeItem item : ret) {
+				if (item instanceof SoarDatabaseRow) {
+					SoarDatabaseRow row = (SoarDatabaseRow) item;
+					JoinType joinType = SoarDatabaseRow.getDirectedJoinType(this, row);
+					row.setJoinType(joinType);
+				}
+			}
+		}
+		
 		return ret;
 	}
 
@@ -489,21 +568,32 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	 * @param type
 	 * @return
 	 */
-	public ArrayList<ISoarDatabaseTreeItem> getChildrenOfType(Table type) {
-		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
+	public ArrayList<SoarDatabaseRow> getChildrenOfType(Table type) {
+		return getChildrenOfTypeNamed(type, null);
+	}
+	
+	/**
+	 * Doesn't return folders.
+	 * 
+	 * @param type
+	 * @param name
+	 * @return
+	 */
+	public ArrayList<SoarDatabaseRow> getChildrenOfTypeNamed(Table type, String name) {
+		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
 		ArrayList<Table> children = getChildTables();
 		for (Table t : children) {
 			if (t == type) {
-				String sql = "select * from " + t.tableName() + " where "
-						+ table.idName() + "=?";
+				String sql = "select * from " + t.tableName() + " where " + table.idName() + "=?";
 				StatementWrapper ps = db.prepareStatement(sql);
 				ps.setInt(1, id);
 				ResultSet rs = ps.executeQuery();
 				try {
 					while (rs.next()) {
-						SoarDatabaseRow row = new SoarDatabaseRow(t, rs
-								.getInt("id"), db);
-						ret.add(row);
+						SoarDatabaseRow row = new SoarDatabaseRow(t, rs.getInt("id"), db);
+						if (name == null || row.getName().equals(name)) {
+							ret.add(row);
+						}
 					}
 					ps.close();
 				} catch (SQLException e) {
@@ -709,7 +799,6 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 	
 	/**
-	 * 
 	 * @param type If non-null, returns the first row of this type
 	 * encountered along upward traversal. If null, returns
 	 * the top-level row.
@@ -1887,12 +1976,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 	
 	/**
-	 * Determine if the two rows are joined (undirected).
+	 * Determine if the two rows are directed-joined.
 	 * 
 	 * @param parent The parent row.
 	 * @param child The child row.
 	 * @param db The database connection.
-	 * @return True if the rows are joined, otherwise false.
+	 * @return True if the rows are directed-joined, otherwise false.
 	 */
 	public static boolean rowsAreDirectedJoined(SoarDatabaseRow parent,
 			SoarDatabaseRow child, SoarDatabaseConnection db) {
@@ -1987,6 +2076,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		if (other instanceof SoarDatabaseRow) {
 			SoarDatabaseRow otherRow = (SoarDatabaseRow) other;
 			if (otherRow.table == this.table && otherRow.id == this.id) {
+					//&& otherRow.joinType == this.joinType) {
+				// It's really fair to compare 'joinType', because two row objects
+				// might point to the same row in the database but have different joinTypes
+				// depending on their context in the IDE. However, there's some kind of problem
+				// with name cacheing in trees where as long as two rows ofjects are .equal()
+				// it will resuse the same label for all objects.
 				return true;
 			}
 		}
@@ -2226,6 +2321,60 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			e.printStackTrace();
 		}
 		return builder.toString();
+	}
+	
+	public static void setDirectedJoinType(SoarDatabaseRow parent, SoarDatabaseRow child, JoinType joinType) {
+		SoarDatabaseConnection db = parent.getDatabaseConnection();
+		if (!rowsAreDirectedJoined(parent, child, db)) {
+			return;
+		}
+		
+		Table parentTable = parent.getTable();
+		Table childTable = child.getTable();
+		String joinTableName = directedJoinTableName(parentTable, childTable);
+		String sql = "update " + joinTableName + " set join_type=" + joinType.ordinal() + " where parent_id=? and child_id=?";
+		StatementWrapper ps = db.prepareStatement(sql);
+		ps.setInt(1, parent.id);
+		ps.setInt(2, child.id);
+		ps.execute();
+	}
+	
+	public static JoinType getDirectedJoinType(SoarDatabaseRow parent, SoarDatabaseRow child) {
+		SoarDatabaseConnection db = parent.getDatabaseConnection();
+		if (!rowsAreDirectedJoined(parent, child, db)) {
+			return JoinType.NONE;
+		}
+		
+		Table parentTable = parent.getTable();
+		Table childTable = child.getTable();
+		String joinTableName = directedJoinTableName(parentTable, childTable);
+		String sql = "select join_type from " + joinTableName + " where parent_id=? and child_id=?";
+		StatementWrapper ps = db.prepareStatement(sql);
+		
+		JoinType ret = JoinType.NONE;
+		
+		try {
+			ps.setInt(1, parent.id);
+			ps.setInt(2, child.id);
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				Integer i = rs.getInt("join_type");
+				ret = JoinType.typeForInt(i);
+			}
+			ps.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return ret;
+	}
+	
+	public void setJoinType(JoinType type) {
+		joinType = type;
+	}
+	
+	public JoinType getJoinType() {
+		return joinType;
 	}
 	
 	public boolean isRootProblemSpace() {
