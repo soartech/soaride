@@ -85,6 +85,7 @@ import com.soartech.soar.ide.ui.actions.explorer.MarkProblemSpaceRootAction;
 import com.soartech.soar.ide.ui.actions.explorer.OpenDatabaseRowInEditorAction;
 import com.soartech.soar.ide.ui.actions.explorer.RemoveJoinFromParentAction;
 import com.soartech.soar.ide.ui.actions.explorer.RenameDatabaseRowAction;
+import com.soartech.soar.ide.ui.views.SoarDatabaseRowDoubleClickListener;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
 import com.soartech.soar.ide.ui.views.explorer.DragAndDrop.SoarDatabaseExplorerDragAdapter;
 import com.soartech.soar.ide.ui.views.explorer.DragAndDrop.SoarDatabaseExplorerDropAdapter;
@@ -99,7 +100,6 @@ import edu.umich.soar.debugger.jmx.SoarCommandLineMXBean;
  */
 public class SoarExplorerView extends ViewPart 
 							  implements ISoarModelListener,
-								 		 IDoubleClickListener,
 								 		 ISoarDatabaseEventListener
 {
     public static final String ID = "com.soartech.soar.ide.ui.views.SoarExplorerView";
@@ -143,7 +143,7 @@ public class SoarExplorerView extends ViewPart
 	{
 		tree = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		
-		tree.addDoubleClickListener(this);
+		tree.addDoubleClickListener(new SoarDatabaseRowDoubleClickListener());
         //tree.setUseHashlookup(true); // this significantly improves update performance
 		
 		tree.setContentProvider(contentProvider);
@@ -158,7 +158,7 @@ public class SoarExplorerView extends ViewPart
         tree.addDragSupport(DND.DROP_MOVE, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseExplorerDragAdapter());
         tree.addDropSupport(DND.DROP_MOVE, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseExplorerDropAdapter(tree));
         
-        getViewSite().getActionBars().getToolBarManager().add(new FilterContributionItem(this, true));
+        //getViewSite().getActionBars().getToolBarManager().add(new FilterContributionItem(this, true));
         getViewSite().getActionBars().getToolBarManager().add(new FilterContributionItem(this, false));
    	}
 	
@@ -178,11 +178,14 @@ public class SoarExplorerView extends ViewPart
 			//ret.add(new GenerateAgentStructureActionDelegate(row));
 		}
 		if (table == Table.PROBLEM_SPACES) {
+			manager.add(new MarkProblemSpaceRootAction(row, tree));
+
+			manager.add(new Separator());
+
+			manager.add(new AddChildRowAction(row, Table.RULES, row, tree, true));
 			manager.add(new AddChildRowAction(row, Table.OPERATORS, row, tree, true));
 			//ret.add(new AddOperatorTemplateChildrenAction(row, tree));
-			manager.add(new AddChildRowAction(row, Table.RULES, row, tree, true));
 			//ret.add(new AddRuleTemplateChildrenAction(row, tree));
-			manager.add(new MarkProblemSpaceRootAction(row, tree));
 			
 			// Add new impasse
 			MenuManager newImpasseMenu = new MenuManager("Add Impasse");
@@ -465,49 +468,6 @@ public class SoarExplorerView extends ViewPart
 			}
 		}
 		);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.IDoubleClickListener#doubleClick(org.eclipse.jface.viewers.DoubleClickEvent)
-	 */
-	public void doubleClick(DoubleClickEvent event) 
-	{
-		ISoarDatabaseTreeItem item = SoarUiTools.getValueFromSelection(tree.getSelection(), ISoarDatabaseTreeItem.class);
-		if (item == null) {
-			return;
-		}
-		
-		if (item instanceof SoarDatabaseRow) {
-	        IWorkbench workbench = SoarEditorUIPlugin.getDefault().getWorkbench();
-	        IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
-			SoarDatabaseRow selectedRow = item.getRow();
-			Table selectedTable = selectedRow.getTable();
-			if (selectedTable == Table.RULES) {
-				try {
-					SoarUiModelTools.showRuleInEditor(page, selectedRow);
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-			} else if (selectedTable == Table.OPERATORS) {
-				try {
-					SoarUiModelTools.showOperatorInEditor(page, selectedRow);
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-			} else if (selectedTable == Table.PROBLEM_SPACES) {
-				try {
-					SoarUiModelTools.showProblemSpaceInEditor(page, selectedRow);
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-			} else if (selectedTable == Table.AGENTS) {
-				try {
-					SoarUiModelTools.showAgentInEditor(page, selectedRow);
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-			}
-		}
 	}
 
 	@Override

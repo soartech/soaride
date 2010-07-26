@@ -51,10 +51,12 @@ public class SoarPerspective implements IPerspectiveFactory {
         
         String editorArea = layout.getEditorArea();
         
-        IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, 0.28f, editorArea); //$NON-NLS-1$
+        layout.addActionSet("com.soartech.soar.ide.ui.soarActionSet");
+        
+        IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, 0.25f, editorArea); //$NON-NLS-1$
         folder.addView(SoarExplorerView.ID);
 
-        IFolderLayout itemFolder = layout.createFolder("item", IPageLayout.BOTTOM, 0.6f, "left");
+        IFolderLayout itemFolder = layout.createFolder("item", IPageLayout.BOTTOM, 0.75f, editorArea);
         itemFolder.addView(SoarDatabaseItemView.ID);
         itemFolder.addView(SoarDatabaseSearchResultsView.ID);
 

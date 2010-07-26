@@ -30,9 +30,10 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor;
+import com.soartech.soar.ide.ui.views.SoarDatabaseRowDoubleClickListener;
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerView;
 
-public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEventListener, ISelectionListener, IDoubleClickListener {
+public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEventListener, ISelectionListener {
     public static final String ID = "com.soartech.soar.ide.ui.views.SoarDatabaseItemView";
     
 	TreeViewer tree;
@@ -50,8 +51,8 @@ public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEvent
         IWorkbenchPartSite site = getSite();
         IWorkbenchPage page = site.getPage();
         page.addPostSelectionListener(this);
-        
-        tree.addDoubleClickListener(this);
+		tree.addDoubleClickListener(new SoarDatabaseRowDoubleClickListener());
+
         /*
 		tree.getControl().addKeyListener(new org.eclipse.swt.events.KeyListener() {
 
@@ -136,34 +137,6 @@ public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEvent
 		tree.refresh();
 		tree.setExpandedElements(elements);
 		tree.setExpandedTreePaths(treePaths);
-	}
-
-	@Override
-	public void doubleClick(DoubleClickEvent event) {
-		ISelection s = tree.getSelection();
-		if (s instanceof IStructuredSelection) {
-			IStructuredSelection ss = (IStructuredSelection) s;
-			Object obj = ss.getFirstElement();
-			if (obj instanceof SoarDatabaseRow) {
-				SoarDatabaseRow row = (SoarDatabaseRow) obj;
-				Table table = row.getTable();
-		        IWorkbenchPage page = SoarEditorUIPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		        
-				if (table == Table.RULES) {
-					try {
-						SoarUiModelTools.showRuleInEditor(page, row);
-					} catch (CoreException e) {
-						e.printStackTrace();
-					}
-				} else if (table == Table.PROBLEM_SPACES) {
-					try {
-						SoarUiModelTools.showProblemSpaceInEditor(page, row);
-					} catch (CoreException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
 	}
 	
 	private void proposeUnlinkRows(SoarDatabaseRow first, SoarDatabaseRow second) {

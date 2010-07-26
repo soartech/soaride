@@ -31,10 +31,10 @@ public class ExportSoarDatabaseRowAction extends Action {
 	}
 	
 	public ExportSoarDatabaseRowAction(SoarDatabaseRow row, SoarCommandLineMXBean proxy) {
-		super("Export " + row.getName() + " to Soar Debugger");
+		super("Export to Soar Debugger");
 		this.row = row;
 		this.proxy = proxy;
-	}	
+	}
 	@Override
 	public void run() {
 		if (proxy != null) {

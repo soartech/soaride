@@ -47,7 +47,7 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 		ArrayList<ISoarDatabaseTreeItem> rules = TraversalUtil.getRelatedRules(agent);
 		
 		if (monitor != null) {
-			monitor.beginTask("Generating Agent Structure", rules.size());
+			monitor.beginTask("Generating Project Structure", rules.size());
 		}
 
 		applyAll = forceApplyAll;

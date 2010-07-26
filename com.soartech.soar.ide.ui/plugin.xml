@@ -6,7 +6,7 @@
            class="com.soartech.soar.ide.ui.perspectives.SoarPerspective"
            icon="icons/soar.gif"
            id="com.soartech.soar.ide.ui.perspectives.SoarPerspective"
-           name="Soar Perspective">
+           name="Soar">
     	</perspective>
    </extension>
    
@@ -161,7 +161,7 @@
            description="Actions on Soar files."
            id="com.soartech.soar.ide.ui.soarActionSet"
            label="Soar Actions"
-           visible="true">
+           visible="false">
         <menu
               id="com.soartech.soar.ide.ui.soarMenu"
               label="Soar"
@@ -206,14 +206,14 @@
        <action
              class="com.soartech.soar.ide.ui.actions.explorer.GenerateAgentStructureActionDelegate"
              id="com.soartech.soar.ide.ui.actions.explorer.GenerateProjectStructureActionDelegate"
-             label="Generate Agent Structure"
+             label="Generate Project Structure"
               menubarPath="com.soartech.soar.ide.ui.soarMenu/agent"
               style="push"
               tooltip="Automatiaclly generates agent structure."/>
        <action
              class="com.soartech.soar.ide.ui.actions.explorer.ImportRulesActionDelegate"
              id="com.soartech.soar.ide.ui.actions.explorer.ImportRules"
-             label="Import Rules"
+             label="Import Rules..."
               menubarPath="com.soartech.soar.ide.ui.soarMenu/agent"
               style="push"
               tooltip="Imports rules from a text file."/>
