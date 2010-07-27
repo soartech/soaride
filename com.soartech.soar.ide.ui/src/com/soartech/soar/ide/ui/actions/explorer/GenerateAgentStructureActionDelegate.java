@@ -418,7 +418,7 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 	private Object[] openListDialog(ArrayList<?> items, String title, String message) {
 		ListDialog dialog = new ListDialog(shell);
 		dialog.setContentProvider(new ArrayContentProvider());
-		dialog.setLabelProvider(SoarLabelProvider.createFullLabelProvider(null));
+		dialog.setLabelProvider(SoarLabelProvider.createFullLabelProvider());
 		dialog.setTitle(title);
 		dialog.setMessage(message);
 		dialog.setInput(items);

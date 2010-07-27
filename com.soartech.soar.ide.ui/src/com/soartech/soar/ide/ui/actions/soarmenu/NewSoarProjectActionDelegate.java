@@ -24,7 +24,7 @@ public class NewSoarProjectActionDelegate implements IWorkbenchWindowActionDeleg
 
 	@Override
 	public void run(IAction action) {
-		if (SoarCorePlugin.getDefault().getSoarModel().getDatabase().isSavedToDisk()) {
+		if (SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk()) {
 			SoarUiModelTools.closeAllEditors(true);
 		} else {
 			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();

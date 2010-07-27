@@ -51,9 +51,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
-import com.soartech.soar.ide.core.model.ISoarModel;
-import com.soartech.soar.ide.core.model.ISoarModelListener;
-import com.soartech.soar.ide.core.model.SoarModelEvent;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseEventListener;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
@@ -87,14 +84,14 @@ import edu.umich.soar.debugger.jmx.SoarCommandLineMXBean;
  * @author aron
  */
 public class SoarExplorerView extends ViewPart 
-							  implements ISoarModelListener,
+							  implements
 								 		 ISoarDatabaseEventListener
 {
     public static final String ID = "com.soartech.soar.ide.ui.views.SoarExplorerView";
     
 	private TreeViewer tree;
 	
-	private ILabelProvider databaseLabelProvider = SoarLabelProvider.createFullLabelProvider(null);
+	private ILabelProvider databaseLabelProvider = SoarLabelProvider.createFullLabelProvider();
 	
 	SoarExplorerContentProvider contentProvider = new SoarExplorerContentProvider();
 	
@@ -116,13 +113,13 @@ public class SoarExplorerView extends ViewPart
 		
 		tree.setContentProvider(contentProvider);
 		tree.setLabelProvider(databaseLabelProvider);
-		ISoarModel input = SoarCorePlugin.getDefault().getSoarModel();
+		SoarCorePlugin input = SoarCorePlugin.getDefault();
         tree.setInput(input);
         getSite().setSelectionProvider(tree);
         
         createContextMenu();
         makeActions();
-        SoarCorePlugin.getDefault().getSoarModel().getDatabase().addListener(this);
+        SoarCorePlugin.getDefault().getDatabaseConnection().addListener(this);
         tree.addDragSupport(DND.DROP_MOVE, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseExplorerDragAdapter());
         tree.addDropSupport(DND.DROP_MOVE, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseExplorerDropAdapter(tree));
         
@@ -222,7 +219,7 @@ public class SoarExplorerView extends ViewPart
 		manager.add(new Separator());
 		
 		manager.add(new ExportSoarDatabaseRowAction(row));
-		SoarCommandLineMXBean proxy = SoarCorePlugin.getDefault().getSoarModel().getCommandLineProxy(); 
+		SoarCommandLineMXBean proxy = SoarCorePlugin.getDefault().getCommandLineProxy(); 
 		if (proxy != null) {
 			manager.add(new ExportSoarDatabaseRowAction(row, proxy));
 		}
@@ -347,7 +344,7 @@ public class SoarExplorerView extends ViewPart
 	@Override
 	public void dispose() 
 	{
-        SoarCorePlugin.getDefault().getSoarModel().getDatabase().removeListener(this);
+        SoarCorePlugin.getDefault().getDatabaseConnection().removeListener(this);
 		super.dispose();
 	}
 
@@ -428,6 +425,7 @@ public class SoarExplorerView extends ViewPart
 	/* (non-Javadoc)
 	 * @see com.soartech.soar.ide.core.model.ISoarModelListener#onEvent(com.soartech.soar.ide.core.model.SoarModelEvent)
 	 */
+	/*
 	public void onEvent(SoarModelEvent event) 
 	{
 		Display.getDefault().asyncExec(new Runnable(){
@@ -438,12 +436,13 @@ public class SoarExplorerView extends ViewPart
 		}
 		);
 	}
+	*/
 
 	@Override
 	public void onEvent(SoarDatabaseEvent event, SoarDatabaseConnection db) {
 		
 		if (event.type == SoarDatabaseEvent.Type.DATABASE_PATH_CHANGED) {
-			ISoarModel input = SoarCorePlugin.getDefault().getSoarModel();
+			SoarCorePlugin input = SoarCorePlugin.getDefault();
 	        tree.setInput(input);
 		}
 		

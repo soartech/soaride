@@ -21,7 +21,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
-import com.soartech.soar.ide.core.model.ISoarModel;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseEventListener;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
@@ -44,10 +43,10 @@ public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEvent
         //tree.setUseHashlookup(true); // this significantly improves update performance
 		tree.setContentProvider(new SoarDatabaseItemContentProvider());
 		tree.setLabelProvider(new SoarDatabaseItemLabelProvider());
-		ISoarModel input = SoarCorePlugin.getDefault().getSoarModel();
+		SoarCorePlugin input = SoarCorePlugin.getDefault();
         tree.setInput(input);
         getSite().setSelectionProvider(tree);
-        input.getDatabase().addListener(this);
+        input.getDatabaseConnection().addListener(this);
         IWorkbenchPartSite site = getSite();
         IWorkbenchPage page = site.getPage();
         page.addPostSelectionListener(this);
@@ -98,7 +97,7 @@ public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEvent
 	@Override
 	public void onEvent(SoarDatabaseEvent event, SoarDatabaseConnection db) {
 		if (event.type == SoarDatabaseEvent.Type.DATABASE_PATH_CHANGED) {
-			ISoarModel input = SoarCorePlugin.getDefault().getSoarModel();
+			SoarCorePlugin input = SoarCorePlugin.getDefault();
 	        tree.setInput(input);
 		}
 		

@@ -19,11 +19,6 @@
  */
 package com.soartech.soar.ide.ui.views;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.DecoratingLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -31,16 +26,6 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
-import com.soartech.soar.ide.core.model.ISoarAgent;
-import com.soartech.soar.ide.core.model.ISoarFile;
-import com.soartech.soar.ide.core.model.ISoarFileAgentProxy;
-import com.soartech.soar.ide.core.model.ISoarProduction;
-import com.soartech.soar.ide.core.model.ISoarProject;
-import com.soartech.soar.ide.core.model.ITclCommand;
-import com.soartech.soar.ide.core.model.ITclFileReference;
-import com.soartech.soar.ide.core.model.ITclProcedure;
-import com.soartech.soar.ide.core.model.datamap.ISoarDatamapAttribute;
-import com.soartech.soar.ide.core.model.datamap.ISoarDatamapValue;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
@@ -57,23 +42,21 @@ import com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapSuperstateAtt
  */
 public class SoarLabelProvider extends LabelProvider implements
 		ITableLabelProvider {
-	private ISoarAgent thisAgent;
 
-	public static ILabelProvider createFullLabelProvider(ISoarAgent thisAgent) {
-		return new DecoratingLabelProvider(new SoarLabelProvider(thisAgent),
+	public static ILabelProvider createFullLabelProvider() {
+		return new DecoratingLabelProvider(new SoarLabelProvider(),
 				PlatformUI.getWorkbench().getDecoratorManager()
 						.getLabelDecorator());
 	}
 
-	public static ILabelProvider createFastLabelProvider(ISoarAgent thisAgent) {
-		return new SoarLabelProvider(thisAgent);
+	public static ILabelProvider createFastLabelProvider() {
+		return new SoarLabelProvider();
 	}
 
 	/**
 	 * @param thisAgent
 	 */
-	public SoarLabelProvider(ISoarAgent thisAgent) {
-		this.thisAgent = thisAgent;
+	public SoarLabelProvider() {
 	}
 
 	/*
@@ -83,39 +66,7 @@ public class SoarLabelProvider extends LabelProvider implements
 	 */
 	@Override
 	public Image getImage(Object element) {
-		if (element instanceof ISoarProject) {
-			return SoarEditorPluginImages
-					.get(SoarEditorPluginImages.IMG_PROJECT);
-		} else if (element instanceof ISoarFile) {
-			return SoarEditorPluginImages
-					.get(SoarEditorPluginImages.IMG_SOAR_FILE);
-		} else if (element instanceof ISoarProduction) {
-			return SoarEditorPluginImages
-					.get(SoarEditorPluginImages.IMG_PRODUCTION);
-		} else if (element instanceof ITclProcedure) {
-			return SoarEditorPluginImages
-					.get(SoarEditorPluginImages.IMG_PROCEDURE);
-		} else if (element instanceof ITclFileReference) {
-			return SoarEditorPluginImages
-					.get(SoarEditorPluginImages.IMG_FILE_REFERENCE);
-		} else if (element instanceof ISoarDatamapAttribute) {
-			return SoarEditorPluginImages
-					.get(SoarEditorPluginImages.IMG_ATTRIBUTE);
-		} else if (element instanceof ISoarAgent) {
-			ISoarAgent soarAgent = (ISoarAgent) element;
-			if (thisAgent != null
-					&& thisAgent.getFile().equals(soarAgent.getFile())) {
-				return SoarEditorPluginImages
-						.get(SoarEditorPluginImages.IMG_THIS_AGENT);
-			} else {
-				return SoarEditorPluginImages
-						.get(SoarEditorPluginImages.IMG_AGENT);
-			}
-		} else if (element instanceof ISoarFileAgentProxy) {
-			ISoarFileAgentProxy proxy = (ISoarFileAgentProxy) element;
-
-			return getImage(proxy.getAgent());
-		} else if (element instanceof SoarDatabaseRow) {
+		if (element instanceof SoarDatabaseRow) {
 			Table table = ((SoarDatabaseRow) element).getTable(); 
 			if (table == Table.AGENTS) {
 				return SoarEditorPluginImages
@@ -176,54 +127,6 @@ public class SoarLabelProvider extends LabelProvider implements
 			}
 			return ret;
 			
-		} else if (element instanceof ISoarProject) {
-			ISoarProject project = (ISoarProject) element;
-
-			return project.getProject().getName();
-		} else if (element instanceof ISoarAgent) {
-			ISoarAgent agent = (ISoarAgent) element;
-
-			return agent.getName();
-		} else if (element instanceof ISoarFile) {
-			ISoarFile file = (ISoarFile) element;
-
-			return file.getPath().lastSegment();
-		} else if (element instanceof ISoarFileAgentProxy) {
-			ISoarFileAgentProxy proxy = (ISoarFileAgentProxy) element;
-
-			return proxy.getAgent().getName();
-		} else if (element instanceof ITclCommand) {
-			if (element instanceof ITclProcedure) {
-				ITclProcedure procedure = (ITclProcedure) element;
-				return procedure.getProcedureName();
-			} else if (element instanceof ISoarProduction) {
-				ISoarProduction production = (ISoarProduction) element;
-				return production.getProductionName();
-			}
-		} else if (element instanceof ITclFileReference) {
-			ITclFileReference ref = (ITclFileReference) element;
-			IPath relative = ref.getWorkspacePath();
-
-			return relative != null ? relative.toString() : ref
-					.getReferencedLocation().toString();
-		} else if (element instanceof ISoarDatamapAttribute) {
-			ISoarDatamapAttribute a = (ISoarDatamapAttribute) element;
-			String name = a.getName();
-			if (name == null) {
-				name = "<*>";
-			}
-			String mods = "";
-			int usage = a.getOverallUsage();
-			if ((usage & ISoarDatamapAttribute.USAGE_TEST) != 0) {
-				mods = "?";
-			}
-			if ((usage & ISoarDatamapAttribute.USAGE_ADD) != 0) {
-				mods += "+";
-			}
-			if ((usage & ISoarDatamapAttribute.USAGE_REMOVE) != 0) {
-				mods += "-";
-			}
-			return name + (mods.length() > 0 ? " (" + mods + ")" : mods);
 		} else if (element instanceof SoarDatabaseDatamapSuperstateAttribute) {
 			return element.toString(); 
 		} else if (element instanceof String) {
@@ -256,11 +159,7 @@ public class SoarLabelProvider extends LabelProvider implements
 	 * .Object, int)
 	 */
 	public String getColumnText(Object element, int columnIndex) {
-		if (columnIndex == 0) {
-			return getText(element);
-		} else {
-			return getValueLabel(element);
-		}
+		return getText(element);
 	}
 
 	/*
@@ -269,6 +168,7 @@ public class SoarLabelProvider extends LabelProvider implements
 	 * 
 	 * Miller Tinkerhess 3/18/2010
 	 */
+	/*
 	public static String getValueLabel(Object element) {
 		if (element instanceof ISoarDatamapAttribute) {
 			// Collect the values as strings
@@ -295,4 +195,5 @@ public class SoarLabelProvider extends LabelProvider implements
 		}
 		return "";
 	}
+	*/
 }

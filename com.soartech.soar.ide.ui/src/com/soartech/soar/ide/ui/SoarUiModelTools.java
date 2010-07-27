@@ -22,28 +22,18 @@ package com.soartech.soar.ide.ui;
 
 import java.util.ArrayList;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
-import org.eclipse.ui.dialogs.SelectionDialog;
-import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.texteditor.AbstractTextEditor;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
-import com.soartech.soar.ide.core.model.ISoarElement;
-import com.soartech.soar.ide.core.model.ISoarSourceRange;
-import com.soartech.soar.ide.core.model.ISoarSourceReference;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor;
@@ -68,6 +58,7 @@ public class SoarUiModelTools
      *      could not be displayed.
      * @throws CoreException
      */
+	/*
     @SuppressWarnings("unchecked")
     public static IEditorPart showElementInEditor(IWorkbenchPage page, ISoarElement element) throws CoreException
     {
@@ -85,21 +76,26 @@ public class SoarUiModelTools
             return null;
         }
         
+        /*
         IEditorPart part = null;
         if(element instanceof ISoarSourceReference)
         {
             ISoarSourceRange range = ((ISoarSourceReference) element).getSourceRange();
             
             AbstractTextEditor editor = (AbstractTextEditor) IDE.openEditor(page, file);
-			editor.selectAndReveal(range.getOffset(), 0 /* just highlight line, not all text */);
+			editor.selectAndReveal(range.getOffset(), 0); // just highlight line, not all text
         }
         else
         {
             part = IDE.openEditor(page, file);
         }
+        */
+        /*
+        IEditorPart part = IDE.openEditor(page, file);
         
         return part;
     }
+*/
     
 	/**
      * Show a rule in an editor.
@@ -206,7 +202,7 @@ public class SoarUiModelTools
     }
 
 	public static SoarDatabaseRow selectAgent() {
-		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getSoarModel().getDatabase().selectAllFromTable(Table.AGENTS);
+		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getDatabaseConnection().selectAllFromTable(Table.AGENTS);
 		if (agents.size() == 0) {
 			return null;
 		}

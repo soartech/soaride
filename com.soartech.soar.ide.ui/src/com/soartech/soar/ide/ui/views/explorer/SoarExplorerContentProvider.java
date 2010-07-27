@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
-import com.soartech.soar.ide.core.model.ISoarModel;
+import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
@@ -14,6 +14,8 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.actions.explorer.ChildProblemSpaceWrapper;
 import com.soartech.soar.ide.ui.views.itemdetail.SoarDatabaseItemContentProvider;
 
+import edu.umich.soar.debugger.jmx.SoarCommandLineMXBean;
+
 public class SoarExplorerContentProvider implements ITreeContentProvider {
 	
 	String filter = "";
@@ -21,8 +23,8 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 	
 	@Override
 	public Object[] getChildren(Object element) {
-		if (element instanceof ISoarModel) {
-			SoarDatabaseConnection conn = ((ISoarModel)element).getDatabase();
+		if (element instanceof SoarCorePlugin) {
+			SoarDatabaseConnection conn = ((SoarCorePlugin)element).getDatabaseConnection();
 			Object[] ret = conn.selectAllFromTable(Table.AGENTS).toArray();
 			return ret;
 		}
@@ -145,7 +147,7 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 
 	@Override
 	public Object getParent(Object element) {
-		if (element instanceof ISoarModel) {
+		if (element instanceof SoarCorePlugin) {
 			return null;
 		}
 		else if (element instanceof SoarDatabaseRow) {

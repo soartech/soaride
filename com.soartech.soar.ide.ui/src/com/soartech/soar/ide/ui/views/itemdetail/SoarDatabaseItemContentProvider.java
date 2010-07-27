@@ -8,7 +8,7 @@ import java.util.HashSet;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
-import com.soartech.soar.ide.core.model.ISoarModel;
+import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
@@ -26,8 +26,8 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 	
 	@Override
 	public Object[] getChildren(Object element) {
-		if (element instanceof ISoarModel) {
-			SoarDatabaseConnection conn = ((ISoarModel)element).getDatabase();
+		if (element instanceof SoarCorePlugin) {
+			SoarDatabaseConnection conn = ((SoarCorePlugin)element).getDatabaseConnection();
 			Object[] ret = conn.selectAllFromTable(Table.AGENTS).toArray();
 			return ret;
 		}

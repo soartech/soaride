@@ -113,7 +113,7 @@ public class AddSubstateAction extends Action {
 
 		ListDialog dialog = new ListDialog(shell);
 		dialog.setContentProvider(contentProvider);
-		dialog.setLabelProvider(SoarLabelProvider.createFullLabelProvider(null));
+		dialog.setLabelProvider(SoarLabelProvider.createFullLabelProvider());
 		dialog.setTitle("Select substate");
 		dialog.setInput(superstate);
 		dialog.open();

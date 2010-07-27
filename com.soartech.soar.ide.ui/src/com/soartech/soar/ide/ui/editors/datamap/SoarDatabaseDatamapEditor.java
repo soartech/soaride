@@ -96,7 +96,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
         getSite().setSelectionProvider(tree);
 
 		tree.setContentProvider(new SoarDatabaseDatamapContentProvider());
-		tree.setLabelProvider(SoarLabelProvider.createFullLabelProvider(null));
+		tree.setLabelProvider(SoarLabelProvider.createFullLabelProvider());
 		tree.setInput(proplemSpaceRow);
 		
 		tree.getControl().addKeyListener(new org.eclipse.swt.events.KeyListener() {
@@ -331,7 +331,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 		
 		tree.addDragSupport(DND.DROP_MOVE, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseDatamapDragAdapter());
         tree.addDropSupport(DND.DROP_MOVE, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseDatamapDropAdapter(tree));
-        SoarCorePlugin.getDefault().getSoarModel().getDatabase().addListener(this);
+        SoarCorePlugin.getDefault().getDatabaseConnection().addListener(this);
 	}
 
 	@Override
@@ -421,7 +421,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 	public void onEvent(SoarDatabaseEvent event, SoarDatabaseConnection db) {
 		
 		if (tree.getTree().isDisposed()) {
-	        SoarCorePlugin.getDefault().getSoarModel().getDatabase().removeListener(this);
+	        SoarCorePlugin.getDefault().getDatabaseConnection().removeListener(this);
 	        return;
 		}
 

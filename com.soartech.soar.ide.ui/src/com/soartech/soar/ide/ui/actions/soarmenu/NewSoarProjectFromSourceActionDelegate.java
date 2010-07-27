@@ -18,7 +18,6 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
-import com.soartech.soar.ide.core.model.ISoarModel;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseUtil;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
@@ -38,7 +37,7 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 	@Override
 	public void run(IAction action) {
 		
-		boolean savedToDisk = SoarCorePlugin.getDefault().getSoarModel().getDatabase().isSavedToDisk();
+		boolean savedToDisk = SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk();
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		
 		if (!savedToDisk) {
@@ -74,8 +73,7 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 			lastDotIndex = path.length();
 		}
 		String agentName = path.substring(lastSlashIndex, lastDotIndex);
-		ISoarModel model = SoarCorePlugin.getDefault().getInternalSoarModel();
-		model.getDatabase().insert(Table.AGENTS, new String[][] { { "name", "\"" + agentName + "\"" } });
+		SoarCorePlugin.getDefault().getDatabaseConnection().insert(Table.AGENTS, new String[][] { { "name", "\"" + agentName + "\"" } });
 		
 		// TODO
 		// expand the agent in the tree view
@@ -96,7 +94,7 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 		*/
 		
 		// Import rules
-		ArrayList<SoarDatabaseRow> agents = model.getDatabase().selectAllFromTable(Table.AGENTS);
+		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getDatabaseConnection().selectAllFromTable(Table.AGENTS);
 		SoarDatabaseRow agent = null;
 		for (SoarDatabaseRow row : agents) {
 			if (row.getName().equals(agentName)) {

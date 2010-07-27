@@ -13,7 +13,6 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
-import com.soartech.soar.ide.core.model.ISoarModel;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerView;
@@ -37,8 +36,7 @@ public class AddAgentActionDelegate extends Action implements IWorkbenchWindowAc
 		String result = dialog.getValue();
 
 		if (result != null && result.length() > 0) {
-			ISoarModel model = SoarCorePlugin.getDefault().getInternalSoarModel();
-			model.getDatabase().insert(Table.AGENTS, new String[][] { { "name", "\"" + result + "\"" } });
+			SoarCorePlugin.getDefault().getDatabaseConnection().insert(Table.AGENTS, new String[][] { { "name", "\"" + result + "\"" } });
 			TreeViewer viewer = explorer.getTreeViewer(); 
 			Tree tree = viewer.getTree();
 			TreeItem[] items = tree.getItems();

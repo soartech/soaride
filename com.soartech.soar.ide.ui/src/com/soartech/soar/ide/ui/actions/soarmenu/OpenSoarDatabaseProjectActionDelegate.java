@@ -38,7 +38,7 @@ public class OpenSoarDatabaseProjectActionDelegate implements IWorkbenchWindowAc
 	@Override
 	public void run(IAction action) {
 		
-		boolean savedToDisk = SoarCorePlugin.getDefault().getSoarModel().getDatabase().isSavedToDisk();
+		boolean savedToDisk = SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk();
 		
 		if (!savedToDisk) {
 			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();

@@ -35,7 +35,7 @@ public class SoarDatabaseSearchResultsView extends ViewPart {
 		table = new TableViewer(parent);
 		table.addDoubleClickListener(new SoarDatabaseRowDoubleClickListener());
 		table.setContentProvider(new ArrayContentProvider());
-		table.setLabelProvider(SoarLabelProvider.createFullLabelProvider(null));
+		table.setLabelProvider(SoarLabelProvider.createFullLabelProvider());
 		table.setInput(null);
 	}
 
@@ -59,7 +59,7 @@ public class SoarDatabaseSearchResultsView extends ViewPart {
 	}
 	
 	public static void searchForRulesWithString(String query) {
-		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getSoarModel().getDatabase().selectAllFromTable(Table.AGENTS);
+		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getDatabaseConnection().selectAllFromTable(Table.AGENTS);
 		ArrayList<SoarDatabaseRow> result = new ArrayList<SoarDatabaseRow>();
 		for (SoarDatabaseRow agent : agents) {
 			ArrayList<SoarDatabaseRow> rules = agent.getChildrenOfType(Table.RULES);

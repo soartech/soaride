@@ -19,7 +19,7 @@ public class SoarDatabaseItemLabelProvider extends LabelProvider implements ITab
 	}
 	
 	
-	SoarLabelProvider provider = new SoarLabelProvider(null);
+	SoarLabelProvider provider = new SoarLabelProvider();
 	
 
 	public SoarDatabaseItemLabelProvider() {
