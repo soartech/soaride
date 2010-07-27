@@ -10,12 +10,10 @@ import org.eclipse.ui.IEditorInput;
 
 import com.soartech.soar.ide.core.SoarProblem;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseEventListener;
-import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
-import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public class SoarDatabaseTextEditor extends AbstractSoarDatabaseTextEditor implements ISoarDatabaseTextEditor, ISoarDatabaseEventListener {
 
@@ -51,7 +49,6 @@ public class SoarDatabaseTextEditor extends AbstractSoarDatabaseTextEditor imple
 	@Override
 	public void onEvent(SoarDatabaseEvent event, SoarDatabaseConnection db) {
 		if (event.type == Type.DATABASE_CHANGED) {
-			SoarDatabaseRow inputRow = this.input.getRow();
 			if (event.row != null && event.row.equals(this.input.getRow())) {
 				this.doRevertToSaved();
 			}

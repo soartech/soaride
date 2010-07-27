@@ -1,7 +1,5 @@
 package com.soartech.soar.ide.ui.actions.dragdrop;
 
-import java.util.ArrayList;
-
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;

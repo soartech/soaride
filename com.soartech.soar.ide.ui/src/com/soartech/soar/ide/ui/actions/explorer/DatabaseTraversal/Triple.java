@@ -258,19 +258,4 @@ public class Triple {
 				&& this.attribute.equals(other.attribute)
 				&& this.value.equals(other.value);
 	}
-	
-	public static void main(String[] args) {
-		Triple t1 = new Triple("<s>", "a", "<v>", null);
-		Triple t2 = new Triple("<s>", "a", "<v>", null);
-		Triple t3 = new Triple("<s>", "a2", "<v2>", null);
-		System.out.println("t1: " + t1 + "\nt2: " + t2 + "\nt3: " + t3);
-		System.out.println("t1 == t1: " + (t1 == t1));
-		System.out.println("t1 == t2: " + (t1 == t2));
-		System.out.println("t1 == t3: " + (t1 == t3));
-		System.out.println("t2 == t3: " + (t2 == t3));
-		System.out.println("t1.equals(t1): " + (t1.equals(t1)));
-		System.out.println("t1.equals(t2): " + (t1.equals(t2)));
-		System.out.println("t1.equals(t3): " + (t1.equals(t3)));
-		System.out.println("t2.equals(t3): " + (t2.equals(t3)));
-	}
 }

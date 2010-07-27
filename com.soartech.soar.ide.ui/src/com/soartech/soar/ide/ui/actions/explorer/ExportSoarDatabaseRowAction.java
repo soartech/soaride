@@ -91,8 +91,7 @@ public class ExportSoarDatabaseRowAction extends Action {
 	private void writeToOutput(Writer writer) {
 		try {
 			ArrayList<ISoarDatabaseTreeItem> children = TraversalUtil.getRelatedRules(row);
-			String agentName = row.getName();
-			//writer.write("# Begin export of " + row.getTable().englishName() + " \"" + agentName + "\"\n");
+			//writer.write("# Begin export of " + row.getTable().englishName() + " \"" + row.getName() + "\"\n");
 
 			if (row.getTable() == Table.AGENTS) {
 				String agentText = row.getText();
@@ -107,11 +106,9 @@ public class ExportSoarDatabaseRowAction extends Action {
 				assert child instanceof SoarDatabaseRow;
 				SoarDatabaseRow childRow = (SoarDatabaseRow) child;
 				assert childRow.getTable() == Table.RULES;
-				String ruleText = childRow.getText();
-				String ruleName = childRow.getName();
-				//writer.write("# Begin rule \"" + ruleName + "\"\n");
-				writer.write(ruleText);
-				//writer.write("\n# End rule \"" + ruleName + "\"\n");
+				//writer.write("# Begin rule \"" + childRow.getName() + "\"\n");
+				writer.write(childRow.getText());
+				//writer.write("\n# End rule \"" + childRow.getName() + "\"\n");
 			}
 			//writer.write("# End export of " + row.getTable().englishName() + " \"" + agentName + "\"\n");
 		} catch (IOException e) {

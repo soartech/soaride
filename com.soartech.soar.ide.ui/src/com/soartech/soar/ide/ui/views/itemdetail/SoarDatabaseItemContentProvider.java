@@ -1,8 +1,6 @@
 package com.soartech.soar.ide.ui.views.itemdetail;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -13,7 +11,6 @@ import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.sun.xml.internal.ws.developer.MemberSubmissionEndpointReference.Elements;
 
 public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 

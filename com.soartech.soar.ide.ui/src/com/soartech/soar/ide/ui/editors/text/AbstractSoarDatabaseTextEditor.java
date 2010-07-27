@@ -13,7 +13,6 @@ import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.MatchingCharacterPainter;
-import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
@@ -25,7 +24,6 @@ import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseEditorInput;
-import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 
 public class AbstractSoarDatabaseTextEditor extends TextEditor implements ISoarDatabaseTextEditor {
 
@@ -101,7 +99,7 @@ public class AbstractSoarDatabaseTextEditor extends TextEditor implements ISoarD
         
         // content assist action
         final String actionName = "ContentAssistProposal";
-        Action action = new ContentAssistAction(SoarEditorUIPlugin.getDefault().getResourceBundle(), actionName, this);
+        Action action = new ContentAssistAction(null, actionName, this);
         String id = ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS;
         action.setActionDefinitionId(id);
         action.setEnabled(true);

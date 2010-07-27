@@ -20,8 +20,6 @@
 package com.soartech.soar.ide.ui;
 
 import java.io.IOException;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -38,7 +36,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import com.soartech.soar.ide.ui.editors.text.SoarOperatorContext;
-import com.soartech.soar.ide.ui.editors.text.SoarEditorMessages;
 import com.soartech.soar.ide.ui.editors.text.SoarRuleContext;
 import com.soartech.soar.ide.ui.editors.text.SyntaxColorManager;
 
@@ -56,8 +53,6 @@ public class SoarEditorUIPlugin extends AbstractUIPlugin
     /** The shared plug-in instance. */
     private static SoarEditorUIPlugin plugin;
 
-    private ResourceBundle resourceBundle = null;
-
     private ContributionTemplateStore templateStore;
 
     private ContributionContextTypeRegistry contextRegistry;
@@ -70,15 +65,6 @@ public class SoarEditorUIPlugin extends AbstractUIPlugin
     public SoarEditorUIPlugin()
     {
         plugin = this;
-        try
-        {
-            resourceBundle = ResourceBundle
-                    .getBundle("com.soartech.soar.ide.ui.SoarEditorPluginResources");
-        }
-        catch (MissingResourceException x)
-        {
-            resourceBundle = null;
-        }
     }
 
     /**
@@ -131,15 +117,16 @@ public class SoarEditorUIPlugin extends AbstractUIPlugin
     /**
      * @return The resource bundle for this plugin.
      */
+    /*
     public ResourceBundle getResourceBundle()
     {
         return resourceBundle;
     }
+    */
 
     public static void log(Throwable e)
     {
-        log(new Status(IStatus.ERROR, getPluginId(), 0,
-                SoarEditorMessages.SoarEditor_internal_error, e));
+        log(new Status(IStatus.ERROR, getPluginId(), 0, "SoarEditorMessages.SoarEditor_internal_error", e));
     }
 
     /**

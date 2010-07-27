@@ -9,7 +9,6 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
-import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 
 public class NewSoarProjectActionDelegate implements IWorkbenchWindowActionDelegate {

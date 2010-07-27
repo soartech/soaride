@@ -1,7 +1,5 @@
 package com.soartech.soar.ide.ui.actions.soarmenu;
 
-import java.util.ArrayList;
-
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -10,9 +8,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 
-import com.soartech.soar.ide.core.SoarCorePlugin;
-import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
-import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.views.search.SoarDatabaseSearchResultsView;
 
 public class SearchRulesActionDelegate implements IWorkbenchWindowActionDelegate {

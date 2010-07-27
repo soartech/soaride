@@ -1,6 +1,5 @@
 package com.soartech.soar.ide.ui.actions.soarmenu;
 
-import java.awt.Dialog;
 import java.io.File;
 
 import org.eclipse.jface.action.IAction;

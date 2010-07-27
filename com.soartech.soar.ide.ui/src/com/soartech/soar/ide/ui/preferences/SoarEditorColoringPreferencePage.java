@@ -331,8 +331,8 @@ public class SoarEditorColoringPreferencePage extends PreferencePage
 		gd= new GridData(SWT.BEGINNING, SWT.BEGINNING, false, true);
 		gd.heightHint= convertHeightInCharsToPixels(9);
 		int maxWidth= 0;
-		for (Iterator it= fListModel.iterator(); it.hasNext();) {
-			HighlightingColorListItem item= (HighlightingColorListItem) it.next();
+		for (Iterator<HighlightingColorListItem> it= fListModel.iterator(); it.hasNext();) {
+			HighlightingColorListItem item = it.next();
 			maxWidth= Math.max(maxWidth, convertWidthInCharsToPixels(item.getDisplayName().length()));
 		}
 		ScrollBar vBar= ((Scrollable) fListViewer.getControl()).getVerticalBar();
