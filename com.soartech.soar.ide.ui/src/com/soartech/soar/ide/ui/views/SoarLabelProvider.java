@@ -48,7 +48,6 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorPluginImages;
 import com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapSuperstateAttribute;
-import com.soartech.soar.ide.ui.editors.text.SoarFoldingRegion;
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerFullViewContentProvider.SoarFolderHeader;
 
 /**
@@ -120,9 +119,6 @@ public class SoarLabelProvider extends LabelProvider implements
 			ISoarFileAgentProxy proxy = (ISoarFileAgentProxy) element;
 
 			return getImage(proxy.getAgent());
-		} else if (element instanceof SoarFoldingRegion) {
-			return SoarEditorPluginImages
-					.get(SoarEditorPluginImages.IMG_FOLDING_REGION);
 		} else if (element instanceof SoarDatabaseRow) {
 			Table table = ((SoarDatabaseRow) element).getTable(); 
 			if (table == Table.AGENTS) {
@@ -236,9 +232,7 @@ public class SoarLabelProvider extends LabelProvider implements
 				mods += "-";
 			}
 			return name + (mods.length() > 0 ? " (" + mods + ")" : mods);
-		} else if (element instanceof SoarFoldingRegion) {
-			return ((SoarFoldingRegion) element).getName();
-		}  else if (element instanceof SoarDatabaseDatamapSuperstateAttribute) {
+		} else if (element instanceof SoarDatabaseDatamapSuperstateAttribute) {
 			return element.toString(); 
 		} else if (element instanceof String) {
 			return (String) element;

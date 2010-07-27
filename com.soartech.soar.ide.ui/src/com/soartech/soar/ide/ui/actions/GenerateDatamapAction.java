@@ -187,14 +187,14 @@ class Correction {
 	}
 }
 
-public class NewGenerateDatamapAction extends Action {
+public class GenerateDatamapAction extends Action {
 	
 	SoarDatabaseRow problemSpace;
 	Shell shell;
 	public boolean applyAll = false;
 	ArrayList<ISoarDatabaseTreeItem> joinedRules;
 	
-	public NewGenerateDatamapAction(SoarDatabaseRow problemSpace, boolean applyAll) {
+	public GenerateDatamapAction(SoarDatabaseRow problemSpace, boolean applyAll) {
 		super ("Generate datamap");
 		this.problemSpace = problemSpace;
 		this.applyAll = applyAll;

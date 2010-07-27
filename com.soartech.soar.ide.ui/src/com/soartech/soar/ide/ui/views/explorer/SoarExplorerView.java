@@ -73,7 +73,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.SoarUiTools;
-import com.soartech.soar.ide.ui.actions.NewGenerateDatamapAction;
+import com.soartech.soar.ide.ui.actions.GenerateDatamapAction;
 import com.soartech.soar.ide.ui.actions.explorer.AddAgentActionDelegate;
 import com.soartech.soar.ide.ui.actions.explorer.AddChildRowAction;
 import com.soartech.soar.ide.ui.actions.explorer.AddSubstateAction;
@@ -238,7 +238,7 @@ public class SoarExplorerView extends ViewPart
 			}
 			
 			//ret.add(new GenerateDatamapAction(row));
-			manager.add(new NewGenerateDatamapAction(row, false));
+			manager.add(new GenerateDatamapAction(row, false));
 		}
 		if (table == Table.OPERATORS) {
 			manager.add(new AddChildRowAction(row, Table.RULES, row, tree, true));

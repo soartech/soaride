@@ -15,6 +15,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.progress.ProgressManager;
 import org.eclipse.ui.part.ViewPart;
 
+import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
@@ -45,6 +46,30 @@ public class SoarDatabaseSearchResultsView extends ViewPart {
 	
 	public void setSearchResults(Object[] results) {
 		table.setInput(results);
+	}
+	
+	private static void setResults(Object[] results) {
+		SoarDatabaseSearchResultsView view;
+		try {
+			view = (SoarDatabaseSearchResultsView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ID);
+			view.setSearchResults(results);
+		} catch (PartInitException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void searchForRulesWithString(String query) {
+		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getSoarModel().getDatabase().selectAllFromTable(Table.AGENTS);
+		ArrayList<SoarDatabaseRow> result = new ArrayList<SoarDatabaseRow>();
+		for (SoarDatabaseRow agent : agents) {
+			ArrayList<SoarDatabaseRow> rules = agent.getChildrenOfType(Table.RULES);
+			for (SoarDatabaseRow rule : rules) {
+				if (rule.getText().contains(query)) {
+					result.add(rule);
+				}
+			}
+		}
+		setResults(result.toArray());
 	}
 	
 	public static void searchForRulesWithDatamapAttribute(SoarDatabaseRow attribute) {
@@ -83,11 +108,6 @@ public class SoarDatabaseSearchResultsView extends ViewPart {
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
-		try {
-			SoarDatabaseSearchResultsView view = (SoarDatabaseSearchResultsView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ID);
-			view.setSearchResults(result.toArray());
-		} catch (PartInitException e) {
-			e.printStackTrace();
-		}
+		setResults(result.toArray());
 	}
 }

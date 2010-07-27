@@ -5,7 +5,6 @@ import java.util.HashSet;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
@@ -19,13 +18,18 @@ import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.TraversalUtil
 import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.Triple;
 import com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor;
 
-public class GenerateDatamapAction extends Action {
+/**
+ * DEPRECATED. Use <code>GenerateDatamapAction</code> instead.
+ * @author miller
+ *
+ */
+public class OldGenerateDatamapAction extends Action {
 
 	SoarDatabaseRow problemSpace;
 	Shell shell;
 	public boolean applyAll = false;
 	
-	public GenerateDatamapAction(SoarDatabaseRow problemSpace) {
+	public OldGenerateDatamapAction(SoarDatabaseRow problemSpace) {
 		super ("Generate datamap");
 		this.problemSpace = problemSpace;
 	}

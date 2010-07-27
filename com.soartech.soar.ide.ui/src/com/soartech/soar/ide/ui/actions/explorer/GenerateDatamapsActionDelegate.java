@@ -17,7 +17,7 @@ import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
-import com.soartech.soar.ide.ui.actions.NewGenerateDatamapAction;
+import com.soartech.soar.ide.ui.actions.GenerateDatamapAction;
 
 public class GenerateDatamapsActionDelegate implements IWorkbenchWindowActionDelegate {
 
@@ -39,11 +39,11 @@ public class GenerateDatamapsActionDelegate implements IWorkbenchWindowActionDel
 		assert agent.getTable() == Table.AGENTS;
 		applyAll = forceApplyAll;
 		ArrayList<SoarDatabaseRow> problemSpaces = agent.getChildrenOfType(Table.PROBLEM_SPACES);
-		ArrayList<NewGenerateDatamapAction> actions = new ArrayList<NewGenerateDatamapAction>();
+		ArrayList<GenerateDatamapAction> actions = new ArrayList<GenerateDatamapAction>();
 		int totalRules = 0;
 		for (SoarDatabaseRow ps : problemSpaces) {
 			assert ps.getTable() == Table.PROBLEM_SPACES;
-			NewGenerateDatamapAction generateAction = new NewGenerateDatamapAction(ps, applyAll);
+			GenerateDatamapAction generateAction = new GenerateDatamapAction(ps, applyAll);
 			actions.add(generateAction);
 			totalRules += generateAction.getJoinedRulesSize();
 			System.out.println("Rules for ps: " + ps.getName() + ": " + totalRules);
@@ -53,7 +53,7 @@ public class GenerateDatamapsActionDelegate implements IWorkbenchWindowActionDel
 			monitor.beginTask("Generating Datamaps", totalRules);
 		}
 		
-		for (NewGenerateDatamapAction generateAction : actions) {
+		for (GenerateDatamapAction generateAction : actions) {
 			if (monitor != null) {
 				monitor.subTask("Problem space: " + generateAction.getProblemSpace().getName());
 			}

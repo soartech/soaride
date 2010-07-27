@@ -46,7 +46,6 @@ import com.soartech.soar.ide.core.model.ISoarSourceRange;
 import com.soartech.soar.ide.core.model.ISoarSourceReference;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.soartech.soar.ide.ui.editors.text.SoarEditor;
 import com.soartech.soar.ide.ui.editors.database.SoarDatabaseOperatorEditor;
 import com.soartech.soar.ide.ui.editors.database.SoarDatabaseTextEditor;
 import com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor;
@@ -174,6 +173,7 @@ public class SoarUiModelTools
      * @return The active Soar editor, or null if there is no active editor
      *      or if the acitve editor isn't a Soar editor.
      */
+	/*
     public static SoarEditor getActiveSoarEditor()
     {
         IWorkbench wb = PlatformUI.getWorkbench();
@@ -186,6 +186,7 @@ public class SoarUiModelTools
         }
         return (SoarEditor) editor;
     }
+    */
     
     public static void closeAllEditors(boolean save) {
     	PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeAllEditors(save);

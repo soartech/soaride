@@ -3,8 +3,6 @@ package com.soartech.soar.ide.ui.editors.database.dragdrop;
 import java.util.ArrayList;
 
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.util.LocalSelectionTransfer;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerDropAdapter;
@@ -15,7 +13,6 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
-import com.soartech.soar.ide.ui.actions.explorer.JoinRowsActionDelegate;
 import com.soartech.soar.ide.ui.actions.explorer.LinkDatamapRowsAction;
 
 public class SoarDatabaseDatamapDropAdapter extends ViewerDropAdapter {
