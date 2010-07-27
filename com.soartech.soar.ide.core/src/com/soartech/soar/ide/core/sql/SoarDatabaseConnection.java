@@ -27,6 +27,10 @@ public class SoarDatabaseConnection {
 	private boolean supressEvents = false;
 	private String currentPath;
 	
+	public SoarDatabaseConnection() {
+		this(":memory:");
+	}
+	
 	public SoarDatabaseConnection(String path) {
 		loadDriver();
 		loadDatabaseConnection(path);

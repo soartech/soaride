@@ -19,27 +19,18 @@
  */
 package com.soartech.soar.ide.core;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 
-import com.soartech.soar.ide.core.model.ISoarModel;
-import com.soartech.soar.ide.core.model.ISoarProduction;
-import com.soartech.soar.ide.core.model.SoarModelAdapterFactory;
-import com.soartech.soar.ide.core.model.datamap.ISoarDatamap;
-import com.soartech.soar.ide.core.model.impl.InMemorySoarProduction;
-import com.soartech.soar.ide.core.model.impl.SoarModel;
-import com.soartech.soar.ide.core.model.impl.datamap.SoarDatamap;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
 import com.soartech.soar.ide.core.sql.SoarDatabaseUtil;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
+
+import edu.umich.soar.debugger.jmx.SoarCommandLineMXBean;
 
 /**
  * <code>SoarCorePlugin</code> The main plugin class to be used in the desktop.
@@ -76,8 +67,11 @@ public class SoarCorePlugin extends Plugin {
 	//The shared instance.
 	private static SoarCorePlugin plugin;
 
-    private SoarModelAdapterFactory modelAdapters;
-    private SoarModel soarModel;
+    //private SoarModelAdapterFactory modelAdapters;
+    //private SoarModel soarModel;
+	
+	private SoarDatabaseConnection databaseConnection;
+	private SoarCommandLineMXBean proxy;
 
 	/**
 	 * The constructor.
@@ -87,9 +81,10 @@ public class SoarCorePlugin extends Plugin {
 		plugin = this;
 		
 		// These have to be initialized AFTER the plugin is set.
-		modelAdapters = new SoarModelAdapterFactory();
-	    soarModel = new SoarModel();
-	}
+		//modelAdapters = new SoarModelAdapterFactory();
+	    //soarModel = new SoarModel();
+		databaseConnection = new SoarDatabaseConnection();
+		}
 
 	/**
 	 * This method is called upon plug-in activation
@@ -98,9 +93,9 @@ public class SoarCorePlugin extends Plugin {
     {
 		super.start(context);
 
-        modelAdapters.register();
+        //modelAdapters.register();
 
-        getSoarModel().open(new NullProgressMonitor());
+        //getSoarModel().open(new NullProgressMonitor());
 	}
 
 	/**
@@ -109,18 +104,21 @@ public class SoarCorePlugin extends Plugin {
 	public void stop(BundleContext context) throws Exception
     {
 		super.stop(context);
-        modelAdapters.unregister();
+        //modelAdapters.unregister();
 		plugin = null;
 	}
+
 
 	/* (non-Javadoc)
      * @see org.eclipse.core.runtime.Plugin#initializeDefaultPluginPreferences()
      */
-    @Override
+/*
+	@Override
     protected void initializeDefaultPluginPreferences()
     {
-        getPluginPreferences().setDefault(ISoarCorePluginConstants.SOURCE_CHANGES_DIRECTORY, false);
+        // getPluginPreferences().setDefault(ISoarCorePluginConstants.SOURCE_CHANGES_DIRECTORY, false);
     }
+    */
 
     /**
 	 * Returns the shared instance.
@@ -136,9 +134,15 @@ public class SoarCorePlugin extends Plugin {
      *
      * @return The model.
      */
+	/*
     public ISoarModel getSoarModel()
     {
         return soarModel;
+    }
+    */
+    
+    public SoarDatabaseConnection getDatabaseConnection() {
+    	return databaseConnection;
     }
 
     /**
@@ -147,10 +151,12 @@ public class SoarCorePlugin extends Plugin {
      *
      * @return The model.
      */
+    /*
     public SoarModel getInternalSoarModel()
     {
         return soarModel;
     }
+    */
 
     public static void log( IStatus status )
     {
@@ -162,52 +168,24 @@ public class SoarCorePlugin extends Plugin {
         getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, 0, e.getMessage(), e));
     }
 
-    public boolean getSourceCommandChangesDirectory()
-    {
-        Preferences prefs = getPluginPreferences();
-
-        return prefs.getBoolean(ISoarCorePluginConstants.SOURCE_CHANGES_DIRECTORY);
-    }
-
-    public void setSourceCommandChangesDirectory(boolean v)
-    {
-        Preferences prefs = getPluginPreferences();
-
-        prefs.setValue(ISoarCorePluginConstants.SOURCE_CHANGES_DIRECTORY, v);
-        savePluginPreferences();
-    }
-
-    // TODO: Placeholder factory method to allow access to core.model.impl.InMemoryProduction
-    public ISoarProduction parseProduction(String source)
-    {
-        return new InMemorySoarProduction(source);
-    }
-
-    // TODO: Placeholder factory method to allow access to core.model.impl.datamap
-    public ISoarDatamap createEmptyDatamap()
-    {
-        return new SoarDatamap();
-    }
-
 	public void saveDatabaseAs(String path) {
-		String dump = SoarDatabaseUtil.sqlDump(getSoarModel().getDatabase());
+		String dump = SoarDatabaseUtil.sqlDump(databaseConnection);
 		//System.out.println("**************************DUMP");
 		//System.out.println(dump);
 		
 		String[] commands = dump.split(";");
 		
-		SoarDatabaseConnection conn = soarModel.getDatabase();
-		boolean eventsSupressed = conn.getSupressEvents();
-		conn.setSupressEvents(true);
-		conn.loadDatabaseConnection(path);
+		boolean eventsSupressed = databaseConnection.getSupressEvents();
+		databaseConnection.setSupressEvents(true);
+		databaseConnection.loadDatabaseConnection(path);
 		for (String command : commands) {
 			command = command.trim();
 			if (command.length() > 0) {
-				soarModel.getDatabase().execute(command);
+				databaseConnection.execute(command);
 			}
 		}
-		conn.setSupressEvents(eventsSupressed);
-		conn.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
+		databaseConnection.setSupressEvents(eventsSupressed);
+		databaseConnection.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
 	}
 
 	/**
@@ -218,9 +196,8 @@ public class SoarCorePlugin extends Plugin {
 	 * @param path
 	 */
 	public void openProject(String path) {
-		SoarDatabaseConnection conn = soarModel.getDatabase();
-		conn.loadDatabaseConnection(path);
-		conn.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
+		databaseConnection.loadDatabaseConnection(path);
+		databaseConnection.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
 	}
 	
 	/**
@@ -231,6 +208,14 @@ public class SoarCorePlugin extends Plugin {
 	 */
 	public void newProject() {
 		openProject(":memory:"); 
+	}
+
+	public void setCommandLineProxy(SoarCommandLineMXBean proxy) {
+		this.proxy = proxy;
+	}
+
+	public SoarCommandLineMXBean getCommandLineProxy() {
+		return proxy;
 	}
 
 }
