@@ -46,9 +46,9 @@ import com.soartech.soar.ide.core.model.ISoarSourceRange;
 import com.soartech.soar.ide.core.model.ISoarSourceReference;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.soartech.soar.ide.ui.editors.database.SoarDatabaseOperatorEditor;
-import com.soartech.soar.ide.ui.editors.database.SoarDatabaseTextEditor;
 import com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor;
+import com.soartech.soar.ide.ui.editors.text.SoarDatabaseOperatorEditor;
+import com.soartech.soar.ide.ui.editors.text.SoarDatabaseTextEditor;
 
 /**
  * @author aron

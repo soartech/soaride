@@ -48,7 +48,6 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorPluginImages;
 import com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapSuperstateAttribute;
-import com.soartech.soar.ide.ui.views.explorer.SoarExplorerFullViewContentProvider.SoarFolderHeader;
 
 /**
  * The label provider for all the views in the plugin.
@@ -90,9 +89,6 @@ public class SoarLabelProvider extends LabelProvider implements
 		} else if (element instanceof ISoarFile) {
 			return SoarEditorPluginImages
 					.get(SoarEditorPluginImages.IMG_SOAR_FILE);
-		} else if (element instanceof SoarFolderHeader) {
-			return SoarEditorPluginImages
-					.get(SoarEditorPluginImages.IMG_PACKAGE_OBJ);
 		} else if (element instanceof ISoarProduction) {
 			return SoarEditorPluginImages
 					.get(SoarEditorPluginImages.IMG_PRODUCTION);
@@ -196,10 +192,6 @@ public class SoarLabelProvider extends LabelProvider implements
 			ISoarFileAgentProxy proxy = (ISoarFileAgentProxy) element;
 
 			return proxy.getAgent().getName();
-		} else if (element instanceof SoarFolderHeader) {
-			SoarFolderHeader header = (SoarFolderHeader) element;
-
-			return header.getLabel();
 		} else if (element instanceof ITclCommand) {
 			if (element instanceof ITclProcedure) {
 				ITclProcedure procedure = (ITclProcedure) element;

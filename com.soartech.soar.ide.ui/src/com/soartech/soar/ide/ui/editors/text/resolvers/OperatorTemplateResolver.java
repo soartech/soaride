@@ -8,7 +8,7 @@ import org.eclipse.jface.text.templates.TemplateContext;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.soartech.soar.ide.ui.editors.database.SoarDatabaseTextEditorConfiguration;
+import com.soartech.soar.ide.ui.editors.text.SoarDatabaseTextEditorConfiguration;
 
 public class OperatorTemplateResolver extends SimpleTemplateVariableResolver implements ISoarTemplateResolver {
 	SoarDatabaseTextEditorConfiguration configuration;

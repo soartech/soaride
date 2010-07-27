@@ -1,4 +1,4 @@
-package com.soartech.soar.ide.ui.editors.database;
+package com.soartech.soar.ide.ui.editors.text;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -26,7 +26,6 @@ import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseEditorInput;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
-import com.soartech.soar.ide.ui.editors.text.SoarPairMatcher;
 
 public class AbstractSoarDatabaseTextEditor extends TextEditor implements ISoarDatabaseTextEditor {
 

@@ -17,7 +17,7 @@
  *
  * 
  */
-package com.soartech.soar.ide.ui.editors.text;
+package com.soartech.soar.ide.ui.preferences;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;

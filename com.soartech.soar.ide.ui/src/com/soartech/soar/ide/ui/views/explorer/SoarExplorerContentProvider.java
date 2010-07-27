@@ -14,7 +14,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.actions.explorer.ChildProblemSpaceWrapper;
 import com.soartech.soar.ide.ui.views.itemdetail.SoarDatabaseItemContentProvider;
 
-public class SoarExplorerDatabaseContentProvider implements ITreeContentProvider {
+public class SoarExplorerContentProvider implements ITreeContentProvider {
 	
 	String filter = "";
 	String search = "";

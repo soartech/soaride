@@ -20,13 +20,13 @@
            id="com.soartech.soar.editor.editors.SoarEditor"
            name="Soar Editor"/>
      <editor
-           class="com.soartech.soar.ide.ui.editors.database.SoarDatabaseTextEditor"
-           id="com.soartech.soar.ide.ui.editors.database.SoarDatabaseTextEditor"
+           class="com.soartech.soar.ide.ui.editors.text.SoarDatabaseTextEditor"
+           id="com.soartech.soar.ide.ui.editors.text.SoarDatabaseTextEditor"
            icon="icons/soar_file_16.gif"
            name="Soar Database Text Editor"/>
      <editor
-           class="com.soartech.soar.ide.ui.editors.database.SoarDatabaseOperatorEditor"
-           id="com.soartech.soar.ide.ui.editors.database.SoarDatabaseOperatorEditor"
+           class="com.soartech.soar.ide.ui.editors.text.SoarDatabaseOperatorEditor"
+           id="com.soartech.soar.ide.ui.editors.text.SoarDatabaseOperatorEditor"
            icon="icons/soar_file_16.gif"
            name="Soar Database Operator Editor"/>
      <editor
@@ -96,36 +96,36 @@
            <separator name="soarMenuGroup"/>
         </menu>
         <action
-              class="com.soartech.soar.ide.ui.actions.SaveSoarDatabaseProjectActionDelegate"
-              id="com.soartech.soar.ide.ui.actions.SaveSoarDatabaseProjectActionDelegate"
+              class="com.soartech.soar.ide.ui.actions.soarmenu.SaveSoarDatabaseProjectActionDelegate"
+              id="com.soartech.soar.ide.ui.actions.soarmenu.SaveSoarDatabaseProjectActionDelegate"
               label="Save Project..."
               menubarPath="com.soartech.soar.ide.ui.soarMenu/project"
               style="push"
               tooltip="Save the current Soar project."/>
         <action
-              class="com.soartech.soar.ide.ui.actions.OpenSoarDatabaseProjectActionDelegate"
-              id="com.soartech.soar.ide.ui.actions.OpenSoarDatabaseProjectActionDelegate"
+              class="com.soartech.soar.ide.ui.actions.soarmenu.OpenSoarDatabaseProjectActionDelegate"
+              id="com.soartech.soar.ide.ui.actions.soarmenu.OpenSoarDatabaseProjectActionDelegate"
               label="Open Project..."
               menubarPath="com.soartech.soar.ide.ui.soarMenu/project"
               style="push"
               tooltip="Open an existing Soar project."/>
         <action
-              class="com.soartech.soar.ide.ui.actions.NewSoarProjectFromSourceActionDelegate"
-              id="com.soartech.soar.ide.ui.actions.NewSoarProjectFromSourceActionDelegate"
+              class="com.soartech.soar.ide.ui.actions.soarmenu.NewSoarProjectFromSourceActionDelegate"
+              id="com.soartech.soar.ide.ui.actions.soarmenu.NewSoarProjectFromSourceActionDelegate"
               label="New Project With Existing Source..."
               menubarPath="com.soartech.soar.ide.ui.soarMenu/project"
               style="push"
               tooltip="Creates a new Soar project using existing source code."/>
         <action
-              class="com.soartech.soar.ide.ui.actions.NewSoarProjectActionDelegate"
-              id="com.soartech.soar.ide.ui.actions.NewSoarProjectActionDelegate"
+              class="com.soartech.soar.ide.ui.actions.soarmenu.NewSoarProjectActionDelegate"
+              id="com.soartech.soar.ide.ui.actions.soarmenu.NewSoarProjectActionDelegate"
               label="New Project"
               menubarPath="com.soartech.soar.ide.ui.soarMenu/project"
               style="push"
               tooltip="Creates a new Soar project."/>
        <action
-             class="com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapsActionDelegate"
-             id="com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapsActionDelegate"
+             class="com.soartech.soar.ide.ui.actions.soarmenu.GenerateDatamapsActionDelegate"
+             id="com.soartech.soar.ide.ui.actions.soarmenu.GenerateDatamapsActionDelegate"
              label="Generate Datamaps"
               menubarPath="com.soartech.soar.ide.ui.soarMenu/agent"
               style="push"
@@ -159,8 +159,8 @@
               style="push"
               tooltip="Adds an Agent to the project."/>
         <action
-              class="com.soartech.soar.ide.ui.actions.SpawnSoarDebuggerActionDelegate"
-              id="com.soartech.soar.ide.ui.actions.SpawnSoarDebuggerActionDelegate"
+              class="com.soartech.soar.ide.ui.actions.soarmenu.SpawnSoarDebuggerActionDelegate"
+              id="com.soartech.soar.ide.ui.actions.soarmenu.SpawnSoarDebuggerActionDelegate"
               label="Spawn Debugger"
               menubarPath="com.soartech.soar.ide.ui.soarMenu/debugger"
               style="push"
@@ -171,17 +171,17 @@
 	<extension
         point="org.eclipse.ui.preferencePages">
      	<page
-            class="com.soartech.soar.ide.ui.editors.text.SoarEditorPreferencePage"
+            class="com.soartech.soar.ide.ui.preferences.SoarEditorPreferencePage"
             id="com.soartech.soar.ide.ui.preferencepage"
             name="Soar Editor"/>
         <page
            name="Templates"
-           class="com.soartech.soar.ide.ui.editors.text.SoarEditorTemplatesPreferencePage"
+           class="com.soartech.soar.ide.ui.preferences.SoarEditorTemplatesPreferencePage"
            id="com.soartech.soar.ide.ui.templatepreferencepage"
            category="com.soartech.soar.ide.ui.preferencepage"/>
         <page
            name="Syntax Coloring"
-           class="com.soartech.soar.ide.ui.editors.text.SoarEditorColoringPreferencePage"
+           class="com.soartech.soar.ide.ui.preferences.SoarEditorColoringPreferencePage"
            id="com.soartech.soar.ide.ui.coloringpreferencepage"
            category="com.soartech.soar.ide.ui.preferencepage"/>
   	</extension>

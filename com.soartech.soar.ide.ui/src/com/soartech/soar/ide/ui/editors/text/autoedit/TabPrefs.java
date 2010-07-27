@@ -27,7 +27,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.editors.text.EditorsUI;
 
-import com.soartech.soar.ide.ui.editors.text.SoarEditorPreferencePage;
+import com.soartech.soar.ide.ui.preferences.SoarEditorPreferencePage;
 
 /**
  * @author aron

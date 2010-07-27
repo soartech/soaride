@@ -17,43 +17,47 @@
  *
  * 
  */
-package com.soartech.soar.ide.ui;
+package com.soartech.soar.ide.ui.preferences;
 
-import java.util.ListResourceBundle;
+import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.texteditor.templates.TemplatePreferencePage;
+
+import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
+
 
 /**
- * <code>SoarEditorPluginResources</code> serves as the resource bundle for
- * the <code>SoarEditor</code>.
+ * <code>SoarEditorTemplatesPreferencePage</code> preference page for configuring
+ * templates.
  *
- * @author annmarie.steichmann@soartech.com
- * @version $Revision: 578 $ $Date: 2009-06-22 13:05:30 -0400 (Mon, 22 Jun 2009) $
+ * @author <a href="mailto:ttripp@soartech.com">Toby Tripp</a>
+ * @version $Revision$ <br />
+ *          $Date$
  */
-public class SoarEditorPluginResources
-    extends ListResourceBundle {
-    
-    // localized contents
-    static final Object[][] contents = {
-                {"ContentAssistProposal.label", "Content assist"},
-                {"ContentAssistProposal.tooltip", "Content assist"},
-                {"ContentAssistProposal.description", "Provides Content Assistance"}
-        };
+public class SoarEditorTemplatesPreferencePage
+   extends TemplatePreferencePage
+   implements IWorkbenchPreferencePage {
 
-    /**
-     * Constructor for a <code>SoarEditorPluginResources</code> object.
-     */
-    public SoarEditorPluginResources() {
+   /**
+    * Constructor for a <code>SoarEditorPreferencePage</code> object.
+    */
+   public SoarEditorTemplatesPreferencePage() {
+      setPreferenceStore( SoarEditorUIPlugin.getDefault()
+            .getPreferenceStore() );
+      setTemplateStore( SoarEditorUIPlugin.getDefault().getTemplateStore() );
+      setContextTypeRegistry( SoarEditorUIPlugin.getDefault()
+            .getContextTypeRegistry() );
+   }
 
-        super();
-    }
-
-    /* (non-Javadoc)
-     * @see java.util.ListResourceBundle#getContents()
-     */
-    @Override
-    protected Object[][] getContents() {
-        
-        // TODO read contents from a file
-        return contents;
-    }
+   protected boolean isShowFormatterSetting() {
+      return false;
+   }
+   
+   public boolean performOk() {
+      boolean ok= super.performOk();
+      
+      SoarEditorUIPlugin.getDefault().savePluginPreferences();
+      
+      return ok;
+   }
 
 }

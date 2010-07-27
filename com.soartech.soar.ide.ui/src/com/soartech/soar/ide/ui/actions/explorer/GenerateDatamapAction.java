@@ -1,4 +1,4 @@
-package com.soartech.soar.ide.ui.actions;
+package com.soartech.soar.ide.ui.actions.explorer;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,7 +15,6 @@ import org.eclipse.ui.dialogs.ListSelectionDialog;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.soartech.soar.ide.ui.actions.explorer.LinkDatamapRowsAction;
 import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.TraversalUtil;
 import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.Triple;
 import com.soartech.soar.ide.ui.editors.text.resolvers.ProblemSpaceTemplateResolver;

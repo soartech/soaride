@@ -1,4 +1,4 @@
-package com.soartech.soar.ide.ui.actions;
+package com.soartech.soar.ide.ui.actions.soarmenu;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -18,7 +18,7 @@ import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.soartech.soar.ide.ui.editors.text.SoarEditorPreferencePage;
+import com.soartech.soar.ide.ui.preferences.SoarEditorPreferencePage;
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerFilter;
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerView;
 

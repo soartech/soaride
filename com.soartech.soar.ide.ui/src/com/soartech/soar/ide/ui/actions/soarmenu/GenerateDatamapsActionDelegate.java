@@ -1,4 +1,4 @@
-package com.soartech.soar.ide.ui.actions.explorer;
+package com.soartech.soar.ide.ui.actions.soarmenu;
 
 import java.util.ArrayList;
 
@@ -17,7 +17,7 @@ import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
-import com.soartech.soar.ide.ui.actions.GenerateDatamapAction;
+import com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapAction;
 
 public class GenerateDatamapsActionDelegate implements IWorkbenchWindowActionDelegate {
 

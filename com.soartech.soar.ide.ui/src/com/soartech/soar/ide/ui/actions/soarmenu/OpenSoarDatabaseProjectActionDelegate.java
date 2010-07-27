@@ -1,4 +1,4 @@
-package com.soartech.soar.ide.ui.actions;
+package com.soartech.soar.ide.ui.actions.soarmenu;
 
 import java.io.File;
 

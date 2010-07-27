@@ -1,4 +1,4 @@
-package com.soartech.soar.ide.ui.actions;
+package com.soartech.soar.ide.ui.actions.soarmenu;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -24,7 +24,6 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseUtil;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.actions.explorer.GenerateAgentStructureActionDelegate;
-import com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapsActionDelegate;
 
 public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowActionDelegate {
 	

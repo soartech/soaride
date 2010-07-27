@@ -1,4 +1,4 @@
-package com.soartech.soar.ide.ui.views.explorer.DragAndDrop;
+package com.soartech.soar.ide.ui.actions.dragdrop;
 
 import java.util.ArrayList;
 import java.util.HashMap;

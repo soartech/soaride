@@ -6,7 +6,6 @@ import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 import org.eclipse.jface.text.templates.SimpleTemplateVariableResolver;
 import org.eclipse.jface.text.templates.TemplateContextType;
 
-import com.soartech.soar.ide.ui.editors.database.SoarDatabaseTextEditorConfiguration;
 import com.soartech.soar.ide.ui.editors.text.resolvers.AgentTemplateResolver;
 import com.soartech.soar.ide.ui.editors.text.resolvers.ISoarTemplateResolver;
 import com.soartech.soar.ide.ui.editors.text.resolvers.OperatorTemplateResolver;

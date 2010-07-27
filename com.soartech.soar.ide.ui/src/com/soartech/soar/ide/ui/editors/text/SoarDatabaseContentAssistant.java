@@ -1,4 +1,4 @@
-package com.soartech.soar.ide.ui.editors.database;
+package com.soartech.soar.ide.ui.editors.text;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,9 +27,6 @@ import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
-import com.soartech.soar.ide.ui.editors.text.SoarOperatorContext;
-import com.soartech.soar.ide.ui.editors.text.SoarInformationControlCreator;
-import com.soartech.soar.ide.ui.editors.text.SoarRuleContext;
 
 public class SoarDatabaseContentAssistant extends ContentAssistant {
 

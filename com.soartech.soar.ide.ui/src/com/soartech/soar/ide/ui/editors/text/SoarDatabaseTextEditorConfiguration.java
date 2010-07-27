@@ -1,4 +1,4 @@
-package com.soartech.soar.ide.ui.editors.database;
+package com.soartech.soar.ide.ui.editors.text;
 
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
@@ -11,7 +11,6 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
-import com.soartech.soar.ide.ui.editors.text.SoarRuleScanner;
 import com.soartech.soar.ide.ui.editors.text.autoedit.SoarAutoEditStrategy;
 
 public class SoarDatabaseTextEditorConfiguration extends

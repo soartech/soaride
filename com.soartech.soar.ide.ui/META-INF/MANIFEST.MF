@@ -27,6 +27,6 @@ Bundle-ClassPath: soareditor-ui.jar,
  lib/soar-debugger-api-9.3.0.jar
 Export-Package: com.soartech.soar.ide.ui,
  com.soartech.soar.ide.ui.editors.text,
- com.soartech.soar.ide.ui.editors.text.actions;x-friends:="com.soartech.soar.ide.ui.test",
+ com.soartech.soar.ide.ui.actions,
  com.soartech.soar.ide.ui.editors.text.rules,
  com.soartech.soar.ide.ui.perspectives

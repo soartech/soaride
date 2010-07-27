@@ -17,7 +17,7 @@
  *
  * 
  */
-package com.soartech.soar.ide.ui.editors.text;
+package com.soartech.soar.ide.ui.preferences;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,6 +58,8 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.editors.text.EditorsUI;
+
+import com.soartech.soar.ide.ui.editors.text.SyntaxColorManager;
 
 
 /**

@@ -1,13 +1,11 @@
-package com.soartech.soar.ide.ui.views.explorer.DragAndDrop;
+package com.soartech.soar.ide.ui.actions.dragdrop;
 
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
-import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
@@ -15,7 +13,7 @@ import org.eclipse.swt.widgets.Widget;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 
-public class SoarDatabaseExplorerDragAdapter implements DragSourceListener {
+public class SoarDatabaseDatamapDragAdapter implements DragSourceListener {
 
 	@Override
 	public void dragFinished(DragSourceEvent event) {
@@ -33,12 +31,14 @@ public class SoarDatabaseExplorerDragAdapter implements DragSourceListener {
 		TreeItem[] items = getSelectedItemsFromEvent(event);
 		for (TreeItem item : items) {
 			if (item.getData() instanceof SoarDatabaseRow) {
-				event.doit = true;
-				return;
+				if (((SoarDatabaseRow) item.getData()).getTable().isDatamapTable()) {
+					event.doit = true;
+					return;
+				}
 			}
 		}
 	}
-	
+
 	private ISelection getSelectionFromEvent(DragSourceEvent event) {
 		Widget widget = event.widget;
 		if (widget instanceof DragSource) {
@@ -65,5 +65,4 @@ public class SoarDatabaseExplorerDragAdapter implements DragSourceListener {
 		}
 		return new TreeItem[0];
 	}
-
 }

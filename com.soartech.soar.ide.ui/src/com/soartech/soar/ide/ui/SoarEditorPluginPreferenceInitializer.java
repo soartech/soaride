@@ -23,7 +23,7 @@ import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.editors.text.EditorsUI;
 
-import com.soartech.soar.ide.ui.editors.text.SoarEditorPreferencePage;
+import com.soartech.soar.ide.ui.preferences.SoarEditorPreferencePage;
 
 /**
  * When registered in plugin.xml, this class initializes the default 

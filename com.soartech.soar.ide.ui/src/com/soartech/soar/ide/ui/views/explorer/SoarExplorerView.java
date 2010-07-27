@@ -22,7 +22,6 @@ package com.soartech.soar.ide.ui.views.explorer;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
@@ -32,10 +31,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreePath;
@@ -48,21 +44,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchActionConstants;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.model.ISoarModel;
 import com.soartech.soar.ide.core.model.ISoarModelListener;
 import com.soartech.soar.ide.core.model.SoarModelEvent;
-import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseEventListener;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
@@ -70,16 +61,15 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.JoinType;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
-import com.soartech.soar.ide.ui.SoarUiModelTools;
-import com.soartech.soar.ide.ui.SoarUiTools;
-import com.soartech.soar.ide.ui.actions.GenerateDatamapAction;
+import com.soartech.soar.ide.ui.actions.dragdrop.SoarDatabaseExplorerDragAdapter;
+import com.soartech.soar.ide.ui.actions.dragdrop.SoarDatabaseExplorerDropAdapter;
 import com.soartech.soar.ide.ui.actions.explorer.AddAgentActionDelegate;
 import com.soartech.soar.ide.ui.actions.explorer.AddChildRowAction;
 import com.soartech.soar.ide.ui.actions.explorer.AddSubstateAction;
 import com.soartech.soar.ide.ui.actions.explorer.ChangeJoinTypeAction;
 import com.soartech.soar.ide.ui.actions.explorer.DeleteDatabaseRowAction;
 import com.soartech.soar.ide.ui.actions.explorer.ExportSoarDatabaseRowAction;
+import com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapAction;
 import com.soartech.soar.ide.ui.actions.explorer.ManageTagsAction;
 import com.soartech.soar.ide.ui.actions.explorer.MarkProblemSpaceRootAction;
 import com.soartech.soar.ide.ui.actions.explorer.OpenDatabaseRowInEditorAction;
@@ -87,8 +77,6 @@ import com.soartech.soar.ide.ui.actions.explorer.RemoveJoinFromParentAction;
 import com.soartech.soar.ide.ui.actions.explorer.RenameDatabaseRowAction;
 import com.soartech.soar.ide.ui.views.SoarDatabaseRowDoubleClickListener;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
-import com.soartech.soar.ide.ui.views.explorer.DragAndDrop.SoarDatabaseExplorerDragAdapter;
-import com.soartech.soar.ide.ui.views.explorer.DragAndDrop.SoarDatabaseExplorerDropAdapter;
 
 import edu.umich.soar.debugger.jmx.SoarCommandLineMXBean;
 
@@ -106,29 +94,9 @@ public class SoarExplorerView extends ViewPart
     
 	private TreeViewer tree;
 	
-	/**
-	 * A copy of the memento for the soar explorer. The memento persists
-	 * the state of the view's ui elements.
-	 */
-	private IMemento memento;
-	
-	/**
-	 * The content provider for the 'productions view' structure.
-	 */
-	private SoarExplorerProductionViewContentProvider productionViewContentProvider =
-		new SoarExplorerProductionViewContentProvider();
-    private ILabelProvider productionViewLabelProvider = SoarLabelProvider.createFullLabelProvider(null);
-	
-    /**
-	 * The content provider for the 'full view' structure.
-	 */
-	private SoarExplorerFullViewContentProvider fullViewContentProvider =
-		new SoarExplorerFullViewContentProvider();
-	private ILabelProvider fullViewLabelProvider = SoarLabelProvider.createFullLabelProvider(null);
-	
 	private ILabelProvider databaseLabelProvider = SoarLabelProvider.createFullLabelProvider(null);
 	
-	SoarExplorerDatabaseContentProvider contentProvider = new SoarExplorerDatabaseContentProvider();
+	SoarExplorerContentProvider contentProvider = new SoarExplorerContentProvider();
 	
 	/**
 	 * Constructor.
@@ -342,7 +310,6 @@ public class SoarExplorerView extends ViewPart
 	public void init(IViewSite site, IMemento memento) throws PartInitException 
 	{
 		super.init(site, memento);
-		this.memento = memento;
 	}
 
 	@Override
@@ -428,6 +395,7 @@ public class SoarExplorerView extends ViewPart
 	 * Switch the structure of the package explorer.
 	 *
 	 */
+	/*
 	public void switchViewStructure(boolean showFullView)
 	{
 		if(showFullView)
@@ -443,6 +411,7 @@ public class SoarExplorerView extends ViewPart
 
 		update();
 	}
+	*/
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.part.WorkbenchPart#setFocus()

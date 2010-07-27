@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package com.soartech.soar.ide.ui.editors.text.actions;
+package com.soartech.soar.ide.ui.actions;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;

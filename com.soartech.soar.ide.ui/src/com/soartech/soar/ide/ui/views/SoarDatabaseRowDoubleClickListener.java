@@ -3,24 +3,30 @@ package com.soartech.soar.ide.ui.views;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
-
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
-import com.soartech.soar.ide.ui.SoarUiTools;
 
 public class SoarDatabaseRowDoubleClickListener implements IDoubleClickListener {
 
 	@Override
 	public void doubleClick(DoubleClickEvent event) {
-		ISoarDatabaseTreeItem item = SoarUiTools.getValueFromSelection(event.getSelection(), ISoarDatabaseTreeItem.class);
-		if (item == null) {
+		ISelection selection = event.getSelection();
+		if (!(selection instanceof IStructuredSelection)) {
 			return;
 		}
+		IStructuredSelection ss = (IStructuredSelection) selection;
+		Object obj = ss.getFirstElement();
+		if (!(obj instanceof ISoarDatabaseTreeItem)) {
+			return;
+		}
+		ISoarDatabaseTreeItem item = (ISoarDatabaseTreeItem) obj;
 		
 		if (item instanceof SoarDatabaseRow) {
 	        IWorkbench workbench = SoarEditorUIPlugin.getDefault().getWorkbench();

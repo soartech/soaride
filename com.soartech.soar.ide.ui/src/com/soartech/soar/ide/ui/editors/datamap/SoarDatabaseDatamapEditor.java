@@ -40,8 +40,8 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
 import com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.soartech.soar.ide.ui.editors.database.dragdrop.SoarDatabaseDatamapDragAdapter;
-import com.soartech.soar.ide.ui.editors.database.dragdrop.SoarDatabaseDatamapDropAdapter;
+import com.soartech.soar.ide.ui.actions.dragdrop.SoarDatabaseDatamapDragAdapter;
+import com.soartech.soar.ide.ui.actions.dragdrop.SoarDatabaseDatamapDropAdapter;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
 import com.soartech.soar.ide.ui.views.search.SoarDatabaseSearchResultsView;
 

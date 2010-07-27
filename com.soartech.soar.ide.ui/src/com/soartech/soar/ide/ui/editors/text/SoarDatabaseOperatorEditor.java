@@ -1,4 +1,4 @@
-package com.soartech.soar.ide.ui.editors.database;
+package com.soartech.soar.ide.ui.editors.text;
 
 import java.util.ArrayList;
 import java.util.HashMap;

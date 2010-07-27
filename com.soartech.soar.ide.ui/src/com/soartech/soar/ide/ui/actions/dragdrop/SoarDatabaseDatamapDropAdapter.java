@@ -1,4 +1,4 @@
-package com.soartech.soar.ide.ui.editors.database.dragdrop;
+package com.soartech.soar.ide.ui.actions.dragdrop;
 
 import java.util.ArrayList;
 
