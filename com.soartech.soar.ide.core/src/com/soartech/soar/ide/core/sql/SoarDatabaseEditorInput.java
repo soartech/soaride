@@ -8,7 +8,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.IStorageEditorInput;
 
-import com.soartech.soar.ide.core.model.SoarProblem;
+import com.soartech.soar.ide.core.SoarProblem;
 
 public class SoarDatabaseEditorInput implements IStorageEditorInput {
 	
