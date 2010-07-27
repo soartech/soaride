@@ -1,7 +1,6 @@
 package com.soartech.soar.ide.core.sql;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 

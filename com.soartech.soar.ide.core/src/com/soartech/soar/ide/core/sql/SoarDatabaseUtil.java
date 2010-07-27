@@ -34,7 +34,7 @@ public class SoarDatabaseUtil {
 		files.add(firstFile);
 
 		// This is the list of files that have been read, to avoid recursive souce commands.
-		ArrayList<File> readFiles = new ArrayList<File>();
+		//ArrayList<File> readFiles = new ArrayList<File>();
 		
 		// The list of lines to add to the agent.
 		ArrayList<String> agentCommands = new ArrayList<String>();
@@ -53,7 +53,7 @@ public class SoarDatabaseUtil {
 				char c;
 
 				// The previous character
-				char last = ' ';
+				//char last = ' ';
 
 				StringBuffer buffer = new StringBuffer();
 
@@ -126,7 +126,7 @@ public class SoarDatabaseUtil {
 						String[] tokens = line.split("\\s"); // "\s" for whitespace
 
 						if (tokens.length > 0) {
-							boolean consumed = true;
+							//boolean consumed = true;
 							if (tokens[0].equalsIgnoreCase("pushd") && tokens.length > 1) {
 								directoryStack.add(tokens[1]);
 							} else if (tokens[0].equalsIgnoreCase("popd")) {
@@ -144,7 +144,7 @@ public class SoarDatabaseUtil {
 					if (error != null) {
 						alertError(error, file.getName(), lineNumber);
 					}
-					last = c;
+					//last = c;
 				}
 				reader.close();
 			} catch (FileNotFoundException e) {
@@ -260,10 +260,8 @@ public class SoarDatabaseUtil {
 		StringBuffer buff = new StringBuffer();
 		try {
 			DatabaseMetaData md = conn.getConnectionMetadata();
-			ResultSet tables = md.getTables(null, null, "%", null); // return
-																	// all
-																	// tables
-			String[] tableColumns = { "TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "TABLE_TYPE", "REMARKS", "TYPE_CAT", "TYPE_SCHEM", "TYPE_NAME", "SELF_REFERENCING_COL_NAME", "REF_GENERATION" };
+			ResultSet tables = md.getTables(null, null, "%", null); // return all tables
+			//String[] tableColumns = { "TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "TABLE_TYPE", "REMARKS", "TYPE_CAT", "TYPE_SCHEM", "TYPE_NAME", "SELF_REFERENCING_COL_NAME", "REF_GENERATION" };
 			while (tables.next()) {
 				if (debug)
 					System.out.println("\n***NEW TABLE***\n");

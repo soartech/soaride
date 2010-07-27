@@ -1,7 +1,5 @@
 package com.soartech.soar.ide.core.sql;
 
-import java.util.HashSet;
-
 public class SoarDatabaseEvent {
 	
 	public enum Type {
