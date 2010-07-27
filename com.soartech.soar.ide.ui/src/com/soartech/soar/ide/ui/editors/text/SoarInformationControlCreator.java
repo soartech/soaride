@@ -32,8 +32,8 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.soartech.soar.editor.docs.SoarDocs;
 import com.soartech.soar.ide.core.SoarCorePlugin;
+import com.soartech.soar.ide.core.SoarDocs;
 
 /**
  * <code>SoarInformationControlCreator</code> displays additional information

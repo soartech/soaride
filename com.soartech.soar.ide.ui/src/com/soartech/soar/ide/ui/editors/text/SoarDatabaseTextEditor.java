@@ -8,7 +8,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
 import org.eclipse.ui.IEditorInput;
 
-import com.soartech.soar.ide.core.model.SoarProblem;
+import com.soartech.soar.ide.core.SoarProblem;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseEventListener;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 
-import com.soartech.soar.ide.core.model.SoarProblem;
+import com.soartech.soar.ide.core.SoarProblem;
 
 public class SoarDatabaseTextAnnotationHover implements IAnnotationHover {
 	
