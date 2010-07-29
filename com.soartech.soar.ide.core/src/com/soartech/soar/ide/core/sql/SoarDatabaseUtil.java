@@ -261,15 +261,15 @@ public class SoarDatabaseUtil {
 		try {
 			DatabaseMetaData md = conn.getConnectionMetadata();
 			ResultSet tables = md.getTables(null, null, "%", null); // return all tables
-			//String[] tableColumns = { "TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "TABLE_TYPE", "REMARKS", "TYPE_CAT", "TYPE_SCHEM", "TYPE_NAME", "SELF_REFERENCING_COL_NAME", "REF_GENERATION" };
+			String[] tableColumns = { "TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "TABLE_TYPE", "REMARKS", "TYPE_CAT", "TYPE_SCHEM", "TYPE_NAME", "SELF_REFERENCING_COL_NAME", "REF_GENERATION" };
 			while (tables.next()) {
 				if (debug)
 					System.out.println("\n***NEW TABLE***\n");
-				/*
-				 * for (String tableColumn : tableColumns) { String value =
-				 * tables.getString(tableColumn); System.out.println(tableColumn
-				 * + ": " + value); }
-				 */
+				
+				  for (String tableColumn : tableColumns) { String value =
+				  tables.getString(tableColumn); System.out.println(tableColumn
+				  + ": " + value); }
+				 
 
 				String tableName = tables.getString("TABLE_NAME");
 				String tableType = tables.getString("TABLE_TYPE");

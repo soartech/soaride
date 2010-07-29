@@ -2,6 +2,7 @@ package com.soartech.soar.ide.core.sql;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -316,6 +317,24 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		ps.setString(1, name);
 		ps.setInt(2, id);
 		ps.execute();
+	}
+	
+	public String getComment() {
+		if (!(table.isDatamapTable())) {
+			return null;
+		}
+		return (String) getColumnValue("comment_text");
+	}
+	
+	public void setComment(String comment) {
+		if (!(table.isDatamapTable())) {
+			return;
+		}
+		StatementWrapper sw = db.prepareStatement("update " + table.tableName() + " set comment_text=? where id=?");
+		sw.setRow(this);
+		sw.setString(1, comment);
+		sw.setInt(2, getID());
+		sw.execute();
 	}
 	
 	/**
@@ -701,6 +720,24 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			}
 		}
 		return ret;
+	}
+	
+	/**
+	 * Sets the non-joined parent of this row.
+	 * @param parent
+	 */
+	public void setParentRow(SoarDatabaseRow parent) {
+
+		// Make sure the parent is of an appropriate type. 
+		if (!getParentTables().contains(parent.getTable())) {
+			return;
+		}
+		
+		String sql = "update " + table.tableName() + " set " + parent.getTable().idName() + "=? where id=?";
+		StatementWrapper sw = db.prepareStatement(sql);
+		sw.setInt(1, parent.id);
+		sw.setInt(2, this.id);
+		sw.execute();
 	}
 	
 	public boolean hasParents() {

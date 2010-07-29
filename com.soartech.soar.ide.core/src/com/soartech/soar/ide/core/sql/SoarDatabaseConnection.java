@@ -27,6 +27,9 @@ public class SoarDatabaseConnection {
 	private boolean supressEvents = false;
 	private String currentPath;
 	
+	private boolean firingEvent = false;
+	private ArrayList<ISoarDatabaseEventListener> toRemove = new ArrayList<ISoarDatabaseEventListener>();
+	
 	public SoarDatabaseConnection() {
 		this(":memory:");
 	}
@@ -64,14 +67,24 @@ public class SoarDatabaseConnection {
 	}
 	
 	public void removeListener(ISoarDatabaseEventListener listener) {
-		listeners.remove(listener);
+		if (!firingEvent) {
+			listeners.remove(listener);
+		} else {
+			toRemove.add(listener);
+		}
 	}
 
 	public void fireEvent(SoarDatabaseEvent event) {
 		if (!supressEvents) {
+			firingEvent = true;
 			for (ISoarDatabaseEventListener listener : listeners) {
 				listener.onEvent(event, this);
 			}
+			firingEvent = false;
+			for (ISoarDatabaseEventListener listener : toRemove) {
+				listeners.remove(listener);
+			}
+			toRemove.clear();
 		}
 	}
 	
@@ -185,16 +198,7 @@ public class SoarDatabaseConnection {
 				if ((char) c == '\n') {
 					write = false;
 				}
-
-				/*
-				 * System.out.println("c: " + (char)c);
-				 * System.out.println("Write: " + write);
-				 * System.out.println("singleLineComment: " +
-				 * singleLineComment); System.out.println("multiLineComment: " +
-				 * multiLineComment); System.out.println("command: " +
-				 * builder.toString()); System.out.println();
-				 */
-
+				
 				if (singleLineComment || multiLineComment) {
 					write = false;
 				}
@@ -209,6 +213,17 @@ public class SoarDatabaseConnection {
 				}
 
 				if (execute) {
+					
+					// debug
+					
+					  System.out.println("c: " + (char)c);
+					  System.out.println("Write: " + write);
+					  System.out.println("singleLineComment: " +
+					  singleLineComment); System.out.println("multiLineComment: " +
+					  multiLineComment); System.out.println("command: " +
+					  builder.toString()); System.out.println();
+					
+					
 					String command = builder.toString();
 					builder = new StringBuilder();
 					execute(command);
@@ -218,7 +233,6 @@ public class SoarDatabaseConnection {
 				lookahead = reader.read();
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

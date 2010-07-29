@@ -170,8 +170,8 @@ public class SoarCorePlugin extends Plugin {
 
 	public void saveDatabaseAs(String path) {
 		String dump = SoarDatabaseUtil.sqlDump(databaseConnection);
-		//System.out.println("**************************DUMP");
-		//System.out.println(dump);
+		System.out.println("**************************DUMP");
+		System.out.println(dump);
 		
 		String[] commands = dump.split(";");
 		

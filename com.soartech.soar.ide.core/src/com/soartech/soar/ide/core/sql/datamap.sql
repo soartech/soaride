@@ -33,46 +33,48 @@ create table if not exists datamap_identifiers
 id integer primary key,
 name varchar(100),
 -- for root datamap nodes:
-problem_space_id integer
+problem_space_id integer,
+comment_text varchar(100)
 );
 
 create table if not exists datamap_enumerations
 (
 id integer primary key,
-name varchar(100)
-/*datamap_identifier_id integer*/
+name varchar(100),
+comment_text varchar(100)
 );
 
 create table if not exists datamap_enumeration_values
 (
 id integer primary key,
 name varchar(100),
-datamap_enumeration_id integer
+datamap_enumeration_id integer,
+comment_text varchar(100)
 );
 
 create table if not exists datamap_integers
 (
 id integer primary key,
 name varchar(100),
-/*datamap_identifier_id integer,*/
 min_value integer,
-max_value integer
+max_value integer,
+comment_text varchar(100)
 );
 
 create table if not exists datamap_floats
 (
 id integer primary key,
 name varchar(100),
-/*datamap_identifier_id integer,*/
 min_value float,
-max_value float
+max_value float,
+comment_text varchar(100)
 );
 
 create table if not exists datamap_strings
 (
 id integer primary key,
-name varchar(100)
-/*datamap_identifier_id integer*/
+name varchar(100),
+comment_text varchar(100)
 );
 
 -- Directed join tables:
