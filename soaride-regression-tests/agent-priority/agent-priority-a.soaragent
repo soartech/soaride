@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<soaragent sourceCommandChangesDirectory="false">
-  <startfile path="load-a.soar" />
-  <members>
-    <member path="load-a.soar" />
-    <member path="load.soar" />
-  </members>
-</soaragent>
-

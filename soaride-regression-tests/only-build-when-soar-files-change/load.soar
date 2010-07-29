@@ -1,5 +1,0 @@
-
-# Change 0 to 1 here
-if { 0 } {
-    after 5000
-}

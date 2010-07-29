@@ -1,4 +1,0 @@
-
-# The dont_source_file macro should not report an error if the file
-# does not exist
-dont_source_file non-existant-file.soar

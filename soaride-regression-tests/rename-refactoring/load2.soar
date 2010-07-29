@@ -1,7 +1,0 @@
-##!
-# @file
-#
-# @created ray 20071128
-
-source subfolder/a.soar
-source "a.soar"
