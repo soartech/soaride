@@ -2,6 +2,7 @@ package com.soartech.soar.ide.ui.editors.datamap;
 
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
@@ -15,6 +16,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -24,6 +26,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
@@ -50,7 +53,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 	public static final String ID = "com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor";
 
 	private SoarDatabaseRow proplemSpaceRow;
-	private SoarDatabaseRow selectedRow;
+	private IStructuredSelection selectedRows;
 	private TreeViewer tree;
 	private Composite parent;
 
@@ -91,12 +94,25 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 	@Override
 	public void createPartControl(Composite parent) {
 		this.parent = parent;
-		tree = new TreeViewer(parent, SWT.NONE);
+		tree = new TreeViewer(parent, SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		tree.getTree().setHeaderVisible(true);
+		tree.getTree().setLinesVisible(true);
+        
+		TreeColumn leftColumn = new TreeColumn(tree.getTree(), SWT.NONE);
 		
+		leftColumn.setWidth(500);
+		leftColumn.setResizable(true);
+		leftColumn.setText("Datamap Nodes");
+		
+		TreeColumn rightColumn = new TreeColumn(tree.getTree(), SWT.NONE);
+		rightColumn.setWidth(200);
+		rightColumn.setResizable(true);
+		rightColumn.setText("Comments");
+				
         getSite().setSelectionProvider(tree);
 
 		tree.setContentProvider(new SoarDatabaseDatamapContentProvider());
-		tree.setLabelProvider(SoarLabelProvider.createFullLabelProvider());
+		tree.setLabelProvider(new SoarDatabaseDatamapLabelProvider());
 		tree.setInput(proplemSpaceRow);
 		
 		tree.getControl().addKeyListener(new org.eclipse.swt.events.KeyListener() {
@@ -120,11 +136,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 			public void selectionChanged(SelectionChangedEvent event) {
 				ISelection selection = event.getSelection();
 				if (selection instanceof IStructuredSelection) {
-					IStructuredSelection ss = (IStructuredSelection) selection;
-					Object first = ss.getFirstElement();
-					if (first instanceof SoarDatabaseRow) {
-						selectedRow = (SoarDatabaseRow) first;
-					}
+					selectedRows = (IStructuredSelection) selection;
 				}
 			}
 		});
@@ -212,9 +224,19 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 								deleteSelectedItem(true);
 							}
 						});
+						
+						manager.add(new Action("Edit Comment") {
+							@Override
+							public void run() {
+								Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+								InputDialog dialog = new InputDialog(shell, "Edit Comment", null, row.getComment(), null);
+								dialog.open();
+								String comment = dialog.getValue();
+								row.setComment(comment);
+							}
+						});
 
-						ArrayList<EditableColumn> editableColumns = row
-								.getEditableColumns();
+						ArrayList<EditableColumn> editableColumns = row.getEditableColumns();
 						for (final EditableColumn column : editableColumns) {
 							manager.add(new Action("Edit \"" + column.getName() + "\"") {
 								@Override
@@ -329,8 +351,8 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 		Menu menu = manager.createContextMenu(tree.getTree());
 		tree.getTree().setMenu(menu);
 		
-		tree.addDragSupport(DND.DROP_MOVE, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseDatamapDragAdapter());
-        tree.addDropSupport(DND.DROP_MOVE, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseDatamapDropAdapter(tree));
+		tree.addDragSupport(DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseDatamapDragAdapter());
+        tree.addDropSupport(DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseDatamapDropAdapter(tree));
         SoarCorePlugin.getDefault().getDatabaseConnection().addListener(this);
 	}
 
@@ -339,14 +361,19 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 	}
 	
 	private void deleteSelectedItem(boolean confirmFirst) {
-		
-		if (selectedRow == null) {
+
+		if (selectedRows == null || selectedRows.size() == 0) {
 			return;
 		}
-		
+
 		// Make sure that isn't the root node
-		ArrayList<SoarDatabaseRow> parents = selectedRow.getParents();
-		for (SoarDatabaseRow row : parents) {
+		for (Iterator<?> it = selectedRows.iterator(); it.hasNext();) {
+			Object obj = it.next();
+			if (!(obj instanceof SoarDatabaseRow))
+				continue;
+			SoarDatabaseRow selectedRow = (SoarDatabaseRow) obj;
+			ArrayList<SoarDatabaseRow> parents = selectedRow.getParents();
+			for (SoarDatabaseRow row : parents) {
 				if (row.getTable() == Table.PROBLEM_SPACES) {
 					// This is a root node
 					// don't allow deletion
@@ -354,44 +381,43 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 					String title = "Cannot delete root node";
 					org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
 					String message = "Cannot delete root node.";
-					String[] labels = new String[] {"OK"};
+					String[] labels = new String[] { "OK" };
 					MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.ERROR, labels, 0);
 					dialog.open();
 					return;
+				}
 			}
-		}
-		
-		if (confirmFirst) {
-			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-			String title = "Delete item?";
-			org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
-			String message = "Are you sure you want to delete \"" + selectedRow.getName() + "\"?\nThis action cannot be undone.";
-			String[] labels = new String[] {"OK", "Cancel"};
-			MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
-			int result = dialog.open();
-			if (result == 1) {
-				return;
-			}
-		}
 
-		// Delete the row
-		SoarDatabaseRow rowToDelete = selectedRow;
-		
-		// TODO
-		// select the next item
-		/*
-		ISelection sel = tree.getSelection();
-		if (sel instanceof StructuredSelection) {
-			StructuredSelection ss = (StructuredSelection) sel;
-			tree.
+			if (confirmFirst) {
+				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+				String title = "Delete item?";
+				org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
+				String message = "Are you sure you want to delete \"" + selectedRow.getName() + "\"?\nThis action cannot be undone.";
+				String[] labels = new String[] { "OK", "Cancel" };
+				MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
+				int result = dialog.open();
+				if (result == 1) {
+					return;
+				}
+			}
+
+			// Delete the row
+			SoarDatabaseRow rowToDelete = selectedRow;
+
+			// TODO
+			// select the next item
+			/*
+			 * ISelection sel = tree.getSelection(); if (sel instanceof
+			 * StructuredSelection) { StructuredSelection ss =
+			 * (StructuredSelection) sel; tree. }
+			 */
+
+			boolean eventsWereSupressed = rowToDelete.getDatabaseConnection().getSupressEvents();
+			rowToDelete.getDatabaseConnection().setSupressEvents(true);
+			rowToDelete.deleteAllChildren(true);
+			rowToDelete.getDatabaseConnection().setSupressEvents(eventsWereSupressed);
 		}
-		*/
-		
-		boolean eventsWereSupressed = rowToDelete.getDatabaseConnection().getSupressEvents();
-		rowToDelete.getDatabaseConnection().setSupressEvents(true);
-		rowToDelete.deleteAllChildren(true);
-		rowToDelete.getDatabaseConnection().setSupressEvents(eventsWereSupressed);
-		selectedRow = null;
+		selectedRows = null;
 		refreshTree();
 	}
 

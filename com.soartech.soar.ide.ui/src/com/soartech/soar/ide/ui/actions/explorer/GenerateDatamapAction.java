@@ -75,31 +75,38 @@ class Correction {
 				currentRow = createJoinedChildIfNotExists(currentRow, Table.DATAMAP_FLOATS, triple.attribute);
 				editMinMaxValues(currentRow, triple);
 			} else if (triple.valueIsString()) {
-				ArrayList<ISoarDatabaseTreeItem> enumerations = currentRow.getDirectedJoinedChildrenOfType(Table.DATAMAP_ENUMERATIONS, false, false);
-				SoarDatabaseRow enumeration = null;
-				for (ISoarDatabaseTreeItem enumItem : enumerations) {
-					SoarDatabaseRow enumRow = (SoarDatabaseRow) enumItem;
-					if (enumRow.getName() == triple.value) {
-						enumeration = enumRow;
-						break;
+				if (triple.value.equals(Triple.STRING_VALUE)) {
+					currentRow = createJoinedChildIfNotExists(currentRow, Table.DATAMAP_STRINGS, triple.attribute);
+				} else {
+					ArrayList<ISoarDatabaseTreeItem> enumerations = currentRow.getDirectedJoinedChildrenOfType(Table.DATAMAP_ENUMERATIONS, false, false);
+					SoarDatabaseRow enumeration = null;
+					for (ISoarDatabaseTreeItem enumItem : enumerations) {
+						SoarDatabaseRow enumRow = (SoarDatabaseRow) enumItem;
+						if (enumRow.getName() == triple.value) {
+							enumeration = enumRow;
+							break;
+						}
 					}
-				}
 
-				if (enumeration == null) {
-					enumeration = createJoinedChildIfNotExists(currentRow, Table.DATAMAP_ENUMERATIONS, triple.attribute);
-				}
-				ArrayList<SoarDatabaseRow> enumValues = enumeration.getChildrenOfType(Table.DATAMAP_ENUMERATION_VALUES);
-				boolean hasValue = false;
-				for (SoarDatabaseRow valueRow : enumValues) {
-					if (valueRow.getName() == triple.value) {
-						hasValue = true;
-						break;
+					if (enumeration == null) {
+						enumeration = createJoinedChildIfNotExists(currentRow, Table.DATAMAP_ENUMERATIONS, triple.attribute);
 					}
+					ArrayList<SoarDatabaseRow> enumValues = enumeration.getChildrenOfType(Table.DATAMAP_ENUMERATION_VALUES);
+					boolean hasValue = false;
+					for (SoarDatabaseRow valueRow : enumValues) {
+						if (valueRow.getName() == triple.value) {
+							hasValue = true;
+							break;
+						}
+					}
+					if (!hasValue) {
+						enumeration.createChild(Table.DATAMAP_ENUMERATION_VALUES, triple.value);
+					}
+					currentRow = enumeration;
 				}
-				if (!hasValue) {
-					enumeration.createChild(Table.DATAMAP_ENUMERATION_VALUES, triple.value);
-				}
-				currentRow = enumeration;
+			}
+			if (triple.comment != null) {
+				currentRow.setComment(triple.comment);
 			}
 		}
 		tail = currentRow;
@@ -239,8 +246,13 @@ public class GenerateDatamapAction extends Action {
 			allTriples.addAll(triples);
 		}
 		
+		runWithProblemSpaceForTriples(problemSpace, allTriples, applyAll);
+	}
+	
+	public static void runWithProblemSpaceForTriples(SoarDatabaseRow problemSpace, ArrayList<Triple> triples, boolean applyAll) {
+		
 		// Get all terminal paths.
-		ArrayList<TerminalPath> paths = terminalPathsForTriples(allTriples);
+		ArrayList<TerminalPath> paths = terminalPathsForTriples(triples);
 		
 		// TODO debug
 		/*
@@ -336,6 +348,7 @@ public class GenerateDatamapAction extends Action {
 		
 		Object[] result = corrections.toArray();
 		if (!applyAll) {
+			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 			ListSelectionDialog dialog = new ListSelectionDialog(shell, result, new ArrayContentProvider(), new LabelProvider(), "Select which corrections to apply to the existing datamap.");
 			dialog.setTitle("Select corrections to apply.");
 			dialog.setInitialSelections(corrections.toArray());
@@ -389,7 +402,7 @@ public class GenerateDatamapAction extends Action {
 		}
 	}
 	
-	private ArrayList<TerminalPath> terminalPathsForTriples(ArrayList<Triple> triples) {
+	private static ArrayList<TerminalPath> terminalPathsForTriples(ArrayList<Triple> triples) {
 		ArrayList<TerminalPath> ret = new ArrayList<TerminalPath>();
 		HashSet<String> usedVariables = new HashSet<String>();
 		
@@ -478,7 +491,7 @@ public class GenerateDatamapAction extends Action {
 		return ret;
 	}
 
-	private boolean pathsAreRedundant(ArrayList<Triple> path, ArrayList<Triple> retPath) {
+	private static boolean pathsAreRedundant(ArrayList<Triple> path, ArrayList<Triple> retPath) {
 		int len = Math.min(path.size(), retPath.size());
 		for (int i = 0; i < len; ++i) {
 			if (!path.get(i).equals(retPath.get(i))) {
@@ -488,7 +501,7 @@ public class GenerateDatamapAction extends Action {
 		return true;
 	}
 
-	private void addVariablesToHashSet(ArrayList<Triple> triples, HashSet<String> variables) {
+	private static void addVariablesToHashSet(ArrayList<Triple> triples, HashSet<String> variables) {
 		for (Triple triple : triples) {
 			variables.add(triple.variable);
 		}
@@ -500,7 +513,7 @@ public class GenerateDatamapAction extends Action {
 	 * @param retPath
 	 * @return True if the two paths diverge and than converge again.
 	 */
-	private boolean pathCollidesWithPath(ArrayList<Triple> path, ArrayList<Triple> retPath) {
+	private static boolean pathCollidesWithPath(ArrayList<Triple> path, ArrayList<Triple> retPath) {
 		int index = 0;
 		for ( ; index < path.size() - 1; ++index) {
 			if (index >= retPath.size()) {
@@ -533,7 +546,7 @@ public class GenerateDatamapAction extends Action {
 		return false;
 	}
 	
-	private Triple pathLoopsIntoPath(ArrayList<Triple> path, ArrayList<Triple> retPath) {
+	private static Triple pathLoopsIntoPath(ArrayList<Triple> path, ArrayList<Triple> retPath) {
 		Triple last = path.get(path.size() - 1);
 		if (!last.valueIsVariable()) return null;
 		for (int i = 0; i < retPath.size(); ++i) {

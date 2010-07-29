@@ -31,7 +31,7 @@ public class SoarDatabaseDatamapDragAdapter implements DragSourceListener {
 		TreeItem[] items = getSelectedItemsFromEvent(event);
 		for (TreeItem item : items) {
 			if (item.getData() instanceof SoarDatabaseRow) {
-				if (((SoarDatabaseRow) item.getData()).getTable().isDatamapTable()) {
+				if (((SoarDatabaseRow) item.getData()).isDatamapNode()) {
 					event.doit = true;
 					return;
 				}

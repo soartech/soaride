@@ -7,6 +7,7 @@ import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPage;
@@ -93,7 +94,19 @@ public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEvent
 	        tree.setInput(input);
 		}
 		
-		tree.refresh();
+		Runnable runnable = new Runnable() {
+			  
+			  @Override public void run() {
+
+			try {
+				tree.refresh();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			  } };
+			  
+			  Display.findDisplay(Thread.currentThread()).asyncExec(runnable);
 		/*
 		TreePath[] paths = tree.getExpandedTreePaths();
 		Object input = tree.getInput();

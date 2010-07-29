@@ -69,7 +69,7 @@ public class SoarEditorPluginImages {
     public static final String IMG_FUNCTION = NAME_PREFIX + "function.ico";
     public static final String IMG_VARIABLE = NAME_PREFIX + "variable.ico";
     public static final String IMG_TCL_VARIABLE = NAME_PREFIX + "tcl-variable.ico";
-    public static final String IMG_SOAR = NAME_PREFIX + "soar.gif";
+    
     public static final String IMG_CLEAR = NAME_PREFIX + "clear.gif";
     public static final String IMG_COMMAND_OUTLINE = NAME_PREFIX + "command-outline.ico";
     public static final String IMG_PRODUCTION = NAME_PREFIX + "production.gif";
@@ -84,7 +84,7 @@ public class SoarEditorPluginImages {
     public static final String IMG_PACKAGE_OBJ = NAME_PREFIX + "package_obj.gif";
     public static final String IMG_ATTRIBUTE = NAME_PREFIX + "attribute.gif";
     public static final String IMG_ALPHAB_SORT = NAME_PREFIX + "alphab_sort_co.gif";
-    public static final String IMG_SOAR_FILE = NAME_PREFIX + "soar_file_16.gif";
+
     public static final String IMG_START_FILE_OVERLAY = NAME_PREFIX + "startfileoverlay.gif";
     public static final String IMG_ERROR_OVERLAY = NAME_PREFIX + "error_co.gif";
     public static final String IMG_WARNING_OVERLAY = NAME_PREFIX + "warning_co.gif";
@@ -102,6 +102,8 @@ public class SoarEditorPluginImages {
     public static final String IMG_INTEGER = NAME_PREFIX + "integer.gif";
     public static final String IMG_ENUMERATION = NAME_PREFIX + "enumeration.gif";
     public static final String IMG_ENUMERATION_VALUE = NAME_PREFIX + "enumeration_value.gif";
+    public static final String IMG_PROBLEM_SPACE = NAME_PREFIX + "problem_space.gif";
+    public static final String IMG_RULE = NAME_PREFIX + "rule.gif";
     
     /**
      * Returns the image managed under the given key in this registry.
@@ -125,7 +127,6 @@ public class SoarEditorPluginImages {
         registerImage(registry, IMG_FUNCTION);
         registerImage(registry, IMG_VARIABLE);
         registerImage(registry, IMG_TCL_VARIABLE);
-        registerImage(registry, IMG_SOAR);
         registerImage(registry, IMG_COMMAND_OUTLINE);
         registerImage(registry, IMG_PRODUCTION);
         registerImage(registry, IMG_PROCEDURE);
@@ -139,7 +140,6 @@ public class SoarEditorPluginImages {
         registerImage(registry, IMG_PACKAGE_OBJ);
         registerImage(registry, IMG_ATTRIBUTE);
         registerImage(registry, IMG_ALPHAB_SORT);
-        registerImage(registry, IMG_SOAR_FILE);
         registerImage(registry, IMG_ERROR_OVERLAY);
         registerImage(registry, IMG_WARNING_OVERLAY);
         registerImage(registry, IMG_START_FILE_OVERLAY);
@@ -157,6 +157,8 @@ public class SoarEditorPluginImages {
         registerImage(registry, IMG_INTEGER);
         registerImage(registry, IMG_ENUMERATION);
         registerImage(registry, IMG_ENUMERATION_VALUE);
+        registerImage(registry, IMG_PROBLEM_SPACE);
+        registerImage(registry, IMG_RULE);
     }
     
     /**

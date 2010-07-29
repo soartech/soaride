@@ -31,10 +31,10 @@ public class SaveSoarDatabaseProjectActionDelegate implements IWorkbenchWindowAc
 
 		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
 		dialog.setText("Save Soar Project As...");
-		dialog.open();
-		String path = dialog.getFileName();
+		String path = dialog.open();
 		
 		File saveFile = new File(path);
+		
 		boolean save = true;
 		if (saveFile.exists()) {
 			save = false;

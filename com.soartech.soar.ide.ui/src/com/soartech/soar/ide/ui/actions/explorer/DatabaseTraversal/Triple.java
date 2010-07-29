@@ -12,6 +12,8 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public class Triple {
 	
+	public final static String STRING_VALUE = "@string"; 
+	
 	// This is a String that begins with '<' and ends with '>'.
 	public String variable;
 
@@ -41,6 +43,9 @@ public class Triple {
     public ArrayList<Triple> childTriples;
     
     private ArrayList<ArrayList<Triple>> attributePaths = null;
+    
+    // Set by GenerateDatamapFromVisualSoarFileAction.run() when reading from Visual Soar datamaps
+    public String comment; 
 
 	public Triple(String variable, String attribute, String value, SoarDatabaseRow rule) {
 		this.variable = variable;

@@ -67,6 +67,7 @@ import com.soartech.soar.ide.ui.actions.explorer.ChangeJoinTypeAction;
 import com.soartech.soar.ide.ui.actions.explorer.DeleteDatabaseRowAction;
 import com.soartech.soar.ide.ui.actions.explorer.ExportSoarDatabaseRowAction;
 import com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapAction;
+import com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapFromVisualSoarFileAction;
 import com.soartech.soar.ide.ui.actions.explorer.ManageTagsAction;
 import com.soartech.soar.ide.ui.actions.explorer.MarkProblemSpaceRootAction;
 import com.soartech.soar.ide.ui.actions.explorer.OpenDatabaseRowInEditorAction;
@@ -204,6 +205,7 @@ public class SoarExplorerView extends ViewPart
 			
 			//ret.add(new GenerateDatamapAction(row));
 			manager.add(new GenerateDatamapAction(row, false));
+			manager.add(new GenerateDatamapFromVisualSoarFileAction(row));
 		}
 		if (table == Table.OPERATORS) {
 			manager.add(new AddChildRowAction(row, Table.RULES, row, tree, true));

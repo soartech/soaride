@@ -73,10 +73,10 @@ public class SoarLabelProvider extends LabelProvider implements
 						.get(SoarEditorPluginImages.IMG_AGENT);
 			} else if (table == Table.RULES) {
 				return SoarEditorPluginImages
-						.get(SoarEditorPluginImages.IMG_SOAR_FILE);
+						.get(SoarEditorPluginImages.IMG_RULE);
 			} else if (table == Table.PROBLEM_SPACES) {
 				return SoarEditorPluginImages
-						.get(SoarEditorPluginImages.IMG_SOAR);
+						.get(SoarEditorPluginImages.IMG_PROBLEM_SPACE);
 			} else if (table == Table.OPERATORS) {
 				return SoarEditorPluginImages
 						.get(SoarEditorPluginImages.IMG_OPERATOR);
