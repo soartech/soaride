@@ -86,7 +86,7 @@ public class SoarEditorPluginImages {
     public static final String IMG_ALPHAB_SORT = NAME_PREFIX + "alphab_sort_co.gif";
 
     public static final String IMG_START_FILE_OVERLAY = NAME_PREFIX + "startfileoverlay.gif";
-    public static final String IMG_ERROR_OVERLAY = NAME_PREFIX + "error_co.gif";
+    public static final String IMG_ERROR_OVERLAY = NAME_PREFIX + "error.gif";
     public static final String IMG_WARNING_OVERLAY = NAME_PREFIX + "warning_co.gif";
     public static final String IMG_HORIZONTAL_ORIENTATION = NAME_PREFIX + "th_horizontal.gif";
     public static final String IMG_VERTICAL_ORIENTATION = NAME_PREFIX + "th_vertical.gif";
