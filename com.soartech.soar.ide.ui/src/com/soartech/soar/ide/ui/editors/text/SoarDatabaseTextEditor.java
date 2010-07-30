@@ -17,7 +17,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 
 public class SoarDatabaseTextEditor extends AbstractSoarDatabaseTextEditor implements ISoarDatabaseTextEditor, ISoarDatabaseEventListener {
 
-	public static final String ID = "com.soartech.soar.ide.ui.editors.database.SoarDatabaseTextEditor";
+	public static final String ID = "com.soartech.soar.ide.ui.editors.text.SoarDatabaseTextEditor";
 	
 	@Override
 	public void doSave(IProgressMonitor progressMonitor) {

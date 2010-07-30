@@ -27,6 +27,7 @@ import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
+import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.TraversalUtil;
 
 public class SoarDatabaseContentAssistant extends ContentAssistant {
 
@@ -113,7 +114,8 @@ class SoarDatabaseCompletionProcessor extends TemplateCompletionProcessor {
 		ArrayList<String> proposalsList = new ArrayList<String>(proposals);
 		Collections.sort(proposalsList);
 		for (String proposal : proposalsList) {
-			if (proposal.startsWith(currentWord)) {
+			if (proposal.startsWith(currentWord)
+					&& !proposal.equals(currentWord)) {
 				String replacementString = proposal;
 				int replacementOffset = lastWhitespace;
 				int replacementLength = currentWord.length();
@@ -124,12 +126,15 @@ class SoarDatabaseCompletionProcessor extends TemplateCompletionProcessor {
 		}
 		
 		ICompletionProposal[] thisRet = list.toArray(new ICompletionProposal[]{});
-		ICompletionProposal[] superRet = super.computeCompletionProposals(viewer, offset);
-		
-		ICompletionProposal[] ret = new ICompletionProposal[thisRet.length + superRet.length];
-		System.arraycopy(thisRet, 0, ret, 0, thisRet.length);
-		System.arraycopy(superRet, 0, ret, thisRet.length, superRet.length);
-		return ret;
+		if (cursorText.length() == 0
+				|| cursorText.charAt(cursorText.length() - 1) == '\n') {
+			ICompletionProposal[] superRet = super.computeCompletionProposals(viewer, offset);
+			ICompletionProposal[] ret = new ICompletionProposal[thisRet.length + superRet.length];
+			System.arraycopy(thisRet, 0, ret, 0, thisRet.length);
+			System.arraycopy(superRet, 0, ret, thisRet.length, superRet.length);
+			return ret;
+		}
+		return thisRet;
     }
 
     public static class ProposalInfo implements Comparable<ProposalInfo>
@@ -195,7 +200,7 @@ class SoarDatabaseCompletionProcessor extends TemplateCompletionProcessor {
     private ArrayList<String> findDatamapAttributes(SoarDatabaseRow row) {
     	ArrayList<String> ret = new ArrayList<String>();
     	
-    	ArrayList<ISoarDatabaseTreeItem> problemSpaces = row.getJoinedRowsFromTable(Table.PROBLEM_SPACES);
+    	ArrayList<ISoarDatabaseTreeItem> problemSpaces = TraversalUtil.getRelatedProblemSpaces(row);
     	
     	HashSet<Table> datamapAttributeTypes = new HashSet<Table>();
     	datamapAttributeTypes.add(Table.DATAMAP_ENUMERATIONS);

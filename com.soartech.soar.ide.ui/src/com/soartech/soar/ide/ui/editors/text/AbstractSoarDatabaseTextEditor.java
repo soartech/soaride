@@ -2,6 +2,8 @@ package com.soartech.soar.ide.ui.editors.text;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.ListResourceBundle;
+import java.util.ResourceBundle;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.Action;
@@ -99,7 +101,13 @@ public class AbstractSoarDatabaseTextEditor extends TextEditor implements ISoarD
         
         // content assist action
         final String actionName = "ContentAssistProposal";
-        Action action = new ContentAssistAction(null, actionName, this);
+        ListResourceBundle bundle = new ListResourceBundle() {
+			@Override
+			protected Object[][] getContents() {
+				return new Object[][] {};
+			}
+        };
+        Action action = new ContentAssistAction(bundle, actionName, this);
         String id = ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS;
         action.setActionDefinitionId(id);
         action.setEnabled(true);

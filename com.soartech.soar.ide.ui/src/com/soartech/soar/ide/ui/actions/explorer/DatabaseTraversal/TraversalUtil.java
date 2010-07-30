@@ -443,6 +443,30 @@ public class TraversalUtil {
 		
 		return ret;
 	}
+	
+	/**
+	 * Gets problem spaces related to the given row.
+	 * For operators, those are parent problem spaces.
+	 * Fo rules, those are parent problem spaces and problem spaces related to parent operators.
+	 * @param row
+	 * @return
+	 */
+	public static ArrayList<ISoarDatabaseTreeItem> getRelatedProblemSpaces(SoarDatabaseRow row) {
+		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
+		
+		Table table = row.getTable();
+		if (table == Table.OPERATORS) {
+			ret.addAll(row.getDirectedJoinedParentsOfType(Table.PROBLEM_SPACES));
+		}
+		else if (table == Table.RULES) {
+			ret.addAll(row.getDirectedJoinedParentsOfType(Table.PROBLEM_SPACES));
+			for (ISoarDatabaseTreeItem opItem : row.getDirectedJoinedParentsOfType(Table.OPERATORS)) {
+				ret.addAll(((SoarDatabaseRow)opItem).getDirectedJoinedParentsOfType(Table.PROBLEM_SPACES));
+			}
+		}
+		
+		return ret;
+	}
 
 	public static HashMap<String, SoarDatabaseRow> getProblemSpacesMap(SoarDatabaseRow agent) {
 		return getSoarDatabaseRowMap(agent, Table.PROBLEM_SPACES);

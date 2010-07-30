@@ -22,7 +22,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public class SoarDatabaseOperatorEditor extends AbstractSoarDatabaseTextEditor implements ISoarDatabaseTextEditor, ISoarDatabaseEventListener {
 
-	public static final String ID = "com.soartech.soar.ide.ui.editors.database.SoarDatabaseOperatorEditor";
+	public static final String ID = "com.soartech.soar.ide.ui.editors.text.SoarDatabaseOperatorEditor";
 	
 	@Override
 	public void doSave(IProgressMonitor progressMonitor) {
@@ -39,61 +39,16 @@ public class SoarDatabaseOperatorEditor extends AbstractSoarDatabaseTextEditor i
 				}
 			}
 			
-			// replace only text inside braces
 			IDocument doc = getDocumentProvider().getDocument(input);
-			Pattern regex = Pattern.compile("sp \\{([^\\}]*)\\}");
-			Matcher matcher = regex.matcher(doc.get());
-			boolean hasRule = false;
-			while (matcher.find()) {
-				hasRule = true;
-				String match = matcher.group();
-				String matchBody = matcher.group(1);
-				int nameBeginIndex = match.indexOf('{') + 1;
-				int nameEndIndex1 = match.indexOf('(');
-				int nameEndIndex2 = match.indexOf("-->");
-				int nameEndIndex3 = match.indexOf('}');
-				if (nameEndIndex1 == -1) nameEndIndex1 = Integer.MAX_VALUE;
-				if (nameEndIndex2 == -1) nameEndIndex2 = Integer.MAX_VALUE;
-				if (nameEndIndex3 == -1) nameEndIndex3 = Integer.MAX_VALUE; // shouldn't happen with matching regex
-				int nameEndIndex = Math.min(nameEndIndex1, Math.min(nameEndIndex2, nameEndIndex3));
-				String ruleName = match.substring(nameBeginIndex, nameEndIndex).trim();
-				
-				// TODO debug
-				//System.out.println("Match:\n" + ruleName);
-				//System.out.println("match body: " + matchBody);
-
+			ArrayList<String> rulesText = getRulesFromOperator(doc.get());
+			for (String ruleText : rulesText) {
+				String ruleName = getNameOfRules(ruleText);
 				SoarDatabaseRow rule = rulesByName.get(ruleName);
 				if (rule == null) {
 					rule = operator.getTopLevelRow().createChild(Table.RULES, ruleName);
-					SoarDatabaseRow.joinRows(operator, rule, operator.getDatabaseConnection());
+					SoarDatabaseRow.directedJoinRows(operator, rule, operator.getDatabaseConnection());
 				}
-				String ruleText = rule.getText();
-				StringBuffer newRuleText = new StringBuffer();
-				Matcher ruleMatcher = regex.matcher(ruleText);
-				int lastIndex = 0;
-				boolean matched = false;
-				while (ruleMatcher.find()) {
-					matched = true;
-					int matchStart = ruleMatcher.start();
-					newRuleText.append(ruleText.substring(lastIndex, matchStart));
-					newRuleText.append("sp {");
-					newRuleText.append(matchBody);
-					newRuleText.append("}");
-					lastIndex = ruleMatcher.end();
-				}
-				newRuleText.append(ruleText.substring(lastIndex));
-
-				if (!matched) {
-					newRuleText.append("sp {");
-					newRuleText.append(matchBody);
-					newRuleText.append("}");
-				}
-
-				// TODO debug
-				// System.out.println("New Rule Body:\n" +
-				// newRuleText.toString());
-
-				rule.save(newRuleText.toString(), input);
+				rule.save(ruleText, input);
 			}
 			
 			input.clearProblems();
@@ -107,10 +62,93 @@ public class SoarDatabaseOperatorEditor extends AbstractSoarDatabaseTextEditor i
 				addAnnotation(annotation, position);
 			}
 			getVerticalRuler().update();
+			/*
 			if (!hasRule) {
 				this.doRevertToSaved();
 			}
+			*/
 		}
+	}
+	
+	private ArrayList<String> getRulesFromOperator(String doc) {
+		ArrayList<String> ret = new ArrayList<String>();
+		int braceDepth = 0;
+		StringBuffer buff = new StringBuffer();
+		boolean string = false;
+		boolean comment = false;
+		for (char c : doc.toCharArray()) {
+			buff.append(c);
+			if (comment && c == '\n') comment = false;
+			if (!string && c == '#') comment = true;
+			if (!comment && c == '|') string = !string;
+			if (comment) continue;
+			if (c == '{') ++braceDepth;
+			if (c == '}') --braceDepth;
+			if (c < 0) c = 0;
+			if (c == '}' && braceDepth == 0) {
+				ret.add(buff.toString().trim());
+				buff = new StringBuffer();
+			}
+		}
+		return ret;
+	}
+	
+	private String getBodyOfRule(String rule) {
+		int start = rule.indexOf('{');
+		int end = rule.lastIndexOf('}');
+		if (start == -1 || end == -1 || end < start) return "";
+		return rule.substring(start, end + 1);
+	}
+	
+	private String getNameOfRules(String rule) {
+		int nameBeginIndex = rule.indexOf('{') + 1;
+		int nameEndIndex1 = rule.indexOf('(');
+		int nameEndIndex2 = rule.indexOf("-->");
+		int nameEndIndex3 = rule.lastIndexOf('}');
+		if (nameEndIndex1 == -1)
+			nameEndIndex1 = Integer.MAX_VALUE;
+		if (nameEndIndex2 == -1)
+			nameEndIndex2 = Integer.MAX_VALUE;
+		if (nameEndIndex3 == -1)
+			nameEndIndex3 = Integer.MAX_VALUE; // shouldn't happen with matching regex
+		int nameEndIndex = Math.min(nameEndIndex1, Math.min(nameEndIndex2, nameEndIndex3));
+		String ruleName = rule.substring(nameBeginIndex, nameEndIndex).trim();
+		return ruleName;
+	}
+	
+	private String replaceRuleBodiesWithBody(String oldRule, String newBody) {
+		StringBuffer buff = new StringBuffer();
+		int index = 0;
+		boolean added = false;
+		
+		buildBuffer:
+		while (true) {
+			int startIndex = oldRule.indexOf('{', index);
+			if (startIndex == -1) {
+				buff.append(oldRule.substring(index));
+				break buildBuffer;
+			}
+			int endIndex = 0;
+			int braceDepth = 1;
+			
+			findBody:
+			for ( ; endIndex < oldRule.length(); ++endIndex) {
+				char c = oldRule.charAt(endIndex);
+				if (c == '{') ++braceDepth;
+				if (c == '}') --braceDepth;
+				if (braceDepth == 0) {
+					break findBody;
+				}
+			}
+			buff.append(oldRule.subSequence(index, startIndex));
+			buff.append(newBody);
+			added = true;
+			index = endIndex;
+		}
+		if (!added) {
+			buff.append("sp " + newBody);
+		}
+		return buff.toString();
 	}
 	
 	@Override
