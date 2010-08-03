@@ -2216,102 +2216,99 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			// <hacky>
 			boolean error = false;
 			String trimmed = text.trim();
-			int beginIndex = 0;
-			int endIndex = 0;
-			if (!trimmed.startsWith("sp")) {
-				error = true;
-			} else {
-				beginIndex = text.indexOf("sp") + 2;
-				trimmed = text.substring(beginIndex).trim();
-				if (!trimmed.startsWith("{")) {
+			if (trimmed.length() > 0) {
+				int beginIndex = 0;
+				int endIndex = 0;
+				if (!trimmed.startsWith("sp")
+						&& !trimmed.startsWith("gp")) {
 					error = true;
 				} else {
-					beginIndex = text.indexOf("{", beginIndex) + 1;
+					beginIndex = text.indexOf("sp") + 2;
+					if (beginIndex == 1) beginIndex = text.indexOf("gp") + 2;
 					trimmed = text.substring(beginIndex).trim();
-					if (!trimmed.endsWith("}")) {
+					if (!trimmed.startsWith("{")) {
 						error = true;
 					} else {
-						endIndex = text.lastIndexOf("}");
+						beginIndex = text.indexOf("{", beginIndex) + 1;
+						trimmed = text.substring(beginIndex).trim();
+						if (!trimmed.endsWith("}")) {
+							error = true;
+						} else {
+							endIndex = text.lastIndexOf("}");
+						}
 					}
 				}
-			}
-			// </hacky>
+				// </hacky>
 
-			if (!error) {
-				// Parse the rule into an AST.
-				String parseText = text.substring(beginIndex, endIndex);
-				StringReader reader = new StringReader(parseText);
-				SoarParser parser = new SoarParser(reader);
-				try {
-					SoarProductionAst ast = parser.soarProduction();
-					//System.out.println("Parsed rule:\n" + ast);
-
-					// insert into database
-					boolean eventsWereSupresssed = db.getSupressEvents();
-					db.setSupressEvents(true);
-					deleteAllChildren(false);
+				if (!error) {
+					// Parse the rule into an AST.
+					String parseText = text.substring(beginIndex, endIndex);
+					StringReader reader = new StringReader(parseText);
+					SoarParser parser = new SoarParser(reader);
 					try {
-						createChildrenFromAstNode(ast);
-					} catch (Exception e) {
+						SoarProductionAst ast = parser.soarProduction();
+						// System.out.println("Parsed rule:\n" + ast);
+
+						// insert into database
+						boolean eventsWereSupresssed = db.getSupressEvents();
+						db.setSupressEvents(true);
+						deleteAllChildren(false);
+						try {
+							createChildrenFromAstNode(ast);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						db.setSupressEvents(eventsWereSupresssed);
+						db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED, this));
+					} catch (ParseException e) {
+						// e.printStackTrace();
+						String message = e.getLocalizedMessage();
+						Token currentToken = e.currentToken;
+						Token errorToken = currentToken.next;
+
+						// Get the range of the error, based on the string
+						// being parsed and the given column and row
+						int start = 0;
+						for (int i = 1; i < errorToken.beginLine;) {
+							char c = parseText.charAt(start);
+							if (c == '\n') {
+								++i;
+							}
+							++start;
+						}
+
+						start += beginIndex;
+						// -1 for columns counting starting with 1
+						start += errorToken.beginColumn - 1;
+
+						int length = 2; // (errorToken.endOffset -
+										// errorToken.beginOffset) + 1;
+						if (input != null) {
+							input.addProblem(SoarProblem.createError(message, start, length));
+						}
+					} catch (TokenMgrError e) {
 						e.printStackTrace();
+						/*
+						 * String message = e.getLocalizedMessage();
+						 * 
+						 * // Get the range of the error, based on the string //
+						 * being parsed and the given column and row int start =
+						 * 0; for (int i = 1; i < e.getErrorLine();) { char c =
+						 * parseText.charAt(start); if (c == '\n') { ++i; }
+						 * ++start; }
+						 * 
+						 * start += beginIndex; // -1 for columns counting
+						 * starting with 1 start += e.getErrorColumn() - 1;
+						 * 
+						 * int length = 2; // (errorToken.endOffset - //
+						 * errorToken.beginOffset) + 1; if (input != null) {
+						 * input.addProblem(SoarProblem.createError(message,
+						 * start, length)); }
+						 */
 					}
-					db.setSupressEvents(eventsWereSupresssed);
-					db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED, this));
-				} catch (ParseException e) {
-					// e.printStackTrace();
-					String message = e.getLocalizedMessage();
-					Token currentToken = e.currentToken;
-					Token errorToken = currentToken.next;
-
-					// Get the range of the error, based on the string
-					// being parsed and the given column and row
-					int start = 0;
-					for (int i = 1; i < errorToken.beginLine;) {
-						char c = parseText.charAt(start);
-						if (c == '\n') {
-							++i;
-						}
-						++start;
-					}
-
-					start += beginIndex;
-					// -1 for columns counting starting with 1
-					start += errorToken.beginColumn - 1;
-
-					int length = 2; // (errorToken.endOffset -
-									// errorToken.beginOffset) + 1;
-					if (input != null) {
-						input.addProblem(SoarProblem.createError(message, start, length));
-					}
-				} catch (TokenMgrError e) {
-					e.printStackTrace();
-					/*
-					String message = e.getLocalizedMessage();
-
-					// Get the range of the error, based on the string
-					// being parsed and the given column and row
-					int start = 0;
-					for (int i = 1; i < e.getErrorLine();) {
-						char c = parseText.charAt(start);
-						if (c == '\n') {
-							++i;
-						}
-						++start;
-					}
-
-					start += beginIndex;
-					// -1 for columns counting starting with 1
-					start += e.getErrorColumn() - 1;
-
-					int length = 2; // (errorToken.endOffset -
-									// errorToken.beginOffset) + 1;
-					if (input != null) {
-						input.addProblem(SoarProblem.createError(message, start, length));
-					}
-					*/
+				} else {
+					System.out.println("Production doesn't begin with \"sp {\" or doesn't end with \"}\"");
 				}
-			} else {
-				System.out.println("Production doesn't begin with \"sp {\" or doesn't end with \"}\"");
 			}
 		} else if (table == Table.AGENTS) {
 			// Update raw text.

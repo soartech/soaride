@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -40,93 +41,48 @@ public class SoarDatabaseUtil {
 		ArrayList<String> agentCommands = new ArrayList<String>();
 
 		for (int filesIndex = 0; filesIndex < files.size(); ++filesIndex) {
+			String error = null;
 			try {
 				File file = files.get(filesIndex);
 				//System.out.println(file.getPath());
 
-				FileReader reader = new FileReader(file);
+				//FileReader reader = new FileReader(file);
 				String basePath = file.getPath();
 				int lastSlashIndex = basePath.lastIndexOf(File.separatorChar);
 				basePath = basePath.substring(0, lastSlashIndex);
 
-				// The current character
-				char c;
-
 				// The previous character
 				//char last = ' ';
-
-				StringBuffer buffer = new StringBuffer();
-
+				
 				int bracesDepth = 0;
-
-				boolean insideProduction = false;
-				boolean comment = false;
-				int lineNumber = 1;
-				String error;
-				int i = 0;
-
-				while ((i = reader.read()) != -1) {
-					
-					c = (char) i;
-					buffer.append(c);
+				int lineNumber = 0;
+				
+				Scanner scan = new Scanner(file);
+				//String bracePattern = "[^}]*}";
+				ArrayList<String> lines = new ArrayList<String>();
+				while (scan.hasNextLine()) {
+					String line = scan.nextLine();
 					error = null;
+					++lineNumber;
+					boolean closed = false;
+					for (char c : line.toCharArray()) {
+						if (c == '{') ++bracesDepth;
+						if (c == '}') {
+							--bracesDepth;
+							closed = true;
+						}
+					}
 					
-					// System.out.print(c);
-
-					if (c == '\n') {
-						++lineNumber;
+					if (bracesDepth < 0) {
+						error = "Too many closed braces";
 					}
-					if (c == '#') {
-						comment = true;
-					}
-					if (comment) {
-						if (c == '\n') {
-							comment = false;
-						}
-						continue;
-					}
-
-					// look for rules
-
-					if (c == '{') {
-						// If we're not reading a rule, see if the last
-						// characters in the buffer
-						// are like "sp {"
-						if (!insideProduction && bracesDepth == 0) {
-							String lastBuffer = buffer.substring(0, buffer.length() - 1).trim();
-							if (lastBuffer.endsWith("sp")) {
-								insideProduction = true;
-							}
-						}
-
-						++bracesDepth;
-					}
-					if (c == '}') {
-						--bracesDepth;
-
-						if (bracesDepth < 0) {
-							error = "Too many closed braces";
-						}
-						if (bracesDepth == 0 && insideProduction) {
-							insideProduction = false;
-							SoarDatabaseRow newRow = importRule(buffer.toString().trim(), agent);
-							ret.add(newRow);
-							buffer = new StringBuffer();
-							if (monitor != null) {
-								monitor.subTask("Imported rule: " + newRow.getName());
-							}
-						}
-					}
-
-					// look for other commands
-					// pushd, popd, source
-					// These are newline-delimited
-					if (bracesDepth == 0 && c == '\n') {
-						String line = buffer.toString().trim();
+					
+					if (bracesDepth == 0 && !closed) {
 						String[] tokens = line.split("\\s"); // "\s" for whitespace
-
+						// look for other commands
+						// pushd, popd, source
 						if (tokens.length > 0) {
-							//boolean consumed = true;
+							// boolean consumed = true;
 							if (tokens[0].equalsIgnoreCase("pushd") && tokens.length > 1) {
 								directoryStack.add(tokens[1]);
 							} else if (tokens[0].equalsIgnoreCase("popd")) {
@@ -134,25 +90,46 @@ public class SoarDatabaseUtil {
 							} else if (tokens[0].equalsIgnoreCase("source") && tokens.length > 1) {
 								File newFile = fileForFilename(basePath, tokens[1], directoryStack);
 								files.add(newFile);
+							} else if (tokens[0].startsWith("#")){
+								// Comment -- add to rule
+								lines.add(line);
 							} else {
-								agentCommands.add(buffer.toString());
+								// Soar command -- add to agent
+								agentCommands.add(line);
 							}
-							buffer = new StringBuffer();
 						}
+					} else {
+						lines.add(line);
+					}
+					
+					if (bracesDepth == 0 && closed) {
+						StringBuffer buffer = new StringBuffer();
+						for (String bufferLine : lines) {
+							buffer.append(bufferLine + '\n');
+						}
+						SoarDatabaseRow newRow = importRule(buffer.toString().trim(), agent);
+						ret.add(newRow);
+						if (monitor != null) {
+							monitor.subTask("Imported rule: " + newRow.getName());
+						}
+						lines = new ArrayList<String>();
 					}
 
 					if (error != null) {
 						alertError(error, file.getName(), lineNumber);
+						error = null;
 					}
-					//last = c;
 				}
-				reader.close();
+				// Read the rest of the scanner
+				// There are no rules left, so just stick this into the agent
+				while (scan.hasNextLine()) {
+					String line = scan.nextLine();
+					agentCommands.add(line);
+				}
+				scan.close();
 			} catch (FileNotFoundException e) {
 				//e.printStackTrace();
-				System.out.println("FILENOTFOUND");
-			} catch (IOException e) {
-				//e.printStackTrace();
-				System.out.println("FILENOTFOUND");
+				error = "File not found: " + files.get(filesIndex).getPath();
 			}
 		}
 		

@@ -28,7 +28,7 @@ public class SoarDatabaseRowStorage implements IStorage {
 		if (rowTable == Table.RULES || rowTable == Table.AGENTS) {
 			return new ByteArrayInputStream(row.getText().getBytes());
 		}
-		else if (rowTable == Table.OPERATORS) {
+		else if (rowTable == Table.OPERATORS || rowTable == Table.TAGS) {
 			StringBuffer buff = new StringBuffer();
 			ArrayList<ISoarDatabaseTreeItem> rules = row.getJoinedRowsFromTable(Table.RULES);
 			for (ISoarDatabaseTreeItem item : rules) {

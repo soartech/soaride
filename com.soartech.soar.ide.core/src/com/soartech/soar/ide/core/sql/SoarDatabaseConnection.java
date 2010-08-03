@@ -215,14 +215,14 @@ public class SoarDatabaseConnection {
 				if (execute) {
 					
 					// debug
-					
+					/*
 					  System.out.println("c: " + (char)c);
 					  System.out.println("Write: " + write);
 					  System.out.println("singleLineComment: " +
 					  singleLineComment); System.out.println("multiLineComment: " +
 					  multiLineComment); System.out.println("command: " +
 					  builder.toString()); System.out.println();
-					
+					*/
 					
 					String command = builder.toString();
 					builder = new StringBuilder();
