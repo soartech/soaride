@@ -4,7 +4,7 @@
    <extension point="org.eclipse.ui.perspectives">
    		<perspective
            class="com.soartech.soar.ide.ui.perspectives.SoarPerspective"
-           icon="icons/soar.gif"
+           icon="icons/soar-perspective.gif"
            id="com.soartech.soar.ide.ui.perspectives.SoarPerspective"
            name="Soar">
     	</perspective>
