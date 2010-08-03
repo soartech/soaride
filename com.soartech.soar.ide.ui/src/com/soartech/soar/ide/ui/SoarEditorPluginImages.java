@@ -55,8 +55,7 @@ public class SoarEditorPluginImages {
         {
             //get the file path to where the plugin is installed
             baseIconURL = new URL(
-                  Platform.getBundle(SoarEditorUIPlugin.PLUGIN_ID).getEntry("/"),
-                  "icons/");
+                  Platform.getBundle(SoarEditorUIPlugin.PLUGIN_ID).getEntry("/"),"icons/");
         } catch (MalformedURLException e) 
         {
             System.out.print("Malformed URL");

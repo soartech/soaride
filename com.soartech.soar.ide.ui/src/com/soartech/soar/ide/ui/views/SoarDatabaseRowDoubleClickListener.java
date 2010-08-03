@@ -57,6 +57,12 @@ public class SoarDatabaseRowDoubleClickListener implements IDoubleClickListener 
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
+			} else if (selectedTable == Table.TAGS) {
+				try {
+					SoarUiModelTools.showTagInEditor(page, selectedRow);
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

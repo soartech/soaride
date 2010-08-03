@@ -27,9 +27,9 @@ public class OperatorTemplateResolver extends SimpleTemplateVariableResolver imp
 			if (row.getTable() == Table.OPERATORS) {
 				return row.getName();
 			}
-			ArrayList<ISoarDatabaseTreeItem> items = row.getJoinedRowsFromTable(Table.OPERATORS);
+			ArrayList<SoarDatabaseRow> items = row.getDirectedJoinedParentsOfType(Table.OPERATORS);
 			if (items.size() == 1) {
-				SoarDatabaseRow operator = (SoarDatabaseRow) items.get(0);
+				SoarDatabaseRow operator = items.get(0);
 				return operator.getName();
 			}
 		}

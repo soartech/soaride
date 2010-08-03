@@ -27,21 +27,23 @@ public class ProblemSpaceTemplateResolver extends SimpleTemplateVariableResolver
 
 		if (configuration != null) {
 			SoarDatabaseRow row = configuration.getRow();
-			ArrayList<ISoarDatabaseTreeItem> items = row.getJoinedRowsFromTable(Table.PROBLEM_SPACES);
-			if (items.size() == 1) {
-				SoarDatabaseRow problemSpace = (SoarDatabaseRow) items.get(0);
-				return problemSpace.getName();
-			}
-			if (row.getTable() == Table.RULES) {
-				ArrayList<ISoarDatabaseTreeItem> operators = row.getJoinedRowsFromTable(Table.OPERATORS);
+			Table rowTable = row.getTable();
+			if (rowTable == Table.RULES) {
+				ArrayList<SoarDatabaseRow> operators = row.getDirectedJoinedParentsOfType(Table.OPERATORS);
 				if (operators.size() == 1) {
 					SoarDatabaseRow operator = (SoarDatabaseRow) operators.get(0);
-					items = operator.getJoinedRowsFromTable(Table.PROBLEM_SPACES);
+					ArrayList<SoarDatabaseRow> items = operator.getDirectedJoinedParentsOfType(Table.PROBLEM_SPACES);
 					if (items.size() == 1) {
 						SoarDatabaseRow problemSpace = (SoarDatabaseRow) items.get(0);
 						return problemSpace.getName();
 					}
 				}
+			} else if (rowTable == Table.OPERATORS) {
+				ArrayList<SoarDatabaseRow> items = row.getDirectedJoinedParentsOfType(Table.PROBLEM_SPACES);
+				if (items.size() == 1) {
+					SoarDatabaseRow problemSpace = items.get(0);
+					return problemSpace.getName();
+				}			
 			}
 		}
 		return null;

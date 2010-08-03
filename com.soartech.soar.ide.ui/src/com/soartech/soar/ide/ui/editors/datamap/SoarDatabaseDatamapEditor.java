@@ -372,6 +372,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 			if (!(obj instanceof SoarDatabaseRow))
 				continue;
 			SoarDatabaseRow selectedRow = (SoarDatabaseRow) obj;
+			if (!selectedRow.exists()) continue;
 			ArrayList<SoarDatabaseRow> parents = selectedRow.getParents();
 			for (SoarDatabaseRow row : parents) {
 				if (row.getTable() == Table.PROBLEM_SPACES) {

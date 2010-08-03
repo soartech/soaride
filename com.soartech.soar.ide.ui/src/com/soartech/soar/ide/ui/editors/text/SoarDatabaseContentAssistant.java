@@ -290,7 +290,8 @@ class SoarDatabaseCompletionProcessor extends TemplateCompletionProcessor {
 				((SoarRuleContext) context).setConfiguration(configuration);
 			}
 			return context;
-		} else if (configurationTable == Table.OPERATORS) {
+		} else if (configurationTable == Table.OPERATORS
+				|| configurationTable == Table.TAGS) {
 			TemplateContextType context = SoarEditorUIPlugin.getDefault().getContextTypeRegistry().getContextType(SoarOperatorContext.SOAR_CONTEXT_TYPE);
 			if (context instanceof SoarOperatorContext) {
 				((SoarOperatorContext) context).setConfiguration(configuration);

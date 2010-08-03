@@ -52,12 +52,19 @@ class Correction {
 	@Override
 	public String toString() {
 		StringBuffer buff = new StringBuffer();
-		buff.append(row.getPathName() + ", add: ");
+		buff.append(row.getPathName());
 		for (Triple triple : addition) {
-			buff.append("" + triple);
+			buff.append("." + triple.attribute);
 		}
-		if (links != null) {
-			buff.append(", link with: " + links);
+		Triple last = addition.get(addition.size() - 1); 
+		if (last.valueIsConstant()) {
+			buff.append(" " + last.value);
+		}
+		if (links != null && links.size() > 0) {
+			buff.append(", link with:");
+			for (Triple triple : links) {
+				buff.append(" " + triple);
+			}
 		}
 		return buff.toString();
 	}
@@ -198,7 +205,7 @@ public class GenerateDatamapAction extends Action {
 	ArrayList<ISoarDatabaseTreeItem> joinedRules;
 	
 	public GenerateDatamapAction(SoarDatabaseRow problemSpace, boolean applyAll) {
-		super ("Generate datamap");
+		super ("Generate Datamap");
 		this.problemSpace = problemSpace;
 		this.applyAll = applyAll;
 		joinedRules = problemSpace.getJoinedRowsFromTable(Table.RULES);

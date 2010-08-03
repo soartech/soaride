@@ -42,7 +42,6 @@ public class GenerateDatamapsActionDelegate implements IWorkbenchWindowActionDel
 			GenerateDatamapAction generateAction = new GenerateDatamapAction(ps, applyAll);
 			actions.add(generateAction);
 			totalRules += generateAction.getJoinedRulesSize();
-			System.out.println("Rules for ps: " + ps.getName() + ": " + totalRules);
 		}
 		
 		if (monitor != null) {

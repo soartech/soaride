@@ -38,6 +38,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor;
 import com.soartech.soar.ide.ui.editors.text.SoarDatabaseOperatorEditor;
+import com.soartech.soar.ide.ui.editors.text.SoarDatabaseTagEditor;
 import com.soartech.soar.ide.ui.editors.text.SoarDatabaseTextEditor;
 
 /**
@@ -143,6 +144,18 @@ public class SoarUiModelTools
     	assert row.getTable() == Table.OPERATORS;
     	
         String editorId = SoarDatabaseOperatorEditor.ID;
+        IEditorInput input = row.getEditorInput();
+		if (input != null) {
+			IEditorPart part = page.openEditor(input, editorId);
+			return part;
+		}
+		return null;
+	}
+	
+	public static IEditorPart showTagInEditor(IWorkbenchPage page, SoarDatabaseRow row) throws PartInitException {
+    	assert row.getTable() == Table.TAGS;
+    	
+        String editorId = SoarDatabaseTagEditor.ID;
         IEditorInput input = row.getEditorInput();
 		if (input != null) {
 			IEditorPart part = page.openEditor(input, editorId);

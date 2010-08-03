@@ -1,6 +1,8 @@
 package com.soartech.soar.ide.ui.editors.datamap;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -48,11 +50,35 @@ public class SoarDatabaseDatamapContentProvider implements ITreeContentProvider 
 				}
 			}
 			
+			// Group duplicate children together
+			/*
+			ArrayList<ArrayList<ISoarDatabaseTreeItem>> duplicates = new ArrayList<ArrayList<ISoarDatabaseTreeItem>>();
+			HashMap<String, ArrayList<SoarDatabaseRow>> pathsToNodes = new HashMap<String, ArrayList<SoarDatabaseRow>>();
+			for (ISoarDatabaseTreeItem item : ret) {
+				if (item instanceof SoarDatabaseRow) {
+					SoarDatabaseRow node = (SoarDatabaseRow) item;
+					String key = node.getPathName() + " " + node.getName();
+					ArrayList<SoarDatabaseRow> list = pathsToNodes.get(key);
+					if (list == null) list = new ArrayList<SoarDatabaseRow>();
+					list.add(node);
+					pathsToNodes.put(key, list);
+				}
+			}
+			ArrayList<SoarDatamapItemDuplicateGroup> groups = new ArrayList<SoarDatamapItemDuplicateGroup>();
+			for (String key : pathsToNodes.keySet()) {
+				ArrayList<SoarDatabaseRow> list = pathsToNodes.get(key);
+				if (list.size() > 1) {
+					SoarDatamapItemDuplicateGroup group = new SoarDatamapItemDuplicateGroup(list);
+					groups.add(group);
+					for (SoarDatabaseRow groupRow : list) {
+						ret.remove(groupRow);
+					}
+					ret.add(group);
+				}
+			}
+			*/
+			
 			return ret;
-		}
-		
-		if (element instanceof SoarDatabaseDatamapSuperstateAttribute) {
-			return ((SoarDatabaseDatamapSuperstateAttribute)element).getChildren(this);
 		}
 		
 		return new ArrayList<ISoarDatabaseTreeItem>();

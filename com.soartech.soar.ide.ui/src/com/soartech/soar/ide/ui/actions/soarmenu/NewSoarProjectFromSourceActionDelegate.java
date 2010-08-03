@@ -67,7 +67,7 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 		SoarCorePlugin.getDefault().newProject();
 		
 		// New agent
-		int lastSlashIndex = path.lastIndexOf('/') + 1;
+		int lastSlashIndex = path.lastIndexOf(File.separatorChar) + 1;
 		int lastDotIndex = path.lastIndexOf('.');
 		if (lastDotIndex == -1) {
 			lastDotIndex = path.length();

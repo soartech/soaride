@@ -16,23 +16,28 @@
            class="com.soartech.soar.ide.ui.editors.text.SoarEditor"
            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
            extensions="soar,tcl"
-           icon="icons/soar_file_16.gif"
+           icon="icons/rule.gif"
            id="com.soartech.soar.editor.editors.SoarEditor"
            name="Soar Editor"/>
      <editor
            class="com.soartech.soar.ide.ui.editors.text.SoarDatabaseTextEditor"
            id="com.soartech.soar.ide.ui.editors.text.SoarDatabaseTextEditor"
-           icon="icons/soar_file_16.gif"
+           icon="icons/rule.gif"
            name="Soar Database Text Editor"/>
      <editor
            class="com.soartech.soar.ide.ui.editors.text.SoarDatabaseOperatorEditor"
            id="com.soartech.soar.ide.ui.editors.text.SoarDatabaseOperatorEditor"
-           icon="icons/soar_file_16.gif"
+           icon="icons/operator.gif"
            name="Soar Database Operator Editor"/>
+     <editor
+           class="com.soartech.soar.ide.ui.editors.text.SoarDatabaseTagEditor"
+           id="com.soartech.soar.ide.ui.editors.text.SoarDatabaseTagEditor"
+           icon="icons/tag.gif"
+           name="Soar Database Tag Editor"/>
      <editor
            class="com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor"
            id="com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor"
-           icon="icons/soar_file_16.gif"
+           icon="icons/problem_space.gif"
            name="Soar Database Datamap Editor"/>
   </extension>
   <extension

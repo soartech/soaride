@@ -127,8 +127,6 @@ public class SoarLabelProvider extends LabelProvider implements
 			}
 			return ret;
 			
-		} else if (element instanceof SoarDatabaseDatamapSuperstateAttribute) {
-			return element.toString(); 
 		} else if (element instanceof String) {
 			return (String) element;
 		}

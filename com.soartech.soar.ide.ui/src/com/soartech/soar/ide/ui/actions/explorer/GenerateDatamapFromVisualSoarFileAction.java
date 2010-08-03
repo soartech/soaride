@@ -42,7 +42,7 @@ public class GenerateDatamapFromVisualSoarFileAction extends Action {
 					SWT.NONE);
 			error.open();
 		}
-		String commentPath = path.substring(0, path.lastIndexOf('/') + 1) + "comment.dm";
+		String commentPath = path.substring(0, path.lastIndexOf(File.separatorChar) + 1) + "comment.dm";
 		File commentFile = new File(commentPath);
 		ArrayList<String> comments = new ArrayList<String>();
 		if (commentFile.exists()) {
