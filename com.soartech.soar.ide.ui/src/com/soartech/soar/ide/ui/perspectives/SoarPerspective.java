@@ -40,8 +40,8 @@ public class SoarPerspective implements IPerspectiveFactory {
      * Constructor for a <code>SoarPerspective</code> object.
      */
     public SoarPerspective() {
-
         super();
+    	System.out.println("Constructing Soar Perspective");
     }
 
     /* (non-Javadoc)
