@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="com.soartech.soar.ide.database.feature"
-      label="Soar IDE Database Development Branch Feature"
-      version="1.0.0.qualifier">
+      label="Soar IDE Database Development Branch"
+      version="1.0.1.qualifier">
 
    <description>
       Soar IDE Database Development Branch
