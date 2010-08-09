@@ -170,6 +170,13 @@
               menubarPath="com.soartech.soar.ide.ui.soarMenu/debugger"
               style="push"
               tooltip="Spawns an instance of the Soar Debugger and connects it to the IDE."/>
+        <action
+              class="com.soartech.soar.ide.ui.actions.explorer.LoadMultipleProjectsActionDelegate"
+              id="com.soartech.soar.ide.ui.actions.explorer.LoadMultipleProjectsActionDelegate"
+              label="Load Multiple Projects..."
+              menubarPath="com.soartech.soar.ide.ui.soarMenu/debugger"
+              style="push"
+              tooltip="FOR TESTING: Loads many projects into the IDE, one after antoher."/>
      </actionSet>
   </extension>
   

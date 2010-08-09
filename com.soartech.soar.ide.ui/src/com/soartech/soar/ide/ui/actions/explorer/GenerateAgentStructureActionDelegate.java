@@ -40,8 +40,15 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 		}
 	}
 	
-	public void runWithAgent(SoarDatabaseRow agent, IProgressMonitor monitor) {
+	/**
+	 * 
+	 * @param agent
+	 * @param monitor
+	 * @return List of error messages
+	 */
+	public ArrayList<String> runWithAgent(SoarDatabaseRow agent, IProgressMonitor monitor) {
 		assert agent.getTable() == Table.AGENTS;
+		ArrayList<String> errors = new ArrayList<String>();
 		HashMap<String, SoarDatabaseRow> problemSpaces = TraversalUtil.getProblemSpacesMap(agent);
 		HashMap<String, SoarDatabaseRow> operators = TraversalUtil.getOperatorsMap(agent);
 		ArrayList<ISoarDatabaseTreeItem> rules = TraversalUtil.getRelatedRules(agent);
@@ -222,6 +229,8 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 		if (monitor != null) {
 			monitor.done();
 		}
+		
+		return errors;
 	}
 	
 	private void proposeJoin(SoarDatabaseRow first, SoarDatabaseRow second) {

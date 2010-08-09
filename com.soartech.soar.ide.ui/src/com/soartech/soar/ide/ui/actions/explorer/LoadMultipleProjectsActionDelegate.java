@@ -1,12 +1,13 @@
-package com.soartech.soar.ide.ui.actions.soarmenu;
+package com.soartech.soar.ide.ui.actions.explorer;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
@@ -19,45 +20,59 @@ import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
-import com.soartech.soar.ide.core.sql.SoarDatabaseUtil;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
+import com.soartech.soar.ide.core.sql.SoarDatabaseUtil;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
-import com.soartech.soar.ide.ui.actions.explorer.GenerateAgentStructureActionDelegate;
+import com.soartech.soar.ide.ui.actions.soarmenu.GenerateDatamapsActionDelegate;
 
-public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowActionDelegate {
+public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActionDelegate {
 	
 	@Override
-	public void dispose() {
-	}
-
-	@Override
-	public void init(IWorkbenchWindow arg0) {
-	}
-
-	@Override
 	public void run(IAction action) {
-		
-		boolean savedToDisk = SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk();
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		
-		if (!savedToDisk) {
-			MessageDialog message = new MessageDialog(shell, "Create new project?", null, "Create new project? Unsaved changes will be lost.", MessageDialog.QUESTION, new String[] {"OK", "Cancel"}, 0);
-			int result = message.open();
-			if (result != 0) {
-				return;
-			}
-		}
-		
 		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
 		String path = dialog.open();
-		if (path == null) {
+		if (path == null || path.length() == 0) return;
+		File file = new File(path);
+		if (!file.exists()) {
 			return;
 		}
-		final File file = new File(path);
-		if (file == null || !file.exists()) {
-			return;
+		String rootPath = file.getParent();
+		Scanner scanner = null;
+		ArrayList<String> errors = new ArrayList<String>();
+		try {
+			scanner = new Scanner(file);
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+				if (line.length() == 0 || line.trim().startsWith("#")) {
+					continue;
+				}
+				File testFile = new File(rootPath + "/" + line);
+				if (!file.exists()) {
+					errors.add("Could not load test file, file not found: " + rootPath + "/" + line);
+					continue;
+				}
+				String filePath = rootPath + "/" + line;
+				copiedPart(filePath, testFile);
+				System.out.println("Sucessfully loaded project at " + filePath);
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 		}
-		
+		for (String error : errors) {
+			System.out.println(error);
+		}
+		if (scanner != null) {
+			scanner.close();
+		}
+	}
+	
+	/**
+	 * Copied from NewSoarProjectFromSourceActionDelegate
+	 */
+	private void copiedPart(String path, File file) {
+		final File finalFile = file;
+		boolean savedToDisk = SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk();
 		if (savedToDisk) {
 			SoarUiModelTools.closeAllEditors(true);
 		} else {
@@ -110,22 +125,21 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 		final SoarDatabaseRow finalAgent = agent;
 		boolean eventsWereSupressed = agent.getDatabaseConnection().getSupressEvents();
 		agent.getDatabaseConnection().setSupressEvents(true);
+		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		try {
-			try {
-				new ProgressMonitorDialog(shell).run(false, false, new IRunnableWithProgress() {
-					@Override
-					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						// monitor.setTaskName("New Project From Existing Source");
-						monitor.beginTask("Importing Rules", IProgressMonitor.UNKNOWN);
-						SoarDatabaseUtil.importRules(file, finalAgent, monitor);
-						monitor.done();
-					}
-				});
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
+			new ProgressMonitorDialog(shell).run(false, false, new IRunnableWithProgress() {
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					//monitor.setTaskName("New Project From Existing Source");
+					monitor.beginTask("Importing Rules", IProgressMonitor.UNKNOWN);
+					System.out.println("About to import rules from file: " + finalFile.getPath());
+					ArrayList<String> errors = SoarDatabaseUtil.importRules(finalFile, finalAgent, monitor);
+					reportErrors(errors);
+					monitor.done();
+				}
+			});
 			
+			/*
 			new ProgressMonitorDialog(shell).run(false, false, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
@@ -145,17 +159,39 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 					datamaps.runWithAgent(finalAgent, monitor);
 				}
 			});
+			*/
 			
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		agent.getDatabaseConnection().setSupressEvents(eventsWereSupressed);
 	}
-
-	@Override
-	public void selectionChanged(IAction arg0, ISelection arg1) {
+	
+	private void reportErrors(ArrayList<String> errors) {
+		for (String error : errors) {
+			System.out.println(error);
+		}
 	}
 
+	@Override
+	public void selectionChanged(IAction action, ISelection selection) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void dispose() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void init(IWorkbenchWindow window) {
+		// TODO Auto-generated method stub
+		
+	}
 }
