@@ -2177,7 +2177,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 
 	public void setText(String text, boolean suppressEvents) {
-		if (table == Table.RULES) {
+		if (table == Table.RULES || table == Table.AGENTS) {
 			String sql = "update " + table.tableName()
 					+ " set raw_text=? where id=?";
 			StatementWrapper ps = db.prepareStatement(sql);
@@ -2195,7 +2195,14 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		save(doc.get(), input);
 	}
 	
-	public void save(String text, SoarDatabaseEditorInput input) {
+	/**
+	 * 
+	 * @param text
+	 * @param input
+	 * @return List of errors
+	 */
+	public ArrayList<String> save(String text, SoarDatabaseEditorInput input) {
+		ArrayList<String> errors = new ArrayList<String>();
 		if (table == Table.RULES) {
 
 			// Update raw text.
@@ -2307,7 +2314,8 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 						 */
 					}
 				} else {
-					System.out.println("Production doesn't begin with \"sp {\" or doesn't end with \"}\"");
+					String errorMessage = "Production doesn't begin with \"sp {\" or doesn't end with \"}\" Rule: " + getName();
+					errors.add(errorMessage);
 				}
 			}
 		} else if (table == Table.AGENTS) {
@@ -2319,6 +2327,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			ps.setInt(2, id);
 			ps.execute();
 		}
+		return errors;
 	}
 	
 	public static String removeComments(String text) {

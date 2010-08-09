@@ -1,8 +1,9 @@
 package com.soartech.soar.ide.core.sql;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -10,6 +11,9 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -22,10 +26,11 @@ public class SoarDatabaseUtil {
 	 * for each rule and placing as chidlren of the specified row.
 	 * @param file
 	 * @param folder
+	 * @return list of error messages
 	 */
-	public static ArrayList<SoarDatabaseRow> importRules(File firstFile, SoarDatabaseRow agent, IProgressMonitor monitor) {
+	public static ArrayList<String> importRules(File firstFile, SoarDatabaseRow agent, IProgressMonitor monitor) {
 		
-		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
+		ArrayList<String> errors = new ArrayList<String>();
 		
 		// The stack of pushed and popped directories.
 		ArrayList<String> directoryStack = new ArrayList<String>();
@@ -37,11 +42,10 @@ public class SoarDatabaseUtil {
 		// This is the list of files that have been read, to avoid recursive souce commands.
 		//ArrayList<File> readFiles = new ArrayList<File>();
 		
-		// The list of lines to add to the agent.
-		ArrayList<String> agentCommands = new ArrayList<String>();
-
+		ArrayList<String> agentLines = new ArrayList<String>();
+		
 		for (int filesIndex = 0; filesIndex < files.size(); ++filesIndex) {
-			String error = null;
+			ArrayList<String> newErrors = new ArrayList<String>();
 			try {
 				File file = files.get(filesIndex);
 				//System.out.println(file.getPath());
@@ -50,98 +54,135 @@ public class SoarDatabaseUtil {
 				String basePath = file.getPath();
 				int lastSlashIndex = basePath.lastIndexOf(File.separatorChar);
 				basePath = basePath.substring(0, lastSlashIndex);
-
-				// The previous character
-				//char last = ' ';
-				
-				int bracesDepth = 0;
 				int lineNumber = 0;
-				
+				System.out.println("About to read file: " + file.getPath());
 				Scanner scan = new Scanner(file);
-				//String bracePattern = "[^}]*}";
 				ArrayList<String> lines = new ArrayList<String>();
-				while (scan.hasNextLine()) {
-					String line = scan.nextLine();
-					error = null;
+				while (scan.hasNext()) {
 					++lineNumber;
-					boolean closed = false;
-					for (char c : line.toCharArray()) {
-						if (c == '{') ++bracesDepth;
-						if (c == '}') {
-							--bracesDepth;
-							closed = true;
+					String line = scan.nextLine();
+					String trimmedLine = line.trim();
+					if (trimmedLine.startsWith("pushd ")) {
+						String[] tokens = trimmedLine.split("\\s");
+						directoryStack.add(tokens[1]);
+					} else if (trimmedLine.startsWith("popd")) {
+						directoryStack.remove(directoryStack.size() - 1);
+					} else if (trimmedLine.startsWith("source ")) {
+						String source = trimmedLine.substring(7);
+						File newFile = fileForFilename(basePath, source, directoryStack);
+						if (!newFile.exists()) {
+							String error = "File not found:" + newFile.getPath();
+							System.out.println(error);
+							errors.add(error);
+						} else {
+							files.add(newFile);
 						}
-					}
-					
-					if (bracesDepth < 0) {
-						error = "Too many closed braces";
-					}
-					
-					if (bracesDepth == 0 && !closed) {
-						String[] tokens = line.split("\\s"); // "\s" for whitespace
-						// look for other commands
-						// pushd, popd, source
-						if (tokens.length > 0) {
-							// boolean consumed = true;
-							if (tokens[0].equalsIgnoreCase("pushd") && tokens.length > 1) {
-								directoryStack.add(tokens[1]);
-							} else if (tokens[0].equalsIgnoreCase("popd")) {
-								directoryStack.remove(directoryStack.size() - 1);
-							} else if (tokens[0].equalsIgnoreCase("source") && tokens.length > 1) {
-								File newFile = fileForFilename(basePath, tokens[1], directoryStack);
-								files.add(newFile);
-							} else if (tokens[0].startsWith("#")){
-								// Comment -- add to rule
-								lines.add(line);
-							} else {
-								// Soar command -- add to agent
-								agentCommands.add(line);
+					} else if (trimmedLine.startsWith("sp ") || trimmedLine.startsWith("sp{")) {
+						ArrayList<String> ruleLines = new ArrayList<String>();
+						int braceDepth = 0;
+						boolean string = false;
+						boolean hasBraces = false;
+						boolean finished = false;
+						while (true) {
+							ruleLines.add(line);
+							char[] chars = line.toCharArray();
+							char cc = '\0';
+							for (char c : chars) {
+								if (!string) {
+									if (c == '{') {
+										++braceDepth;
+										hasBraces = true;
+									}
+									else if (c == '}') --braceDepth;
+									else if (c == '|') string = true;
+									else if (c == '#') break; // Comment, ignore the rest of the line
+								} else {
+									if (c == '|' && cc != '\\') string = false;
+								}
+
+								cc = c;
 							}
+							
+							if (hasBraces && braceDepth <= 0) {
+								finished = true;
+							}
+							
+							if (finished || !scan.hasNextLine()) break;
+							line = scan.nextLine();
 						}
+						
+						if (finished) {
+							// This was a rule.
+							// Find preceding comment lines and use them and 'ruleLines' to create a new rule.
+							
+							int firstCommentLine = lines.size();
+							for ( ; firstCommentLine > 0; --firstCommentLine) {
+								String commentLine = lines.get(firstCommentLine - 1);
+								if (commentLine.length() > 0 && !commentLine.trim().startsWith("#")) {
+									break;
+								}
+							}
+							
+							for ( ; firstCommentLine < lines.size(); ++firstCommentLine) {
+								if (lines.get(firstCommentLine).length() > 0) break;
+							}
+							
+							ArrayList<String> finalRuleLines = new ArrayList<String>();
+							
+							for (int i = firstCommentLine; i < lines.size(); ++i) {
+								finalRuleLines.add(lines.get(i));
+							}
+							finalRuleLines.addAll(ruleLines);
+							
+							for (int i = lines.size() - 1; i >= firstCommentLine; --i) {
+								lines.remove(i);
+							}
+							
+							StringBuffer ruleBuffer = new StringBuffer();
+							for (String ruleLine : finalRuleLines) {
+								ruleBuffer.append(ruleLine + '\n');
+							}
+							
+							String ruleString = ruleBuffer.toString();
+							String ruleName = getNameFromRule(ruleString);
+							SoarDatabaseRow child = agent.createChild(Table.RULES, ruleName);
+							errors.addAll(child.save(ruleString, null));
+							
+							if (monitor != null) {
+								monitor.subTask("Imported rule: " + ruleName);
+							}
+							
+						} else {
+							// Oops, this wasn't really a rule
+							// Add collected lines to 'lines'
+							lines.addAll(ruleLines);
+						}
+						
 					} else {
 						lines.add(line);
 					}
-					
-					if (bracesDepth == 0 && closed) {
-						StringBuffer buffer = new StringBuffer();
-						for (String bufferLine : lines) {
-							buffer.append(bufferLine + '\n');
-						}
-						SoarDatabaseRow newRow = importRule(buffer.toString().trim(), agent);
-						ret.add(newRow);
-						if (monitor != null) {
-							monitor.subTask("Imported rule: " + newRow.getName());
-						}
-						lines = new ArrayList<String>();
-					}
-
-					if (error != null) {
-						alertError(error, file.getName(), lineNumber);
-						error = null;
-					}
-				}
-				// Read the rest of the scanner
-				// There are no rules left, so just stick this into the agent
-				while (scan.hasNextLine()) {
-					String line = scan.nextLine();
-					agentCommands.add(line);
 				}
 				scan.close();
+				agentLines.addAll(lines);
 			} catch (FileNotFoundException e) {
 				//e.printStackTrace();
-				error = "File not found: " + files.get(filesIndex).getPath();
+				String error = "File not found: " + files.get(filesIndex).getPath();
+				newErrors.add(error);
 			}
+			for (String error : newErrors) {
+				System.out.println(error);
+			}
+			errors.addAll(newErrors);
 		}
 		
 		// Add commands to agent
 		StringBuffer agentText = new StringBuffer();
-		for (String command : agentCommands) {
-			agentText.append(command);
+		for (String command : agentLines) {
+			agentText.append(command + '\n');
 		}
 		
 		agent.setText(agentText.toString(), true);
-		
-		return ret;
+		return errors;
 	}
 		
 	private static File fileForFilename(String basePath, String filename, ArrayList<String> directoryStack) {
@@ -156,16 +197,7 @@ public class SoarDatabaseUtil {
 		return ret;
 	}
 	
-	public static SoarDatabaseRow importRule(String rule, SoarDatabaseRow row) {
-		// Get the name of the rule
-		String name = getNameFromRule(rule);
-		SoarDatabaseRow child = row.createChild(Table.RULES, name);
-		child.setText(rule, true);
-		child.save(rule, null);
-		return child;
-	}
-	
-	private static String getNameFromRule(String rule) {
+	public static String getNameFromRule(String rule) {
 		int nameIndex = findChar('{', rule, 0);
 		if (nameIndex == -1) return null;
 		nameIndex = findWhitespace(rule, nameIndex + 1, true);

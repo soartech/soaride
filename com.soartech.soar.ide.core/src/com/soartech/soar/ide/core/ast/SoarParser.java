@@ -1117,6 +1117,19 @@ public class SoarParser implements SoarParserConstants {
     finally { jj_save(59, xla); }
   }
 
+  private boolean jj_3R_15() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_3()) jj_scanpos = xsp;
+    if (jj_3R_36()) return true;
+    return false;
+  }
+
+  private boolean jj_3_22() {
+    if (jj_scan_token(LESS)) return true;
+    return false;
+  }
+
   private boolean jj_3_21() {
     if (jj_scan_token(SAME_TYPE)) return true;
     return false;
@@ -1725,19 +1738,6 @@ public class SoarParser implements SoarParserConstants {
 
   private boolean jj_3_3() {
     if (jj_scan_token(HYPHEN)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_15() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_3()) jj_scanpos = xsp;
-    if (jj_3R_36()) return true;
-    return false;
-  }
-
-  private boolean jj_3_22() {
-    if (jj_scan_token(LESS)) return true;
     return false;
   }
 
