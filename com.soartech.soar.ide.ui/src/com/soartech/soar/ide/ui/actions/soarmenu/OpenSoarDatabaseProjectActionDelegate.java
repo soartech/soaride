@@ -1,5 +1,7 @@
 package com.soartech.soar.ide.ui.actions.soarmenu;
 
+import java.io.File;
+
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -45,7 +47,7 @@ public class OpenSoarDatabaseProjectActionDelegate implements IWorkbenchWindowAc
 		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
 		dialog.setText("Open Soar Project...");
 		dialog.open();
-		String path = dialog.getFileName();
+		String path = dialog.getFilterPath() + File.separatorChar + dialog.getFileName();
 		
 		if (savedToDisk) {
 			SoarUiModelTools.closeAllEditors(true);

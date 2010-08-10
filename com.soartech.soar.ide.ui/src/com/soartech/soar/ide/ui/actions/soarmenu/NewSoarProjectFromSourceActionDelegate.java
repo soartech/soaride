@@ -112,7 +112,7 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 		agent.getDatabaseConnection().setSupressEvents(true);
 		try {
 			try {
-				new ProgressMonitorDialog(shell).run(false, false, new IRunnableWithProgress() {
+				new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 						// monitor.setTaskName("New Project From Existing Source");
@@ -126,7 +126,7 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 			}
 
 			
-			new ProgressMonitorDialog(shell).run(false, false, new IRunnableWithProgress() {
+			new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					// Create project structure
@@ -136,7 +136,7 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 				}
 			});
 			
-			new ProgressMonitorDialog(shell).run(false, false, new IRunnableWithProgress() {
+			new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					// Generate datamap structure

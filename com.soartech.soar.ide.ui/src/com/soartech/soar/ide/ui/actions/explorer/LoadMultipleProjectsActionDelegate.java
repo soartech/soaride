@@ -127,7 +127,7 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 		agent.getDatabaseConnection().setSupressEvents(true);
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		try {
-			new ProgressMonitorDialog(shell).run(false, false, new IRunnableWithProgress() {
+			new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					//monitor.setTaskName("New Project From Existing Source");
@@ -140,7 +140,7 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 			});
 			
 			/*
-			new ProgressMonitorDialog(shell).run(false, false, new IRunnableWithProgress() {
+			new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					// Create project structure
@@ -150,7 +150,7 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 				}
 			});
 			
-			new ProgressMonitorDialog(shell).run(false, false, new IRunnableWithProgress() {
+			new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					// Generate datamap structure

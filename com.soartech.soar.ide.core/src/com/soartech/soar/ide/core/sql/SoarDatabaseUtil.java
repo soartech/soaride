@@ -1,19 +1,13 @@
 package com.soartech.soar.ide.core.sql;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -23,13 +17,13 @@ public class SoarDatabaseUtil {
 	
 	/**
 	 * Reads a text file of soar rules, creating a new database entry
-	 * for each rule and placing as chidlren of the specified row.
+	 * for each rule and placing as children of the specified row.
 	 * @param file
 	 * @param folder
 	 * @return list of error messages
 	 */
 	public static ArrayList<String> importRules(File firstFile, SoarDatabaseRow agent, IProgressMonitor monitor) {
-		
+
 		ArrayList<String> errors = new ArrayList<String>();
 		
 		// The stack of pushed and popped directories.
@@ -182,6 +176,7 @@ public class SoarDatabaseUtil {
 		}
 		
 		agent.setText(agentText.toString(), true);
+		
 		return errors;
 	}
 		
@@ -272,12 +267,13 @@ public class SoarDatabaseUtil {
 			ResultSet tables = md.getTables(null, null, "%", null); // return all tables
 			String[] tableColumns = { "TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "TABLE_TYPE", "REMARKS", "TYPE_CAT", "TYPE_SCHEM", "TYPE_NAME", "SELF_REFERENCING_COL_NAME", "REF_GENERATION" };
 			while (tables.next()) {
-				if (debug)
+				if (debug) {
 					System.out.println("\n***NEW TABLE***\n");
 				
 				  for (String tableColumn : tableColumns) { String value =
 				  tables.getString(tableColumn); System.out.println(tableColumn
 				  + ": " + value); }
+				}
 				 
 
 				String tableName = tables.getString("TABLE_NAME");

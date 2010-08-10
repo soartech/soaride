@@ -84,7 +84,7 @@ public class SoarDatabaseSearchResultsView extends ViewPart {
 		
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		try {
-			new ProgressMonitorDialog(shell).run(false, false, new IRunnableWithProgress() {
+			new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					monitor.beginTask("Searching Rules", allRules.size());

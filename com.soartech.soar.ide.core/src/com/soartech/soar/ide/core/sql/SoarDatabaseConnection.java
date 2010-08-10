@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
@@ -337,15 +338,44 @@ public class SoarDatabaseConnection {
 			s = connection.createStatement();
 			s.execute(sql);
 			s.close();
-			//conn.commit();
 			fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		if (debug) {
 			System.out.println("done.");
 		}
+	}
+	
+	/**
+	 * 
+	 * @param commands
+	 * @return Errors
+	 */
+	public ArrayList<String> executeBatch(String[] commands) {
+		Statement s;
+		ArrayList<String> errors = new ArrayList<String>();
+		try {
+			s = connection.createStatement();
+			for (String sql : commands) {
+				s.addBatch(sql);
+			}
+			int[] results = s.executeBatch();
+			s.close();
+			fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
+		
+			for (int i = 0; i < results.length; ++i) {
+				int result = results[i];
+				if (result == Statement.EXECUTE_FAILED) {
+					String command = commands[i];
+					errors.add("Command #" + i + " failed: " + command);
+				}
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return errors;
 	}
 	
 	public StatementWrapper prepareStatement(String sql) {

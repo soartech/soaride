@@ -19,10 +19,21 @@
  */
 package com.soartech.soar.ide.core;
 
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.BundleContext;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
@@ -168,22 +179,70 @@ public class SoarCorePlugin extends Plugin {
         getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, 0, e.getMessage(), e));
     }
 
-	public void saveDatabaseAs(String path) {
+	public void saveDatabaseAs(final String path, boolean overwriteExisting) {
 		String dump = SoarDatabaseUtil.sqlDump(databaseConnection);
 		System.out.println("**************************DUMP");
 		System.out.println(dump);
 		
-		String[] commands = dump.split(";");
-		
+		if (overwriteExisting) {
+			File existing = new File(path);
+			boolean deleted = existing.delete();
+			if (!deleted) {
+				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+				ErrorDialog error = new ErrorDialog(shell, "Save Failed", "Couldn't overwrite the file at " + path + ", file already in use.", Status.OK_STATUS, 0);
+				error.open();
+				//ErrorDialog.openError(shell, "Save Failed", "Couldn't overwrite the file at " + path + ", file already in use.", Status.OK_STATUS);
+				return;
+			}
+		}
+
 		boolean eventsSupressed = databaseConnection.getSupressEvents();
 		databaseConnection.setSupressEvents(true);
 		databaseConnection.loadDatabaseConnection(path);
-		for (String command : commands) {
-			command = command.trim();
-			if (command.length() > 0) {
-				databaseConnection.execute(command);
+		
+		//databaseConnection.execute(dump);
+		
+		final String[] commands = dump.split(";");
+		ArrayList<String> errors = databaseConnection.executeBatch(commands);
+		if (errors.size() > 0) {
+			for (String error : errors) {
+				System.out.println(error);
 			}
 		}
+		
+		/*
+		final String[] commands = dump.split(";");
+		
+		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		try {
+			new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
+				
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException,
+						InterruptedException {
+		
+			monitor.beginTask("Saving project: " + path, commands.length);
+					
+			for (String command : commands) {
+				command = command.trim();
+				if (command.length() > 0) {
+					System.out.println(command);
+					databaseConnection.execute(command);
+					monitor.worked(1);
+				}
+			}
+			
+			monitor.done();
+			
+				}
+			});
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		*/
+		
 		databaseConnection.setSupressEvents(eventsSupressed);
 		databaseConnection.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
 	}

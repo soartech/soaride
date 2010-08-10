@@ -36,6 +36,7 @@ public class SaveSoarDatabaseProjectActionDelegate implements IWorkbenchWindowAc
 		File saveFile = new File(path);
 		
 		boolean save = true;
+		boolean overwriteExisting = false;
 		if (saveFile.exists()) {
 			save = false;
 			MessageBox box = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
@@ -44,12 +45,13 @@ public class SaveSoarDatabaseProjectActionDelegate implements IWorkbenchWindowAc
 			int result = box.open();
 			if (result == SWT.OK) {
 				save = true;
-				saveFile.delete();
+				overwriteExisting = true;
+				// saveFile.delete();
 			}
 		}
 		
 		if (save && path != null && path.length() > 0) {
-			SoarCorePlugin.getDefault().saveDatabaseAs(path);
+			SoarCorePlugin.getDefault().saveDatabaseAs(path, overwriteExisting);
 		}
 	}
 
