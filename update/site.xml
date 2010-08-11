@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/com.soartech.soar.ide.database.feature_1.0.1.201008091607.jar" id="com.soartech.soar.ide.database.feature" version="1.0.1.201008091607">
+   <feature url="features/com.soartech.soar.ide.database.feature_1.0.1.201008111032.jar" id="com.soartech.soar.ide.database.feature" version="1.0.1.201008111032">
       <category name="com.soartech.soar.ide.database.update.category"/>
    </feature>
    <category-def name="com.soartech.soar.ide.database.update.category" label="Soar IDE Database Development Branch"/>
