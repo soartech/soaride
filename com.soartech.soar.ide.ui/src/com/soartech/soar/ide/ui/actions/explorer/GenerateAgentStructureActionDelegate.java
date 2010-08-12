@@ -19,9 +19,9 @@ import org.eclipse.ui.dialogs.ListDialog;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
+import com.soartech.soar.ide.core.sql.TraversalUtil;
+import com.soartech.soar.ide.core.sql.Triple;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
-import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.TraversalUtil;
-import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.Triple;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
 
 public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowActionDelegate {
@@ -332,9 +332,15 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 		}
 		if (join) {
 			SoarDatabaseRow agent = first.getTopLevelRow();
-			SoarDatabaseRow newRow = agent.createChild(type, second);
-			SoarDatabaseRow.directedJoinRows(newRow, first, first.getDatabaseConnection());
-			return newRow;
+			if (agent.getTable() == Table.AGENTS) {
+				SoarDatabaseRow newRow = agent.createChild(type, second);
+				SoarDatabaseRow.directedJoinRows(newRow, first, first.getDatabaseConnection());
+				return newRow;
+			}
+			else {
+				System.out.println("Top level row not of type agent");
+				//first.getTopLevelRow();
+			}
 		}
 		return null;
 	}

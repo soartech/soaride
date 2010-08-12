@@ -1,6 +1,7 @@
 package com.soartech.soar.ide.ui.actions.soarmenu;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
@@ -51,7 +52,10 @@ public class SaveSoarDatabaseProjectActionDelegate implements IWorkbenchWindowAc
 		}
 		
 		if (save && path != null && path.length() > 0) {
-			SoarCorePlugin.getDefault().saveDatabaseAs(path, overwriteExisting);
+			ArrayList<String> errors = SoarCorePlugin.getDefault().saveDatabaseAs(path, overwriteExisting);
+			if (errors.size() > 0) {
+				System.out.println(errors);
+			}
 		}
 	}
 

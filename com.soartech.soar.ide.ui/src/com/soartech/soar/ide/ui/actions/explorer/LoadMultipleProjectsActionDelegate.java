@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
@@ -126,6 +128,7 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 		boolean eventsWereSupressed = agent.getDatabaseConnection().getSupressEvents();
 		agent.getDatabaseConnection().setSupressEvents(true);
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		final ArrayList<String> errors = new ArrayList<String>();
 		try {
 			new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
 				@Override
@@ -133,8 +136,7 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 					//monitor.setTaskName("New Project From Existing Source");
 					monitor.beginTask("Importing Rules", IProgressMonitor.UNKNOWN);
 					System.out.println("About to import rules from file: " + finalFile.getPath());
-					ArrayList<String> errors = SoarDatabaseUtil.importRules(finalFile, finalAgent, monitor);
-					reportErrors(errors);
+					errors.addAll(SoarDatabaseUtil.importRules(finalFile, finalAgent, monitor));
 					monitor.done();
 				}
 			});
@@ -167,6 +169,15 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			if (errors.size() > 0) {
+				String message = "Encountered the following errors during the import operation:";
+				for (String error : errors) {
+					message += "\n" + error;
+				}
+				ErrorDialog errorDialog = new ErrorDialog(shell, "Error", message, Status.OK_STATUS, 0);
+				errorDialog.open();
+			}
 		}
 		agent.getDatabaseConnection().setSupressEvents(eventsWereSupressed);
 	}

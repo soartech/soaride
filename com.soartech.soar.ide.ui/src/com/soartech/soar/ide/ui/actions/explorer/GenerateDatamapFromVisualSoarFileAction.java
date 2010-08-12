@@ -16,7 +16,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
-import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.Triple;
+import com.soartech.soar.ide.core.sql.Triple;
 
 public class GenerateDatamapFromVisualSoarFileAction extends Action {
 

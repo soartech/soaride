@@ -16,7 +16,7 @@ import org.eclipse.ui.PlatformUI;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.TraversalUtil;
+import com.soartech.soar.ide.core.sql.TraversalUtil;
 
 import edu.umich.soar.debugger.jmx.SoarCommandLineMXBean;
 

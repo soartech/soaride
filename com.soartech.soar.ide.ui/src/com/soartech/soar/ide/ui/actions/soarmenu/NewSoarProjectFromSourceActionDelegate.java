@@ -5,7 +5,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -110,14 +113,15 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 		final SoarDatabaseRow finalAgent = agent;
 		boolean eventsWereSupressed = agent.getDatabaseConnection().getSupressEvents();
 		agent.getDatabaseConnection().setSupressEvents(true);
+		final ArrayList<String> errors = new ArrayList<String>();
 		try {
 			try {
-				new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
+				new ProgressMonitorDialog(shell).run(true, true, new IRunnableWithProgress() {
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 						// monitor.setTaskName("New Project From Existing Source");
 						monitor.beginTask("Importing Rules", IProgressMonitor.UNKNOWN);
-						SoarDatabaseUtil.importRules(file, finalAgent, monitor);
+						errors.addAll(SoarDatabaseUtil.importRules(file, finalAgent, monitor));
 						monitor.done();
 					}
 				});
@@ -126,17 +130,17 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 			}
 
 			
-			new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
+			new ProgressMonitorDialog(shell).run(true, true, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					// Create project structure
 					GenerateAgentStructureActionDelegate structure = new GenerateAgentStructureActionDelegate();
 					structure.forceApplyAll = true;
-					structure.runWithAgent(finalAgent, monitor);
+					errors.addAll(structure.runWithAgent(finalAgent, monitor));
 				}
 			});
 			
-			new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
+			new ProgressMonitorDialog(shell).run(true, true, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					// Generate datamap structure
@@ -150,6 +154,15 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+		} finally {
+			if (errors.size() > 0) {
+				String message = "Encountered the following errors during the import operation:";
+				for (String error : errors) {
+					message += "\n" + error;
+				}
+				ErrorDialog errorDialog = new ErrorDialog(shell, "Error", message, Status.OK_STATUS, 0);
+				errorDialog.open();
+			}
 		}
 		agent.getDatabaseConnection().setSupressEvents(eventsWereSupressed);
 	}

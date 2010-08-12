@@ -14,8 +14,8 @@ import org.eclipse.ui.PlatformUI;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.TraversalUtil;
-import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.Triple;
+import com.soartech.soar.ide.core.sql.TraversalUtil;
+import com.soartech.soar.ide.core.sql.Triple;
 import com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor;
 
 /**
@@ -36,6 +36,8 @@ public class OldGenerateDatamapAction extends Action {
 
 	@Override
 	public void run() {
+		return;
+		/*
 		// Generate the datamap.
 		shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		if (problemSpace != null) {
@@ -134,6 +136,7 @@ public class OldGenerateDatamapAction extends Action {
 				}
 			}
 		}
+		*/
 	}
 	
 	private void proposeLinksWithTriples(ArrayList<Triple> triples) {

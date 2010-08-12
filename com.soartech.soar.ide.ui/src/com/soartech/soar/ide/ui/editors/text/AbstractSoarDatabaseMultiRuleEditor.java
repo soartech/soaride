@@ -2,8 +2,6 @@ package com.soartech.soar.ide.ui.editors.text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -19,8 +17,6 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.soartech.soar.ide.ui.SoarEditorPluginImages;
-import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.TraversalUtil;
 
 public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDatabaseTextEditor implements ISoarDatabaseTextEditor, ISoarDatabaseEventListener {
 	

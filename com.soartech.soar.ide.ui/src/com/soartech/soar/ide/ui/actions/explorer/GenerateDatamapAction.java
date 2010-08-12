@@ -1,6 +1,8 @@
 package com.soartech.soar.ide.ui.actions.explorer;
 
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -8,14 +10,16 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListSelectionDialog;
 
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.TraversalUtil;
-import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.Triple;
+import com.soartech.soar.ide.core.sql.TraversalUtil;
+import com.soartech.soar.ide.core.sql.Triple;
 
 class TerminalPath {
 	public ArrayList<Triple> path;
@@ -200,7 +204,7 @@ class Correction {
 public class GenerateDatamapAction extends Action {
 	
 	SoarDatabaseRow problemSpace;
-	Shell shell;
+	//Shell shell;
 	public boolean applyAll = false;
 	ArrayList<ISoarDatabaseTreeItem> joinedRules;
 	
@@ -230,28 +234,29 @@ public class GenerateDatamapAction extends Action {
 	}
 	
 	public void run(IProgressMonitor monitor) {
-		try {
-			shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		} catch (NullPointerException e) {
-			e.printStackTrace();
-		}
+
 		if (problemSpace == null) {
 			return;
 		}
 		
 		ArrayList<Triple> allTriples = new ArrayList<Triple>();
 		
+		long getTriplesStart = new Date().getTime();
+		TraversalUtil.resetLoggingTimes();
 		for (int i = 0; i < joinedRules.size(); ++i) {
-			if (monitor != null) {
-				monitor.worked(1);
-			}
 			ISoarDatabaseTreeItem item = joinedRules.get(i);
 			assert item instanceof SoarDatabaseRow;
 			SoarDatabaseRow row = (SoarDatabaseRow) item;
 			assert row.getTable() == Table.RULES;
 			ArrayList<Triple> triples = TraversalUtil.getTriplesForRule(row);
 			allTriples.addAll(triples);
+			if (monitor != null) {
+				monitor.worked(1);
+			}
 		}
+		long getTriplesEnd = new Date().getTime();
+		System.out.println("Got Triples: " + (getTriplesEnd - getTriplesStart));
+		TraversalUtil.printLoggingTimes();
 		
 		runWithProblemSpaceForTriples(problemSpace, allTriples, applyAll);
 	}
@@ -259,7 +264,10 @@ public class GenerateDatamapAction extends Action {
 	public static void runWithProblemSpaceForTriples(SoarDatabaseRow problemSpace, ArrayList<Triple> triples, boolean applyAll) {
 		
 		// Get all terminal paths.
+		long terminalPathsStart = new Date().getTime();
 		ArrayList<TerminalPath> paths = terminalPathsForTriples(triples);
+		long terminalPathsEnd = new Date().getTime();
+		System.out.println("Get terminal paths: " + (terminalPathsEnd - terminalPathsStart));
 		
 		// TODO debug
 		/*
@@ -276,7 +284,8 @@ public class GenerateDatamapAction extends Action {
 		// The root node <s>
 		SoarDatabaseRow root = (SoarDatabaseRow) problemSpace.getChildrenOfType(Table.DATAMAP_IDENTIFIERS).get(0);
 		
-		// Iterate over all paths
+		// Iterate over all paths to build corrections
+		long buildCorrectionsStart = new Date().getTime();
 		for (TerminalPath terminalPath : paths) {
 			ArrayList<Triple> path = terminalPath.path;
 			ArrayList<SoarDatabaseRow> currentNodes = new ArrayList<SoarDatabaseRow>();
@@ -344,6 +353,8 @@ public class GenerateDatamapAction extends Action {
 				currentNodes = childNodes;
 			}
 		}
+		long buildCorrectionsEnd = new Date().getTime();
+		System.out.println("Built Corrections: " + (buildCorrectionsEnd - buildCorrectionsStart));
 		
 		// TODO debug
 		/*
@@ -372,16 +383,18 @@ public class GenerateDatamapAction extends Action {
 		*/
 		
 		// Apply corrections
+		long applyCorrectionsStart = new Date().getTime();
 		for (Object obj : result) {
 			Correction correction = (Correction) obj;
 			correction.apply();
 		}
 		
 		for (Object obj : result) {
-			//System.out.println("About to apply correction: " + obj);
 			Correction correction = (Correction) obj;
 			correction.applyLinks();
 		}
+		long applyCorrectionsEnd = new Date().getTime();
+		System.out.println("Applied Corrections: " + (applyCorrectionsEnd - applyCorrectionsStart));
 		
 		// For each superstate attribute, and superstate.superstate attribute, etc.,
 		// link that attribute with ancestor problem spaces' <s> node.

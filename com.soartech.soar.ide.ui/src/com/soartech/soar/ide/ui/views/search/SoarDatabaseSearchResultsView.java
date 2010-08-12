@@ -18,8 +18,8 @@ import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.TraversalUtil;
-import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.Triple;
+import com.soartech.soar.ide.core.sql.TraversalUtil;
+import com.soartech.soar.ide.core.sql.Triple;
 import com.soartech.soar.ide.ui.views.SoarDatabaseRowDoubleClickListener;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
 

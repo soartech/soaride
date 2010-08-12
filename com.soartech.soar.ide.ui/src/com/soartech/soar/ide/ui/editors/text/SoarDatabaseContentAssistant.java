@@ -27,9 +27,9 @@ import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
-import com.soartech.soar.ide.ui.actions.explorer.DatabaseTraversal.TraversalUtil;
+import com.soartech.soar.ide.core.sql.TraversalUtil;
 
-public class SoarDatabaseContentAssistant extends ContentAssistant {
+class SoarDatabaseContentAssistant extends ContentAssistant {
 
 	/**
      * Constructor for a <code>SoarContentAssistant</code> object.
