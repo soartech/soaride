@@ -400,11 +400,27 @@ public class SoarDatabaseConnection {
 		return null;
 	}
 	
+	public Connection getConnection() {
+		return connection;
+	}
+	
+	public void closeConnection() {
+		try {
+			connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * 
 	 * @return True if this connection is to a sqlite database file.
 	 */
 	public boolean isSavedToDisk() {
 		return !currentPath.equals(":memory:");
+	}
+	
+	public String getPath() {
+		return currentPath;
 	}
 }

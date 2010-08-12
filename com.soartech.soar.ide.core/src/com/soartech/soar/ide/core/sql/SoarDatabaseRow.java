@@ -2,11 +2,11 @@ package com.soartech.soar.ide.core.sql;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -66,6 +66,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		TAGS,
 
 		// Rules
+		TRIPLES,
 		RULES,
 		CONDITIONS,
 		POSITIVE_CONDITIONS,
@@ -293,6 +294,9 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 
 	public String getName() {
+		if (table == Table.TRIPLES) {
+			return "Triple: " + getColumnValue("variable_string") + " ^" + getColumnValue("attribute_string") + " " + getColumnValue("value_string");
+		}
 		String name = null;
 		String sql = "select (name) from " + table.tableName() + " where id=?";
 		StatementWrapper ps = db.prepareStatement(sql);
@@ -888,17 +892,18 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	 * @return
 	 */
 	public ArrayList<SoarDatabaseRow> getPathToAncestorNodeOfType(Table type) {
-		LinkedList<ArrayList<SoarDatabaseRow>> paths = new LinkedList<ArrayList<SoarDatabaseRow>>();
+		ArrayList<ArrayList<SoarDatabaseRow>> paths = new ArrayList<ArrayList<SoarDatabaseRow>>();
 		ArrayList<SoarDatabaseRow> firstPath = new ArrayList<SoarDatabaseRow>();
 		HashSet<SoarDatabaseRow> exploredRows = new HashSet<SoarDatabaseRow>();
 		firstPath.add(this);
 		paths.add(firstPath);
 		boolean searching = true;
 		
+		try {
 		while (searching) {
 			searching = false;
+			ArrayList<ArrayList<SoarDatabaseRow>> newPaths = new ArrayList<ArrayList<SoarDatabaseRow>>();
 			for (ArrayList<SoarDatabaseRow> path : paths) {
-				paths.remove(path);
 				SoarDatabaseRow leaf = path.get(path.size() - 1);
 				ArrayList<SoarDatabaseRow> parents = leaf.getAllParents();
 				for (SoarDatabaseRow parent : parents) {
@@ -924,9 +929,13 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 						Collections.reverse(newPath);
 						return newPath;
 					}
-					paths.add(newPath);
+					newPaths.add(newPath);
 				}
 			}
+			paths = newPaths;
+		}
+		} catch (ConcurrentModificationException e) {
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -1182,7 +1191,6 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	 * @param name
 	 *            The name of the new row.
 	 * @return The new row.
-	 * @throws Exception
 	 */
 	public SoarDatabaseRow createChild(Table childTable, String name) {
 		db.createChild(this, childTable, name);
@@ -1721,6 +1729,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		directedJoinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_STRINGS);
 		directedJoinTables(Table.PROBLEM_SPACES, Table.PROBLEM_SPACES); // Superstate relationships
 
+		// Triples
+		addParent(Table.TRIPLES, Table.RULES);
+		directedJoinTables(Table.TRIPLES, Table.TRIPLES);
+		
 		// rule structure
 		addParent(Table.CONDITIONS, Table.RULES);
 		addParent(Table.POSITIVE_CONDITIONS, Table.CONDITIONS);
@@ -2312,6 +2324,17 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 						 * input.addProblem(SoarProblem.createError(message,
 						 * start, length)); }
 						 */
+					}
+					
+					// Add child triples to this rule.
+					// First delete existing triples.
+					ArrayList<SoarDatabaseRow> triples = getChildrenOfType(Table.TRIPLES);
+					for (SoarDatabaseRow triple : triples) {
+						triple.delete();
+					}
+					ArrayList<Triple> newTriples = TraversalUtil.buildTriplesForRule(this);
+					for (Triple triple : newTriples) {
+						triple.getOrCreateTripleRow();
 					}
 				} else {
 					String errorMessage = "Production doesn't begin with \"sp {\" or doesn't end with \"}\" Rule: " + getName();

@@ -2,14 +2,23 @@ package com.soartech.soar.ide.core.sql;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
+
+import sun.net.ProgressMonitor;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
@@ -40,8 +49,8 @@ public class SoarDatabaseUtil {
 		
 		for (int filesIndex = 0; filesIndex < files.size(); ++filesIndex) {
 			ArrayList<String> newErrors = new ArrayList<String>();
+			File file = files.get(filesIndex);
 			try {
-				File file = files.get(filesIndex);
 				//System.out.println(file.getPath());
 
 				//FileReader reader = new FileReader(file);
@@ -49,16 +58,20 @@ public class SoarDatabaseUtil {
 				int lastSlashIndex = basePath.lastIndexOf(File.separatorChar);
 				basePath = basePath.substring(0, lastSlashIndex);
 				int lineNumber = 0;
-				System.out.println("About to read file: " + file.getPath());
+				//System.out.println("About to read file: " + file.getPath());
 				Scanner scan = new Scanner(file);
 				ArrayList<String> lines = new ArrayList<String>();
 				while (scan.hasNext()) {
 					++lineNumber;
 					String line = scan.nextLine();
 					String trimmedLine = line.trim();
-					if (trimmedLine.startsWith("pushd ")) {
-						String[] tokens = trimmedLine.split("\\s");
-						directoryStack.add(tokens[1]);
+					if (trimmedLine.startsWith("pushd ") && trimmedLine.length() > 6) {
+						//String[] tokens = trimmedLine.split("\\s");
+						//directoryStack.add(tokens[1]);						
+						String pushdPath = trimmedLine.substring(6);
+						if (pushdPath.startsWith("\"")) pushdPath = pushdPath.substring(1);
+						if (pushdPath.endsWith("\"")) pushdPath = pushdPath.substring(0, pushdPath.length() - 1);
+						directoryStack.add(pushdPath);
 					} else if (trimmedLine.startsWith("popd")) {
 						directoryStack.remove(directoryStack.size() - 1);
 					} else if (trimmedLine.startsWith("source ")) {
@@ -160,7 +173,7 @@ public class SoarDatabaseUtil {
 				agentLines.addAll(lines);
 			} catch (FileNotFoundException e) {
 				//e.printStackTrace();
-				String error = "File not found: " + files.get(filesIndex).getPath();
+				String error = "In " + file.getPath() + ": file not found at " + files.get(filesIndex).getPath();
 				newErrors.add(error);
 			}
 			for (String error : newErrors) {
@@ -256,7 +269,142 @@ public class SoarDatabaseUtil {
 	public static void alertError(String error, String filename, int line) {
 		System.out.println("Error: " + error + ", " + filename + ":" + line);
 	}
+	
+	public static void transferDatabase(final SoarDatabaseConnection from, final SoarDatabaseConnection to) {
+		final boolean debug = false;
+		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		try {
+			new ProgressMonitorDialog(shell).run(true, true, new IRunnableWithProgress() {
 
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					// TODO Auto-generated method stub
+					try {
+						DatabaseMetaData md = from.getConnectionMetadata();
+						ResultSet tables = md.getTables(null, null, "%", null); // return
+																				// all
+																				// tables
+						int numTables = 0;
+						while (tables.next()) {
+							++numTables;
+						}
+						
+						monitor.beginTask("Saving project", numTables);
+						tables = md.getTables(null, null, "%", null);
+						while (tables.next()) {
+							String tableName = tables.getString("TABLE_NAME");
+							String tableType = tables.getString("TABLE_TYPE");
+
+							if (tableType.equalsIgnoreCase("TABLE")) {
+								String sql = "select * from " + tableName;
+								ResultSet rs = from.getResultSet(sql);
+								ResultSetMetaData rsmd = rs.getMetaData();
+								ArrayList<String> columnNames = new ArrayList<String>();
+								ArrayList<Integer> columnTypes = new ArrayList<Integer>();
+								int numColumns = rsmd.getColumnCount();
+								for (int column = 1; column <= numColumns; ++column) {
+									String columnName = rsmd.getColumnName(column);
+									int columnType = rsmd.getColumnType(column);
+									String columnTypeName = rsmd.getColumnTypeName(column);
+									if (debug)
+										System.out.println(columnName + " (" + columnType + ", " + columnTypeName + ")");
+									columnTypes.add(new Integer(columnType));
+									columnNames.add(columnName);
+								}
+
+								StringBuffer buff = new StringBuffer();
+								buff.append("insert into " + tableName + " (");
+								for (int i = 0; i < numColumns; ++i) {
+									buff.append(columnNames.get(i));
+									if (i + 1 < columnNames.size()) {
+										buff.append(",");
+									}
+								}
+								buff.append(") values (");
+								for (int i = 0; i < numColumns; ++i) {
+									buff.append("?");
+									if (i + 1 < numColumns) {
+										buff.append(",");
+									}
+								}
+								buff.append(")");
+								PreparedStatement ps = to.getConnection().prepareStatement(buff.toString());
+
+								boolean execute = false;
+
+								while (rs.next()) {
+									execute = true;
+									for (int i = 0; i < numColumns; ++i) {
+										int columnIndex = i + 1;
+										int columnType = columnTypes.get(i);
+										if (columnType == Types.INTEGER) {
+											ps.setInt(columnIndex, rs.getInt(columnIndex));
+										} else if (columnType == Types.VARCHAR) {
+											ps.setString(columnIndex, rs.getString(columnIndex));
+										} else if (columnType == Types.DOUBLE) {
+											ps.setDouble(columnIndex, rs.getDouble(columnIndex));
+										} else if (columnType == Types.FLOAT) {
+											ps.setFloat(columnIndex, rs.getFloat(columnIndex));
+										} else if (columnType == Types.NULL) {
+											ps.setString(columnIndex, rs.getString(columnIndex));
+										} else {
+											System.out.println("Unknown type: " + columnType);
+										}
+									}
+									ps.addBatch();
+								}
+
+								if (execute) {
+									System.out.println("Executing: " + buff.toString());
+									ps.executeBatch();
+								}
+
+								/*
+								 * ArrayList<String> columnTypeNames = new
+								 * ArrayList<String>(); for (int column = 0;
+								 * column < columnNames.size(); ++column) {
+								 * String columnName = columnNames.get(column);
+								 * String type = null; // figure out type from
+								 * name of field. if
+								 * (columnName.equalsIgnoreCase("id")) { type =
+								 * "integer primary key"; } else if
+								 * (columnName.toLowerCase().endsWith("_id")) {
+								 * type = "integer"; } else if
+								 * (columnName.toLowerCase().startsWith("has_")
+								 * ||
+								 * columnName.toLowerCase().startsWith("is_")) {
+								 * type = "boolean"; } else if
+								 * (columnName.equalsIgnoreCase("raw_text")) {
+								 * type = "text"; } else { type =
+								 * "varchar(100)"; } columnTypeNames.add(type);
+								 * }
+								 */
+
+							} else {
+								System.out.println("No ttable");
+							}
+							monitor.worked(1);
+						}
+						monitor.done();
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
+
+			});
+		} catch (InvocationTargetException e1) {
+			e1.printStackTrace();
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	/**
+	 * This may cause problems if text in rules or item names contains sql characters
+	 * -- this method might make the database vulnerable to SQL injection problems.
+	 * @param conn
+	 * @return
+	 */
 	public static String sqlDump(SoarDatabaseConnection conn) {
 
 		final boolean debug = false;
@@ -280,7 +428,7 @@ public class SoarDatabaseUtil {
 				String tableType = tables.getString("TABLE_TYPE");
 
 				if (tableType.equalsIgnoreCase("TABLE")) {
-					if (debug || true)
+					if (debug)
 						System.out.println(tableName);
 					String sql = "select * from " + tableName;
 					ResultSet rs = conn.getResultSet(sql);
@@ -296,13 +444,7 @@ public class SoarDatabaseUtil {
 						columnTypes.add(new Integer(columnType));
 						columnNames.add(columnName);
 					}
-
-					// Don't need to do this now that
-					// SoarDatabaseConnection.loadDatabaseConnection()
-					// handles building the schema.
-					// buff.append("drop table if exists " + tableName + ";\n");
-					// buff.append("create table if not exists " + tableName +
-					// " (\n");
+					
 					ArrayList<String> columnTypeNames = new ArrayList<String>();
 					for (int column = 0; column < columnNames.size(); ++column) {
 						String columnName = columnNames.get(column);

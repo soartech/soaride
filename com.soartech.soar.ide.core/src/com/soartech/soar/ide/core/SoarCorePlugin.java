@@ -178,11 +178,40 @@ public class SoarCorePlugin extends Plugin {
     {
         getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, 0, e.getMessage(), e));
     }
+    
+    /**
+     * 
+     * @param path
+     * @param overWriteExisting
+     * @return Errors
+     */
+    public ArrayList<String> saveDatabaseAs(String path, boolean overWriteExisting) {
+    	ArrayList<String> errors = new ArrayList<String>();
+    	if (path.equals(databaseConnection.getPath())) {
+    		errors.add("Project is already saved in that file: " + path);
+    		return errors;
+    	}
+    	
+    	if (overWriteExisting) {
+    		File toDelete = new File(path);
+    		boolean deleted = toDelete.delete();
+    		if (!deleted) {
+        		errors.add("File can't be overwritten, it may be in use: " + path);
+        		return errors;    		
+        	}
+    	}
+    	
+    	SoarDatabaseConnection newConnection = new SoarDatabaseConnection(path);
+    	SoarDatabaseUtil.transferDatabase(databaseConnection, newConnection);
+    	newConnection.closeConnection();
+    	databaseConnection.loadDatabaseConnection(path);
+    	return errors;
+    }
 
-	public void saveDatabaseAs(final String path, boolean overwriteExisting) {
+	public void oldSaveDatabaseAs(final String path, boolean overwriteExisting) {
 		String dump = SoarDatabaseUtil.sqlDump(databaseConnection);
-		System.out.println("**************************DUMP");
-		System.out.println(dump);
+		//System.out.println("**************************DUMP");
+		//System.out.println(dump);
 		
 		if (overwriteExisting) {
 			File existing = new File(path);
@@ -202,6 +231,7 @@ public class SoarCorePlugin extends Plugin {
 		
 		//databaseConnection.execute(dump);
 		
+		/*
 		final String[] commands = dump.split(";");
 		ArrayList<String> errors = databaseConnection.executeBatch(commands);
 		if (errors.size() > 0) {
@@ -209,6 +239,10 @@ public class SoarCorePlugin extends Plugin {
 				System.out.println(error);
 			}
 		}
+		*/
+
+		databaseConnection.setSupressEvents(eventsSupressed);
+		databaseConnection.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
 		
 		/*
 		final String[] commands = dump.split(";");
@@ -243,8 +277,6 @@ public class SoarCorePlugin extends Plugin {
 		}
 		*/
 		
-		databaseConnection.setSupressEvents(eventsSupressed);
-		databaseConnection.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
 	}
 
 	/**
@@ -277,4 +309,8 @@ public class SoarCorePlugin extends Plugin {
 		return proxy;
 	}
 
+	public static void main(String[] args) {
+		System.out.println("ok");
+	}
+	
 }

@@ -18,6 +18,14 @@ public class StatementWrapper {
 		this.db = db;
 		this.sql = sql;
 	}
+	
+	public void setBoolean(int index, boolean value) {
+		try {
+			ps.setBoolean(index, value);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public void setInt(int index, int value) {
 		try {
