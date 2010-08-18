@@ -1,7 +1,12 @@
 package com.soartech.soar.ide.ui.actions.explorer;
 
+import java.lang.reflect.InvocationTargetException;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
@@ -38,6 +43,18 @@ public class DeleteDatabaseRowAction extends Action {
         IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
 		SoarUiModelTools.closeEditorsForInput(page, row, false);
 		
-		row.deleteAllChildren(true);
+		try {
+			new ProgressMonitorDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()).run(true, true, new IRunnableWithProgress() {
+				
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					row.deleteAllChildren(true, monitor);
+				}
+			});
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }

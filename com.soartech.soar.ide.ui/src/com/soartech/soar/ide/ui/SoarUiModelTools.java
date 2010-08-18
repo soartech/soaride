@@ -28,15 +28,19 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
+import com.soartech.soar.ide.core.sql.SoarDatabaseUtil;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor;
+import com.soartech.soar.ide.ui.editors.datamap.SoarDatamapItemDuplicateGroup;
 import com.soartech.soar.ide.ui.editors.text.SoarDatabaseOperatorEditor;
 import com.soartech.soar.ide.ui.editors.text.SoarDatabaseTagEditor;
 import com.soartech.soar.ide.ui.editors.text.SoarDatabaseTextEditor;
@@ -47,56 +51,6 @@ import com.soartech.soar.ide.ui.editors.text.SoarDatabaseTextEditor;
  */
 public class SoarUiModelTools 
 {
-	/**
-     * Show a particular Soar element in an editor.
-     * 
-     * <p>Taken from 
-     * <a href="http://wiki.eclipse.org/index.php/FAQ_How_do_I_open_an_editor_on_a_file_in_the_workspace%3F">here</a>
-     * 
-     * @param page The workbench page
-     * @param element The Soar element to display
-     * @return The editor the element was shown in, or null if the element 
-     *      could not be displayed.
-     * @throws CoreException
-     */
-	/*
-    @SuppressWarnings("unchecked")
-    public static IEditorPart showElementInEditor(IWorkbenchPage page, ISoarElement element) throws CoreException
-    {
-        // Find the resource that contains the element
-        IResource resource = element.getContainingResource();
-        if(resource == null)
-        {
-            return null;
-        }
-        
-        // Now see if it's a file
-        IFile file = (IFile) resource.getAdapter(IFile.class);
-        if(file == null)
-        {
-            return null;
-        }
-        
-        /*
-        IEditorPart part = null;
-        if(element instanceof ISoarSourceReference)
-        {
-            ISoarSourceRange range = ((ISoarSourceReference) element).getSourceRange();
-            
-            AbstractTextEditor editor = (AbstractTextEditor) IDE.openEditor(page, file);
-			editor.selectAndReveal(range.getOffset(), 0); // just highlight line, not all text
-        }
-        else
-        {
-            part = IDE.openEditor(page, file);
-        }
-        */
-        /*
-        IEditorPart part = IDE.openEditor(page, file);
-        
-        return part;
-    }
-*/
     
 	/**
      * Show a rule in an editor.
@@ -176,29 +130,13 @@ public class SoarUiModelTools
 		return null;
 	}
     
-    /**
-     * Find the active Soar editor.
-     * 
-     * @return The active Soar editor, or null if there is no active editor
-     *      or if the acitve editor isn't a Soar editor.
-     */
-	/*
-    public static SoarEditor getActiveSoarEditor()
-    {
-        IWorkbench wb = PlatformUI.getWorkbench();
-        IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-        IWorkbenchPage page = win.getActivePage();
-        IEditorPart editor = page.getActiveEditor();
-        if(!(editor instanceof SoarEditor))
-        {
-            return null;
-        }
-        return (SoarEditor) editor;
-    }
-    */
-    
     public static void closeAllEditors(boolean save) {
-    	PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeAllEditors(save);
+    	IWorkbench workbench = PlatformUI.getWorkbench();
+    	IWorkbenchWindow workbenchWindow = workbench.getActiveWorkbenchWindow();
+    	IWorkbenchPage workbenchPage = workbenchWindow.getActivePage();
+    	if (workbenchPage != null) {
+    		workbenchPage.closeAllEditors(save);
+    	}
     }
     
     public static void closeEditorsForInput(IWorkbenchPage page, SoarDatabaseRow row, boolean save) {
@@ -215,7 +153,7 @@ public class SoarUiModelTools
     }
 
 	public static SoarDatabaseRow selectAgent() {
-		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getDatabaseConnection().selectAllFromTable(Table.AGENTS);
+		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getDatabaseConnection().selectAllFromTable(Table.AGENTS, "name");
 		if (agents.size() == 0) {
 			return null;
 		}

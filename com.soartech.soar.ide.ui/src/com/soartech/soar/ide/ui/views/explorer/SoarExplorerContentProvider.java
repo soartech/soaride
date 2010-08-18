@@ -10,22 +10,20 @@ import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
+import com.soartech.soar.ide.core.sql.SoarDatabaseUtil;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.actions.explorer.ChildProblemSpaceWrapper;
 import com.soartech.soar.ide.ui.views.itemdetail.SoarDatabaseItemContentProvider;
 
-import edu.umich.soar.debugger.jmx.SoarCommandLineMXBean;
-
 public class SoarExplorerContentProvider implements ITreeContentProvider {
 	
 	String filter = "";
-	String search = "";
 	
 	@Override
 	public Object[] getChildren(Object element) {
 		if (element instanceof SoarCorePlugin) {
 			SoarDatabaseConnection conn = ((SoarCorePlugin)element).getDatabaseConnection();
-			Object[] ret = conn.selectAllFromTable(Table.AGENTS).toArray();
+			Object[] ret = conn.selectAllFromTable(Table.AGENTS, "order by name").toArray();
 			return ret;
 		}
 		else if (element instanceof ISoarDatabaseTreeItem) {
@@ -41,7 +39,7 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 					boolean putDirectionalJoinedItemsInFolders = true;
 					boolean includeDatamapNodes = false;
 					ArrayList<ISoarDatabaseTreeItem> ar = new ArrayList<ISoarDatabaseTreeItem>();
-					for (ISoarDatabaseTreeItem item : row.getChildrenOfType(Table.PROBLEM_SPACES)) {
+					for (ISoarDatabaseTreeItem item : row.getChildrenOfType(Table.PROBLEM_SPACES, "order by name")) {
 						if (item instanceof SoarDatabaseRow) {
 							SoarDatabaseRow ps = (SoarDatabaseRow) item;
 							if (ps.getTable() == Table.PROBLEM_SPACES && ps.isRootProblemSpace()) {
@@ -59,27 +57,43 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 					return ar.toArray();
 				}
 				if (table == Table.PROBLEM_SPACES) {
-					ret.addAll(row.getJoinedRowsFromTable(Table.RULES));
-					ret.addAll(row.getJoinedRowsFromTable(Table.OPERATORS));
-					ret.addAll(row.getDirectedJoinedChildrenOfType(Table.PROBLEM_SPACES, false, true));
-					ret = SoarDatabaseItemContentProvider.sortExplorerItems(ret);
+					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.OPERATORS, Table.RULES };
+					for (Table folderTable : tables) {
+						SoarDatabaseRowFolder folder = new SoarDatabaseRowFolder(row, folderTable, true);
+						if (folder.hasChildren()) {
+							ret.add(folder);
+						}
+					}
+					
+					// If there's only one folder, just display items, not in folders.
+					if (ret.size() == 1) {
+						ret.clear();
+						for (Table folderTable : tables) {
+							ret.addAll(SoarDatabaseUtil.sortRowsByName(row.getJoinedRowsFromTable(folderTable)));
+						}
+						ret = SoarDatabaseItemContentProvider.sortExplorerItems(ret);
+					}
 				}
 				if (table == Table.OPERATORS) {
-					ret.addAll(row.getJoinedRowsFromTable(Table.RULES));
-					ret.addAll(row.getJoinedRowsFromTable(Table.PROBLEM_SPACES));
+					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.RULES };
+					for (Table folderTable : tables) {
+						ret.addAll(SoarDatabaseUtil.sortRowsByName(row.getJoinedRowsFromTable(folderTable)));
+					}
+					ret = SoarDatabaseItemContentProvider.sortExplorerItems(ret);
 				}
 				if (table == Table.RULES) {
 					return new Object[0];
 				}
 				if (table == Table.TAGS) {
-					ret.addAll(row.getUndirectedJoinedRowsFromTable(Table.OPERATORS));
-					ret.addAll(row.getUndirectedJoinedRowsFromTable(Table.RULES));
-					ret.addAll(row.getUndirectedJoinedRowsFromTable(Table.PROBLEM_SPACES));
+					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.OPERATORS, Table.RULES };
+					for (Table folderTable : tables) {
+						ret.addAll(SoarDatabaseUtil.sortRowsByName(row.getJoinedRowsFromTable(folderTable)));
+					}
 					ret = SoarDatabaseItemContentProvider.sortExplorerItems(ret);
 				}
 				ret = packageProblemSpaces(ret, row);
 			}
-			if (element instanceof SoarDatabaseRowFolder) {
+			else if (element instanceof SoarDatabaseRowFolder) {
 				SoarDatabaseRowFolder folder = (SoarDatabaseRowFolder) element;
 				boolean includeFolders = true;
 				boolean includeChildrenInFolders = false;
@@ -94,6 +108,7 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 						includeDirectionalJoinedItems,
 						putDirectionalJoinedItemsInFolders,
 						includeDatamapNodes);
+				SoarDatabaseUtil.sortRowsByName(ret);
 			}
 			ret = SoarDatabaseItemContentProvider.sortExplorerItems(ret);
 			ret = filterAndSearch(ret);
@@ -102,6 +117,13 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 		return new Object[0];
 	}
 
+	/**
+	 * Replaces instances of SoarDatabaseRow of type PROBLEM_SPACE with
+	 * ChildProblemSpaceWrapper objects.
+	 * @param list
+	 * @param parent
+	 * @return
+	 */
 	private ArrayList<ISoarDatabaseTreeItem> packageProblemSpaces(ArrayList<ISoarDatabaseTreeItem> list, SoarDatabaseRow parent) {
 		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		
@@ -122,8 +144,13 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 		return ret;
 	}
 	
+	/**
+	 * Filters the results by the user-entered filter string.
+	 * @param list
+	 * @return
+	 */
 	private ArrayList<ISoarDatabaseTreeItem> filterAndSearch(ArrayList<ISoarDatabaseTreeItem> list) {
-		if (filter.length() == 0 && search.length() == 0) return list;
+		if (filter.length() == 0) return list;
 		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		for (ISoarDatabaseTreeItem item : list) {
 			boolean add = true;
@@ -131,10 +158,6 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 				SoarDatabaseRow row = (SoarDatabaseRow) item;
 				String name = row.getName();
 				if (filter.length() != 0 && !name.contains(filter)) {
-					add = false;
-				}
-				String text = row.getText();
-				if (search.length() != 0 && row.getTable() == Table.RULES && !text.contains(search)) {
 					add = false;
 				}
 			}
@@ -187,9 +210,4 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 	public void setFilter(String filter) {
 		this.filter = filter.trim();
 	}
-	
-	public void setSearch(String search) {
-		this.search = search.trim();
-	}
-
 }

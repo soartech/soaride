@@ -29,13 +29,11 @@ public class OpenSoarDatabaseProjectActionDelegate implements IWorkbenchWindowAc
 		shell = window.getShell();
 		this.window = window;
 	}
-
-	@Override
-	public void run(IAction action) {
-		
+	
+	public void run(boolean warning) {
 		boolean savedToDisk = SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk();
 		
-		if (!savedToDisk) {
+		if (!savedToDisk && warning) {
 			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 			MessageDialog message = new MessageDialog(shell, "Open project?", null, "Open project? Unsaved changes will be lost.", MessageDialog.QUESTION, new String[] {"OK", "Cancel"}, 0);
 			int result = message.open();
@@ -44,6 +42,9 @@ public class OpenSoarDatabaseProjectActionDelegate implements IWorkbenchWindowAc
 			}
 		}
 		
+		if (shell == null) {
+			shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		}
 		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
 		dialog.setText("Open Soar Project...");
 		dialog.open();
@@ -55,10 +56,14 @@ public class OpenSoarDatabaseProjectActionDelegate implements IWorkbenchWindowAc
 			SoarUiModelTools.closeAllEditors(false);
 		}
 		
-		if (path != null && path.length() > 0) {
-
+		if (path != null && path.length() > 1) {
 			SoarCorePlugin.getDefault().openProject(path);
 		}
+	}
+
+	@Override
+	public void run(IAction action) {
+		run(true);
 	}
 
 	@Override

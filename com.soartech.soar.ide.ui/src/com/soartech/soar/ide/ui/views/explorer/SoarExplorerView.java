@@ -22,6 +22,9 @@ package com.soartech.soar.ide.ui.views.explorer;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
@@ -31,6 +34,8 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -48,7 +53,9 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.progress.UIJob;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
@@ -73,6 +80,8 @@ import com.soartech.soar.ide.ui.actions.explorer.MarkProblemSpaceRootAction;
 import com.soartech.soar.ide.ui.actions.explorer.OpenDatabaseRowInEditorAction;
 import com.soartech.soar.ide.ui.actions.explorer.RemoveJoinFromParentAction;
 import com.soartech.soar.ide.ui.actions.explorer.RenameDatabaseRowAction;
+import com.soartech.soar.ide.ui.actions.soarmenu.NewSoarProjectActionDelegate;
+import com.soartech.soar.ide.ui.actions.soarmenu.OpenSoarDatabaseProjectActionDelegate;
 import com.soartech.soar.ide.ui.views.SoarDatabaseRowDoubleClickListener;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
 
@@ -85,8 +94,7 @@ import edu.umich.soar.debugger.jmx.SoarCommandLineMXBean;
  * @author aron
  */
 public class SoarExplorerView extends ViewPart 
-							  implements
-								 		 ISoarDatabaseEventListener
+							  implements ISoarDatabaseEventListener
 {
     public static final String ID = "com.soartech.soar.ide.ui.views.SoarExplorerView";
     
@@ -115,12 +123,12 @@ public class SoarExplorerView extends ViewPart
 		tree.setContentProvider(contentProvider);
 		tree.setLabelProvider(databaseLabelProvider);
 		SoarCorePlugin input = SoarCorePlugin.getDefault();
+		input.getDatabaseConnection().addListener(this);
         tree.setInput(input);
         getSite().setSelectionProvider(tree);
         
         createContextMenu();
         makeActions();
-        SoarCorePlugin.getDefault().getDatabaseConnection().addListener(this);
         tree.addDragSupport(DND.DROP_MOVE, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseExplorerDragAdapter());
         tree.addDropSupport(DND.DROP_MOVE, new Transfer[] {LocalSelectionTransfer.getTransfer()}, new SoarDatabaseExplorerDropAdapter(tree));
         
@@ -309,6 +317,23 @@ public class SoarExplorerView extends ViewPart
 	public void init(IViewSite site, IMemento memento) throws PartInitException 
 	{
 		super.init(site, memento);
+		/*
+		while (!SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk()) {
+			MessageDialog dialog = new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Soar IDE", null, "Create a new Soar IDE project or open an existing project?",
+					MessageDialog.QUESTION, new String[] { "New Soar IDE Project", "Open Existing Soar IDE Project", "Cancel" }, 2);
+			int result = dialog.open();
+			if (result == 0) {
+				NewSoarProjectActionDelegate action = new NewSoarProjectActionDelegate();
+				action.run(false);
+			} else if (result == 1) {
+				OpenSoarDatabaseProjectActionDelegate action = new OpenSoarDatabaseProjectActionDelegate();
+				action.run(false);
+			} else if (result == 2) {
+				break;
+			}
+		}
+		*/
+		updateTitle(SoarCorePlugin.getDefault());
 	}
 
 	@Override
@@ -366,52 +391,6 @@ public class SoarExplorerView extends ViewPart
         manager.add(new Separator());
     }
 	
-	/**
-	 * Update the package explorer according to the new model.
-	 */
-	public void update()
-	{
-		if(tree != null)
-		{
-            Control control = tree.getControl();
-            if(control != null && !control.isDisposed())
-            {
-    			//save the state of the expanded tree elements
-                Object[] expandedElements = tree.getExpandedElements();
-                
-                control.setRedraw(false);
-    			
-                tree.refresh();
-    			
-    			//re-expand the tree to it's previous state
-                tree.setExpandedElements(expandedElements);
-                control.setRedraw(true);
-            }
-		}
-	}
-	
-	/**
-	 * Switch the structure of the package explorer.
-	 *
-	 */
-	/*
-	public void switchViewStructure(boolean showFullView)
-	{
-		if(showFullView)
-		{
-            tree.setContentProvider(fullViewContentProvider);
-            tree.setLabelProvider(fullViewLabelProvider);
-		}
-		else
-		{
-			tree.setContentProvider(productionViewContentProvider);
-            tree.setLabelProvider(productionViewLabelProvider);
-		}
-
-		update();
-	}
-	*/
-	
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.part.WorkbenchPart#setFocus()
 	 */
@@ -423,22 +402,14 @@ public class SoarExplorerView extends ViewPart
             tree.getControl().setFocus();
         }
 	}
-
-	/* (non-Javadoc)
-	 * @see com.soartech.soar.ide.core.model.ISoarModelListener#onEvent(com.soartech.soar.ide.core.model.SoarModelEvent)
-	 */
-	/*
-	public void onEvent(SoarModelEvent event) 
-	{
-		Display.getDefault().asyncExec(new Runnable(){
-
-			public void run() {
-				update();
-			}
+	
+	private void updateTitle(SoarCorePlugin input) {
+		if (input.getDatabaseConnection().isSavedToDisk()) {
+			this.setPartName("Soar Explorer: " + input.getDatabaseConnection().getPath());
+		} else {
+			this.setPartName("Soar Explorer: Unsaved Project");
 		}
-		);
 	}
-	*/
 
 	@Override
 	public void onEvent(SoarDatabaseEvent event, SoarDatabaseConnection db) {
@@ -446,11 +417,28 @@ public class SoarExplorerView extends ViewPart
 		if (event.type == SoarDatabaseEvent.Type.DATABASE_PATH_CHANGED) {
 			SoarCorePlugin input = SoarCorePlugin.getDefault();
 	        tree.setInput(input);
+	        updateTitle(input);
 		}
 		
 		//Object[] elements = tree.getExpandedElements();
 		//TreePath[] treePaths = tree.getExpandedTreePaths();
-        tree.refresh();
+		Display display = Display.getDefault();
+		if (display != null) {
+			display.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					tree.refresh();
+				};
+			});
+		}
+		/*
+		Display.getCurrent().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+		        tree.refresh();
+			}
+		});
+		*/
 		//tree.setExpandedElements(elements);
 		//tree.setExpandedTreePaths(treePaths);
 	}
@@ -461,11 +449,6 @@ public class SoarExplorerView extends ViewPart
 
 	public void setFilterString(String text) {
 		contentProvider.setFilter(text);
-		tree.refresh();
-	}
-	
-	public void setSearchString(String text) {
-		contentProvider.setSearch(text);
 		tree.refresh();
 	}
 }

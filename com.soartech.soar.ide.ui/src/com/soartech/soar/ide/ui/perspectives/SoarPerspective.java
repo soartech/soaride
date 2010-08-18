@@ -19,10 +19,21 @@
  */
 package com.soartech.soar.ide.ui.perspectives;
 
+import java.util.ArrayList;
+
 import org.eclipse.debug.ui.IDebugUIConstants;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
+import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveFactory;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PerspectiveAdapter;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.Perspective;
+import org.eclipse.ui.internal.WorkbenchPage;
+import org.eclipse.ui.internal.registry.IActionSetDescriptor;
 
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerView;
 import com.soartech.soar.ide.ui.views.itemdetail.SoarDatabaseItemView;
@@ -48,8 +59,12 @@ public class SoarPerspective implements IPerspectiveFactory {
      * @see org.eclipse.ui.IPerspectiveFactory#createInitialLayout(org.eclipse.ui.IPageLayout)
      */
     public void createInitialLayout( IPageLayout layout ) {
-        
-        String editorArea = layout.getEditorArea();
+    	
+    	layout.addActionSet("com.soartech.soar.ide.ui.FileActions");
+    	layout.addActionSet("com.soartech.soar.ide.ui.projectActions");
+    	layout.addActionSet("com.soartech.soar.ide.ui.debuggerActions");
+    	
+    	String editorArea = layout.getEditorArea();
         
         layout.addActionSet("com.soartech.soar.ide.ui.soarActionSet");
         

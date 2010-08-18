@@ -93,20 +93,18 @@ public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEvent
 			SoarCorePlugin input = SoarCorePlugin.getDefault();
 	        tree.setInput(input);
 		}
-		
-		Runnable runnable = new Runnable() {
-			  
-			  @Override public void run() {
 
-			try {
-				tree.refresh();
-			} catch (Exception e) {
-				e.printStackTrace();
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					tree.refresh();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
-			
-			  } };
-			  
-			  Display.findDisplay(Thread.currentThread()).asyncExec(runnable);
+		});
 		/*
 		TreePath[] paths = tree.getExpandedTreePaths();
 		Object input = tree.getInput();

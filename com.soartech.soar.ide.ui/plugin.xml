@@ -90,93 +90,101 @@
   <extension
         point="org.eclipse.ui.actionSets">
      <actionSet
-           description="Actions on Soar files."
-           id="com.soartech.soar.ide.ui.soarActionSet"
-           label="Soar Actions"
-           visible="false">
+           description="Actions on Soar IDE Projects"
+           id="com.soartech.soar.ide.ui.projectActions"
+           label="Soar Actions">
+       <action
+             class="com.soartech.soar.ide.ui.actions.explorer.GenerateAgentStructureActionDelegate"
+             id="com.soartech.soar.ide.ui.actions.explorer.GenerateProjectStructureActionDelegate"
+             label="Generate Structure"
+             menubarPath="com.soartech.soar.ide.ui.soarMenu/soarActions"
+             style="push"
+             tooltip="Automatiaclly generates agent structure."/>
+       <action
+             class="com.soartech.soar.ide.ui.actions.explorer.ImportRulesActionDelegate"
+             id="com.soartech.soar.ide.ui.actions.explorer.ImportRules"
+             label="Import Rules"
+             menubarPath="com.soartech.soar.ide.ui.soarMenu/soarActions"
+             style="push"
+             tooltip="Imports rules from a text file into the current agent."/>
+       <action
+             class="com.soartech.soar.ide.ui.actions.soarmenu.SearchRulesActionDelegate"
+             icon="icons/search_flag.png"
+             id="com.soartech.soar.ide.ui.actions.soarmenu.SearchRulesActionDelegate"
+             label="Search"
+             menubarPath="com.soartech.soar.ide.ui.soarMenu/soarActions"
+             style="push"
+             toolbarPath="com.soartech.soar.ide.ui.soarToolbar"
+             tooltip="Search the Soar IDE Project"/>
+        <action
+              class="com.soartech.soar.ide.ui.actions.soarmenu.GenerateDatamapsActionDelegate"
+              id="com.soartech.soar.ide.ui.actions.soarmenu.GenerateDatamapsActionDelegate"
+              label="Generate Datamaps"
+              menubarPath="com.soartech.soar.ide.ui.soarMenu/soarActions"
+              style="push"
+              tooltip="Automatiaclly generates a datamap for each problem space.">
+        </action>
         <menu
               id="com.soartech.soar.ide.ui.soarMenu"
               label="Soar"
               path="additions">
-           <separator name="soarMenuGroup"/>
         </menu>
         <action
               class="com.soartech.soar.ide.ui.actions.soarmenu.SaveSoarDatabaseProjectActionDelegate"
+              icon="icons/s_flag.png"
               id="com.soartech.soar.ide.ui.actions.soarmenu.SaveSoarDatabaseProjectActionDelegate"
-              label="Save Project..."
-              menubarPath="com.soartech.soar.ide.ui.soarMenu/project"
+              label="Save Project"
+              menubarPath="com.soartech.soar.ide.ui.soarMenu/soarActions"
               style="push"
-              tooltip="Save the current Soar project."/>
+              toolbarPath="com.soartech.soar.ide.ui.soarToolbar"
+              tooltip="Save the Current Soar IDE Project in a new file.">
+        </action>
         <action
               class="com.soartech.soar.ide.ui.actions.soarmenu.OpenSoarDatabaseProjectActionDelegate"
+              icon="icons/o_flag.png"
               id="com.soartech.soar.ide.ui.actions.soarmenu.OpenSoarDatabaseProjectActionDelegate"
-              label="Open Project..."
-              menubarPath="com.soartech.soar.ide.ui.soarMenu/project"
+              label="Open Project"
+              menubarPath="com.soartech.soar.ide.ui.soarMenu/soarActions"
               style="push"
-              tooltip="Open an existing Soar project."/>
+              toolbarPath="com.soartech.soar.ide.ui.soarToolbar"
+              tooltip="Open a Soar IDE Project">
+        </action>
         <action
               class="com.soartech.soar.ide.ui.actions.soarmenu.NewSoarProjectFromSourceActionDelegate"
+              icon="icons/i_flag.png"
               id="com.soartech.soar.ide.ui.actions.soarmenu.NewSoarProjectFromSourceActionDelegate"
-              label="New Project With Existing Source..."
-              menubarPath="com.soartech.soar.ide.ui.soarMenu/project"
+              label="Import New Agent From Source"
+              menubarPath="com.soartech.soar.ide.ui.soarMenu/soarActions"
               style="push"
-              tooltip="Creates a new Soar project using existing source code."/>
+              toolbarPath="com.soartech.soar.ide.ui.soarToolbar"
+              tooltip="Import New Agent From Existing Source">
+        </action>
         <action
               class="com.soartech.soar.ide.ui.actions.soarmenu.NewSoarProjectActionDelegate"
+              icon="icons/n_flag.png"
               id="com.soartech.soar.ide.ui.actions.soarmenu.NewSoarProjectActionDelegate"
               label="New Project"
-              menubarPath="com.soartech.soar.ide.ui.soarMenu/project"
+              menubarPath="com.soartech.soar.ide.ui.soarMenu/soarActions"
               style="push"
-              tooltip="Creates a new Soar project."/>
-       <action
-             class="com.soartech.soar.ide.ui.actions.soarmenu.GenerateDatamapsActionDelegate"
-             id="com.soartech.soar.ide.ui.actions.soarmenu.GenerateDatamapsActionDelegate"
-             label="Generate Datamaps"
-              menubarPath="com.soartech.soar.ide.ui.soarMenu/agent"
+              toolbarPath="com.soartech.soar.ide.ui.soarToolbar"
+              tooltip="New Soar IDE Project">
+        </action>
+        <action
+              class="com.soartech.soar.ide.ui.actions.explorer.LoadMultipleProjectsActionDelegate"
+              id="com.soartech.soar.ide.ui.actions.explorer.LoadMultipleProjectsActionDelegate"
+              label="Load Multiple Projects"
+              menubarPath="com.soartech.soar.ide.ui.soarMenu/soarActions"
               style="push"
-              tooltip="Automatiaclly generates a datamap for each problem space."/>
-       <action
-             class="com.soartech.soar.ide.ui.actions.explorer.GenerateAgentStructureActionDelegate"
-             id="com.soartech.soar.ide.ui.actions.explorer.GenerateProjectStructureActionDelegate"
-             label="Generate Project Structure"
-              menubarPath="com.soartech.soar.ide.ui.soarMenu/agent"
-              style="push"
-              tooltip="Automatiaclly generates agent structure."/>
-       <action
-             class="com.soartech.soar.ide.ui.actions.explorer.ImportRulesActionDelegate"
-             id="com.soartech.soar.ide.ui.actions.explorer.ImportRules"
-             label="Import Rules..."
-              menubarPath="com.soartech.soar.ide.ui.soarMenu/agent"
-              style="push"
-              tooltip="Imports rules from a text file."/>
-       <action
-             class="com.soartech.soar.ide.ui.actions.soarmenu.SearchRulesActionDelegate"
-             id="com.soartech.soar.ide.ui.actions.soarmenu.SearchRulesActionDelegate"
-             label="Search Rules"
-              menubarPath="com.soartech.soar.ide.ui.soarMenu/agent"
-              style="push"
-              tooltip="Searches all rules for a string."/>
-       <action
-             class="com.soartech.soar.ide.ui.actions.explorer.AddAgentActionDelegate"
-             id="com.soartech.soar.ide.ui.actions.explorer.AddAgent"
-             label="New Agent"
-              menubarPath="com.soartech.soar.ide.ui.soarMenu/agent"
-              style="push"
-              tooltip="Adds an Agent to the project."/>
+              tooltip="FOR TESTING: Loads many projects into the IDE, one after antoher.">
+        </action>
         <action
               class="com.soartech.soar.ide.ui.actions.soarmenu.SpawnSoarDebuggerActionDelegate"
               id="com.soartech.soar.ide.ui.actions.soarmenu.SpawnSoarDebuggerActionDelegate"
               label="Spawn Debugger"
-              menubarPath="com.soartech.soar.ide.ui.soarMenu/debugger"
+              menubarPath="com.soartech.soar.ide.ui.soarMenu/soarActions"
               style="push"
-              tooltip="Spawns an instance of the Soar Debugger and connects it to the IDE."/>
-        <action
-              class="com.soartech.soar.ide.ui.actions.explorer.LoadMultipleProjectsActionDelegate"
-              id="com.soartech.soar.ide.ui.actions.explorer.LoadMultipleProjectsActionDelegate"
-              label="Load Multiple Projects..."
-              menubarPath="com.soartech.soar.ide.ui.soarMenu/debugger"
-              style="push"
-              tooltip="FOR TESTING: Loads many projects into the IDE, one after antoher."/>
+              tooltip="Spawns an instance of the Soar Debugger and connects it to the IDE.">
+        </action>
      </actionSet>
   </extension>
   
@@ -446,5 +454,5 @@ sp {${rule}
           markerType="com.soartech.soar.ide.problemmarker">
     </markerResolutionGenerator>
  </extension>
- 
+
 </plugin>

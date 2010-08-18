@@ -111,7 +111,7 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 		*/
 		
 		// Import rules
-		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getDatabaseConnection().selectAllFromTable(Table.AGENTS);
+		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getDatabaseConnection().selectAllFromTable(Table.AGENTS, "name");
 		SoarDatabaseRow agent = null;
 		for (SoarDatabaseRow row : agents) {
 			if (row.getName().equals(agentName)) {

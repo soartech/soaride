@@ -96,6 +96,7 @@ public class SoarEditorPluginImages {
     public static final String IMG_TAG = NAME_PREFIX + "tag.gif";
     public static final String IMG_SP = NAME_PREFIX + "sp.gif";
     public static final String IMG_OPERATOR = NAME_PREFIX + "operator.gif";
+    public static final String IMG_OPERATOR_WITH_SUBSTATE = NAME_PREFIX + "operator_with_substate.gif";
     public static final String IMG_FLOAT = NAME_PREFIX + "float.gif";
     public static final String IMG_STRING = NAME_PREFIX + "string.gif";
     public static final String IMG_INTEGER = NAME_PREFIX + "integer.gif";
@@ -151,6 +152,7 @@ public class SoarEditorPluginImages {
         registerImage(registry, IMG_TAG);
         registerImage(registry, IMG_SP);
         registerImage(registry, IMG_OPERATOR);
+        registerImage(registry, IMG_OPERATOR_WITH_SUBSTATE);
         registerImage(registry, IMG_FLOAT);
         registerImage(registry, IMG_STRING);
         registerImage(registry, IMG_INTEGER);

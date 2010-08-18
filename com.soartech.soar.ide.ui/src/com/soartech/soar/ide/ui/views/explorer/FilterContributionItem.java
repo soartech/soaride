@@ -120,11 +120,7 @@ public class FilterContributionItem extends ControlContribution
                 {
                     if(!textWidget.isDisposed())
                     {
-                    	if (search) {
-                    		view.setSearchString(textWidget.getText());
-                    	} else {
                     		view.setFilterString(textWidget.getText());
-                    	}
                     }
                 }
             });

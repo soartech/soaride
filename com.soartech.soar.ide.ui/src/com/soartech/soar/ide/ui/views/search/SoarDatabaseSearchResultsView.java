@@ -58,7 +58,7 @@ public class SoarDatabaseSearchResultsView extends ViewPart {
 	}
 	
 	public static void searchForRulesWithString(String query) {
-		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getDatabaseConnection().selectAllFromTable(Table.AGENTS);
+		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getDatabaseConnection().selectAllFromTable(Table.AGENTS, "name");
 		ArrayList<SoarDatabaseRow> result = new ArrayList<SoarDatabaseRow>();
 		for (SoarDatabaseRow agent : agents) {
 			ArrayList<SoarDatabaseRow> rules = agent.getChildrenOfType(Table.RULES);

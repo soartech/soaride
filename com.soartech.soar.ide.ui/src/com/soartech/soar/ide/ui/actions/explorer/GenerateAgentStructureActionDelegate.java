@@ -226,6 +226,18 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 			}
 		}
 		
+		// Find problem spaces and operators that have the same name.
+		// Make those problem spaces children of those operators.
+		for (String problemSpaceName : problemSpaces.keySet()) {
+			for (String operatorName : operators.keySet()) {
+				if (problemSpaceName.equals(operatorName)) {
+					SoarDatabaseRow problemSpace = problemSpaces.get(problemSpaceName);
+					SoarDatabaseRow operator = operators.get(operatorName);
+					proposeDirectedJoin(problemSpace, operator);
+				}
+			}
+		}
+		
 		if (monitor != null) {
 			monitor.done();
 		}
@@ -359,7 +371,7 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 	private void proposeAddStateToSuperstate(SoarDatabaseRow rule, HashSet<String> stateNames, String superstateName) {
 		
 		// First, find the states currently joined to the operator.
-		ArrayList<ISoarDatabaseTreeItem> states = rule.getJoinedRowsFromTable(Table.PROBLEM_SPACES);
+		ArrayList<SoarDatabaseRow> states = rule.getJoinedRowsFromTable(Table.PROBLEM_SPACES);
 		
 		// If there are none, don't propose a join.
 		if (states.size() == 0) return;
@@ -367,9 +379,7 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 		// If there is one whose name is in stateNames, propose that join.
 		// If there is more than one, choose from those states.
 		ArrayList<SoarDatabaseRow> problemSpaces = new ArrayList<SoarDatabaseRow>();
-		for (ISoarDatabaseTreeItem item : states) {
-			assert item instanceof SoarDatabaseRow;
-			SoarDatabaseRow state = (SoarDatabaseRow) item;
+		for (SoarDatabaseRow state : states) {
 			assert state.getTable() == Table.PROBLEM_SPACES;
 			String stateName = state.getName();
 			if (stateNames.contains(stateName)) {
@@ -408,11 +418,9 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 	}
 		
 	private SoarDatabaseRow getRowOfTypeNamed(Table type, String name) {
-		ArrayList<ISoarDatabaseTreeItem> rowsOfType = row.getJoinedRowsFromTable(type);
+		ArrayList<SoarDatabaseRow> rowsOfType = row.getJoinedRowsFromTable(type);
 		ArrayList<SoarDatabaseRow> rowsWithName = new ArrayList<SoarDatabaseRow>();
-		for (ISoarDatabaseTreeItem item : rowsOfType) {
-			assert item instanceof SoarDatabaseRow;
-			SoarDatabaseRow row = (SoarDatabaseRow) item;
+		for (SoarDatabaseRow row : rowsOfType) {
 			assert row.getTable() == type;
 			if (row.getName().equals(name)) {
 				rowsWithName.add(row);

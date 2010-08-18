@@ -26,22 +26,22 @@ public class LinkDatamapRowsAction extends Action {
 			return;
 		}
 		
-		ArrayList<ISoarDatabaseTreeItem> otherSeconds = second.getUndirectedJoinedRowsFromTable(second.getTable());
-		ArrayList<ISoarDatabaseTreeItem> otherFirsts = first.getUndirectedJoinedRowsFromTable(first.getTable());
+		ArrayList<SoarDatabaseRow> otherSeconds = second.getUndirectedJoinedRowsFromTable(second.getTable());
+		ArrayList<SoarDatabaseRow> otherFirsts = first.getUndirectedJoinedRowsFromTable(first.getTable());
 		
 		SoarDatabaseRow.joinRows(first,
 				second,
 				first.getDatabaseConnection());
 		
-		for (ISoarDatabaseTreeItem item : otherSeconds) {
+		for (SoarDatabaseRow item : otherSeconds) {
 			SoarDatabaseRow.joinRows(first,
-					(SoarDatabaseRow) item,
+					item,
 					first.getDatabaseConnection());	
 		}
 		
-		for (ISoarDatabaseTreeItem item : otherFirsts) {
+		for (SoarDatabaseRow item : otherFirsts) {
 			SoarDatabaseRow.joinRows(second,
-					(SoarDatabaseRow) item,
+					item,
 					second.getDatabaseConnection());	
 		}
 		

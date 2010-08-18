@@ -1,6 +1,5 @@
 package com.soartech.soar.ide.ui.actions.explorer;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -10,8 +9,6 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListSelectionDialog;
 
@@ -206,16 +203,15 @@ public class GenerateDatamapAction extends Action {
 	SoarDatabaseRow problemSpace;
 	//Shell shell;
 	public boolean applyAll = false;
-	ArrayList<ISoarDatabaseTreeItem> joinedRules;
+	ArrayList<SoarDatabaseRow> joinedRules;
 	
 	public GenerateDatamapAction(SoarDatabaseRow problemSpace, boolean applyAll) {
 		super ("Generate Datamap");
 		this.problemSpace = problemSpace;
 		this.applyAll = applyAll;
 		joinedRules = problemSpace.getJoinedRowsFromTable(Table.RULES);
-		ArrayList<ISoarDatabaseTreeItem> joinedOperators = problemSpace.getJoinedRowsFromTable(Table.OPERATORS);
-		for (ISoarDatabaseTreeItem item : joinedOperators) {
-			SoarDatabaseRow operator = (SoarDatabaseRow) item;
+		ArrayList<SoarDatabaseRow> joinedOperators = problemSpace.getJoinedRowsFromTable(Table.OPERATORS);
+		for (SoarDatabaseRow operator : joinedOperators) {
 			joinedRules.addAll(operator.getJoinedRowsFromTable(Table.RULES));
 		}
 	}
@@ -399,6 +395,9 @@ public class GenerateDatamapAction extends Action {
 		// For each superstate attribute, and superstate.superstate attribute, etc.,
 		// link that attribute with ancestor problem spaces' <s> node.
 		ArrayList<SoarDatabaseRow> superstates = problemSpace.getDirectedJoinedParentsOfType(Table.PROBLEM_SPACES);
+		for (SoarDatabaseRow operator : problemSpace.getDirectedJoinedParentsOfType(Table.OPERATORS)) {
+			superstates.addAll(operator.getDirectedJoinedParentsOfType(Table.PROBLEM_SPACES));
+		}
 		while (superstates.size() > 0) {
 			ArrayList<ISoarDatabaseTreeItem> superstateAtributes = root.getDirectedJoinedChildrenOfType(Table.DATAMAP_IDENTIFIERS, false, false);
 			ArrayList<ISoarDatabaseTreeItem> nextSueprstateAttributes = new ArrayList<ISoarDatabaseTreeItem>();

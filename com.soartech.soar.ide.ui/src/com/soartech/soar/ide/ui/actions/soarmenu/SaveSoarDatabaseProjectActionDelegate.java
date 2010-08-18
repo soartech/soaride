@@ -1,13 +1,10 @@
 package com.soartech.soar.ide.ui.actions.soarmenu;
 
-import java.io.File;
 import java.util.ArrayList;
-
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
@@ -32,7 +29,10 @@ public class SaveSoarDatabaseProjectActionDelegate implements IWorkbenchWindowAc
 
 		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
 		dialog.setText("Save Soar Project As...");
+		dialog.setOverwrite(true);
 		String path = dialog.open();
+		
+		/*
 		
 		File saveFile = new File(path);
 		
@@ -50,9 +50,10 @@ public class SaveSoarDatabaseProjectActionDelegate implements IWorkbenchWindowAc
 				// saveFile.delete();
 			}
 		}
+		*/
 		
-		if (save && path != null && path.length() > 0) {
-			ArrayList<String> errors = SoarCorePlugin.getDefault().saveDatabaseAs(path, overwriteExisting);
+		if (path != null && path.length() > 0) {
+			ArrayList<String> errors = SoarCorePlugin.getDefault().saveDatabaseAs(path, true);
 			if (errors.size() > 0) {
 				System.out.println(errors);
 			}

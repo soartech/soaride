@@ -1,5 +1,6 @@
 package com.soartech.soar.ide.ui.actions.soarmenu;
 
+
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -20,10 +21,9 @@ public class NewSoarProjectActionDelegate implements IWorkbenchWindowActionDeleg
 	@Override
 	public void init(IWorkbenchWindow arg0) {
 	}
-
-	@Override
-	public void run(IAction action) {
-		if (SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk()) {
+	
+	public void run(boolean warning) {
+		if (SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk() || !warning) {
 			SoarUiModelTools.closeAllEditors(true);
 		} else {
 			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
@@ -35,6 +35,11 @@ public class NewSoarProjectActionDelegate implements IWorkbenchWindowActionDeleg
 			SoarUiModelTools.closeAllEditors(false);
 		}
 		SoarCorePlugin.getDefault().newProject();
+	}
+
+	@Override
+	public void run(IAction action) {
+		run(true);
 	}
 
 	@Override

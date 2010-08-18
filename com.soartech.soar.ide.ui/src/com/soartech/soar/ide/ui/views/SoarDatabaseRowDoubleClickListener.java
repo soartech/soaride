@@ -5,6 +5,7 @@ import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
@@ -12,6 +13,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
+import com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor;
 
 public class SoarDatabaseRowDoubleClickListener implements IDoubleClickListener {
 
@@ -63,6 +65,22 @@ public class SoarDatabaseRowDoubleClickListener implements IDoubleClickListener 
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
+			} else if (selectedTable.isDatamapTable()) {
+				SoarDatabaseRow problemSpace = selectedRow.getAncestorRow(Table.PROBLEM_SPACES);
+				IEditorPart part = null;
+				try {
+					part = SoarUiModelTools.showProblemSpaceInEditor(page, problemSpace);
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
+				// TODO
+				// open tree in editor to the selected node
+				/*
+				if (part != null && part instanceof SoarDatabaseDatamapEditor) {
+					SoarDatabaseDatamapEditor datamapEditor = (SoarDatabaseDatamapEditor) part;
+					TreeViewer tree = datamapEditor.getTree();
+				}
+				*/
 			}
 		}
 	}

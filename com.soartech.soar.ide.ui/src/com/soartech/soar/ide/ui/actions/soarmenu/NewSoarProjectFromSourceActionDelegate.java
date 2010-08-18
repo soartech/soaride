@@ -20,9 +20,14 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 
+import sun.net.ProgressMonitor;
+
 import com.soartech.soar.ide.core.SoarCorePlugin;
+import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseUtil;
+import com.soartech.soar.ide.core.sql.TraversalUtil;
+import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.actions.explorer.GenerateAgentStructureActionDelegate;
@@ -39,9 +44,11 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 
 	@Override
 	public void run(IAction action) {
-		
-		boolean savedToDisk = SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk();
+
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		
+		/*
+		boolean savedToDisk = SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk();
 		
 		if (!savedToDisk) {
 			MessageDialog message = new MessageDialog(shell, "Create new project?", null, "Create new project? Unsaved changes will be lost.", MessageDialog.QUESTION, new String[] {"OK", "Cancel"}, 0);
@@ -50,8 +57,10 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 				return;
 			}
 		}
+		*/
 		
 		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+		dialog.setText("Choose Source File To Import");
 		String path = dialog.open();
 		if (path == null) {
 			return;
@@ -61,13 +70,15 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 			return;
 		}
 		
+		/*
 		if (savedToDisk) {
 			SoarUiModelTools.closeAllEditors(true);
 		} else {
 			SoarUiModelTools.closeAllEditors(false);
 		}
+		*/
 		
-		SoarCorePlugin.getDefault().newProject();
+		//SoarCorePlugin.getDefault().newProject();
 		
 		// New agent
 		int lastSlashIndex = path.lastIndexOf(File.separatorChar) + 1;
@@ -97,7 +108,7 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 		*/
 		
 		// Import rules
-		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getDatabaseConnection().selectAllFromTable(Table.AGENTS);
+		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getDatabaseConnection().selectAllFromTable(Table.AGENTS, "name");
 		SoarDatabaseRow agent = null;
 		for (SoarDatabaseRow row : agents) {
 			if (row.getName().equals(agentName)) {
@@ -120,7 +131,8 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 						// monitor.setTaskName("New Project From Existing Source");
-						monitor.beginTask("Importing Rules", IProgressMonitor.UNKNOWN);
+						monitor.beginTask("Counting Rules", IProgressMonitor.UNKNOWN);
+						monitor.beginTask("Parsing Rules", SoarDatabaseUtil.countRulesFromFile(file, errors));
 						errors.addAll(SoarDatabaseUtil.importRules(file, finalAgent, monitor));
 						monitor.done();
 					}
@@ -129,7 +141,6 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 				e.printStackTrace();
 			}
 
-			
 			new ProgressMonitorDialog(shell).run(true, true, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
@@ -150,6 +161,15 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 				}
 			});
 			
+			// Find problem spaces that match <s>.superstate nil
+			// Make them root.
+			String[] superstatePath = new String[] {"superstate"};
+			for (SoarDatabaseRow problemSpace : agent.getChildrenOfType(Table.PROBLEM_SPACES)) {
+				if (TraversalUtil.problemSpaceMatchesAttributePath(problemSpace, superstatePath, "nil")) {
+					problemSpace.updateValue("is_root", "1");
+				}
+			}
+			
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -165,6 +185,7 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 			}
 		}
 		agent.getDatabaseConnection().setSupressEvents(eventsWereSupressed);
+		agent.getDatabaseConnection().fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 	}
 
 	@Override

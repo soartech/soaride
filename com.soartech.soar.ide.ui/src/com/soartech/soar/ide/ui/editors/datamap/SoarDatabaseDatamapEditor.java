@@ -52,7 +52,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 
 	public static final String ID = "com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor";
 
-	private SoarDatabaseRow proplemSpaceRow;
+	private SoarDatabaseRow problemSpaceRow;
 	private IStructuredSelection selectedRows;
 	private TreeViewer tree;
 	private Composite parent;
@@ -66,6 +66,14 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 	public void doSaveAs() {
 		
 	}
+	
+	public SoarDatabaseRow getProblemSpace() {
+		return problemSpaceRow;
+	}
+	
+	public TreeViewer getTree() {
+		return tree;
+	}
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input)
@@ -73,7 +81,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 		setSite(site);
 		setInput(input);
 		if (input instanceof SoarDatabaseEditorInput) {
-			proplemSpaceRow = ((SoarDatabaseEditorInput) input).getRow();
+			problemSpaceRow = ((SoarDatabaseEditorInput) input).getRow();
 			String description = input.getName();
 			setPartName(description);
 		} else {
@@ -113,7 +121,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 
 		tree.setContentProvider(new SoarDatabaseDatamapContentProvider());
 		tree.setLabelProvider(new SoarDatabaseDatamapLabelProvider());
-		tree.setInput(proplemSpaceRow);
+		tree.setInput(problemSpaceRow);
 		
 		tree.getControl().addKeyListener(new org.eclipse.swt.events.KeyListener() {
 			
@@ -415,7 +423,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 
 			boolean eventsWereSupressed = rowToDelete.getDatabaseConnection().getSupressEvents();
 			rowToDelete.getDatabaseConnection().setSupressEvents(true);
-			rowToDelete.deleteAllChildren(true);
+			rowToDelete.deleteAllChildren(true, null);
 			rowToDelete.getDatabaseConnection().setSupressEvents(eventsWereSupressed);
 		}
 		selectedRows = null;
@@ -432,7 +440,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 		try {
 			Object[] elements = tree.getExpandedElements();
 			TreePath[] paths = tree.getExpandedTreePaths();
-			tree.setInput(proplemSpaceRow);
+			tree.setInput(problemSpaceRow);
 			tree.setExpandedTreePaths(paths);
 		} catch (Exception e) {
 			e.printStackTrace();

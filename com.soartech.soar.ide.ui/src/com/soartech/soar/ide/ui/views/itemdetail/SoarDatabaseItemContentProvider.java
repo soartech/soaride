@@ -25,7 +25,7 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 	public Object[] getChildren(Object element) {
 		if (element instanceof SoarCorePlugin) {
 			SoarDatabaseConnection conn = ((SoarCorePlugin)element).getDatabaseConnection();
-			Object[] ret = conn.selectAllFromTable(Table.AGENTS).toArray();
+			Object[] ret = conn.selectAllFromTable(Table.AGENTS, "name").toArray();
 			return ret;
 		}
 		if (element instanceof ISoarDatabaseTreeItem) {
@@ -35,10 +35,9 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 					return new Object[0];
 				}
 				if (row.isDatamapNode()) {
-					ArrayList<ISoarDatabaseTreeItem> ret = row.getUndirectedJoinedRowsFromTable(row.getTable());
-					for (ISoarDatabaseTreeItem item : ret) {
-						assert item instanceof SoarDatabaseRow;
-						((SoarDatabaseRow)item).setTerminal(true);
+					ArrayList<SoarDatabaseRow> ret = row.getUndirectedJoinedRowsFromTable(row.getTable());
+					for (SoarDatabaseRow item : ret) {
+						item.setTerminal(true);
 					}
 					return ret.toArray();
 				}
@@ -61,21 +60,24 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 		return new Object[0];
 	}
 	
+	/**
+	 * Orders items like this:
+	 * Rules:
+	 *   Propose
+	 *   Evaluate / Select
+	 *   Apply
+	 *   Others
+	 * Operators
+	 * Problem Spaces
+	 * Agents
+	 * Others
+	 * 
+	 * @param items
+	 * @return
+	 */
 	public static ArrayList<ISoarDatabaseTreeItem> sortExplorerItems(ArrayList<ISoarDatabaseTreeItem> items) {
 		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		HashSet<ISoarDatabaseTreeItem> added = new HashSet<ISoarDatabaseTreeItem>();
-		
-		/* Order like this:
-		 * Rules:
-		 *   Propose
-		 *   Evaluate / Select
-		 *   Apply
-		 *   Others
-		 * Operators
-		 * Problem Spaces
-		 * Agents
-		 * Others 
-		 */
 		
 		// Add rules
 		String[] terms = {"elaborate-state", "propose", "evaluate", "compare", "elaborate-operator", "apply"};
@@ -146,11 +148,10 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 				if (firstElement instanceof SoarDatabaseRow) {
 					SoarDatabaseRow row = (SoarDatabaseRow) firstElement;
 					if (row.isDatamapNode()) {
-						ArrayList<ISoarDatabaseTreeItem> ret = row.getUndirectedJoinedRowsFromTable(row.getTable());
+						ArrayList<SoarDatabaseRow> ret = row.getUndirectedJoinedRowsFromTable(row.getTable());
 						ret.add(row);
-						for (ISoarDatabaseTreeItem item : ret) {
-							assert item instanceof SoarDatabaseRow;
-							((SoarDatabaseRow) item).setTerminal(true);
+						for (SoarDatabaseRow item : ret) {
+							item.setTerminal(true);
 						}
 						return ret.toArray();
 					}

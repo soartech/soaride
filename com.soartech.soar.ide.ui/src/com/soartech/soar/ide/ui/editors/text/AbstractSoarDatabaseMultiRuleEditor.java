@@ -1,13 +1,17 @@
 package com.soartech.soar.ide.ui.editors.text;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.SoarProblem;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseEventListener;
@@ -24,28 +28,43 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 	public void doSave(IProgressMonitor progressMonitor) {
 		super.doSave(progressMonitor);
 		if (input != null) {
-			HashMap<String, SoarDatabaseRow> rulesByName = new HashMap<String, SoarDatabaseRow>();
-			SoarDatabaseRow row = input.getRow();
-			ArrayList<ISoarDatabaseTreeItem> rules = row.getJoinedRowsFromTable(Table.RULES);
-			for (ISoarDatabaseTreeItem item : rules) {
-				if (item instanceof SoarDatabaseRow) {
-					SoarDatabaseRow rule = (SoarDatabaseRow) item;
-					String ruleName = rule.getName();
-					rulesByName.put(ruleName, rule);
-				}
+			final HashMap<String, SoarDatabaseRow> rulesByName = new HashMap<String, SoarDatabaseRow>();
+			final SoarDatabaseRow row = input.getRow();
+			ArrayList<SoarDatabaseRow> rules = row.getJoinedRowsFromTable(Table.RULES);
+			for (SoarDatabaseRow rule : rules) {
+				String ruleName = rule.getName();
+				rulesByName.put(ruleName, rule);
 			}
 			
 			IDocument doc = getDocumentProvider().getDocument(input);
-			ArrayList<String> rulesText = getRulesFromText(doc.get());
-			for (String ruleText : rulesText) {
-				String ruleName = getNameOfRules(ruleText);
-				SoarDatabaseRow rule = rulesByName.get(ruleName);
-				if (rule == null) {
-					rule = row.getTopLevelRow().createChild(Table.RULES, ruleName);
-					addRow(rule);
-				}
-				rule.save(ruleText, input);
+			final ArrayList<String> rulesText = getRulesFromText(doc.get());
+			boolean eventsWereSuppressed = row.getDatabaseConnection().getSupressEvents();
+			row.getDatabaseConnection().setSupressEvents(true);
+			try {
+				new ProgressMonitorDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()).run(true, true, new IRunnableWithProgress() {
+					@Override
+					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+						monitor.beginTask("Saving Rules for \"" + getInput().getName() + "\"", rulesText.size());
+						for (String ruleText : rulesText) {
+							String ruleName = getNameOfRules(ruleText);
+							SoarDatabaseRow rule = rulesByName.get(ruleName);
+							if (rule == null) {
+								rule = row.getTopLevelRow().createChild(Table.RULES, ruleName);
+								addRow(rule);
+							}
+							rule.save(ruleText, input, null);
+							monitor.worked(1);
+						}
+						monitor.done();
+					}
+				});
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
+			row.getDatabaseConnection().setSupressEvents(eventsWereSuppressed);
+			row.getDatabaseConnection().fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 			
 			input.clearProblems();
 			clearAnnotations();

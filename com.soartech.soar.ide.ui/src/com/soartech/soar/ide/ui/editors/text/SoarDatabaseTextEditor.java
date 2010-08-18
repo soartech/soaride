@@ -1,12 +1,16 @@
 package com.soartech.soar.ide.ui.editors.text;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.SoarProblem;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseEventListener;
@@ -25,9 +29,21 @@ public class SoarDatabaseTextEditor extends AbstractSoarDatabaseTextEditor imple
 		if (input != null) {
 			input.clearProblems();
 			clearAnnotations();
-			SoarDatabaseRow row = input.getSoarDatabaseStorage().getRow();
-			IDocument doc = getDocumentProvider().getDocument(input);
-			row.save(doc, input);
+			final SoarDatabaseRow row = input.getSoarDatabaseStorage().getRow();
+			final IDocument doc = getDocumentProvider().getDocument(input);
+			try {
+				new ProgressMonitorDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()).run(true, true, new IRunnableWithProgress() {
+					
+					@Override
+					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+						row.save(doc, input, monitor);
+					}
+				});
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			ArrayList<SoarProblem> problems = input.getProblems();
 			for (SoarProblem problem : problems) {
 				SoarDatabaseTextAnnotation annotation = new SoarDatabaseTextAnnotation();

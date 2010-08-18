@@ -78,6 +78,9 @@ public class SoarLabelProvider extends LabelProvider implements
 				return SoarEditorPluginImages
 						.get(SoarEditorPluginImages.IMG_PROBLEM_SPACE);
 			} else if (table == Table.OPERATORS) {
+				if (((SoarDatabaseRow) element).getDirectedJoinedRowsFromTable(Table.PROBLEM_SPACES).size() > 0) {
+					return SoarEditorPluginImages.get(SoarEditorPluginImages.IMG_OPERATOR_WITH_SUBSTATE);
+				}
 				return SoarEditorPluginImages
 						.get(SoarEditorPluginImages.IMG_OPERATOR);
 			} else if (table == Table.DATAMAP_IDENTIFIERS) {
