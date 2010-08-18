@@ -41,7 +41,12 @@ public class SoarDatabaseConnection {
 		// test();
 	}
 
-	public void loadDatabaseConnection(String path) {
+	/**
+	 * 
+	 * @param path
+	 * @return True on success, false otherwise
+	 */
+	public boolean loadDatabaseConnection(String path) {
 		currentPath = path;
 		if (connection != null) {
 			try {
@@ -56,9 +61,13 @@ public class SoarDatabaseConnection {
 			connection.setAutoCommit(true);
 		} catch (SQLException e) {
 			e.printStackTrace();
+			// Connection didn't load - bad path?
+			// Don't build the schema.
+			return false;
 		}
 		
 		buildSchema();
+		return true;
 	}
 
 	public void addListener(ISoarDatabaseEventListener listener) {
@@ -76,21 +85,25 @@ public class SoarDatabaseConnection {
 	}
 
 	public void fireEvent(SoarDatabaseEvent event) {
-		if (!supressEvents) {
-			firingEvent = true;
-			for (ISoarDatabaseEventListener listener : listeners) {
-				listener.onEvent(event, this);
-			}
-			firingEvent = false;
-			for (ISoarDatabaseEventListener listener : toRemove) {
-				listeners.remove(listener);
-			}
-			toRemove.clear();
+		if (supressEvents) return;
+		firingEvent = true;
+		for (ISoarDatabaseEventListener listener : listeners) {
+			listener.onEvent(event, this);
 		}
+		firingEvent = false;
+		for (ISoarDatabaseEventListener listener : toRemove) {
+			listeners.remove(listener);
+		}
+		toRemove.clear();
 	}
 	
 	public void setSupressEvents(boolean supress) {
 		supressEvents = supress;
+		try {
+			connection.setAutoCommit(!supress);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public boolean getSupressEvents() {
@@ -238,10 +251,15 @@ public class SoarDatabaseConnection {
 		}
 	}
 	
-	public ArrayList<SoarDatabaseRow> selectAllFromTable(SoarDatabaseRow.Table table) {
+	public ArrayList<SoarDatabaseRow> selectAllFromTable(SoarDatabaseRow.Table table, String extraSql) {
 		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
 		String tableName = table.toString().toLowerCase();
-		String sql = "select * from " + tableName;
+		String sql= null;
+		if (extraSql != null && extraSql.length() > 0) {
+			sql = "select * from " + tableName + " " + extraSql;
+		} else {
+			sql = "select * from " + tableName;
+		}
 		ResultSet rs = getResultSet(sql);
 		try {
 			while(rs.next()) {

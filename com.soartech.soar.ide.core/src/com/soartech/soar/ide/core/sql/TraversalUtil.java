@@ -458,12 +458,9 @@ public class TraversalUtil {
 		else if (table == Table.PROBLEM_SPACES) {
 			ret.addAll(row.getJoinedRowsFromTable(Table.RULES));
 			
-			ArrayList<ISoarDatabaseTreeItem> operators = row.getJoinedRowsFromTable(Table.OPERATORS);
-			for (ISoarDatabaseTreeItem item : operators) {
-				if (item instanceof SoarDatabaseRow) {
-					SoarDatabaseRow operator = (SoarDatabaseRow) item;
-					ret.addAll(operator.getJoinedRowsFromTable(Table.RULES));
-				}
+			ArrayList<SoarDatabaseRow> operators = row.getJoinedRowsFromTable(Table.OPERATORS);
+			for (SoarDatabaseRow operator : operators) {
+				ret.addAll(operator.getJoinedRowsFromTable(Table.RULES));
 			}
 		}
 		else if (table == Table.OPERATORS) {
@@ -566,5 +563,96 @@ public class TraversalUtil {
 			}
 		}
 		return ret;
+	}
+	
+	/**
+	 * 
+	 * @param problemSpace The problem space
+	 * @param path The attribute path to search for
+	 * @param type The type of node to search for
+	 * @return The node of the given type at the given path from the given problem space, or null if not found.
+	 */
+	public static ArrayList<SoarDatabaseRow> getNodesAtPathFromProblemSpace(SoarDatabaseRow problemSpace, String[] path, Table type) {
+		if (problemSpace.getTable() != Table.PROBLEM_SPACES) {
+			throw new IllegalArgumentException("Row is not of type PROBLEM_SPACES: " + problemSpace);
+		}
+		ArrayList<SoarDatabaseRow> leaves = problemSpace.getChildrenOfType(Table.DATAMAP_IDENTIFIERS); // Starts with root node <s>
+		for (int i = 0; i < path.length; ++i) {
+			String term = path[i];
+			ArrayList<SoarDatabaseRow> leafChildren = new ArrayList<SoarDatabaseRow>();
+			ArrayList<SoarDatabaseRow> newLeaves = new ArrayList<SoarDatabaseRow>();
+			for (SoarDatabaseRow leaf : leaves) {
+				leafChildren.addAll(leaf.getDirectedJoinedRowsFromTable(Table.DATAMAP_IDENTIFIERS));
+				if (i == path.length - 1) {
+					leafChildren.addAll(leaf.getDirectedJoinedRowsFromTable(type));
+				}
+			}
+			for (SoarDatabaseRow leafChild : leafChildren) {
+				if (leafChild.getName().equals(term)) {
+					newLeaves.add(leafChild);
+				}
+			}
+			
+			if (newLeaves.size() == 0) { 
+				return newLeaves;
+			}
+			leaves = newLeaves;
+		}
+		
+		return leaves;
+	}
+	
+	/**
+	 * Tests for the existance of a path on this problem space's datamap.
+	 * @param row The problem space
+	 * @param path The path to test for
+	 * @param value The value of the path to test for, or null if only checking for
+	 * existance of the path.
+	 * @return
+	 */
+	public static boolean problemSpaceMatchesAttributePath(SoarDatabaseRow row, String[] path, String value) {
+		if (row.getTable() != Table.PROBLEM_SPACES) {
+			throw new IllegalArgumentException("Row is not of type PROBLEM_SPACES: " + row);
+		}
+		ArrayList<SoarDatabaseRow> leaves = row.getChildrenOfType(Table.DATAMAP_IDENTIFIERS); // Starts with root node <s>
+		for (int i = 0; i < path.length; ++i) {
+			String term = path[i];
+			ArrayList<SoarDatabaseRow> leafChildren = new ArrayList<SoarDatabaseRow>();
+			ArrayList<SoarDatabaseRow> newLeaves = new ArrayList<SoarDatabaseRow>();
+			for (SoarDatabaseRow leaf : leaves) {
+				leafChildren.addAll(leaf.getDirectedJoinedRowsFromTable(Table.DATAMAP_IDENTIFIERS));
+				if (i == path.length - 1) {
+					leafChildren.addAll(leaf.getDirectedJoinedRowsFromTable(Table.DATAMAP_ENUMERATIONS));
+					leafChildren.addAll(leaf.getDirectedJoinedRowsFromTable(Table.DATAMAP_STRINGS));
+					leafChildren.addAll(leaf.getDirectedJoinedRowsFromTable(Table.DATAMAP_INTEGERS));
+					leafChildren.addAll(leaf.getDirectedJoinedRowsFromTable(Table.DATAMAP_FLOATS));
+				}
+			}
+			for (SoarDatabaseRow leafChild : leafChildren) {
+				if (leafChild.getName().equals(term)) {
+					newLeaves.add(leafChild);
+				}
+			}
+			
+			if (newLeaves.size() == 0) { 
+				return false;
+			}
+			leaves = newLeaves;
+		}
+		
+		// The path exists.
+		if (value == null) {
+			return true;
+		}
+		
+		for (SoarDatabaseRow leaf : leaves) {
+			for (SoarDatabaseRow leafValue : leaf.getChildrenOfType(Table.DATAMAP_ENUMERATION_VALUES)) {
+				if (leafValue.getName().equals(value)) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 }

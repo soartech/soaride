@@ -30,13 +30,13 @@ public class SoarDatabaseJoinFolder implements ISoarDatabaseTreeItem {
 			boolean putDirectionalJoinedItemsInFolders,
 			boolean includeDatamapNodes) {
 		if (includeJoinedItems && includeDirectionalJoinedItems) {
-			return row.getJoinedRowsFromTable(table);			
+			return new ArrayList<ISoarDatabaseTreeItem>(row.getJoinedRowsFromTable(table));			
 		}
 		if (includeJoinedItems) {
-			return row.getUndirectedJoinedRowsFromTable(table);
+			return new ArrayList<ISoarDatabaseTreeItem>(row.getUndirectedJoinedRowsFromTable(table));
 		}
 		if (includeDirectionalJoinedItems) {
-			return row.getDirectedJoinedRowsFromTable(table);
+			return new ArrayList<ISoarDatabaseTreeItem>(row.getDirectedJoinedRowsFromTable(table));
 		}
 		return new ArrayList<ISoarDatabaseTreeItem>();
 	}

@@ -20,18 +20,14 @@
 package com.soartech.soar.ide.core;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.BundleContext;
@@ -204,10 +200,13 @@ public class SoarCorePlugin extends Plugin {
     	SoarDatabaseConnection newConnection = new SoarDatabaseConnection(path);
     	SoarDatabaseUtil.transferDatabase(databaseConnection, newConnection);
     	newConnection.closeConnection();
-    	databaseConnection.loadDatabaseConnection(path);
+    	if(databaseConnection.loadDatabaseConnection(path)) {
+    		databaseConnection.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
+    	}
     	return errors;
     }
 
+    /*
 	public void oldSaveDatabaseAs(final String path, boolean overwriteExisting) {
 		String dump = SoarDatabaseUtil.sqlDump(databaseConnection);
 		//System.out.println("**************************DUMP");
@@ -231,7 +230,6 @@ public class SoarCorePlugin extends Plugin {
 		
 		//databaseConnection.execute(dump);
 		
-		/*
 		final String[] commands = dump.split(";");
 		ArrayList<String> errors = databaseConnection.executeBatch(commands);
 		if (errors.size() > 0) {
@@ -239,12 +237,10 @@ public class SoarCorePlugin extends Plugin {
 				System.out.println(error);
 			}
 		}
-		*/
 
 		databaseConnection.setSupressEvents(eventsSupressed);
 		databaseConnection.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
 		
-		/*
 		final String[] commands = dump.split(";");
 		
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
@@ -275,9 +271,9 @@ public class SoarCorePlugin extends Plugin {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		*/
 		
 	}
+	*/
 
 	/**
 	 * Replaces the current database connection with one that reads
@@ -287,18 +283,39 @@ public class SoarCorePlugin extends Plugin {
 	 * @param path
 	 */
 	public void openProject(String path) {
-		databaseConnection.loadDatabaseConnection(path);
-		databaseConnection.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
+		if (databaseConnection.loadDatabaseConnection(path)) {
+			databaseConnection.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
+		}
 	}
 	
 	/**
-	 * Replaces the current database connection with one that reads
-	 * from the file at the specified path, and fires a
-	 * <code>SoarDatabaseEvent</code> of type
-	 * <code>DATABASE_PATH_CHANGED</code>.
+	 * Prompts the user for a path to create a new project in,
+	 * and creates the new project at that location.
+	 * @return Errors
 	 */
-	public void newProject() {
-		openProject(":memory:"); 
+	public ArrayList<String> newProject() {
+		ArrayList<String> errors = new ArrayList<String>();
+		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
+		dialog.setText("Choose Location To Save New Soar IDE Project");
+		dialog.setOverwrite(true);
+		String path = dialog.open();
+		if (path == null) {
+			return errors;
+		}
+	
+		// Check for overwrite
+		File saveFile = new File(path);
+		if (saveFile.exists()) {
+			boolean deleted = saveFile.delete();
+			if (!deleted) {
+				errors.add("File can't be overwritten, it may be in use: " + path);
+				return errors;
+			}
+		}
+
+		openProject(path); 
+		return errors;
 	}
 
 	public void setCommandLineProxy(SoarCommandLineMXBean proxy) {

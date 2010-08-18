@@ -10,6 +10,8 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Scanner;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -18,8 +20,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import sun.net.ProgressMonitor;
-
+import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public class SoarDatabaseUtil {
@@ -46,6 +47,10 @@ public class SoarDatabaseUtil {
 		//ArrayList<File> readFiles = new ArrayList<File>();
 		
 		ArrayList<String> agentLines = new ArrayList<String>();
+		
+		SoarDatabaseConnection db = agent.getDatabaseConnection();
+		boolean eventsWereSupressed = db.getSupressEvents();
+		db.setSupressEvents(true);
 		
 		for (int filesIndex = 0; filesIndex < files.size(); ++filesIndex) {
 			ArrayList<String> newErrors = new ArrayList<String>();
@@ -153,10 +158,11 @@ public class SoarDatabaseUtil {
 							String ruleString = ruleBuffer.toString();
 							String ruleName = getNameFromRule(ruleString);
 							SoarDatabaseRow child = agent.createChild(Table.RULES, ruleName);
-							errors.addAll(child.save(ruleString, null));
+							errors.addAll(child.save(ruleString, null, null));
 							
 							if (monitor != null) {
 								monitor.subTask("Imported rule: " + ruleName);
+								monitor.worked(1);
 							}
 							
 						} else {
@@ -190,7 +196,102 @@ public class SoarDatabaseUtil {
 		
 		agent.setText(agentText.toString(), true);
 		
+		db.setSupressEvents(eventsWereSupressed);
+		db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
+		
 		return errors;
+	}
+	
+	public static int countRulesFromFile(File firstFile, ArrayList<String> errors) {
+		int numRules = 0;
+		ArrayList<String> directoryStack = new ArrayList<String>();
+		
+		// This is the list of files to read.
+		ArrayList<File> files = new ArrayList<File>(); 
+		files.add(firstFile);
+		for (int filesIndex = 0; filesIndex < files.size(); ++filesIndex) {
+			ArrayList<String> newErrors = new ArrayList<String>();
+			File file = files.get(filesIndex);
+			try {
+				String basePath = file.getPath();
+				int lastSlashIndex = basePath.lastIndexOf(File.separatorChar);
+				basePath = basePath.substring(0, lastSlashIndex);
+				int lineNumber = 0;
+				//System.out.println("About to read file: " + file.getPath());
+				Scanner scan = new Scanner(file);
+				while (scan.hasNext()) {
+					++lineNumber;
+					String line = scan.nextLine();
+					String trimmedLine = line.trim();
+					if (trimmedLine.startsWith("pushd ") && trimmedLine.length() > 6) {						
+						String pushdPath = trimmedLine.substring(6);
+						if (pushdPath.startsWith("\"")) pushdPath = pushdPath.substring(1);
+						if (pushdPath.endsWith("\"")) pushdPath = pushdPath.substring(0, pushdPath.length() - 1);
+						directoryStack.add(pushdPath);
+					} else if (trimmedLine.startsWith("popd")) {
+						directoryStack.remove(directoryStack.size() - 1);
+					} else if (trimmedLine.startsWith("source ")) {
+						String source = trimmedLine.substring(7);
+						File newFile = fileForFilename(basePath, source, directoryStack);
+						if (!newFile.exists()) {
+							String error = "File not found:" + newFile.getPath();
+							System.out.println(error);
+							errors.add(error);
+						} else {
+							files.add(newFile);
+						}
+					} else if (trimmedLine.startsWith("sp ") || trimmedLine.startsWith("sp{")) {
+						ArrayList<String> ruleLines = new ArrayList<String>();
+						int braceDepth = 0;
+						boolean string = false;
+						boolean hasBraces = false;
+						boolean finished = false;
+						while (true) {
+							ruleLines.add(line);
+							char[] chars = line.toCharArray();
+							char cc = '\0';
+							for (char c : chars) {
+								if (!string) {
+									if (c == '{') {
+										++braceDepth;
+										hasBraces = true;
+									}
+									else if (c == '}') --braceDepth;
+									else if (c == '|') string = true;
+									else if (c == '#') break; // Comment, ignore the rest of the line
+								} else {
+									if (c == '|' && cc != '\\') string = false;
+								}
+
+								cc = c;
+							}
+							
+							if (hasBraces && braceDepth <= 0) {
+								finished = true;
+							}
+							
+							if (finished || !scan.hasNextLine()) break;
+							line = scan.nextLine();
+						}
+						
+						if (finished) {
+							// This was a rule
+							++numRules;
+						}
+					}
+				}
+				scan.close();
+			} catch (FileNotFoundException e) {
+				//e.printStackTrace();
+				String error = "In " + file.getPath() + ": file not found at " + files.get(filesIndex).getPath();
+				newErrors.add(error);
+			}
+			for (String error : newErrors) {
+				System.out.println(error);
+			}
+			errors.addAll(newErrors);
+		}
+		return numRules;
 	}
 		
 	private static File fileForFilename(String basePath, String filename, ArrayList<String> directoryStack) {
@@ -273,12 +374,15 @@ public class SoarDatabaseUtil {
 	public static void transferDatabase(final SoarDatabaseConnection from, final SoarDatabaseConnection to) {
 		final boolean debug = false;
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		
+		boolean eventsWereSuppressed = to.getSupressEvents();
+		to.setSupressEvents(true);
+		
 		try {
 			new ProgressMonitorDialog(shell).run(true, true, new IRunnableWithProgress() {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					// TODO Auto-generated method stub
 					try {
 						DatabaseMetaData md = from.getConnectionMetadata();
 						ResultSet tables = md.getTables(null, null, "%", null); // return
@@ -381,7 +485,7 @@ public class SoarDatabaseUtil {
 								 */
 
 							} else {
-								System.out.println("No ttable");
+								System.out.println("No table");
 							}
 							monitor.worked(1);
 						}
@@ -397,6 +501,9 @@ public class SoarDatabaseUtil {
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
+
+		to.setSupressEvents(eventsWereSuppressed);
+		to.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 	}
 
 	/**
@@ -505,5 +612,31 @@ public class SoarDatabaseUtil {
 		}
 
 		return buff.toString();
+	}
+	
+	/**
+	 * Sorts the items alphabetically and returns the sorted list.
+	 * This calls Collections.sort, which will change the list passed in.
+	 * @param list
+	 * @return
+	 */
+	public static ArrayList<? extends ISoarDatabaseTreeItem> sortRowsByName(ArrayList<? extends ISoarDatabaseTreeItem> list) {
+		Collections.sort(list, new Comparator<ISoarDatabaseTreeItem>() {
+
+			@Override
+			public int compare(ISoarDatabaseTreeItem first, ISoarDatabaseTreeItem second) {
+				if (!(first instanceof SoarDatabaseRow) && !(second instanceof SoarDatabaseRow)) return 0;
+				if (!(first instanceof SoarDatabaseRow)) return 1;
+				if (!(second instanceof SoarDatabaseRow)) return -1;
+				String firstName = ((SoarDatabaseRow)first).getName();
+				String secondName = ((SoarDatabaseRow)second).getName();
+				if (firstName == null && secondName == null) return 0;
+				if (firstName == null) return 1;
+				if (secondName == null) return -1;
+				return firstName.compareTo(secondName);
+			}
+		
+		});
+		return list;
 	}
 }

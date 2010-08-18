@@ -30,13 +30,9 @@ public class SoarDatabaseRowStorage implements IStorage {
 		}
 		else if (rowTable == Table.OPERATORS || rowTable == Table.TAGS) {
 			StringBuffer buff = new StringBuffer();
-			ArrayList<ISoarDatabaseTreeItem> rules = row.getJoinedRowsFromTable(Table.RULES);
-			for (ISoarDatabaseTreeItem item : rules) {
-				if (item instanceof SoarDatabaseRow) {
-					SoarDatabaseRow rule = (SoarDatabaseRow) item;
-					buff.append(rule.getText());
-					buff.append("\n\n");
-				}
+			ArrayList<SoarDatabaseRow> rules = row.getJoinedRowsFromTable(Table.RULES);
+			for (SoarDatabaseRow rule : rules) {
+				buff.append(rule.getText() + "\n\n");
 			}
 			if (buff.length() > 2) {
 				return new ByteArrayInputStream(buff.substring(0, buff.length() - 2).getBytes());

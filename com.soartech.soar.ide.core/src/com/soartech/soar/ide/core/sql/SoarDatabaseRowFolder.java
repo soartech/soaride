@@ -8,10 +8,18 @@ public class SoarDatabaseRowFolder implements ISoarDatabaseTreeItem {
 
 	SoarDatabaseRow row;
 	Table table;
+	boolean directedJoinedChildren;
+	
+	
 	
 	public SoarDatabaseRowFolder(SoarDatabaseRow row, Table table) {
+		this(row, table, false);
+	}
+	
+	public SoarDatabaseRowFolder(SoarDatabaseRow row, Table table, boolean directedJoinedChildren) {
 		this.row = row;
 		this.table = table;
+		this.directedJoinedChildren = directedJoinedChildren;
 	}
 	
 	public ArrayList<ISoarDatabaseTreeItem> getChildren(boolean includeFolders,
@@ -20,6 +28,9 @@ public class SoarDatabaseRowFolder implements ISoarDatabaseTreeItem {
 			boolean includeDirectionalJoinedItems, 
 			boolean putDirectionalJoinedItemsInFolders, 
 			boolean includeDatamapNodes) {
+		if (directedJoinedChildren) {
+			return row.getDirectedJoinedChildrenOfType(table, false, table == Table.PROBLEM_SPACES);
+		}
 		return new ArrayList<ISoarDatabaseTreeItem>(row.getChildrenOfType(table));
 	}
 	
@@ -30,6 +41,9 @@ public class SoarDatabaseRowFolder implements ISoarDatabaseTreeItem {
 
 	@Override
 	public boolean hasChildren() {
+		if (directedJoinedChildren) {
+			return row.getDirectedJoinedChildrenOfType(table, false, false).size() > 0;
+		}
 		return row.hasChildrenOfType(table);
 	}
 	
