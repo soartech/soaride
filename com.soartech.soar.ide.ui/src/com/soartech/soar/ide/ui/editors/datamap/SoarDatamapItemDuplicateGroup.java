@@ -16,6 +16,11 @@ public class SoarDatamapItemDuplicateGroup implements ISoarDatabaseTreeItem {
 	}
 	
 	@Override
+	public String toString() {
+		return getRow().toString();
+	}
+	
+	@Override
 	public ArrayList<ISoarDatabaseTreeItem> getChildren(boolean includeFolders, boolean includeChildrenInFolders, boolean includeJoinedItems, boolean includeDirectionalJoinedItems,
 			boolean putDirectionalJoinedItemsInFolders, boolean includeDatamapNodes) {
 		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
@@ -35,10 +40,10 @@ public class SoarDatamapItemDuplicateGroup implements ISoarDatabaseTreeItem {
 
 	@Override
 	public SoarDatabaseRow getRow() {
-		// Not meaningful in this context.
-		// Better to throw an exception and fix the problem than to
-		// return a dummy value.
-		throw new NotImplementedException();
+		return items.get(0);
 	}
-
+	
+	public ArrayList<SoarDatabaseRow> getItems() {
+		return items;
+	}
 }

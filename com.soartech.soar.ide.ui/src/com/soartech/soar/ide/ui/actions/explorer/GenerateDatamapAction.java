@@ -237,7 +237,7 @@ public class GenerateDatamapAction extends Action {
 		
 		ArrayList<Triple> allTriples = new ArrayList<Triple>();
 		
-		long getTriplesStart = new Date().getTime();
+		//long getTriplesStart = new Date().getTime();
 		TraversalUtil.resetLoggingTimes();
 		for (int i = 0; i < joinedRules.size(); ++i) {
 			ISoarDatabaseTreeItem item = joinedRules.get(i);
@@ -250,9 +250,9 @@ public class GenerateDatamapAction extends Action {
 				monitor.worked(1);
 			}
 		}
-		long getTriplesEnd = new Date().getTime();
-		System.out.println("Got Triples: " + (getTriplesEnd - getTriplesStart));
-		TraversalUtil.printLoggingTimes();
+		//long getTriplesEnd = new Date().getTime();
+		//System.out.println("Got Triples: " + (getTriplesEnd - getTriplesStart));
+		//TraversalUtil.printLoggingTimes();
 		
 		runWithProblemSpaceForTriples(problemSpace, allTriples, applyAll);
 	}
@@ -260,10 +260,10 @@ public class GenerateDatamapAction extends Action {
 	public static void runWithProblemSpaceForTriples(SoarDatabaseRow problemSpace, ArrayList<Triple> triples, boolean applyAll) {
 		
 		// Get all terminal paths.
-		long terminalPathsStart = new Date().getTime();
+		//long terminalPathsStart = new Date().getTime();
 		ArrayList<TerminalPath> paths = terminalPathsForTriples(triples);
-		long terminalPathsEnd = new Date().getTime();
-		System.out.println("Get terminal paths: " + (terminalPathsEnd - terminalPathsStart));
+		//long terminalPathsEnd = new Date().getTime();
+		//System.out.println("Get terminal paths: " + (terminalPathsEnd - terminalPathsStart));
 		
 		// TODO debug
 		/*
@@ -281,7 +281,7 @@ public class GenerateDatamapAction extends Action {
 		SoarDatabaseRow root = (SoarDatabaseRow) problemSpace.getChildrenOfType(Table.DATAMAP_IDENTIFIERS).get(0);
 		
 		// Iterate over all paths to build corrections
-		long buildCorrectionsStart = new Date().getTime();
+		//long buildCorrectionsStart = new Date().getTime();
 		for (TerminalPath terminalPath : paths) {
 			ArrayList<Triple> path = terminalPath.path;
 			ArrayList<SoarDatabaseRow> currentNodes = new ArrayList<SoarDatabaseRow>();
@@ -349,8 +349,8 @@ public class GenerateDatamapAction extends Action {
 				currentNodes = childNodes;
 			}
 		}
-		long buildCorrectionsEnd = new Date().getTime();
-		System.out.println("Built Corrections: " + (buildCorrectionsEnd - buildCorrectionsStart));
+		//long buildCorrectionsEnd = new Date().getTime();
+		//System.out.println("Built Corrections: " + (buildCorrectionsEnd - buildCorrectionsStart));
 		
 		// TODO debug
 		/*
@@ -379,7 +379,7 @@ public class GenerateDatamapAction extends Action {
 		*/
 		
 		// Apply corrections
-		long applyCorrectionsStart = new Date().getTime();
+		//long applyCorrectionsStart = new Date().getTime();
 		for (Object obj : result) {
 			Correction correction = (Correction) obj;
 			correction.apply();
@@ -389,8 +389,8 @@ public class GenerateDatamapAction extends Action {
 			Correction correction = (Correction) obj;
 			correction.applyLinks();
 		}
-		long applyCorrectionsEnd = new Date().getTime();
-		System.out.println("Applied Corrections: " + (applyCorrectionsEnd - applyCorrectionsStart));
+		//long applyCorrectionsEnd = new Date().getTime();
+		//System.out.println("Applied Corrections: " + (applyCorrectionsEnd - applyCorrectionsStart));
 		
 		// For each superstate attribute, and superstate.superstate attribute, etc.,
 		// link that attribute with ancestor problem spaces' <s> node.
@@ -400,7 +400,7 @@ public class GenerateDatamapAction extends Action {
 		}
 		while (superstates.size() > 0) {
 			ArrayList<ISoarDatabaseTreeItem> superstateAtributes = root.getDirectedJoinedChildrenOfType(Table.DATAMAP_IDENTIFIERS, false, false);
-			ArrayList<ISoarDatabaseTreeItem> nextSueprstateAttributes = new ArrayList<ISoarDatabaseTreeItem>();
+			ArrayList<ISoarDatabaseTreeItem> nextSuperstateAttributes = new ArrayList<ISoarDatabaseTreeItem>();
 			for (ISoarDatabaseTreeItem item : superstateAtributes) {
 				SoarDatabaseRow attribute = (SoarDatabaseRow) item;
 				if (attribute.getName().equals("superstate")) {
@@ -409,7 +409,7 @@ public class GenerateDatamapAction extends Action {
 						LinkDatamapRowsAction linkAction = new LinkDatamapRowsAction(attribute, superstateRoot);
 						linkAction.run();
 					}
-					nextSueprstateAttributes.addAll(attribute.getDirectedJoinedChildrenOfType(Table.DATAMAP_IDENTIFIERS, false, false));
+					nextSuperstateAttributes.addAll(attribute.getDirectedJoinedChildrenOfType(Table.DATAMAP_IDENTIFIERS, false, false));
 				}
 			}
 			ArrayList<SoarDatabaseRow> newSuperstates = new ArrayList<SoarDatabaseRow>();
@@ -417,7 +417,7 @@ public class GenerateDatamapAction extends Action {
 				newSuperstates.addAll(superstate.getDirectedJoinedParentsOfType(Table.PROBLEM_SPACES));
 			}
 			superstates = newSuperstates;
-			superstateAtributes = nextSueprstateAttributes;
+			superstateAtributes = nextSuperstateAttributes;
 		}
 	}
 	

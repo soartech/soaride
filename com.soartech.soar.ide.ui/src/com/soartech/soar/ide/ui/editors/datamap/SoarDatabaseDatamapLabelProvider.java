@@ -7,6 +7,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
+import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
 
@@ -26,17 +27,15 @@ public class SoarDatabaseDatamapLabelProvider extends LabelProvider implements I
 	
 	@Override
 	public Image getImage(Object element) {
-		return provider.getImage(element);
+		if (element instanceof ISoarDatabaseTreeItem) {
+			return provider.getImage(((ISoarDatabaseTreeItem)element).getRow());
+		}
+		return null;
 	}
 	
 	@Override
 	public String getText(Object element) {
-		String ret = null;
-		if (element instanceof SoarDatabaseRow) {
-			SoarDatabaseRow row = (SoarDatabaseRow) element;
-			ret = row.getName();
-		}
-		return ret;
+		return element.toString();
 	}
 	
 	@Override

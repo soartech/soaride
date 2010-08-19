@@ -11,6 +11,7 @@ import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
+import com.soartech.soar.ide.ui.editors.datamap.SoarDatamapItemDuplicateGroup;
 
 public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 
@@ -41,6 +42,14 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 					}
 					return ret.toArray();
 				}
+			}
+			if (element instanceof SoarDatamapItemDuplicateGroup) {
+				SoarDatamapItemDuplicateGroup group = (SoarDatamapItemDuplicateGroup) element;
+				ArrayList<SoarDatabaseRow> ret = group.getItems();
+				for (SoarDatabaseRow item : ret) {
+					item.setTerminal(true);
+				}
+				return ret.toArray();	
 			}
 			try {
 				ISoarDatabaseTreeItem item = (ISoarDatabaseTreeItem)element;
@@ -155,6 +164,13 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 						}
 						return ret.toArray();
 					}
+				} else if (firstElement instanceof SoarDatamapItemDuplicateGroup) {
+					SoarDatamapItemDuplicateGroup group = (SoarDatamapItemDuplicateGroup) firstElement;
+					ArrayList<SoarDatabaseRow> ret = group.getItems();
+					for (SoarDatabaseRow item : ret) {
+						item.setTerminal(true);
+					}
+					return ret.toArray();	
 				}
 			}
 			return ar;

@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
@@ -74,14 +75,6 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 	 */
 	private void copiedPart(String path, File file) {
 		final File finalFile = file;
-		boolean savedToDisk = SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk();
-		if (savedToDisk) {
-			SoarUiModelTools.closeAllEditors(true);
-		} else {
-			SoarUiModelTools.closeAllEditors(false);
-		}
-		
-		SoarCorePlugin.getDefault().newProject();
 		
 		// New agent
 		int lastSlashIndex = path.lastIndexOf(File.separatorChar) + 1;
@@ -91,24 +84,6 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 		}
 		String agentName = path.substring(lastSlashIndex, lastDotIndex);
 		SoarCorePlugin.getDefault().getDatabaseConnection().insert(Table.AGENTS, new String[][] { { "name", "\"" + agentName + "\"" } });
-		
-		// TODO
-		// expand the agent in the tree view
-		/*
-		TreeViewer viewer = explorer.getTreeViewer(); 
-		Tree tree = viewer.getTree();
-		TreeItem[] items = tree.getItems();
-		for (TreeItem item : items) {
-			Object obj = item.getData();
-			if (obj instanceof SoarDatabaseRow) {
-				SoarDatabaseRow row = (SoarDatabaseRow) obj;
-				if (row.getTable() == Table.AGENTS && row.getName().equals(result)) {
-					tree.setSelection(item);
-					viewer.setExpandedState(obj, true);
-				}
-			}
-		}
-		*/
 		
 		// Import rules
 		ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getDatabaseConnection().selectAllFromTable(Table.AGENTS, "name");
@@ -129,19 +104,25 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 		agent.getDatabaseConnection().setSupressEvents(true);
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		final ArrayList<String> errors = new ArrayList<String>();
+		System.out.println("Beginning import of: " + finalFile.getPath());
 		try {
-			new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					//monitor.setTaskName("New Project From Existing Source");
-					monitor.beginTask("Importing Rules", IProgressMonitor.UNKNOWN);
-					System.out.println("About to import rules from file: " + finalFile.getPath());
-					errors.addAll(SoarDatabaseUtil.importRules(finalFile, finalAgent, monitor));
-					monitor.done();
-				}
-			});
 			
-			/*
+			try {
+				new ProgressMonitorDialog(shell).run(true, true, new IRunnableWithProgress() {
+					@Override
+					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+						// monitor.setTaskName("New Project From Existing Source");
+						monitor.beginTask("Counting Rules", IProgressMonitor.UNKNOWN);
+						monitor.beginTask("Parsing Rules", SoarDatabaseUtil.countRulesFromFile(finalFile, errors));
+						errors.addAll(SoarDatabaseUtil.importRules(finalFile, finalAgent, monitor));
+						System.out.println("Loaded rules for file: " + finalFile.getPath());
+						monitor.done();
+					}
+				});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
 			new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
@@ -149,6 +130,7 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 					GenerateAgentStructureActionDelegate structure = new GenerateAgentStructureActionDelegate();
 					structure.forceApplyAll = true;
 					structure.runWithAgent(finalAgent, monitor);
+					System.out.println("Generated Structure for file: " + finalFile.getPath());
 				}
 			});
 			
@@ -159,9 +141,9 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 					GenerateDatamapsActionDelegate datamaps = new GenerateDatamapsActionDelegate();
 					datamaps.forceApplyAll = true;
 					datamaps.runWithAgent(finalAgent, monitor);
+					System.out.println("Generated Datamaps for file: " + finalFile.getPath());
 				}
 			});
-			*/
 			
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
@@ -171,12 +153,16 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 			e.printStackTrace();
 		} finally {
 			if (errors.size() > 0) {
-				String message = "Encountered the following errors during the import operation:";
+				String message = "Encountered the following errors during the import operation:\n";
 				for (String error : errors) {
 					message += "\n" + error;
 				}
+				MessageDialog dialog = new MessageDialog(shell, "Errors During Import", null, message, MessageDialog.ERROR, new String[] {"Ok"}, 0);
+				dialog.open();
+				/*
 				ErrorDialog errorDialog = new ErrorDialog(shell, "Error", message, Status.OK_STATUS, 0);
 				errorDialog.open();
+				*/
 			}
 		}
 		agent.getDatabaseConnection().setSupressEvents(eventsWereSupressed);

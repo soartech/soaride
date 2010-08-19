@@ -59,7 +59,7 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 
 		applyAll = forceApplyAll;
 
-		System.out.println("Running Generate Agent Structure Action");
+		//System.out.println("Running Generate Agent Structure Action");
 		
 		for (int i = 0; i < rules.size(); ++i) {
 			if (monitor != null) {
@@ -69,7 +69,7 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 			assert ruleItem instanceof SoarDatabaseRow;
 			SoarDatabaseRow rule = (SoarDatabaseRow) ruleItem;
 			assert rule.getTable() == Table.RULES;
-
+			
 			if (monitor != null) {
 				monitor.subTask("Rule: " + rule.getName());
 			}
@@ -88,7 +88,7 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 				if (triple.isOperatorName() && triple.valueIsConstant()) {
 					relatedOperatorNames.add(triple.value);
 				}
-			}
+			}	
 			for (String operatorName : relatedOperatorNames) {
 				SoarDatabaseRow operator = operators.get(operatorName);
 				if (operator != null) {
@@ -112,6 +112,7 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 			// Even better is to find a state of the right name that is already joined to this rule.
 			// If there is more than one state with that name (shouldn't happen), signal an error.
 			// Confirm with the user before making any changes to the database.
+			
 			ArrayList<String> relatedStateNames = new ArrayList<String>();
 			for (Triple triple : triples) {
 				if (triple.isStateName() && triple.valueIsConstant()) {
