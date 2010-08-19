@@ -10,10 +10,12 @@ public class EditableColumn {
 	
 	private String name;
 	private Type type;
+	private Object defaultValue;
 	
-	public EditableColumn(String name, Type type) {
+	public EditableColumn(String name, Type type, Object defaultValue) {
 		this.name = name;
 		this.type = type;
+		this.defaultValue = defaultValue;
 	}
 	
 	public String getName() {
@@ -22,6 +24,10 @@ public class EditableColumn {
 	
 	public Type getType() {
 		return type;
+	}
+	
+	public Object getDefaultValue() {
+		return defaultValue;
 	}
 	
 	public boolean objectIsRightType(Object obj) {

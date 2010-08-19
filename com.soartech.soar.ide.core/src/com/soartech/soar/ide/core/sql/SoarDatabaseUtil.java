@@ -625,15 +625,9 @@ public class SoarDatabaseUtil {
 
 			@Override
 			public int compare(ISoarDatabaseTreeItem first, ISoarDatabaseTreeItem second) {
-				if (!(first instanceof SoarDatabaseRow) && !(second instanceof SoarDatabaseRow)) return 0;
-				if (!(first instanceof SoarDatabaseRow)) return 1;
-				if (!(second instanceof SoarDatabaseRow)) return -1;
-				String firstName = ((SoarDatabaseRow)first).getName();
-				String secondName = ((SoarDatabaseRow)second).getName();
-				if (firstName == null && secondName == null) return 0;
-				if (firstName == null) return 1;
-				if (secondName == null) return -1;
-				return firstName.compareTo(secondName);
+				String firstString = (first instanceof SoarDatabaseRow ? ((SoarDatabaseRow)first).getName() : first.toString());
+				String secondString = (second instanceof SoarDatabaseRow ? ((SoarDatabaseRow)second).getName() : second.toString());
+				return firstString.compareTo(secondString);
 			}
 		
 		});

@@ -4,7 +4,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -161,7 +164,85 @@ public class Triple {
 	 * @return The list of the list of attribute Strings to get from state &lt;s&gt; to this Triple's variable.
 	 */
 	public ArrayList<ArrayList<Triple>> getTriplePathsFromState() {
+		ArrayList<ArrayList<Triple>> ret = new ArrayList<ArrayList<Triple>>();
 		
+		LinkedList<ArrayList<Triple>> tripleStack = new LinkedList<ArrayList<Triple>>();
+		LinkedList<Integer> indexStack = new LinkedList<Integer>();
+		LinkedList<HashSet<Triple>> visitedStack = new LinkedList<HashSet<Triple>>();
+		
+		ArrayList<Triple> thisList = new ArrayList<Triple>();
+		thisList.add(this);
+		tripleStack.push(thisList);
+		
+		indexStack.push(new Integer(0));
+		
+		HashSet<Triple> thisHash = new HashSet<Triple>();
+		thisHash.add(this);
+		visitedStack.push(thisHash);
+		
+		while(tripleStack.size() > 0) {
+			
+			Triple leaf = tripleStack.peek().get(indexStack.peek());
+			
+			if (leaf.hasState) {
+				// Found a solution -- don't need to look at parents.
+				ArrayList<Triple> retPath = new ArrayList<Triple>();
+				// Use iterators for fast performance on linked lists.
+				Iterator<ArrayList<Triple>> tripleIt = tripleStack.iterator();
+				Iterator<Integer> indexIt = indexStack.iterator();
+				while (tripleIt.hasNext()) {
+					ArrayList<Triple> nextTriples = tripleIt.next();
+					Integer nextIndex = indexIt.next();
+					Triple nextTriple = nextTriples.get(nextIndex);
+					retPath.add(nextTriple);
+				}
+				ret.add(retPath);
+			} else {
+				// Not a solution -- keep searching.
+				ArrayList<Triple> parents = leaf.parentTriples;
+				ArrayList<Triple> newParents = new ArrayList<Triple>();
+				HashSet<Triple> newVisited = new HashSet<Triple>(visitedStack.peek());
+				for (Triple parent : parents) {
+					if (!(visitedStack.peek().contains(parent))) {
+						newParents.add(parent);
+						newVisited.add(parent);
+					}
+				}
+				if (newParents.size() > 0) {
+					// Push onto all stacks.
+					tripleStack.push(newParents);
+					visitedStack.push(newVisited);
+					indexStack.push(new Integer(-1));
+				}
+			}
+			
+			// Increment index
+			Integer currentIndex = indexStack.pop();
+			indexStack.push(new Integer(currentIndex + 1));
+			
+			// Pop all stacks if neccesarry.
+			while (indexStack.size() > 0 && indexStack.peek() >= tripleStack.peek().size()) {
+				tripleStack.pop();
+				indexStack.pop();
+				visitedStack.pop();
+				
+				if (indexStack.size() > 0) {
+					// Increment index
+					currentIndex = indexStack.pop();
+					indexStack.push(new Integer(currentIndex + 1));
+				}
+			}
+		}
+		
+		return ret;
+	}
+	
+	/**
+	 * 
+	 * @return The list of the list of attribute Strings to get from state &lt;s&gt; to this Triple's variable.
+	 */
+	public ArrayList<ArrayList<Triple>> oldGetTriplePathsFromState() {
+	
 		if (attributePaths != null) return attributePaths;
 		
 		//if (parentTriples == null) return null;
@@ -194,18 +275,26 @@ public class Triple {
 		leaves.add(new TriplePath(this));
 		
 		while (leaves.size() > 0) {
+			System.out.println("leaves.size(): " + leaves.size());
 			ArrayList<TriplePath> newLeaves = new ArrayList<TriplePath>();
 			for (TriplePath path : leaves) {
 				if (path.last().hasState) {
 					ret.add(path.path);
+					System.out.println("Added to ret: " + path.path);
 				}
 				else {
-					ArrayList<Triple> triples = path.last().parentTriples;
-					for (Triple triple : triples) {
+					ArrayList<Triple> parentTriples = path.last().parentTriples;
+					System.out.println("  " + path.path);
+					System.out.println("  parentTriples.size(): " + parentTriples.size());
+					System.out.println("  path.visited.size(): " + path.visited.size());
+					int numNewLeaves = 0;
+					for (Triple triple : parentTriples) {
 						if (!path.visited.contains(triple)) {
 							newLeaves.add(path.next(triple));
+							++numNewLeaves;
 						}
 					}
+					System.out.println("  numNewLeaves: " + numNewLeaves);
 				}
 			}
 			leaves = newLeaves;
@@ -223,6 +312,7 @@ public class Triple {
 	
 	public ArrayList<ArrayList<String>> getAttributePathsFromState() {
 		ArrayList<ArrayList<Triple>> triplePaths = getTriplePathsFromState();
+		
 		ArrayList<ArrayList<String>> ret = new ArrayList<ArrayList<String>>();
 		for (ArrayList<Triple> triplePath : triplePaths) {
 			ArrayList<String> stringPath = new ArrayList<String>(); 
@@ -232,6 +322,15 @@ public class Triple {
 			ret.add(stringPath);
 		}
 		return ret;
+	}
+	
+	class AttributePathNode {
+		String attribute;
+		ArrayList<AttributePathNode> childNodes;
+		public AttributePathNode(String attribute, ArrayList<AttributePathNode> childNodes) {
+			this.attribute = attribute;
+			this.childNodes = childNodes;
+		}
 	}
 	
 	public boolean matchesPath(String[] matchPath) {
@@ -261,26 +360,33 @@ public class Triple {
 		assert problemSpace.getTable() == Table.PROBLEM_SPACES;
 		SoarDatabaseRow root = (SoarDatabaseRow) problemSpace.getChildrenOfType(Table.DATAMAP_IDENTIFIERS).get(0);
 		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
+
 		ArrayList<ArrayList<String>> paths = getAttributePathsFromState();
 		
+		int numPath = 0;
+		ArrayList<SoarDatabaseRow> currentRows = new ArrayList<SoarDatabaseRow>();
+		ArrayList<SoarDatabaseRow> childRows = new ArrayList<SoarDatabaseRow>();
+		ArrayList<SoarDatabaseRow> temp;
 		for (ArrayList<String> path : paths) {
-			ArrayList<SoarDatabaseRow> currentRows = new ArrayList<SoarDatabaseRow>();
+			++numPath;
+			//System.out.println(numPath);
+			currentRows.clear();
 			currentRows.add(root);
 			for (int i = 0; i < path.size(); ++i) {
 				String attribute = path.get(i);
-				ArrayList<SoarDatabaseRow> childRows = new ArrayList<SoarDatabaseRow>();
+				childRows.clear();
 				for (SoarDatabaseRow currentRow : currentRows) {
 					ArrayList<ISoarDatabaseTreeItem> childItems = currentRow.getDirectedJoinedChildren(false);
 					for (ISoarDatabaseTreeItem childItem : childItems) {
 						SoarDatabaseRow childRow = (SoarDatabaseRow) childItem;
-						if (childRow.getTable() == Table.DATAMAP_IDENTIFIERS || i == path.size() - 1) {
-							if (attribute.equals(childRow.getName())) {
-								childRows.add(childRow);
-							}
+						if ((childRow.getTable() == Table.DATAMAP_IDENTIFIERS || i == path.size() - 1) && attribute.equals(childRow.getName())) {
+							childRows.add(childRow);
 						}
 					}
 				}
+				temp = currentRows;
 				currentRows = childRows;
+				childRows = temp;
 			}
 			ret.addAll(currentRows);
 		}

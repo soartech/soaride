@@ -295,6 +295,9 @@ public class SoarCorePlugin extends Plugin {
 	 */
 	public ArrayList<String> newProject() {
 		ArrayList<String> errors = new ArrayList<String>();
+		
+		/*
+		// New project saved to disk
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
 		dialog.setText("Choose Location To Save New Soar IDE Project");
@@ -314,7 +317,12 @@ public class SoarCorePlugin extends Plugin {
 			}
 		}
 
-		openProject(path); 
+		openProject(path);
+		*/
+		
+		// New unsaved project
+		// (saving is faster now, no need to start a project on disk).
+		openProject(":memory:");
 		return errors;
 	}
 

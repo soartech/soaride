@@ -10,9 +10,6 @@ import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-
-import javax.swing.plaf.basic.BasicScrollPaneUI.HSBChangeListener;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
@@ -294,6 +291,22 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	@Override
 	public String toString() {
 		String ret = getName();
+		if (table == Table.DATAMAP_ENUMERATIONS) {
+			ArrayList<SoarDatabaseRow> values = getChildrenOfType(Table.DATAMAP_ENUMERATION_VALUES);
+			ret += " (";
+			int i;
+			for (i = 0; i < values.size(); ++i) {
+				ret += values.get(i);
+				if (i < values.size() - 1) {
+					ret += ", ";
+				}
+			}
+			ret += ")";
+		} else if (table == Table.DATAMAP_INTEGERS || table == Table.DATAMAP_FLOATS) {
+			ret += " (" + getColumnValue("min_value") + ", " + getColumnValue("max_value") + ")";
+		}
+		
+		/*
 		ArrayList<EditableColumn> columns = getEditableColumns();
 		int size = columns.size();
 		if (size > 0) {
@@ -311,6 +324,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 				}
 			}
 		}
+		*/
 		
 		/*
 		// This happend in ChildProblemSpaceWrapper now.
@@ -1282,6 +1296,14 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 				ret.createChild(t, newName);
 			}
 		}
+		
+		// Fill in default values for editable columns
+		ArrayList<EditableColumn> columns = editableColumns.get(childTable);
+		if (columns != null) {
+			for (EditableColumn column : columns) {
+				ret.editColumnValue(column, column.getDefaultValue());
+			}
+		}
 
 		return ret;
 	}
@@ -1327,6 +1349,14 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		if (automaticChildren != null) {
 			for (Table t : automaticChildren) {
 				ret.createChild(t, "New " + t.shortName());
+			}
+		}
+		
+		// Fill in default values for editable columns
+		ArrayList<EditableColumn> columns = editableColumns.get(childTable);
+		if (columns != null) {
+			for (EditableColumn column : columns) {
+				ret.editColumnValue(column, column.getDefaultValue());
 			}
 		}
 
@@ -1461,7 +1491,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	
 	public void editColumnValue(EditableColumn column, Object newValue) {
 		if (column.objectIsRightType(newValue)) {
-			String sql = "update " + table.tableName() + " set " + column.getName() + "=?";
+			String sql = "update " + table.tableName() + " set " + column.getName() + "=? where id=?";
 			StatementWrapper sw = db.prepareStatement(sql);
 			switch (EditableColumn.typeForObject(newValue)) {
 			case FLOAT:
@@ -1474,6 +1504,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 				sw.setString(1, (String)newValue);
 				break;
 			}
+			sw.setInt(2, id);
 			sw.execute();
 		}
 	}
@@ -1767,10 +1798,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		childFolders.put(Table.AGENTS, agentFolders);
 		
 		// Which tables have editable columns
-		addEditableColumnToTable(Table.DATAMAP_INTEGERS, new EditableColumn("min_value", EditableColumn.Type.INTEGER));
-		addEditableColumnToTable(Table.DATAMAP_INTEGERS, new EditableColumn("max_value", EditableColumn.Type.INTEGER));
-		addEditableColumnToTable(Table.DATAMAP_FLOATS, new EditableColumn("min_value", EditableColumn.Type.FLOAT));
-		addEditableColumnToTable(Table.DATAMAP_FLOATS, new EditableColumn("max_value", EditableColumn.Type.FLOAT));
+		addEditableColumnToTable(Table.DATAMAP_INTEGERS, new EditableColumn("min_value", EditableColumn.Type.INTEGER, new Integer(0)));
+		addEditableColumnToTable(Table.DATAMAP_INTEGERS, new EditableColumn("max_value", EditableColumn.Type.INTEGER, new Integer(0)));
+		addEditableColumnToTable(Table.DATAMAP_FLOATS, new EditableColumn("min_value", EditableColumn.Type.FLOAT, new Float(0.0f)));
+		addEditableColumnToTable(Table.DATAMAP_FLOATS, new EditableColumn("max_value", EditableColumn.Type.FLOAT, new Float(0.0f)));
 
 		// Project structure
 		directedJoinTables(Table.PROBLEM_SPACES, Table.RULES); // Project

@@ -141,7 +141,10 @@ public class TraversalUtil {
 	private static void visitRuleNode(SoarDatabaseRow row, ArrayList<Triple> triples, ArrayList<String> stateVariables) {
 		debug("visitRuleNode");
 		ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
+		int childIndex = 0;
 		for (ISoarDatabaseTreeItem item : children) {
+			++childIndex;
+			//System.out.println("item: " + (childIndex) + ", " + item);
 			assert item instanceof SoarDatabaseRow;
 			SoarDatabaseRow child = (SoarDatabaseRow) item;
 			
