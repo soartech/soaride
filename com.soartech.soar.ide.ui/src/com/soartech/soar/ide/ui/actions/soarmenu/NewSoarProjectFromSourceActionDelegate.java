@@ -5,11 +5,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
@@ -19,9 +17,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
-
-import sun.net.ProgressMonitor;
-
 import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
@@ -29,9 +24,15 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseUtil;
 import com.soartech.soar.ide.core.sql.TraversalUtil;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
-import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.actions.explorer.GenerateAgentStructureActionDelegate;
 
+/**
+ * This class is misnamed -- it actually creates a new Agent in the current Soar IDE project,
+ * loads rules into that agent from a source file chosen by the user, generates project structure
+ * for the agent, and generates datamaps for the problem spaces in the agent.
+ * @author miller
+ *
+ */
 public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowActionDelegate {
 	
 	@Override

@@ -15,6 +15,11 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapAction;
 
+/**
+ * Generates a datamap for each Problem Space in the given Agent.
+ * @author miller
+ *
+ */
 public class GenerateDatamapsActionDelegate implements IWorkbenchWindowActionDelegate {
 
 	StructuredSelection ss;

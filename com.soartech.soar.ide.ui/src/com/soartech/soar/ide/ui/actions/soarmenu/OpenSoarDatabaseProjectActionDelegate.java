@@ -15,6 +15,11 @@ import org.eclipse.ui.PlatformUI;
 import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 
+/**
+ * Closes the current Soar IDE project and opens the project file selected by the user.
+ * @author miller
+ *
+ */
 public class OpenSoarDatabaseProjectActionDelegate implements IWorkbenchWindowActionDelegate {
 
 	Shell shell;

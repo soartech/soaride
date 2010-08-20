@@ -11,6 +11,11 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
 
+/**
+ * Saves the current Soar IDE project in a new file.
+ * @author miller
+ *
+ */
 public class SaveSoarDatabaseProjectActionDelegate implements IWorkbenchWindowActionDelegate {
 
 	Shell shell;

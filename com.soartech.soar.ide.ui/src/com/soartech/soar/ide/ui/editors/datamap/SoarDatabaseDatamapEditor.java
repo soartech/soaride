@@ -12,11 +12,12 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -31,6 +32,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.eclipse.ui.part.EditorPart;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
@@ -45,7 +47,6 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.actions.dragdrop.SoarDatabaseDatamapDragAdapter;
 import com.soartech.soar.ide.ui.actions.dragdrop.SoarDatabaseDatamapDropAdapter;
-import com.soartech.soar.ide.ui.views.SoarLabelProvider;
 import com.soartech.soar.ide.ui.views.search.SoarDatabaseSearchResultsView;
 
 public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDatabaseEventListener {
@@ -160,8 +161,8 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 					IStructuredSelection ss = (IStructuredSelection) selection;
 					Object element = ss.getFirstElement();
 
-					if (element instanceof SoarDatabaseRow) {
-						final SoarDatabaseRow row = (SoarDatabaseRow) element;
+					if (element instanceof ISoarDatabaseTreeItem) {
+						final SoarDatabaseRow row = ((ISoarDatabaseTreeItem) element).getRow();
 
 						ArrayList<Table> childTables = row.getChildTables();
 
@@ -195,6 +196,31 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 											}
 										}
 									});
+						}
+						
+						if (table == Table.DATAMAP_ENUMERATIONS) {
+							final ArrayList<SoarDatabaseRow> enumValues = row.getChildrenOfType(Table.DATAMAP_ENUMERATION_VALUES);
+							if (enumValues.size() > 0) {
+								manager.add(new Action("Remove Enumeration Values") {
+									@Override
+									public void run() {
+										Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+										ListSelectionDialog dialog = new ListSelectionDialog(
+											shell,
+											enumValues,
+											new ArrayContentProvider(),
+											new LabelProvider(),
+											"Select Enumeration Values to Remove"
+											);
+										dialog.open();
+										Object[] result = dialog.getResult();
+										for (Object obj : result) {
+											SoarDatabaseRow row = (SoarDatabaseRow) obj;
+											row.deleteAllChildren(true, null);
+										}
+									}
+								});
+							}
 						}
 						
 						if (table != Table.DATAMAP_ENUMERATION_VALUES) {

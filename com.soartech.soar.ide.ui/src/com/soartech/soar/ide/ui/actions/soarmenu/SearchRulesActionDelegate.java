@@ -10,6 +10,11 @@ import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.ui.views.search.SoarDatabaseSearchResultsView;
 
+/**
+ * Searches all rules for a String.
+ * @author miller
+ *
+ */
 public class SearchRulesActionDelegate implements IWorkbenchWindowActionDelegate {
 
 	@Override

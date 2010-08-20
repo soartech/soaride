@@ -11,8 +11,16 @@ public class SoarDatamapItemDuplicateGroup implements ISoarDatabaseTreeItem {
 
 	ArrayList<SoarDatabaseRow> items;
 	
-	public SoarDatamapItemDuplicateGroup(ArrayList<SoarDatabaseRow> items) {
-		this.items = items;
+	public SoarDatamapItemDuplicateGroup(ArrayList<ISoarDatabaseTreeItem> items) {
+		this.items = new ArrayList<SoarDatabaseRow>();
+		for (ISoarDatabaseTreeItem item : items) {
+			if (item instanceof SoarDatabaseRow) {
+				this.items.add((SoarDatabaseRow)item);
+			}
+			if (item instanceof SoarDatamapItemDuplicateGroup) {
+				this.items.addAll(((SoarDatamapItemDuplicateGroup)item).getItems());
+			}
+		}
 	}
 	
 	@Override

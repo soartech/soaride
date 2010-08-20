@@ -12,6 +12,11 @@ import org.eclipse.ui.PlatformUI;
 import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 
+/**
+ * Creates a new Soar IDE project.
+ * @author miller
+ *
+ */
 public class NewSoarProjectActionDelegate implements IWorkbenchWindowActionDelegate {
 
 	@Override

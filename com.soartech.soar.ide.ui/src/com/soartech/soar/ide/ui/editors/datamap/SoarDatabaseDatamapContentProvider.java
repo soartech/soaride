@@ -38,33 +38,42 @@ public class SoarDatabaseDatamapContentProvider implements ITreeContentProvider 
 			} else if (element instanceof SoarDatamapItemDuplicateGroup) {
 				ret.addAll(getChildren(((SoarDatamapItemDuplicateGroup)element).getItems(), true));
 			}
-			// Group duplicate children together
+		}
+		
+		// Group duplicate children together
 
-			// ArrayList<ArrayList<ISoarDatabaseTreeItem>> duplicates = new
-			// ArrayList<ArrayList<ISoarDatabaseTreeItem>>();
-			HashMap<String, ArrayList<SoarDatabaseRow>> pathsToNodes = new HashMap<String, ArrayList<SoarDatabaseRow>>();
-			for (ISoarDatabaseTreeItem item : ret) {
-				if (item instanceof SoarDatabaseRow) {
-					SoarDatabaseRow node = (SoarDatabaseRow) item;
-					String key = node.getName() + " " + node.getTable();
-					ArrayList<SoarDatabaseRow> list = pathsToNodes.get(key);
-					if (list == null)
-						list = new ArrayList<SoarDatabaseRow>();
-					list.add(node);
-					pathsToNodes.put(key, list);
-				}
+		// ArrayList<ArrayList<ISoarDatabaseTreeItem>> duplicates = new
+		// ArrayList<ArrayList<ISoarDatabaseTreeItem>>();
+		HashMap<String, ArrayList<ISoarDatabaseTreeItem>> pathsToNodes = new HashMap<String, ArrayList<ISoarDatabaseTreeItem>>();
+		for (ISoarDatabaseTreeItem item : ret) {
+			if (item instanceof SoarDatabaseRow) {
+				SoarDatabaseRow node = (SoarDatabaseRow) item;
+				String key = node.getName() + " " + node.getTable();
+				ArrayList<ISoarDatabaseTreeItem> list = pathsToNodes.get(key);
+				if (list == null)
+					list = new ArrayList<ISoarDatabaseTreeItem>();
+				list.add(node);
+				pathsToNodes.put(key, list);
 			}
-			ArrayList<SoarDatamapItemDuplicateGroup> groups = new ArrayList<SoarDatamapItemDuplicateGroup>();
-			for (String key : pathsToNodes.keySet()) {
-				ArrayList<SoarDatabaseRow> list = pathsToNodes.get(key);
-				if (list.size() > 1) {
-					SoarDatamapItemDuplicateGroup group = new SoarDatamapItemDuplicateGroup(list);
-					groups.add(group);
-					for (SoarDatabaseRow groupRow : list) {
-						ret.remove(groupRow);
-					}
-					ret.add(group);
+			else if (item instanceof SoarDatamapItemDuplicateGroup) {
+				SoarDatamapItemDuplicateGroup group = (SoarDatamapItemDuplicateGroup) item;
+				String key = group.getRow().getName() + " " + group.getRow().getTable();
+				ArrayList<ISoarDatabaseTreeItem> list = pathsToNodes.get(key);
+				if (list == null) list = new ArrayList<ISoarDatabaseTreeItem>();
+				list.add(group);
+				pathsToNodes.put(key, list);	
+			}
+		}
+		ArrayList<SoarDatamapItemDuplicateGroup> groups = new ArrayList<SoarDatamapItemDuplicateGroup>();
+		for (String key : pathsToNodes.keySet()) {
+			ArrayList<ISoarDatabaseTreeItem> list = pathsToNodes.get(key);
+			if (list.size() > 1) {
+				SoarDatamapItemDuplicateGroup group = new SoarDatamapItemDuplicateGroup(list);
+				groups.add(group);
+			for (ISoarDatabaseTreeItem groupRow : list) {
+					ret.remove(groupRow);
 				}
+				ret.add(group);
 			}
 		}
 
