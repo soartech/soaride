@@ -48,15 +48,24 @@ import com.soartech.soar.ide.core.ast.VarAttrValMake;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 
 /**
- * Represents a row in a table. Valid tables are in the enum
- * SoarDatabaseRow.Table. Rows in join tables should be represented by a
- * SoarDatabaseJoinRow.
+ * This class is too big.
+ * Some methods could be split off into a utility class.
+ * Some methods and static data could be split off into a metadata class.
+ * Some methods could be removed or consilidated.
+ * 
+ * Represents a row in a database table.
+ * 
+ * Static variables provide metadata about what tables exist and
+ * what kinds of connections exist between them.
+ * 
+ * Static methods provide ways to join rows together.
  * 
  * @author miller
  * 
  */
 public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 
+	// One entry for each table in the database.
 	public enum Table {
 		
 		// Agents
@@ -179,6 +188,14 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return null;
 	}
 
+	/**
+	 * Represents the relationship between two joined rows.
+	 * For most joins, this will be JoinType.NONE.
+	 * For superstate-substate relationships, this indicates
+	 * the type of impasse between the problem spaces
+	 * @author miller
+	 *
+	 */
 	public enum JoinType {
 		NONE,
 		TIE_IMPASSE,
@@ -222,10 +239,15 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		}
 	}
 	
-	// Assign a join type to each row
-	// This is a little messy because, in fact, the join type depends on
-	// which parent the row was found from. So, a row may have more than
-	// one valid join type.
+	/**
+	 * Assign a join type to each row
+	 * This is a little messy because, in fact, the join type depends on
+	 * which parent the row was found from. So, a row may have more than
+	 * one valid join type.
+	 * 
+	 * The join type is stored in the join table, not in the row's table.
+	 * 
+	 **/
 	protected JoinType joinType = JoinType.NONE;
 	
 	// Maps a table onto its possible child tables.
@@ -265,8 +287,19 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	private HashMap<Table, SoarDatabaseRowFolder> folders = new HashMap<Table, SoarDatabaseRowFolder>();
 	private SoarDatabaseEditorInput editorInput = null;
 	
+	// Makes sure the static init() is only called once.
+	// This is a little messy -- should probably have used
+	// static blocks instead.
 	private static boolean initted = false;
 
+	/**
+	 * Class constructor.
+	 * Doesn't change the database -- this should be called
+	 * to represent rows already existing in the database.
+	 * @param table 
+	 * @param id
+	 * @param db
+	 */
 	public SoarDatabaseRow(Table table, int id, SoarDatabaseConnection db) {
 
 		if (!initted) {
@@ -288,6 +321,9 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		}
 	}
 
+	/**
+	 * Expands on getName() to provide a little more information about certain rows.
+	 */
 	@Override
 	public String toString() {
 		String ret = getName();
@@ -306,39 +342,18 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			ret += " (" + getColumnValue("min_value") + ", " + getColumnValue("max_value") + ")";
 		}
 		
-		/*
-		ArrayList<EditableColumn> columns = getEditableColumns();
-		int size = columns.size();
-		if (size > 0) {
-			ret += ": ";
-			for (int i = 0; i < size; ++i) {
-				EditableColumn column = columns.get(i);
-				Object value = getEditableColumnValue(column);
-				if (value == null) {
-					value = "NULL";
-				}
-				if (i != size - 1) {
-					ret += column.getName() + "=" + value + ", ";
-				} else {
-					ret += column.getName() + "=" + value;
-				}
-			}
-		}
-		*/
-		
-		/*
-		// This happend in ChildProblemSpaceWrapper now.
-		if (joinType != JoinType.NONE) {
-			ret += " (" + joinType.englishName() + ")";
-		}
-		*/
-		
 		return ret;
 	}
 
+	/**
+	 * Gets the name of the row.
+	 * The only table that doesn't have a "name" field is Table.TRIPLES,
+	 * so for those rows a String representation is created.
+	 * @return
+	 */
 	public String getName() {
 		if (table == Table.TRIPLES) {
-			return "Triple: " + getColumnValue("variable_string") + " ^" + getColumnValue("attribute_string") + " " + getColumnValue("value_string");
+			return "(" + getColumnValue("variable_string") + " ^" + getColumnValue("attribute_string") + " " + getColumnValue("value_string") + ")";
 		}
 		String name = null;
 		String sql = "select (name) from " + table.tableName() + " where id=?";
@@ -358,7 +373,13 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return name;
 	}
 
+	/**
+	 * Updates the name field in the database.
+	 * Doesn't work on rows of type Table.TRIPLES.
+	 * @param name
+	 */
 	public void setName(String name) {
+		if (table == Table.TRIPLES) return;
 		String sql = "update " + table.tableName() + " set name=? where id=?";
 		StatementWrapper ps = db.prepareStatement(sql);
 		ps.setString(1, name);
@@ -366,6 +387,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		ps.execute();
 	}
 	
+	/**
+	 * Each datamap row has a comment column, which is displayed
+	 * in the datamap editor.
+	 * @return
+	 */
 	public String getComment() {
 		if (!(table.isDatamapTable())) {
 			return null;
@@ -373,6 +399,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return (String) getColumnValue("comment_text");
 	}
 	
+	/**
+	 * Sets the value of the comment column.
+	 * @param comment
+	 */
 	public void setComment(String comment) {
 		if (!(table.isDatamapTable())) {
 			return;
@@ -413,6 +443,8 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 	
 	/**
+	 * Updates the value of a single column in this row.
+	 * 
 	 * CAUTION:
 	 * Doesn't use a prepared statment.
 	 * Doesn't properly escape values.
@@ -424,6 +456,8 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 	
 	/**
+	 * Updates the values of one or more columns in this row.
+	 * 
 	 * CAUTION:
 	 * Doesn't use a prepared statment.
 	 * Doesn't properly escape values.
@@ -444,6 +478,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		db.execute(sql);
 	}
 	
+	/**
+	 * Gets the value of a single column from this row.
+	 * @param column
+	 * @return
+	 */
 	public Object getColumnValue(String column) {
 		String sql = "select * from " + table.tableName() + " where id=?";
 		StatementWrapper sw = db.prepareStatement(sql);
@@ -461,14 +500,26 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return ret;
 	}
 
+	/**
+	 * Acessor method.
+	 * @return The table this row belongs to.
+	 */
 	public Table getTable() {
 		return table;
 	}
-
+	
+	/**
+	 * Acessor method.
+	 * @return The primary key id for this row.
+	 */
 	public int getID() {
 		return id;
 	}
 
+	/**
+	 * Deletes this row from the database.
+	 * Also deletes joins that involve this row.
+	 */
 	private void delete() {
 		String sql = "delete from " + table.tableName() + " where id=?";
 		StatementWrapper ps = db.prepareStatement(sql);
@@ -479,6 +530,9 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		removeAllJoins();
 	}
 
+	/**
+	 * Deletes all joins involving this row.
+	 */
 	public void removeAllJoins() {
 		// Remove undirected joins
 		ArrayList<Table> tables = getTablesJoinedToTable(this.table);
@@ -498,6 +552,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		}
 	}
 
+	/**
+	 * 
+	 * @return
+	 * The list of all tables which are children of this table.
+	 * That is, all tables that have a foreign key onto this row's table.
+	 */
 	public ArrayList<Table> getChildTables() {
 		if (childTables.containsKey(table)) {
 			ArrayList<Table> children = childTables.get(table);
@@ -506,6 +566,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return new ArrayList<Table>();
 	}
 	
+	/**
+	 * 
+	 * @return The list of all tables which are directed-joined children of this table.
+	 * That is, all tables for which there is a directed join table with that table as
+	 * the child table and this row's table as the parent table.
+	 */
 	public ArrayList<Table> getDirectedJoinedChildTables() {
 		if (directedJoinedTables.containsKey(table)) {
 			ArrayList<Table> children = directedJoinedTables.get(table);
@@ -577,14 +643,33 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return ret;
 	}
 	
+	/**
+	 * 
+	 * @param putInFolders Whether to package the result into folders.
+	 * @return All directed-joined chilren of this row.
+	 */
 	public ArrayList<ISoarDatabaseTreeItem> getDirectedJoinedChildren(boolean putInFolders) {
 		return getDirectedJoinedChildrenOfTypeNamed(null, null, putInFolders, false);
 	}
 	
+	/**
+	 * 
+	 * @param type Only return rows from this table.
+	 * @param putInFolders Whether to package the results into folder.
+	 * @param assignJoinTypes Whether to assign join types to the child rows.
+	 * @return All directed-joined children of this row from the given table.
+	 */
 	public ArrayList<ISoarDatabaseTreeItem> getDirectedJoinedChildrenOfType(Table type, boolean putInFolders, boolean assignJoinTypes) {		
 		return getDirectedJoinedChildrenOfTypeNamed(type, null, putInFolders, assignJoinTypes);
 	}
 	
+	/**
+	 * @param type Only return rows from this table.
+	 * @param name Only return rown with this name.
+	 * @param putInFolders Whether to package the results into folder.
+	 * @param assignJoinTypes Whether to assign join types to the child rows.
+	 * @return All directed-joined children of this row from the given table.
+	 */
 	public ArrayList<ISoarDatabaseTreeItem> getDirectedJoinedChildrenOfTypeNamed(Table type, String name, boolean putInFolders, boolean assignJoinTypes) {		
 		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		if (directedJoinedTables.containsKey(table)) {
@@ -630,8 +715,8 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	/**
 	 * Doesn't return folders.
 	 * 
-	 * @param type
-	 * @return
+	 * @param type Only returns rows from this table.
+	 * @return Children of this row from the given table.
 	 */
 	public ArrayList<SoarDatabaseRow> getChildrenOfType(Table type) {
 		return getChildrenOfType(type, null);
@@ -648,9 +733,9 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	/**
 	 * Doesn't return folders.
 	 * 
-	 * @param type
-	 * @param name
-	 * @return
+	 * @param type Only returns rows from this table.
+	 * @param name Only returns rows with this name.
+	 * @return Children of this row from the given table with the given name.
 	 */
 	public ArrayList<SoarDatabaseRow> getChildrenOfTypeNamed(Table type, String name, String extraSql) {
 		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
@@ -680,6 +765,9 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return ret;
 	}
 
+	/**
+	 * @return True if this row has any child rows.
+	 */
 	public boolean hasChildren() {
 		ArrayList<Table> children = getChildTables();
 		for (Table t : children) {
@@ -710,6 +798,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @return True if this row has no parent rows.
+	 */
 	public boolean isOrphan() {
 		if ((!hasParentJoinedRows()) && (!hasParents())) {
 			return true;
@@ -717,10 +809,19 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return false;
 	}
 	
+	/**
+	 * 
+	 * @return True if this row's table is a datamap node.
+	 */
 	public boolean isDatamapNode() {
 		return table.isDatamapTable();
 	}
 	
+	/**
+	 * 
+	 * @param type
+	 * @return True if this row has any children from the given table.
+	 */
 	public boolean hasChildrenOfType(Table type) {
 		if (!getChildTables().contains(type)) return false;
 		String sql = "select * from " + type.tableName() + " where "
@@ -740,6 +841,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @return A list of all parent tables of this row's table.
+	 * That is, all tables that this row's table contains a foreign key to.
+	 */
 	public ArrayList<Table> getParentTables() {
 		if (parentTables.containsKey(table)) {
 			ArrayList<Table> parents = parentTables.get(table);
@@ -754,7 +860,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	 * case there may be two parents: the Agent
 	 * and a superstate.
 	 * 
-	 * @return
+	 * @return All parent rows for this row.
 	 */
 	public ArrayList<SoarDatabaseRow> getParents() {
 		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
@@ -780,23 +886,9 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 	
 	/**
-	 * Sets the non-joined parent of this row.
-	 * @param parent
+	 * 
+	 * @return True if this row has any non-joined parent rows.
 	 */
-	public void setParentRow(SoarDatabaseRow parent) {
-
-		// Make sure the parent is of an appropriate type. 
-		if (!getParentTables().contains(parent.getTable())) {
-			return;
-		}
-		
-		String sql = "update " + table.tableName() + " set " + parent.getTable().idName() + "=? where id=?";
-		StatementWrapper sw = db.prepareStatement(sql);
-		sw.setInt(1, parent.id);
-		sw.setInt(2, this.id);
-		sw.execute();
-	}
-	
 	public boolean hasParents() {
 		ArrayList<Table> parents = getParentTables();
 		for (Table t : parents) {
@@ -830,8 +922,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	/**
 	 * 
 	 * @param type The type of parent row to search for.
-	 * @return A list of all rows of type <code>type</code>
-	 * what are parents in a directional join with this row.
+	 * @return A list of all rows from the given table that are parents in a directional join with this row.
 	 */
 	public ArrayList<SoarDatabaseRow> getDirectedJoinedParentsOfType(Table type) {
 		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
@@ -860,7 +951,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	
 	/**
 	 * Returns both regular parents and directed-join parents.
-	 * @return
+	 * @return All parent rows of this row.
 	 */
 	public ArrayList<SoarDatabaseRow> getAllParents() {
 		ArrayList<SoarDatabaseRow> ret = getParents();
@@ -993,20 +1084,41 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return null;
 	}
 	
+	/**
+	 * Climbs up the path of parents until no more parents are found.
+	 * 
+	 * @return The highest-level row.
+	 */
 	public SoarDatabaseRow getTopLevelRow() {
 		return getAncestorRow(null);
 	}
 	
+	/**
+	 *
+	 * @param type Only returns rows from this table.
+	 * @return A list of all descendants of this row of the given type.
+	 */
 	public ArrayList<ISoarDatabaseTreeItem> getDescendantsOfType(Table type) {
 		HashSet<Table> types = new HashSet<Table>();
 		types.add(type);
 		return getDescendantsOfTypes(types, new HashSet<ISoarDatabaseTreeItem>());
 	}
 	
+	/**
+	 * 
+	 * @param types Only returns rows from this set of tables.
+	 * @return A list of all descendants of this row of the given types.
+	 */
 	public ArrayList<ISoarDatabaseTreeItem> getDescendantsOfTypes(HashSet<Table> types) {
 		return getDescendantsOfTypes(types, new HashSet<ISoarDatabaseTreeItem>());
 	}
 	
+	/**
+	 * Recursive method for performing getDescendantsOfTypes(HashSet<Table> types)
+	 * @param types
+	 * @param visitedRows
+	 * @return
+	 */
 	private ArrayList<ISoarDatabaseTreeItem> getDescendantsOfTypes(HashSet<Table> types, HashSet<ISoarDatabaseTreeItem> visitedRows) {
 		ArrayList<ISoarDatabaseTreeItem> ret = new ArrayList<ISoarDatabaseTreeItem>();
 		
@@ -1033,7 +1145,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	/**
 	 * Gets undirected joined rows from a given table.
 	 * @param other The table to look for joined rows in.
-	 * @param extraSql Extra text to add to the SQL query (e.g. "order by name"), or NULL.
+	 * @param extraSql Extra text to add to the SQL query (e.g. "order by name"), or <code>null</code>.
 	 * @return
 	 */
 	public ArrayList<SoarDatabaseRow> getUndirectedJoinedRowsFromTable(Table other) {
@@ -1083,6 +1195,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return getDirectedJoinedRowsFromTable(other, null);
 	}
 
+	/**
+	 * 
+	 * @param other Returns only rows from this table.
+	 * @param extraSql Extra sql to add to the query e.g. "order by name", or <code>null</code>.
+	 * @return All directed joined children of this row from the given table.
+	 */
 	public ArrayList<SoarDatabaseRow> getDirectedJoinedRowsFromTable(Table other, String extraSql) {
 		ArrayList<SoarDatabaseRow> ret = new ArrayList<SoarDatabaseRow>();
 		
@@ -1111,12 +1229,23 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return ret;
 	}
 	
+	/**
+	 * 
+	 * @param other Returns only rows from this table.
+	 * @return All directed children and undirected rows from this row, from the given table.
+	 */
 	public ArrayList<SoarDatabaseRow> getJoinedRowsFromTable(Table other) {
 		ArrayList<SoarDatabaseRow> ret = getDirectedJoinedRowsFromTable(other);
 		ret.addAll(getUndirectedJoinedRowsFromTable(other));
 		return ret;
 	}
 
+	/**
+	 * 
+	 * @param other
+	 * @return True if this row has directed joined children or undirected joined rows
+	 * from the given table.
+	 */
 	public boolean hasJoinedRowsFromTable(Table other) {
 		boolean ret = false;
 		if (tablesAreJoined(this.table, other)) {
@@ -1188,8 +1317,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		ps.execute();
 	}
 	
-	// Removes an undirected join between the two rows, if one exists.
-	// Order of parameters doesn't matter.
+	/**
+	 * Removes an undirected join between the two rows, if one exists.
+	 * Order of parameters doesn't matter.
+	 */
 	public static void unjoinRows(SoarDatabaseRow firstRow,
 			SoarDatabaseRow secondRow, SoarDatabaseConnection db) {
 		Table[] tables = SoarDatabaseRow.orderJoinedTables(firstRow.getTable(),
@@ -1217,6 +1348,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		ps.execute();
 	}
 
+	/**
+	 * Creates a directed-joined connection between the given rows.
+	 * @param parent
+	 * @param child
+	 * @param db
+	 */
 	public static void directedJoinRows(SoarDatabaseRow parent, SoarDatabaseRow child, SoarDatabaseConnection db) {
 		if (!tablesAreDirectedJoined(parent.getTable(), child.getTable())) {
 			return;
@@ -1232,6 +1369,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		ps.execute();
 	}
 	
+	/**
+	 * Removes the directed join between the given rows, if one exists.
+	 * @param parent
+	 * @param child
+	 * @param db
+	 */
 	public static void directedUnjoinRows(SoarDatabaseRow parent, SoarDatabaseRow child, SoarDatabaseConnection db) {
 		if (!tablesAreDirectedJoined(parent.getTable(), child.getTable())) {
 			return;
@@ -1250,7 +1393,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 	
 	/**
-	 * Creates and returns a new row.
+	 * Creates and returns a new row as a child of this row.
 	 * 
 	 * @param childTable
 	 *            The type of child row to create.
@@ -1363,6 +1506,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return ret;
 	}
 
+	/**
+	 * Turns the given AST Node into database row children of this row.
+	 * @param node
+	 * @throws Exception
+	 */
 	public void createChildrenFromAstNode(Object node) throws Exception {
 		ArrayList<Table> childTables = getChildTables();
 		Table childTable = tableForAstNode.get(node.getClass());
@@ -1416,7 +1564,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	 * Deletes all children.
 	 * Also deletes directed-joined children if
 	 * the child has no parents (normal parents or directed-join parents).
-	 * @param alsoDeleteThis
+	 * @param alsoDeleteThis If true, deleted this row also.
 	 */
 	public void deleteAllChildren(boolean alsoDeleteThis, HashSet<SoarDatabaseRow> alreadyDeleted, IProgressMonitor monitor) {
 		alreadyDeleted.add(this);
@@ -1448,6 +1596,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		}
 	}
 	
+	/**
+	 * Deletes all children of this row.
+	 * @param alsoDeleteThis If true, also deletes this row.
+	 * @param monitor The progress monitor to display updates to, or <code>null</code>.
+	 */
 	public void deleteAllChildren(boolean alsoDeleteThis, IProgressMonitor monitor) {
 		if (monitor != null) {
 			monitor.beginTask("Deleting \"" + getName() + "\"", IProgressMonitor.UNKNOWN);
@@ -1462,6 +1615,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		}
 	}
 	
+	/**
+	 * Return the list of editable columns for this row's table.
+	 * @return
+	 */
 	public ArrayList<EditableColumn> getEditableColumns() {
 		if (editableColumns.containsKey(table)) {
 			ArrayList<EditableColumn> ret = editableColumns.get(table);
@@ -1472,6 +1629,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return new ArrayList<EditableColumn>();
 	}
 	
+	/**
+	 * 
+	 * @param column
+	 * @return The current value of the given editable column for this row.
+	 */
 	public Object getEditableColumnValue(EditableColumn column) {
 		String sql = "Select " + column.getName() + " from " + table.tableName() + " where id=?";
 		StatementWrapper sw = db.prepareStatement(sql);
@@ -1489,6 +1651,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return ret;
 	}
 	
+	/**
+	 * Changes the value of the given editable column in this row.
+	 * @param column The editable column to change the value of.
+	 * @param newValue The new value for the editable column.
+	 */
 	public void editColumnValue(EditableColumn column, Object newValue) {
 		if (column.objectIsRightType(newValue)) {
 			String sql = "update " + table.tableName() + " set " + column.getName() + "=? where id=?";
@@ -1771,6 +1938,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return ret;
 	}
 
+	/**
+	 * 
+	 * @param <T>
+	 * @param it
+	 * @return An Object array from the given iterator.
+	 */
 	private <T> Object[] objectsArrayFromIterator(Iterator<T> it) {
 		ArrayList<T> list = new ArrayList<T>();
 		while (it.hasNext()) {
@@ -1779,8 +1952,13 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return list.toArray();
 	}
 
-	// Static initialization methods:
-
+	/**
+	 * Static initalization.
+	 * 
+	 * Initalizes data about realtionships between tables.
+	 * 
+	 * Would have been better to use a static block, but hey, this works too. 
+	 */
 	private static void init() {
 
 		// table problem spaces has foreign key agent_id:
@@ -1944,6 +2122,14 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		addChild(parent, child);
 	}
 
+	/**
+	 * Indicate that table child has foreign key parent_id
+	 * 
+	 * @param child
+	 *            The child table
+	 * @param parent
+	 *            The parent table
+	 */
 	private static void addChild(Table parent, Table child) {
 		if (!childTables.keySet().contains(parent)) {
 			ArrayList<Table> newList = new ArrayList<Table>();
@@ -1954,6 +2140,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 
 	/**
+	 * Indicate that the two tables are joined.
 	 * Order of parameters should match the order in the name of the sql table.
 	 * 
 	 * @param first
@@ -1978,7 +2165,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	 * 
 	 * @param first
 	 * @param second
-	 * @return
+	 * @return True if the two tables are undirected-joined.
 	 */
 	public static boolean tablesAreJoined(Table first, Table second) {
 		if (joinedTables.containsKey(first)) {
@@ -1996,6 +2183,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return false;
 	}
 	
+	/**
+	 * 
+	 * @param parent
+	 * @param child
+	 * @return True if the tables are directed-joined.
+	 */
 	public static boolean tablesAreDirectedJoined(Table parent, Table child) {
 		if (directedJoinedTables.containsKey(parent)) {
 			if (directedJoinedTables.get(parent).contains(child)) {
@@ -2006,6 +2199,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 	
 	/**
+	 * Indicates that the two tables are directed-joined.
 	 * Order of parameters should match the order in the name of the sql table.
 	 * 
 	 * @param first
@@ -2026,7 +2220,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 
 	/**
-	 * Returns a list of all tables that are joined to the given table (undirected).
+	 * Returns a list of all tables that are undirected-joined to the given table.
 	 * 
 	 * @param table
 	 * @return
@@ -2045,7 +2239,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 	
 	/**
-	 * Returns a list of all tables which are child tables of this table by directed joins.
+	 * Returns a list of all tables that are directed-joined children of this table.
 	 * 
 	 * @param table
 	 * @return
@@ -2057,9 +2251,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		}
 		return new ArrayList<Table>();
 	}
-	
-	// I'm counting on directedJoinedTables being pretty small, so the inefficiency of this
-	// method won't hurt too much.
+	 
+	/**
+	 * I'm counting on directedJoinedTables being pretty small, so the inefficiency of this
+	 * method won't hurt too much.
+	 * @return A list of tables that are directed-joined parents of the given table.
+	 */
 	public static ArrayList<Table> getDirectedJoinParentTables(Table table) {
 		ArrayList<Table> ret = new ArrayList<Table>();
 		for (Table t : directedJoinedTables.keySet()) {
@@ -2071,12 +2268,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 
 	/**
-	 * Determine if the two rows are joined (undirected).
 	 * 
-	 * @param first The first row.
-	 * @param second The second row.
-	 * @param db The database connection.
-	 * @return True if the rows are joined, otherwise false.
+	 * @param first
+	 * @param second
+	 * @param db
+	 * @return True if the two rows are undirected-joined.
 	 */
 	public static boolean rowsAreJoined(SoarDatabaseRow first,
 			SoarDatabaseRow second, SoarDatabaseConnection db) {
@@ -2124,12 +2320,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 	
 	/**
-	 * Determine if the two rows are directed-joined.
 	 * 
-	 * @param parent The parent row.
-	 * @param child The child row.
-	 * @param db The database connection.
-	 * @return True if the rows are directed-joined, otherwise false.
+	 * @param parent
+	 * @param child
+	 * @param db
+	 * @return True if the rows are directed-joined.
 	 */
 	public static boolean rowsAreDirectedJoined(SoarDatabaseRow parent,
 			SoarDatabaseRow child, SoarDatabaseConnection db) {
@@ -2162,14 +2357,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 
 	/**
-	 * Returns the tables in the order they jave been declared joined (the order
-	 * their sql join table is named), for use in constructing sql queries.
-	 * <p>
-	 * Returns null if the tables aren't joined.
 	 * 
 	 * @param first
 	 * @param second
-	 * @return
+	 * @return The given tables in the order they have been declared joined (the order
+	 * their sql join table is named), for use in constructing sql queries, or null
+	 * if the tables aren't joined.
 	 */
 	public static Table[] orderJoinedTables(Table first, Table second) {
 		if (joinedTables.containsKey(first)) {
@@ -2186,11 +2379,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 
 	/**
-	 * Returns the properly ordered name of the (unordered) join table.
 	 * 
 	 * @param first
 	 * @param second
-	 * @return
+	 * @return The properly ordered name of the undirected-join table.
 	 */
 	public static String joinTableName(Table first, Table second) {
 		Table[] tables = orderJoinedTables(first, second);
@@ -2203,10 +2395,21 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return "join_" + tables[0].tableName() + "_" + tables[1].tableName();
 	}
 	
+	/**
+	 * 
+	 * @param parent
+	 * @param child
+	 * @return The name of the join table for the given parent and child tables.
+	 */
 	public static String directedJoinTableName(Table parent, Table child) {
 		return "directed_join_" + parent.tableName() + "_" + child.tableName();
 	}
 	
+	/**
+	 * Indicates that the given table has the given editable column.
+	 * @param table
+	 * @param column
+	 */
 	public static void addEditableColumnToTable(Table table, EditableColumn column) {
 		ArrayList<EditableColumn> columns = null;
 		if (editableColumns.containsKey(table)) {
@@ -2219,6 +2422,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		columns.add(column);
 	}
 
+	/**
+	 * 
+	 * @return True if the two rows share the same table and id.
+	 */
 	@Override
 	public boolean equals(Object other) {
 		if (other instanceof SoarDatabaseRow) {
@@ -2236,11 +2443,20 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return false;
 	}
 
+	/**
+	 * @return This row's id. Could implement a more sophisticated
+	 * hashing algorithm by incorperating the table too, but this seems
+	 * to work pretty well.
+	 */
 	@Override
 	public int hashCode() {
 		return id;
 	}
 
+	/**
+	 * For use with text editors.
+	 * @return This row's SoarDatabaseEditorInput object.
+	 */
 	public IEditorInput getEditorInput() {
 		if (editorInput == null) {
 			editorInput = new SoarDatabaseEditorInput(this);
@@ -2248,6 +2464,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return editorInput;
 	}
 
+	/**
+	 * 
+	 * @return True if this row exists in the database, i.e., it hasn't been deleted.
+	 */
 	public boolean exists() {
 		String sql = "select * from " + getTable().tableName() + " where id=?";
 		StatementWrapper ps = db.prepareStatement(sql);
@@ -2263,6 +2483,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return ret;
 	}
 	
+	/**
+	 * 
+	 * @return The test of this row, i.e., the contents of the column <code>raw_text</code>.
+	 */
 	public String getText() {
 		String ret = null;
 		if (table == Table.RULES || table == Table.AGENTS) {
@@ -2286,6 +2510,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return ret;
 	}
 
+	/**
+	 * Sets the text of this row (the contents of the column <code>raw_text</code>).
+	 * @param text
+	 * @param suppressEvents
+	 */
 	public void setText(String text, boolean suppressEvents) {
 		if (table == Table.RULES || table == Table.AGENTS) {
 			String sql = "update " + table.tableName()
@@ -2301,12 +2530,22 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		}
 	}
 
+	/**
+	 * Saves this row.
+	 * If this row is of type Table.RULES, parses the rule into a syntax tree
+	 * and Triples.
+	 * @param doc
+	 * @param input
+	 * @param monitor
+	 */
 	public void save(IDocument doc, SoarDatabaseEditorInput input, IProgressMonitor monitor) {
 		save(doc.get(), input, monitor);
 	}
 	
 	/**
-	 * 
+	 * Saves this row.
+	 * If this row is of type Table.RULES, parses the rule into a syntax tree
+	 * and Triples.
 	 * @param text
 	 * @param input
 	 * @param monitor Progress Monitor, or null if none exists.
@@ -2465,6 +2704,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return errors;
 	}
 	
+	/**
+	 * 
+	 * @param text
+	 * @return The given String, with comments removed.
+	 */
 	public static String removeComments(String text) {
 		StringBuilder builder = new StringBuilder();
 		StringReader reader = new StringReader(text);
@@ -2502,6 +2746,14 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return builder.toString();
 	}
 	
+	/**
+	 * Sets the join type between the given rows
+	 * (i.e. either JoinType.NONE or the type of
+	 * impasse between problem spaces).
+	 * @param parent
+	 * @param child
+	 * @param joinType
+	 */
 	public static void setDirectedJoinType(SoarDatabaseRow parent, SoarDatabaseRow child, JoinType joinType) {
 		SoarDatabaseConnection db = parent.getDatabaseConnection();
 		if (!rowsAreDirectedJoined(parent, child, db)) {
@@ -2518,6 +2770,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		ps.execute();
 	}
 	
+	/**
+	 * 
+	 * @param parent
+	 * @param child
+	 * @return The join type between the given rows.
+	 */
 	public static JoinType getDirectedJoinType(SoarDatabaseRow parent, SoarDatabaseRow child) {
 		SoarDatabaseConnection db = parent.getDatabaseConnection();
 		if (!rowsAreDirectedJoined(parent, child, db)) {
@@ -2548,14 +2806,26 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return ret;
 	}
 	
+	/**
+	 * Setter method.
+	 * @param type
+	 */
 	public void setJoinType(JoinType type) {
 		joinType = type;
 	}
 	
+	/**
+	 * Getter method.
+	 * @return
+	 */
 	public JoinType getJoinType() {
 		return joinType;
 	}
 	
+	/**
+	 * 
+	 * @return True if this is of type Table.PROBLEM_SPACES and it has been marked as root.
+	 */
 	public boolean isRootProblemSpace() {
 		if (getTable() != Table.PROBLEM_SPACES) {
 			return false;
@@ -2567,6 +2837,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		return isRoot != 0;
 	}
 	
+	/**
+	 * Setter method.
+	 * @param isRoot
+	 */
 	public void setIsRootProblemSpace(boolean isRoot) {
 		if (getTable() != Table.PROBLEM_SPACES) {
 			return;
@@ -2576,21 +2850,37 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		getDatabaseConnection().fireEvent(event);
 	}
 
+	/**
+	 * Getter method.
+	 * @return
+	 */
 	public SoarDatabaseConnection getDatabaseConnection() {
 		return db;
 	}
 	
-	// Tree conent providers can use this as a flag to know
-	// not to get more children.
+	/**
+	 * Setter method.
+	 * Tree conent providers can use this as a flag to know
+	 * not to get more children.
+	 * @param terminal
+	 */
 	boolean terminal = false;
 	public void setTerminal(boolean terminal) {
 		this.terminal = terminal;
 	}
 	
+	/**
+	 * Getter method.
+	 * @return
+	 */
 	public boolean isTerminal() {
 		return terminal;
 	}
 	
+	/**
+	 * Required by ISoarDatabaseTreeItem.
+	 * @return This row.
+	 */
 	@Override
 	public SoarDatabaseRow getRow() {
 		return this;

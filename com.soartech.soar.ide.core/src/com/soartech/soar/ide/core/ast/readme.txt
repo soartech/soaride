@@ -9,3 +9,4 @@ Modifications by Dave Ray from original Visual Soar parser
 * Sub-classed SimpleCharStream with SoarCharStream to keep track of offset.
 * Sub-classed SoarParserTokenManager to override jjFillToken() to set token
   offsets.
+  

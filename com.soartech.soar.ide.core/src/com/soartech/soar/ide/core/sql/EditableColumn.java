@@ -1,5 +1,10 @@
 package com.soartech.soar.ide.core.sql;
 
+/**
+ * Indicates that a column on a table can be edited.
+ * @author miller
+ *
+ */
 public class EditableColumn {
 	
 	public enum Type {

@@ -25,11 +25,6 @@ import java.util.ArrayList;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.BundleContext;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
@@ -40,10 +35,8 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import edu.umich.soar.debugger.jmx.SoarCommandLineMXBean;
 
 /**
- * <code>SoarCorePlugin</code> The main plugin class to be used in the desktop.
- *
- * @author annmarie.steichmann@soartech.com
- * @version $Revision$ $Date$
+ * There exists a singleton instance of the class, which provides acces to things
+ * like the current database connection.
  */
 public class SoarCorePlugin extends Plugin {
 
