@@ -2,6 +2,14 @@ package com.soartech.soar.ide.ui.actions.explorer;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 
+/**
+ * Wraps a Problem Space so that when it's displayed it shows the join type between
+ * the Problem Space and its parent Problem Space. Also overrides equals() so that
+ * it won't match against ProblemSpaceWrappers with the same child Problem Space but
+ * different Join Types.
+ * @author miller
+ *
+ */
 public class ChildProblemSpaceWrapper extends SoarDatabaseRow {
 
 	//SoarDatabaseRow parent;

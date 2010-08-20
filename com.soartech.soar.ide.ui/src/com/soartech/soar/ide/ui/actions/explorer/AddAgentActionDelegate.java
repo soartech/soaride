@@ -17,6 +17,11 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerView;
 
+/**
+ * Adds a new Agent to the current Soar IDE project.
+ * @author miller
+ *
+ */
 public class AddAgentActionDelegate extends Action implements IWorkbenchWindowActionDelegate {
 
 	SoarExplorerView explorer;

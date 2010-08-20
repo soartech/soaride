@@ -17,6 +17,11 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseUtil;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 
+/**
+ * Imports rules from the selected file into the selected Agent.
+ * @author miller
+ *
+ */
 public class ImportRulesActionDelegate implements IWorkbenchWindowActionDelegate {
 
 	@Override

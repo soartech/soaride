@@ -24,6 +24,12 @@ import com.soartech.soar.ide.core.sql.Triple;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
 
+/**
+ * Examines the parsed rules belonging to the given Agent, and creates and joins together
+ * Operators and Problem Spaces to reflect the relationships between the rules.
+ * @author miller
+ *
+ */
 public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowActionDelegate {
 	
 	boolean applyAll;

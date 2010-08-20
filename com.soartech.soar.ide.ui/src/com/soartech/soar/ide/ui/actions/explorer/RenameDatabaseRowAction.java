@@ -6,6 +6,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 
+/**
+ * Renames a row.
+ * @author miller
+ *
+ */
 public class RenameDatabaseRowAction extends Action {
 
 	SoarDatabaseRow row;

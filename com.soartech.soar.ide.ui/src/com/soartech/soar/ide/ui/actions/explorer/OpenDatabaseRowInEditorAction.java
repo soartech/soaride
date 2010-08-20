@@ -9,6 +9,11 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 
+/**
+ * Opens the given row in an editor.
+ * @author miller
+ *
+ */
 public class OpenDatabaseRowInEditorAction extends Action {
 
 	SoarDatabaseRow row;

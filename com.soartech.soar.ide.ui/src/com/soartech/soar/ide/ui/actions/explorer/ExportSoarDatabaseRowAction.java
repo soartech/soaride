@@ -20,6 +20,12 @@ import com.soartech.soar.ide.core.sql.TraversalUtil;
 
 import edu.umich.soar.debugger.jmx.SoarCommandLineMXBean;
 
+/**
+ * Exports a row to a file or to the Soar Debugger.
+ * Visites all child rules of this item and writes them to the output.
+ * @author miller
+ *
+ */
 public class ExportSoarDatabaseRowAction extends Action {
 	
 	SoarDatabaseRow row;

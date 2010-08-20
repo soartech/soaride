@@ -10,6 +10,11 @@ import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
+/**
+ * Adds a child row to the given row.
+ * @author miller
+ *
+ */
 public class AddChildRowAction extends Action {
 
 	SoarDatabaseRow parent;

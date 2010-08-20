@@ -10,6 +10,11 @@ import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 
+/**
+ * Removes the selected item in the given tree from its parent in the context of the tree.
+ * @author miller
+ *
+ */
 public class RemoveJoinFromParentAction extends Action {
 
 	public SoarDatabaseRow parent = null;

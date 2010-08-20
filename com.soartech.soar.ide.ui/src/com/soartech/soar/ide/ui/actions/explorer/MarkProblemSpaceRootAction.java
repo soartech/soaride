@@ -6,6 +6,11 @@ import org.eclipse.jface.viewers.TreeViewer;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 
+/**
+ * Toggles whether a Problem Space is marke as root.
+ * @author miller
+ *
+ */
 public class MarkProblemSpaceRootAction extends Action {
 
 	SoarDatabaseRow row;

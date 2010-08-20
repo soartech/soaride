@@ -1,7 +1,6 @@
 package com.soartech.soar.ide.ui.actions.explorer;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -18,6 +17,13 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.core.sql.TraversalUtil;
 import com.soartech.soar.ide.core.sql.Triple;
 
+/**
+ * Represents a path from the root node &lt;s&gt; that cannot extend any farther.
+ * Either the last node has no child nodes, or the path loops into itself, or it
+ * loops into another terminal path, or something like that.
+ * @author miller
+ *
+ */
 class TerminalPath {
 	public ArrayList<Triple> path;
 	public ArrayList<Triple> links = new ArrayList<Triple>();
@@ -36,6 +42,12 @@ class TerminalPath {
 	}
 }
 
+/**
+ * Represents a single correction to be made to the existing datamap.
+ * The user can choose which corrections to apply and which to ignore.
+ * @author miller
+ *
+ */
 class Correction {
 	SoarDatabaseRow row;
 	ArrayList<Triple> addition;
@@ -44,6 +56,12 @@ class Correction {
 	// Assigned during apply()
 	SoarDatabaseRow tail = null;
 
+	/**
+	 * Class constructor.
+	 * @param row
+	 * @param addition
+	 * @param links
+	 */
 	public Correction(SoarDatabaseRow row, ArrayList<Triple> addition, ArrayList<Triple> links) {
 		this.row = row;
 		this.addition = addition;
@@ -70,6 +88,9 @@ class Correction {
 		return buff.toString();
 	}
 
+	/**
+	 * Applys this correction to its datamap.
+	 */
 	public void apply() {
 		SoarDatabaseRow currentRow = row;
 		for (int i = 0; i < addition.size(); ++i) {
@@ -177,6 +198,9 @@ class Correction {
 		}
 	}
 	
+	/**
+	 * Once all corrections have been applied, this is called to link items in the corrections to each other where needed.
+	 */
 	public void applyLinks() {
 		for (Triple link : links) {
 			ArrayList<SoarDatabaseRow> rows = link.getDatamapRowsFromProblemSpace(row.getAncestorRow(Table.PROBLEM_SPACES));
@@ -186,6 +210,13 @@ class Correction {
 		}
 	}
 
+	/**
+	 * Looks for a child of the given row, of the given type. If none exists, creates a new row and returns that.
+	 * @param currentRow
+	 * @param table
+	 * @param named
+	 * @return
+	 */
 	private SoarDatabaseRow createJoinedChildIfNotExists(SoarDatabaseRow currentRow, Table table, String named) {
 		ArrayList<ISoarDatabaseTreeItem> childItems = currentRow.getDirectedJoinedChildrenOfType(table, false, false);
 		for (ISoarDatabaseTreeItem childItem : childItems) {
@@ -198,6 +229,13 @@ class Correction {
 	}
 }
 
+/**
+ * Generates a datamap for the given problem space by examining the parsed rules that
+ * belong to the problem space. Optionally prompts the user for confirmation before making
+ * changes to the existing datamap.
+ * @author miller
+ *
+ */
 public class GenerateDatamapAction extends Action {
 	
 	SoarDatabaseRow problemSpace;

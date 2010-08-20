@@ -17,6 +17,11 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 
+/**
+ * Deletes a row.
+ * @author miller
+ *
+ */
 public class DeleteDatabaseRowAction extends Action {
 
 	SoarDatabaseRow row;

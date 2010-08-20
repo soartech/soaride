@@ -317,22 +317,6 @@ public class SoarExplorerView extends ViewPart
 	public void init(IViewSite site, IMemento memento) throws PartInitException 
 	{
 		super.init(site, memento);
-		/*
-		while (!SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk()) {
-			MessageDialog dialog = new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Soar IDE", null, "Create a new Soar IDE project or open an existing project?",
-					MessageDialog.QUESTION, new String[] { "New Soar IDE Project", "Open Existing Soar IDE Project", "Cancel" }, 2);
-			int result = dialog.open();
-			if (result == 0) {
-				NewSoarProjectActionDelegate action = new NewSoarProjectActionDelegate();
-				action.run(false);
-			} else if (result == 1) {
-				OpenSoarDatabaseProjectActionDelegate action = new OpenSoarDatabaseProjectActionDelegate();
-				action.run(false);
-			} else if (result == 2) {
-				break;
-			}
-		}
-		*/
 		updateTitle(SoarCorePlugin.getDefault());
 	}
 

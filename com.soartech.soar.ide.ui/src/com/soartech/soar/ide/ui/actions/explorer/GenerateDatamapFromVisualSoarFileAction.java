@@ -18,6 +18,11 @@ import org.eclipse.ui.PlatformUI;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.Triple;
 
+/**
+ * Reads a Visual Soar datamap file and applies corrections to the given datamap to match the Visual Soar datamap.
+ * @author miller
+ *
+ */
 public class GenerateDatamapFromVisualSoarFileAction extends Action {
 
 	SoarDatabaseRow problemSpace;

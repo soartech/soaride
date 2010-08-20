@@ -17,6 +17,11 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.JoinType;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
 
+/**
+ * Creates a new Problem Space and adds it to the given Problem Space as a substate.
+ * @author miller
+ *
+ */
 public class AddSubstateAction extends Action {
 
 	SoarDatabaseRow superstate;

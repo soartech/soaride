@@ -7,6 +7,11 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.JoinType;
 
+/**
+ * Changes the type of impasse between two problem spaces.
+ * @author miller
+ *
+ */
 public class ChangeJoinTypeAction extends Action {
 	
 	SoarDatabaseRow parent;
