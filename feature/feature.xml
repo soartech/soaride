@@ -2,7 +2,7 @@
 <feature
       id="com.soartech.soar.ide.database.feature"
       label="Soar IDE Database Development Branch"
-      version="1.0.1.qualifier">
+      version="1.0.5.qualifier">
 
    <description>
       Soar IDE Database Development Branch
@@ -20,12 +20,12 @@
          id="com.soartech.soar.ide"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.9.05"/>
 
    <plugin
          id="com.soartech.soar.ide.ui"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.9.05"/>
 
 </feature>
