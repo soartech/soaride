@@ -1,13 +1,21 @@
 package com.soartech.soar.ide.ui.actions.soarmenu;
 
 import java.util.ArrayList;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.progress.UIJob;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
 
@@ -58,9 +66,16 @@ public class SaveSoarDatabaseProjectActionDelegate implements IWorkbenchWindowAc
 		*/
 		
 		if (path != null && path.length() > 0) {
-			ArrayList<String> errors = SoarCorePlugin.getDefault().saveDatabaseAs(path, true);
+			final ArrayList<String> errors = SoarCorePlugin.getDefault().saveDatabaseAs(path, true);
 			if (errors.size() > 0) {
 				System.out.println(errors);
+				String message = "";
+				for (String error : errors) {
+					message += "\n" + error;
+				}
+				shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+				ErrorDialog errorDialog = new ErrorDialog(shell, "Error", message, Status.OK_STATUS, 0);
+				errorDialog.open();
 			}
 		}
 	}
