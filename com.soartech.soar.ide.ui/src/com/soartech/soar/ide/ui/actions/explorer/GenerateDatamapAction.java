@@ -111,7 +111,7 @@ class Correction {
 					SoarDatabaseRow enumeration = null;
 					for (ISoarDatabaseTreeItem enumItem : enumerations) {
 						SoarDatabaseRow enumRow = (SoarDatabaseRow) enumItem;
-						if (enumRow.getName() == triple.value) {
+						if (enumRow.getName().equals(triple.value)) {
 							enumeration = enumRow;
 							break;
 						}
@@ -123,7 +123,7 @@ class Correction {
 					ArrayList<SoarDatabaseRow> enumValues = enumeration.getChildrenOfType(Table.DATAMAP_ENUMERATION_VALUES);
 					boolean hasValue = false;
 					for (SoarDatabaseRow valueRow : enumValues) {
-						if (valueRow.getName() == triple.value) {
+						if (valueRow.getName().equals(triple.value)) {
 							hasValue = true;
 							break;
 						}
@@ -328,16 +328,21 @@ public class GenerateDatamapAction extends Action {
 			// Walk down the path, keeping track of which datamap nodes
 			// correspond to the current location on the path.
 			for (int i = 0; i < path.size(); ++i) {
+				
+				// Children of the current datamap node that match the current triple.
 				ArrayList<SoarDatabaseRow> childNodes = new ArrayList<SoarDatabaseRow>();
 				for (SoarDatabaseRow node : currentNodes) {
+					
+					// Children of the current datamap node that are of the same type as the value of the current triple.
+					ArrayList<ISoarDatabaseTreeItem> childNodesWhoseNamesMightNotMatch = new ArrayList<ISoarDatabaseTreeItem>();
+					
 					Triple triple = path.get(i);
-					ArrayList<ISoarDatabaseTreeItem> items = new ArrayList<ISoarDatabaseTreeItem>();
 					if (triple.valueIsVariable()) {
-						items.addAll(node.getDirectedJoinedChildrenOfType(Table.DATAMAP_IDENTIFIERS, false, false));
+						childNodesWhoseNamesMightNotMatch.addAll(node.getDirectedJoinedChildrenOfType(Table.DATAMAP_IDENTIFIERS, false, false));
 					} else if (triple.valueIsInteger()) {
-						items.addAll(node.getDirectedJoinedChildrenOfType(Table.DATAMAP_INTEGERS, false, false));
+						childNodesWhoseNamesMightNotMatch.addAll(node.getDirectedJoinedChildrenOfType(Table.DATAMAP_INTEGERS, false, false));
 					} else if (triple.valueIsFloat()) {
-						items.addAll(node.getDirectedJoinedChildrenOfType(Table.DATAMAP_FLOATS, false, false));
+						childNodesWhoseNamesMightNotMatch.addAll(node.getDirectedJoinedChildrenOfType(Table.DATAMAP_FLOATS, false, false));
 					} else if (triple.valueIsString()) {
 						// Only add enums if they have a value that's correct
 						ArrayList<ISoarDatabaseTreeItem> enumItems = node.getDirectedJoinedChildrenOfType(Table.DATAMAP_ENUMERATIONS, false, false);
@@ -346,14 +351,16 @@ public class GenerateDatamapAction extends Action {
 							ArrayList<SoarDatabaseRow> enumValues = enumRow.getChildrenOfType(Table.DATAMAP_ENUMERATION_VALUES);
 							for (SoarDatabaseRow enumValue : enumValues) {
 								if (enumValue.getName().equals(triple.value)) {
-									items.add(enumItem);
+									childNodesWhoseNamesMightNotMatch.add(enumItem);
 								}
 							}
 						}
 					}
-					items.addAll(node.getDirectedJoinedChildrenOfType(Table.DATAMAP_STRINGS, false, false));
-					for (ISoarDatabaseTreeItem item : items) {
-						assert item instanceof SoarDatabaseRow;
+					// Always add strings.
+					childNodesWhoseNamesMightNotMatch.addAll(node.getDirectedJoinedChildrenOfType(Table.DATAMAP_STRINGS, false, false));
+					
+					// Filter 'items', selecting only those whose name matches the attribute of the current triple.
+					for (ISoarDatabaseTreeItem item : childNodesWhoseNamesMightNotMatch) {
 						SoarDatabaseRow childRow = (SoarDatabaseRow) item;
 						if (childRow.getName().equals(triple.attribute)) {
 							childNodes.add(childRow);
@@ -427,6 +434,7 @@ public class GenerateDatamapAction extends Action {
 			Correction correction = (Correction) obj;
 			correction.applyLinks();
 		}
+		
 		//long applyCorrectionsEnd = new Date().getTime();
 		//System.out.println("Applied Corrections: " + (applyCorrectionsEnd - applyCorrectionsStart));
 		

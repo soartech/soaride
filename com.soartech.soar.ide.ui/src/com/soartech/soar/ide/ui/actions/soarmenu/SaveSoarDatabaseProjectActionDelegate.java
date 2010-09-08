@@ -45,26 +45,6 @@ public class SaveSoarDatabaseProjectActionDelegate implements IWorkbenchWindowAc
 		dialog.setOverwrite(true);
 		String path = dialog.open();
 		
-		/*
-		
-		File saveFile = new File(path);
-		
-		boolean save = true;
-		boolean overwriteExisting = false;
-		if (saveFile.exists()) {
-			save = false;
-			MessageBox box = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
-			box.setText("Overwrite existing file?");
-			box.setMessage("The file exists at " + path + "\nOverwrite?");
-			int result = box.open();
-			if (result == SWT.OK) {
-				save = true;
-				overwriteExisting = true;
-				// saveFile.delete();
-			}
-		}
-		*/
-		
 		if (path != null && path.length() > 0) {
 			final ArrayList<String> errors = SoarCorePlugin.getDefault().saveDatabaseAs(path, true);
 			if (errors.size() > 0) {
