@@ -28,6 +28,7 @@ public class TraversalUtil {
 		System.out.println("Time Spent applying state: " + applyingState);
 		System.out.println("Time Spent adding attribute path info: " + addingAttributePathInfo);
 	}
+	
 	public static ArrayList<Triple> getTriplesForRule(SoarDatabaseRow rule) {
 		ArrayList<SoarDatabaseRow> childTriples = rule.getChildrenOfType(Table.TRIPLES);
 		ArrayList<Triple> ret = new ArrayList<Triple>();
@@ -37,6 +38,34 @@ public class TraversalUtil {
 		}
 		addAttributePathInformationToTriples(ret);
 		return ret;
+	}
+	
+	public static HashMap<String, ArrayList<Triple>> triplesWithVariable(ArrayList<Triple> triples) {
+		HashMap<String, ArrayList<Triple>> triplesWithVariable = new HashMap<String, ArrayList<Triple>>();
+		for (Triple triple : triples) {
+			ArrayList<Triple> variableList = triplesWithVariable.get(triple.variable);
+			if (variableList == null) {
+				variableList = new ArrayList<Triple>();
+				triplesWithVariable.put(triple.variable, variableList);
+			}
+			variableList.add(triple);
+		}
+		return triplesWithVariable;
+	}
+	
+	public static HashMap<String, ArrayList<Triple>> triplesWithValue(ArrayList<Triple> triples) {
+		HashMap<String, ArrayList<Triple>> triplesWithValue = new HashMap<String, ArrayList<Triple>>();
+		for (Triple triple : triples) {
+			if (triple.valueIsVariable()) {
+				ArrayList<Triple> valueList = triplesWithValue.get(triple.value);
+				if (valueList == null) {
+					valueList = new ArrayList<Triple>();
+					triplesWithValue.put(triple.value, valueList);
+				}
+				valueList.add(triple);
+			}
+		}
+		return triplesWithValue;
 	}
 	
 	public static ArrayList<Triple> buildTriplesForRule(SoarDatabaseRow rule) {
@@ -85,25 +114,8 @@ public class TraversalUtil {
 	 * @param triples
 	 */
 	private static void addAttributePathInformationToTriples(ArrayList<Triple> triples) {
-		HashMap<String, ArrayList<Triple>> triplesWithVariable = new HashMap<String, ArrayList<Triple>>();
-		HashMap<String, ArrayList<Triple>> triplesWithValue = new HashMap<String, ArrayList<Triple>>();
-		for (Triple triple : triples) {
-			ArrayList<Triple> variableList = triplesWithVariable.get(triple.variable);
-			if (variableList == null) {
-				variableList = new ArrayList<Triple>();
-				triplesWithVariable.put(triple.variable, variableList);
-			}
-			variableList.add(triple);
-			
-			if (triple.valueIsVariable()) {
-				ArrayList<Triple> valueList = triplesWithValue.get(triple.value);
-				if (valueList == null) {
-					valueList = new ArrayList<Triple>();
-					triplesWithValue.put(triple.value, valueList);
-				}
-				valueList.add(triple);			
-			}
-		}
+		HashMap<String, ArrayList<Triple>> triplesWithVariable = triplesWithVariable(triples);
+		HashMap<String, ArrayList<Triple>> triplesWithValue = triplesWithValue(triples);
 		
 		for (Triple triple : triples) {
 			ArrayList<Triple> parentTriples = triplesWithValue.get(triple.variable);

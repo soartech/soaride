@@ -63,7 +63,6 @@ public class SoarCorePlugin extends Plugin {
 
     public static final String TASK_MARKER_ID = MARKER_TYPE_PREFIX + ".taskmarker";
 
-
 	//The shared instance.
 	private static SoarCorePlugin plugin;
 
@@ -84,18 +83,6 @@ public class SoarCorePlugin extends Plugin {
 		//modelAdapters = new SoarModelAdapterFactory();
 	    //soarModel = new SoarModel();
 		databaseConnection = new SoarDatabaseConnection();
-		}
-
-	/**
-	 * This method is called upon plug-in activation
-	 */
-	public void start(BundleContext context) throws Exception
-    {
-		super.start(context);
-
-        //modelAdapters.register();
-
-        //getSoarModel().open(new NullProgressMonitor());
 	}
 
 	/**
@@ -108,18 +95,6 @@ public class SoarCorePlugin extends Plugin {
 		plugin = null;
 	}
 
-
-	/* (non-Javadoc)
-     * @see org.eclipse.core.runtime.Plugin#initializeDefaultPluginPreferences()
-     */
-/*
-	@Override
-    protected void initializeDefaultPluginPreferences()
-    {
-        // getPluginPreferences().setDefault(ISoarCorePluginConstants.SOURCE_CHANGES_DIRECTORY, false);
-    }
-    */
-
     /**
 	 * Returns the shared instance.
 	 */
@@ -129,34 +104,9 @@ public class SoarCorePlugin extends Plugin {
 		return plugin;
 	}
 
-    /**
-     * Get the handle to the ISoarModel.
-     *
-     * @return The model.
-     */
-	/*
-    public ISoarModel getSoarModel()
-    {
-        return soarModel;
-    }
-    */
-    
     public SoarDatabaseConnection getDatabaseConnection() {
     	return databaseConnection;
     }
-
-    /**
-     * Get the handle to the SoarModel. This method should only be called by
-     * Soar model code!
-     *
-     * @return The model.
-     */
-    /*
-    public SoarModel getInternalSoarModel()
-    {
-        return soarModel;
-    }
-    */
 
     public static void log( IStatus status )
     {
@@ -182,12 +132,14 @@ public class SoarCorePlugin extends Plugin {
     	}
     	
     	if (overWriteExisting) {
-    		File toDelete = new File(path);
-    		boolean deleted = toDelete.delete();
-    		if (!deleted) {
-        		errors.add("File can't be overwritten, it may be in use: " + path);
-        		return errors;    		
-        	}
+			File toDelete = new File(path);
+			if (toDelete.exists()) {
+				boolean deleted = toDelete.delete();
+				if (!deleted) {
+					errors.add("File can't be overwritten, it may be in use: " + path);
+					return errors;
+				}
+			}
     	}
     	
     	SoarDatabaseConnection newConnection = new SoarDatabaseConnection(path);
@@ -198,75 +150,6 @@ public class SoarCorePlugin extends Plugin {
     	}
     	return errors;
     }
-
-    /*
-	public void oldSaveDatabaseAs(final String path, boolean overwriteExisting) {
-		String dump = SoarDatabaseUtil.sqlDump(databaseConnection);
-		//System.out.println("**************************DUMP");
-		//System.out.println(dump);
-		
-		if (overwriteExisting) {
-			File existing = new File(path);
-			boolean deleted = existing.delete();
-			if (!deleted) {
-				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-				ErrorDialog error = new ErrorDialog(shell, "Save Failed", "Couldn't overwrite the file at " + path + ", file already in use.", Status.OK_STATUS, 0);
-				error.open();
-				//ErrorDialog.openError(shell, "Save Failed", "Couldn't overwrite the file at " + path + ", file already in use.", Status.OK_STATUS);
-				return;
-			}
-		}
-
-		boolean eventsSupressed = databaseConnection.getSupressEvents();
-		databaseConnection.setSupressEvents(true);
-		databaseConnection.loadDatabaseConnection(path);
-		
-		//databaseConnection.execute(dump);
-		
-		final String[] commands = dump.split(";");
-		ArrayList<String> errors = databaseConnection.executeBatch(commands);
-		if (errors.size() > 0) {
-			for (String error : errors) {
-				System.out.println(error);
-			}
-		}
-
-		databaseConnection.setSupressEvents(eventsSupressed);
-		databaseConnection.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
-		
-		final String[] commands = dump.split(";");
-		
-		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		try {
-			new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
-				
-				@Override
-				public void run(IProgressMonitor monitor) throws InvocationTargetException,
-						InterruptedException {
-		
-			monitor.beginTask("Saving project: " + path, commands.length);
-					
-			for (String command : commands) {
-				command = command.trim();
-				if (command.length() > 0) {
-					System.out.println(command);
-					databaseConnection.execute(command);
-					monitor.worked(1);
-				}
-			}
-			
-			monitor.done();
-			
-				}
-			});
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-	}
-	*/
 
 	/**
 	 * Replaces the current database connection with one that reads
@@ -282,41 +165,11 @@ public class SoarCorePlugin extends Plugin {
 	}
 	
 	/**
-	 * Prompts the user for a path to create a new project in,
-	 * and creates the new project at that location.
+	 * Creates a new, unsaved project.
 	 * @return Errors
 	 */
-	public ArrayList<String> newProject() {
-		ArrayList<String> errors = new ArrayList<String>();
-		
-		/*
-		// New project saved to disk
-		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-		dialog.setText("Choose Location To Save New Soar IDE Project");
-		dialog.setOverwrite(true);
-		String path = dialog.open();
-		if (path == null) {
-			return errors;
-		}
-	
-		// Check for overwrite
-		File saveFile = new File(path);
-		if (saveFile.exists()) {
-			boolean deleted = saveFile.delete();
-			if (!deleted) {
-				errors.add("File can't be overwritten, it may be in use: " + path);
-				return errors;
-			}
-		}
-
-		openProject(path);
-		*/
-		
-		// New unsaved project
-		// (saving is faster now, no need to start a project on disk).
+	public void newProject() {
 		openProject(":memory:");
-		return errors;
 	}
 
 	public void setCommandLineProxy(SoarCommandLineMXBean proxy) {

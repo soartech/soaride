@@ -48,17 +48,31 @@ import com.soartech.soar.ide.core.ast.VarAttrValMake;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 
 /**
+ * Represents a row in a database table.
+ * 
  * This class is too big.
  * Some methods could be split off into a utility class.
  * Some methods and static data could be split off into a metadata class.
  * Some methods could be removed or consilidated.
  * 
- * Represents a row in a database table.
- * 
  * Static variables provide metadata about what tables exist and
  * what kinds of connections exist between them.
  * 
  * Static methods provide ways to join rows together.
+ * 
+ * Rows are joined in three ways:
+ * 
+ * 1) A row is a child row of another row if it has a column
+ * in it that stores the ID of the parent row.
+ * 
+ * 2) A row is undirectoed-joined with another row if there is
+ * an entry in an undirected-join table that contains the ids of both rows.
+ * An undirected join in symmetrical; there is no parent-child relationship
+ * implied.
+ * 
+ * 3) A row is directed-joined with another row if there is an entry
+ * in a directed-join table that contains the the ids of both rows.
+ * A directed join indicates that one item is the parent and one is the child.
  * 
  * @author miller
  * 
@@ -855,10 +869,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 
 	/**
-	 * Should only return a List of size 0 or 1,
-	 * unless table == PROBLEM_SPACES, in which
-	 * case there may be two parents: the Agent
-	 * and a superstate.
+	 * Should only return a list of size 0 or 1
 	 * 
 	 * @return All parent rows for this row.
 	 */
