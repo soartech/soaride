@@ -20,6 +20,7 @@
 package com.soartech.soar.ide.core;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IStatus;
@@ -82,7 +83,12 @@ public class SoarCorePlugin extends Plugin {
 		// These have to be initialized AFTER the plugin is set.
 		//modelAdapters = new SoarModelAdapterFactory();
 	    //soarModel = new SoarModel();
+		try {
 		databaseConnection = new SoarDatabaseConnection();
+		} catch (FileNotFoundException e) {
+			// shouldn't happen
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -142,11 +148,15 @@ public class SoarCorePlugin extends Plugin {
 			}
     	}
     	
-    	SoarDatabaseConnection newConnection = new SoarDatabaseConnection(path);
-    	SoarDatabaseUtil.transferDatabase(databaseConnection, newConnection);
-    	newConnection.closeConnection();
-    	if(databaseConnection.loadDatabaseConnection(path)) {
-    		databaseConnection.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
+		try {
+			SoarDatabaseConnection newConnection = new SoarDatabaseConnection(path);
+			SoarDatabaseUtil.transferDatabase(databaseConnection, newConnection);
+			newConnection.closeConnection();
+			if (databaseConnection.loadDatabaseConnection(path)) {
+				databaseConnection.fireEvent(new SoarDatabaseEvent(Type.DATABASE_PATH_CHANGED));
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
     	}
     	return errors;
     }

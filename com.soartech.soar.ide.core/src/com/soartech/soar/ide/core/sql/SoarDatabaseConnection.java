@@ -1,5 +1,6 @@
 package com.soartech.soar.ide.core.sql;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,13 +32,15 @@ public class SoarDatabaseConnection {
 	private boolean firingEvent = false;
 	private ArrayList<ISoarDatabaseEventListener> toRemove = new ArrayList<ISoarDatabaseEventListener>();
 	
-	public SoarDatabaseConnection() {
+	public SoarDatabaseConnection() throws FileNotFoundException {
 		this(":memory:");
 	}
 	
-	public SoarDatabaseConnection(String path) {
+	public SoarDatabaseConnection(String path) throws FileNotFoundException {
 		loadDriver();
-		loadDatabaseConnection(path);
+		if (!loadDatabaseConnection(path)) {
+			throw new FileNotFoundException(path);
+		}
 		// test();
 	}
 
@@ -115,7 +118,7 @@ public class SoarDatabaseConnection {
 	}
 
 	/**
-	 * Loads the appropriate JDBC driver for this environment/framework. For
+	 * Loads the appropriate JDBC driver ffor this environment/framework. For
 	 * example, if we are in an embedded environment, we load Derby's embedded
 	 * Driver, <code>org.apache.derby.jdbc.EmbeddedDriver</code>.
 	 */
@@ -135,7 +138,7 @@ public class SoarDatabaseConnection {
 		 */
 		try {
 			Class.forName(driver).newInstance();
-			System.out.println("Loaded the appropriate driver");
+			//System.out.println("Loaded the appropriate driver");
 		} catch (ClassNotFoundException cnfe) {
 			System.err.println("\nUnable to load the JDBC driver " + driver);
 			System.err.println("Please check your CLASSPATH.");
