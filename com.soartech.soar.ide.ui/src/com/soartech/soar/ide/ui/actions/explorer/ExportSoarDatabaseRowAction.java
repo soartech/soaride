@@ -74,6 +74,16 @@ public class ExportSoarDatabaseRowAction extends Action {
 	private void runFile() {
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
+		if (row.getDatabaseConnection().isSavedToDisk()) {
+			String path = row.getDatabaseConnection().getPath();
+			int lastSlash = path.lastIndexOf(File.separatorChar);
+			if (lastSlash >= 0) {
+				String filename = row.getName() + ".soar";
+				dialog.setFileName(filename);
+				path = path.substring(0, lastSlash);
+				dialog.setFilterPath(path);
+			}
+		}
 		dialog.setText("Export Agent");
 		String path = dialog.open();
 		File file = new File(path);
@@ -103,7 +113,7 @@ public class ExportSoarDatabaseRowAction extends Action {
 				String agentText = row.getText();
 				if (agentText.length() > 0) {
 					//writer.write("# Begin Soar commands for agent \"" + row.getName() + "\"\n");
-					writer.write(agentText);
+					writer.write(agentText + "\n\n");
 					//writer.write("\n# End Soar commands for agent \"" + row.getName() + "\"\n");
 				}
 			}
@@ -113,7 +123,7 @@ public class ExportSoarDatabaseRowAction extends Action {
 				SoarDatabaseRow childRow = (SoarDatabaseRow) child;
 				assert childRow.getTable() == Table.RULES;
 				//writer.write("# Begin rule \"" + childRow.getName() + "\"\n");
-				writer.write(childRow.getText());
+				writer.write(childRow.getText() + "\n\n");
 				//writer.write("\n# End rule \"" + childRow.getName() + "\"\n");
 			}
 			//writer.write("# End export of " + row.getTable().englishName() + " \"" + agentName + "\"\n");

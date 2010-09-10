@@ -52,6 +52,14 @@ public class OpenSoarDatabaseProjectActionDelegate implements IWorkbenchWindowAc
 		}
 		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
 		dialog.setText("Open Soar Project...");
+		if (SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk()) {
+			String existingPath = SoarCorePlugin.getDefault().getDatabaseConnection().getPath();
+			int slash = existingPath.lastIndexOf('/');
+			if (slash >= 0) {
+				existingPath = existingPath.substring(0, slash);
+				dialog.setFilterPath(existingPath);
+			}
+		}
 		dialog.open();
 		String path = dialog.getFilterPath() + File.separatorChar + dialog.getFileName();
 		

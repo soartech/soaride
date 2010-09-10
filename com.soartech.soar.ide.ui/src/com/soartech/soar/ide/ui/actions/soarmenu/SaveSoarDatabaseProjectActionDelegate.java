@@ -43,6 +43,18 @@ public class SaveSoarDatabaseProjectActionDelegate implements IWorkbenchWindowAc
 		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
 		dialog.setText("Save Soar Project As...");
 		dialog.setOverwrite(true);
+		if (SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk()) {
+			String existingPath = SoarCorePlugin.getDefault().getDatabaseConnection().getPath();
+			int slash = existingPath.lastIndexOf('/');
+			if (slash >= 0) {
+				String existingFile = existingPath.substring(slash + 1);
+				dialog.setFileName(existingFile);
+				existingPath = existingPath.substring(0, slash);
+				dialog.setFilterPath(existingPath);
+			}
+		} else {
+			dialog.setFileName(".db");
+		}
 		String path = dialog.open();
 		
 		if (path != null && path.length() > 0) {
