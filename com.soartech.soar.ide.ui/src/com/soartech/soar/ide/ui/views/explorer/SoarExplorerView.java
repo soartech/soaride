@@ -237,7 +237,7 @@ public class SoarExplorerView extends ViewPart
 	
 	private ArrayList<Action> actionsForFolder(SoarDatabaseRowFolder folder) {
 		ArrayList<Action> ret = new ArrayList<Action>();
-		ret.add(new AddChildRowAction(folder.getRow(), folder.getTable(), folder, tree, false));
+		ret.add(new AddChildRowAction(folder.getRow(), folder.getTable(), folder, tree, true));
 		return ret;
 	}
 	
