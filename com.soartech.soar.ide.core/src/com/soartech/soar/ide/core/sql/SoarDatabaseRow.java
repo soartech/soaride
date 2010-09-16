@@ -1524,7 +1524,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	 */
 	public void createChildrenFromAstNode(Object node) throws Exception {
 		ArrayList<Table> childTables = getChildTables();
-		Table childTable = tableForAstNode.get(node.getClass());
+		Table childTable = null;
+		try {
+			childTable = tableForAstNode.get(node.getClass());
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}
 		
 		SqlArgsAndChildNodes argsAndNodes = sqlArgsAndChildNodes(node,
 				childTable);
@@ -1836,13 +1841,25 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		} else if (node instanceof ConjunctiveTest) {
 			childNodes = ((ConjunctiveTest) node).getSimpleTests().toArray();
 		} else if (node instanceof ValueTest) {
-			childNodes = new Object[] { ((ValueTest) node).getTest() };
-			boolean hasAcceptablePreference = ((ValueTest) node)
-					.hasAcceptablePreference();
-			sqlArgs.add(new String[] { "has_acceptable_preference",
-					hasAcceptablePreference ? sqlTrue : sqlFalse });
-			if (hasAcceptablePreference)
-				name += " (has acceptable preference)";
+			boolean isStructuredValueNotation = ((ValueTest) node).isStructuredValueNotation();
+			sqlArgs.add(new String[] { "is_structured_value_notation", isStructuredValueNotation ? sqlTrue : sqlFalse });
+			if (isStructuredValueNotation) {
+				name += " (structured-value notation)";
+				childNodes = ((ValueTest) node).getAttributeValueTests().toArray();
+				Pair variablePair = ((ValueTest) node).getVariable();
+				if (variablePair != null) {
+					String variable = variablePair.getString();
+					if (variable != null && variable.length() > 0) {
+						sqlArgs.add(new String[] { "variable", "\"" + variable + "\"" });
+						name += " (variable: " + variable + ")";
+					}
+				}
+			} else {
+				childNodes = new Object[] { ((ValueTest) node).getTest() };
+				boolean hasAcceptablePreference = ((ValueTest) node).hasAcceptablePreference();
+				sqlArgs.add(new String[] { "has_acceptable_preference", hasAcceptablePreference ? sqlTrue : sqlFalse });
+				if (hasAcceptablePreference) name += " (has acceptable preference)";
+			}
 		} else if (node instanceof Action) {
 			boolean isVarAttrValMake = ((Action) node).isVarAttrValMake();
 			sqlArgs.add(new String[] { "is_var_attr_val_make",
@@ -2026,6 +2043,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		addParent(Table.CONDITION_FOR_ONE_IDENTIFIERS, Table.POSITIVE_CONDITIONS);
 		addParent(Table.CONDITIONS, Table.POSITIVE_CONDITIONS);
 		addParent(Table.ATTRIBUTE_VALUE_TESTS, Table.CONDITION_FOR_ONE_IDENTIFIERS);
+		addParent(Table.ATTRIBUTE_VALUE_TESTS, Table.VALUE_TESTS);
 		addParent(Table.ATTRIBUTE_TESTS, Table.ATTRIBUTE_VALUE_TESTS);
 		addParent(Table.VALUE_TESTS, Table.ATTRIBUTE_VALUE_TESTS);
 		addParent(Table.VALUE_TESTS, Table.ATTRIBUTE_TESTS);

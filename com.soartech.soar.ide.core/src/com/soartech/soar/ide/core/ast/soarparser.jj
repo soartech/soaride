@@ -147,12 +147,12 @@ void handleDocumentationQuote(SoarProductionAst sp)
 	<ConditionForOneIdentifier>	::= '(' VARIABLE <AttributeValueTest>* ')'
 	<AttributeValueTest>		::= ['-'] ^ <AttributeTest> ['.'<AttributeTest>]* <ValueTest>* 
 	<AttributeTest>				::= <Test>
-	<ValueTest>					::= <Test> ['+']
+	<ValueTest>					::= <Test> ['+'] | '(' (VARIABLE)? <AttributeValueTest>* ')'
 	<Test> 						::= <ConjunctiveTest> | <SimpleTest>
 	<ConjunctiveTest>			::= '{' <SimpleTest>+ '}'
 	<SimpleTest>				::= <DisjunctionTest> | <RelationalTest>
 	<DisjunctionTest>			::= '<<' <Constant>+ '>>'
-	<RelationalTest>            ::=	 [<Relation>] <SingleTest>	
+	<RelationalTest>            ::=	 [<Relation>] <SingleTest>
 	<Relation>					::=  '<>' | '<=>' | '<' | '<=' | '>=' | '>' | '='
 	<SingleTest>				::= <Constant> | VARIABLE
 	<Constant> 					::= FLOATING_POINT_CONST | INTEGER_CONST | SYMBOLIC_CONST
@@ -276,18 +276,42 @@ ValueTest valueTest() :
 {
 	ValueTest vt;
 	Test t;
+	Token var;
+	AttributeValueTest avt;
 }
 {
-	  t = test() {
-	  	vt = new ValueTest(t);
-	  } 
-	  (<PLUS>{ 
-	  	vt.acceptablePreference();
-	  }
-	  )?
-	  { return vt; }
-	  
-	// | ConditionsForOneId() John Laird told me to take this out 7/6/99 
+    (
+        t = test() {
+            vt = new ValueTest(t);
+        } 
+        (<PLUS> { 
+            vt.acceptablePreference();
+        })?
+    ) {
+        return vt;
+    }
+
+
+    | (
+        <LPAREN> {
+            vt = new ValueTest();
+        }
+        ((var = <VARIABLE>) {
+            vt.setVariable(new Pair(var.image, var.beginOffset, var.endOffset));
+        })?
+        
+        (avt = attributeValueTest() {
+            vt.addAttributeValueTest(avt);
+        })*
+        <RPAREN>
+    ) {
+
+        return vt;
+
+
+    }
+
+    // | ConditionsForOneId() John Laird told me to take this out 7/6/99 
 }
 
 // Ok
@@ -445,7 +469,6 @@ Constant constant() :
    <Constant> ::= SYMBOLIC_CONST | INTEGER_CONST | FLOATING_POINT_CONST
    <AttributeValueMake> ::= ^ <RHSValue> ['.'<RHSValue>]* <ValueMake>+
    <ValueMake> ::= <RHSValue> <Preferences>
-
    <Preferences> ::= <PreferenceSpecifier>*   
    <PreferenceSpecifier> ::= <NaturallyUnaryPreference> [,]
                             | <ForcedUnaryPreference>

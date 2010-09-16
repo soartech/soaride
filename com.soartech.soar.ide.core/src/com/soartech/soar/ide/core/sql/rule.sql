@@ -93,6 +93,7 @@ create table if not exists attribute_value_tests
 (
 id integer primary key,
 condition_for_one_identifier_id integer,
+value_test_id integer,
 name varchar(255) not null,
 is_negated boolean not null
 );
@@ -110,7 +111,13 @@ id integer primary key,
 attribute_value_test_id integer,
 attribute_test_id integer,
 name varchar(255) not null,
-has_acceptable_preference boolean not null
+is_structured_value_notation boolean not null,
+
+/* for structured-value */
+variable varchar(255),
+
+/* for non-structured-value */
+has_acceptable_preference boolean
 );
 
 create table if not exists tests

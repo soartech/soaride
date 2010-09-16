@@ -10,8 +10,6 @@ public class SoarDatabaseRowFolder implements ISoarDatabaseTreeItem {
 	Table table;
 	boolean directedJoinedChildren;
 	
-	
-	
 	public SoarDatabaseRowFolder(SoarDatabaseRow row, Table table) {
 		this(row, table, false);
 	}
@@ -36,6 +34,9 @@ public class SoarDatabaseRowFolder implements ISoarDatabaseTreeItem {
 	
 	@Override
 	public String toString() {
+		if (row.getTable() == Table.PROBLEM_SPACES && table == Table.RULES) {
+			return "Elaboration Rules";
+		}
 		return table.pluralEnglishName();
 	}
 

@@ -19,22 +19,57 @@
  */
 package com.soartech.soar.ide.core.ast;
 
+import java.util.ArrayList;
+
 /**
  * @author Brad Jones
  * @version 0.75 3 Mar 2000
+ * 
+ * Modified to support structured-value notation by Miller Tinkerhess 9/15/2010
  */
 
 public final class ValueTest {
 	// Data Members
 	private Test d_test;
 	private boolean d_acceptablePreference = false;
+	
+	private ArrayList<AttributeValueTest> d_attributeValueTests = null;
+	private Pair d_variable = null;
 
-	// Constructor
+	// Constructors
+	public ValueTest() {
+		d_attributeValueTests = new ArrayList<AttributeValueTest>();
+	}
+	
 	public ValueTest(Test test) {
 		d_test = test;
 	}
 	
 	// Accessors
+	public boolean isStructuredValueNotation() {
+		return d_attributeValueTests != null;
+	}
+	
+	public ArrayList<AttributeValueTest> getAttributeValueTests() {
+		return d_attributeValueTests;
+	}
+	
+	public void addAttributeValueTest(AttributeValueTest avt) {
+		d_attributeValueTests.add(avt);
+	}
+	
+	public boolean hasVariable() {
+		return d_variable == null;
+	}
+	
+	public void setVariable(Pair variable) {
+		d_variable = variable;
+	}
+	
+	public Pair getVariable() {
+		return d_variable;
+	}
+	
 	public final Test getTest() {
 		return d_test;
 	}
