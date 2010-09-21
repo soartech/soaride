@@ -3,13 +3,18 @@ package com.soartech.soar.ide.ui.editors.text;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PlatformUI;
 
@@ -29,6 +34,7 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 		super.doSave(progressMonitor);
 		if (input != null) {
 			final HashMap<String, SoarDatabaseRow> rulesByName = new HashMap<String, SoarDatabaseRow>();
+			final HashSet<SoarDatabaseRow> childRules = new HashSet<SoarDatabaseRow>();
 			final SoarDatabaseRow row = input.getRow();
 			ArrayList<SoarDatabaseRow> rules = row.getJoinedRowsFromTable(Table.RULES);
 			for (SoarDatabaseRow rule : rules) {
@@ -40,8 +46,10 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 			final ArrayList<String> rulesText = getRulesFromText(doc.get());
 			boolean eventsWereSuppressed = row.getDatabaseConnection().getSupressEvents();
 			row.getDatabaseConnection().setSupressEvents(true);
+			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+
 			try {
-				new ProgressMonitorDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()).run(true, true, new IRunnableWithProgress() {
+				new ProgressMonitorDialog(shell).run(true, true, new IRunnableWithProgress() {
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 						monitor.beginTask("Saving Rules for \"" + getInput().getName() + "\"", rulesText.size());
@@ -53,6 +61,7 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 								addRow(rule);
 							}
 							rule.save(ruleText, input, null);
+							childRules.add(rule);
 							monitor.worked(1);
 						}
 						monitor.done();
@@ -63,6 +72,27 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			
+			for (SoarDatabaseRow rule : row.getJoinedRowsFromTable(Table.RULES)) {
+				if (!childRules.contains(rule)) {
+					// TODO prompt user to delete rule
+					SoarDatabaseRow.unjoinRows(row, rule, row.getDatabaseConnection());
+					String ruleName = rule.getName();
+					String rowName = row.getName();
+					MessageDialog dialog = new MessageDialog(shell,
+							"Delete rule \"" + ruleName + "\"?",
+							null,
+							"The rule \"" + ruleName + "\" no longer appears in \"" + rowName + "\" (it may have been renamed). Delete \"" + ruleName + "\" or just remove it from \"" + rowName + "\"?",
+							MessageDialog.QUESTION,
+							new String[] { "Remove", "Delete" },
+							0);
+					int result = dialog.open();
+					if (result == 1) { // Delete
+						rule.deleteAllChildren(true, null);
+					}
+				}
+			}
+			
 			row.getDatabaseConnection().setSupressEvents(eventsWereSuppressed);
 			row.getDatabaseConnection().fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 			
