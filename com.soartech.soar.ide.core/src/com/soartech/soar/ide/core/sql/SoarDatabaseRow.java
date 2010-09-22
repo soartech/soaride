@@ -1336,6 +1336,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			SoarDatabaseRow secondRow, SoarDatabaseConnection db) {
 		Table[] tables = SoarDatabaseRow.orderJoinedTables(firstRow.getTable(),
 				secondRow.getTable());
+		if (tables == null) return;
 		if (tables[0] != firstRow.getTable()) {
 			// Swap first and second rows.
 			SoarDatabaseRow temp = firstRow;
