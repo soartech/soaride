@@ -35,10 +35,10 @@ public class SpawnSoarDebuggerActionDelegate implements IWorkbenchWindowActionDe
 
 	@Override
 	public void run(IAction action) {
-		String path = EditorsUI.getPreferenceStore().getString(SoarEditorPreferencePage.SOAR_PATH);
-		SoarCommandLineClient client = new SoarCommandLineClient(path);
-		SoarCommandLineMXBean proxy;
 		try {
+			String path = EditorsUI.getPreferenceStore().getString(SoarEditorPreferencePage.SOAR_PATH);
+			SoarCommandLineClient client = new SoarCommandLineClient(path);
+			SoarCommandLineMXBean proxy;		
 			proxy = client.startDebuggerGetProxy();
 			if (proxy != null) {
 				SoarCorePlugin.getDefault().setCommandLineProxy(proxy);

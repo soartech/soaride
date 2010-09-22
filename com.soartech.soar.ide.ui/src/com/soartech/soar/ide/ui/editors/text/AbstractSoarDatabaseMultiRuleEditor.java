@@ -75,8 +75,10 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 			
 			for (SoarDatabaseRow rule : row.getJoinedRowsFromTable(Table.RULES)) {
 				if (!childRules.contains(rule)) {
-					// TODO prompt user to delete rule
+					// Unjoin and also directed unjoin, just to cover bases
+					// with regard to tags, operators, etc
 					SoarDatabaseRow.unjoinRows(row, rule, row.getDatabaseConnection());
+					SoarDatabaseRow.directedUnjoinRows(row, rule, row.getDatabaseConnection());
 					String ruleName = rule.getName();
 					String rowName = row.getName();
 					MessageDialog dialog = new MessageDialog(shell,
