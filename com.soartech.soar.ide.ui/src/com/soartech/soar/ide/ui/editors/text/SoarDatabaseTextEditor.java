@@ -36,7 +36,11 @@ public class SoarDatabaseTextEditor extends AbstractSoarDatabaseTextEditor imple
 					
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						row.save(doc, input, monitor);
+						ArrayList<SoarProblem> problems = new ArrayList<SoarProblem>();
+						row.save(doc, problems, monitor);
+						for (SoarProblem problem : problems) {
+							input.addProblem(problem);
+						}
 					}
 				});
 			} catch (InvocationTargetException e) {

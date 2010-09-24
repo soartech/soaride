@@ -7,20 +7,17 @@ import java.util.HashSet;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.SoarProblem;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseEventListener;
-import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
@@ -28,6 +25,18 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDatabaseTextEditor implements ISoarDatabaseTextEditor, ISoarDatabaseEventListener {
+	
+	/**
+	 * Used to associate a set of text with its beginning offset.
+	 */
+	class StringWithOffset {
+		String string;
+		int offset;
+		public StringWithOffset(String string, int offset) {
+			this.string = string;
+			this.offset = offset;
+		}
+	}
 	
 	@Override
 	public void doSave(IProgressMonitor progressMonitor) {
@@ -43,24 +52,31 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 			}
 			
 			IDocument doc = getDocumentProvider().getDocument(input);
-			final ArrayList<String> rulesText = getRulesFromText(doc.get());
+			final ArrayList<StringWithOffset> rulesText = getRulesFromText(doc.get());
 			boolean eventsWereSuppressed = row.getDatabaseConnection().getSupressEvents();
 			row.getDatabaseConnection().setSupressEvents(true);
 			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-
+			input.clearProblems();
+			
+			// Save the rules, parsing them and collecting errors as you go.
 			try {
 				new ProgressMonitorDialog(shell).run(true, true, new IRunnableWithProgress() {
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 						monitor.beginTask("Saving Rules for \"" + getInput().getName() + "\"", rulesText.size());
-						for (String ruleText : rulesText) {
-							String ruleName = getNameOfRules(ruleText);
+						for (StringWithOffset ruleText : rulesText) {
+							String ruleName = getNameOfRules(ruleText.string);
 							SoarDatabaseRow rule = rulesByName.get(ruleName);
 							if (rule == null) {
 								rule = row.getTopLevelRow().createChild(Table.RULES, ruleName);
 								addRow(rule);
 							}
-							rule.save(ruleText, input, null);
+							ArrayList<SoarProblem> problems = new ArrayList<SoarProblem>();
+							rule.save(ruleText.string, problems, null);
+							for (SoarProblem problem : problems) { 
+							  problem.start += ruleText.offset;
+							  input.addProblem(problem);
+							}
 							childRules.add(rule);
 							monitor.worked(1);
 						}
@@ -73,6 +89,8 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 				e.printStackTrace();
 			}
 			
+			// For rules that used to be in this multi-rule item but aren't anymore,
+			// ask the user if they should be removed or deleted.
 			for (SoarDatabaseRow rule : row.getJoinedRowsFromTable(Table.RULES)) {
 				if (!childRules.contains(rule)) {
 					// Unjoin and also directed unjoin, just to cover bases
@@ -98,7 +116,7 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 			row.getDatabaseConnection().setSupressEvents(eventsWereSuppressed);
 			row.getDatabaseConnection().fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 			
-			input.clearProblems();
+			// Add the found problems to the row.
 			clearAnnotations();
 			//SoarDatabaseRow row = input.getSoarDatabaseStorage().getRow();
 			//row.save(doc, input);
@@ -119,13 +137,15 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 	
 	protected abstract void addRow(SoarDatabaseRow newRow);
 	
-	private ArrayList<String> getRulesFromText(String doc) {
-		ArrayList<String> ret = new ArrayList<String>();
+	private ArrayList<StringWithOffset> getRulesFromText(String doc) {
+		ArrayList<StringWithOffset> ret = new ArrayList<StringWithOffset>();
 		int braceDepth = 0;
 		StringBuffer buff = new StringBuffer();
 		boolean string = false;
 		boolean comment = false;
-		for (char c : doc.toCharArray()) {
+		int start = 0;
+		for (int i = 0; i < doc.length(); ++i) {
+			char c = doc.charAt(i);
 			buff.append(c);
 			if (comment && c == '\n') comment = false;
 			if (!string && c == '#') comment = true;
@@ -135,8 +155,9 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 			if (c == '}') --braceDepth;
 			if (c < 0) c = 0;
 			if (c == '}' && braceDepth == 0) {
-				ret.add(buff.toString().trim());
+				ret.add(new StringWithOffset(buff.toString().trim(), start));
 				buff = new StringBuffer();
+				start = i + 1;
 			}
 		}
 		return ret;
