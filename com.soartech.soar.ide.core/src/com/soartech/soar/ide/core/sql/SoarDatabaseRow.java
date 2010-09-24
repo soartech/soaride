@@ -2565,11 +2565,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	 * If this row is of type Table.RULES, parses the rule into a syntax tree
 	 * and Triples.
 	 * @param doc
-	 * @param input
+	 * @param problems Output parameter
 	 * @param monitor
 	 */
-	public void save(IDocument doc, SoarDatabaseEditorInput input, IProgressMonitor monitor) {
-		save(doc.get(), input, monitor);
+	public void save(IDocument doc, ArrayList<SoarProblem> problems, IProgressMonitor monitor) {
+		save(doc.get(), problems, monitor);
 	}
 	
 	/**
@@ -2581,7 +2581,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	 * @param monitor Progress Monitor, or null if none exists.
 	 * @return List of errors
 	 */
-	public ArrayList<String> save(String text, SoarDatabaseEditorInput input, IProgressMonitor monitor) {
+	public ArrayList<String> save(String text, ArrayList<SoarProblem> problems, IProgressMonitor monitor) {
 		ArrayList<String> errors = new ArrayList<String>();
 		if (table == Table.RULES) {
 
@@ -2670,8 +2670,8 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 
 						int length = 2; // (errorToken.endOffset -
 										// errorToken.beginOffset) + 1;
-						if (input != null) {
-							input.addProblem(SoarProblem.createError(message, start, length));
+						if (problems != null) {
+							problems.add(SoarProblem.createError(message, start, length));
 						}
 					} catch (TokenMgrError e) {
 						e.printStackTrace();
