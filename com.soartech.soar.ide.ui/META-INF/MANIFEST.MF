@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Soar IDE UI
 Bundle-SymbolicName: com.soartech.soar.ide.ui; singleton:=true
-Bundle-Version: 1.9.11
+Bundle-Version: 1.9.12
 Bundle-Activator: com.soartech.soar.ide.ui.SoarEditorUIPlugin
 Bundle-Vendor: Soar Technology, Inc.
 Bundle-Localization: plugin
@@ -23,8 +23,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ltk.ui.refactoring,
  org.eclipse.jdt.ui
 Eclipse-AutoStart: true
-Bundle-ClassPath: soareditor-ui.jar,
- lib/soar-debugger-api-9.3.0.jar
+Bundle-ClassPath: soareditor-ui.jar
 Export-Package: com.soartech.soar.ide.ui,
  com.soartech.soar.ide.ui.editors.text,
  com.soartech.soar.ide.ui.editors.text.rules,

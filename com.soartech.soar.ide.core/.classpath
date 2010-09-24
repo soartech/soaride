@@ -7,6 +7,6 @@
 	<classpathentry kind="lib" path="lib/jacl.jar"/>
 	<classpathentry kind="lib" path="lib/jdom.jar"/>
 	<classpathentry kind="lib" path="lib/sqlitejdbc-v056.jar"/>
-	<classpathentry kind="lib" path="lib/soar-debugger-api-9.3.0.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.soartech.soar.ide.debugger_api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
