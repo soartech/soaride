@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/com.soartech.soar.ide.database.feature_1.0.5.201009241327.jar" id="com.soartech.soar.ide.database.feature" version="1.0.5.201009241327">
+   <description name="Soar IDE Database Development Branch" url="http://soaride.googlecode.com/svn/branches/soaride_database_dev_branch/update/">
+      Soar IDE Database Development Branch
+   </description>
+   <feature url="features/com.soartech.soar.ide.database.feature_1.0.5.201009241452.jar" id="com.soartech.soar.ide.database.feature" version="1.0.5.201009241452">
       <category name="com.soartech.soar.ide.database_update_category"/>
    </feature>
    <category-def name="com.soartech.soar.ide.database_update_category" label="Soar IDE Database Development Branch">
