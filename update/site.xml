@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/com.soartech.soar.ide.database.feature_1.0.5.201009241143.jar" id="com.soartech.soar.ide.database.feature" version="1.0.5.201009241143">
-      <category name="com.soartech.soar.ide.database.update.category"/>
+   <feature url="features/com.soartech.soar.ide.database.feature_1.0.5.201009241327.jar" id="com.soartech.soar.ide.database.feature" version="1.0.5.201009241327">
+      <category name="com.soartech.soar.ide.database_update_category"/>
    </feature>
-   <category-def name="com.soartech.soar.ide.database.update.category" label="Soar IDE Database Development Branch">
+   <category-def name="com.soartech.soar.ide.database_update_category" label="Soar IDE Database Development Branch">
       <description>
          Soar IDE Plugin
       </description>
