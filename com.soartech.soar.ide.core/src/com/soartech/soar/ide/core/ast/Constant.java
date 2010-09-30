@@ -19,7 +19,7 @@
  */
 package com.soartech.soar.ide.core.ast;
 
-public class Constant {
+public class Constant implements HasPair {
 	// Data Members
 	private int beginOffset;
     private int endOffset;
@@ -97,5 +97,10 @@ public class Constant {
 			default:
 				return "Unknown Type";
 		}	
+	}
+
+	@Override
+	public Pair getPair() {
+		return new Pair("" + this, beginOffset, endOffset);
 	}
 }

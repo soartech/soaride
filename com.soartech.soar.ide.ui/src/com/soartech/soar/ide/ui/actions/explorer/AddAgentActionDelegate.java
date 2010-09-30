@@ -24,10 +24,15 @@ import com.soartech.soar.ide.ui.views.explorer.SoarExplorerView;
  */
 public class AddAgentActionDelegate extends Action implements IWorkbenchWindowActionDelegate {
 
-	SoarExplorerView explorer;
+	SoarExplorerView explorer = null;
 	
 	public AddAgentActionDelegate() {
 		super("Add Agent");
+	}
+	
+	public AddAgentActionDelegate(SoarExplorerView explorer) {
+		super("Add Agent");
+		this.explorer = explorer;
 	}
 	
 	@Override
@@ -42,16 +47,18 @@ public class AddAgentActionDelegate extends Action implements IWorkbenchWindowAc
 
 		if (result != null && result.length() > 0) {
 			SoarCorePlugin.getDefault().getDatabaseConnection().insert(Table.AGENTS, new String[][] { { "name", "\"" + result + "\"" } });
-			TreeViewer viewer = explorer.getTreeViewer(); 
-			Tree tree = viewer.getTree();
-			TreeItem[] items = tree.getItems();
-			for (TreeItem item : items) {
-				Object obj = item.getData();
-				if (obj instanceof SoarDatabaseRow) {
-					SoarDatabaseRow row = (SoarDatabaseRow) obj;
-					if (row.getTable() == Table.AGENTS && row.getName().equals(result)) {
-						tree.setSelection(item);
-						viewer.setExpandedState(obj, true);
+			if (explorer != null) {
+				TreeViewer viewer = explorer.getTreeViewer();
+				Tree tree = viewer.getTree();
+				TreeItem[] items = tree.getItems();
+				for (TreeItem item : items) {
+					Object obj = item.getData();
+					if (obj instanceof SoarDatabaseRow) {
+						SoarDatabaseRow row = (SoarDatabaseRow) obj;
+						if (row.getTable() == Table.AGENTS && row.getName().equals(result)) {
+							tree.setSelection(item);
+							viewer.setExpandedState(obj, true);
+						}
 					}
 				}
 			}

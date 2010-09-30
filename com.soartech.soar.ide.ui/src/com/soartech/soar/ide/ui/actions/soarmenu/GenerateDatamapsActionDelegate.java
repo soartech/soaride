@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
@@ -22,7 +21,6 @@ import com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapAction;
  */
 public class GenerateDatamapsActionDelegate implements IWorkbenchWindowActionDelegate {
 
-	StructuredSelection ss;
 	boolean applyAll;
 	SoarDatabaseRow row;
 	Shell shell;
@@ -68,9 +66,6 @@ public class GenerateDatamapsActionDelegate implements IWorkbenchWindowActionDel
 	
 	@Override
 	public void selectionChanged(IAction action, ISelection selection) {
-		if (selection instanceof StructuredSelection) {
-			this.ss = (StructuredSelection) selection;
-		}
 	}
 
 	@Override

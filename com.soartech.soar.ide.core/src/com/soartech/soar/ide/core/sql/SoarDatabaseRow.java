@@ -28,6 +28,8 @@ import com.soartech.soar.ide.core.ast.Constant;
 import com.soartech.soar.ide.core.ast.DisjunctionTest;
 import com.soartech.soar.ide.core.ast.ForcedUnaryPreference;
 import com.soartech.soar.ide.core.ast.FunctionCall;
+import com.soartech.soar.ide.core.ast.HasConstant;
+import com.soartech.soar.ide.core.ast.HasPair;
 import com.soartech.soar.ide.core.ast.NaturallyUnaryPreference;
 import com.soartech.soar.ide.core.ast.Pair;
 import com.soartech.soar.ide.core.ast.ParseException;
@@ -46,6 +48,9 @@ import com.soartech.soar.ide.core.ast.ValueMake;
 import com.soartech.soar.ide.core.ast.ValueTest;
 import com.soartech.soar.ide.core.ast.VarAttrValMake;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
+import com.soartech.soar.ide.core.sql.datamap.Correction;
+import com.soartech.soar.ide.core.sql.datamap.DatamapInconsistency;
+import com.soartech.soar.ide.core.sql.datamap.DatamapUtil;
 
 /**
  * Represents a row in a database table.
@@ -190,6 +195,17 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			 		|| this == RHS_VALUES
 			 		|| this == VALUE_MAKES
 			 		|| this == PREFERENCE_SPECIFIERS;
+		}
+		
+		public boolean hasToken() {
+			return this == DISJUNCTION_TESTS
+					|| this == CONDITION_FOR_ONE_IDENTIFIERS
+					|| this == FUNCTION_CALLS
+					|| this == RHS_VALUES
+					|| this == SINGLE_TESTS
+					|| this == VALUE_TESTS
+					|| this == VAR_ATTR_VAL_MAKES
+					|| this == CONSTANTS;
 		}
 	}
 
@@ -1692,6 +1708,19 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			sw.execute();
 		}
 	}
+	
+	/**
+	 * If this row has a token, return the token as a Pair object.
+	 */
+	public Pair getToken() {
+		if (!table.hasToken()) return null;
+		Object token = getColumnValue("token");
+		Object begin = getColumnValue("begin_offset");
+		Object end = getColumnValue("end_offset");
+		if (token == null || begin == null || end == null) return null;
+		if (!(token instanceof String && begin instanceof Integer && end instanceof Integer)) return null;
+		return new Pair((String)token, ((Integer)begin).intValue(), ((Integer)end).intValue());
+	}
 
 	/**
 	 * Encapsulates information neccesary to add a row to the database.
@@ -1962,6 +1991,27 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 
 		// Every row has a name -- this could change later
 		sqlArgs.add(new String[] { "name", "\"" + name + "\"" });
+		
+		// Check to see if this node has a token
+		try {
+			if (node instanceof HasPair) {
+				Pair pair = ((HasPair) node).getPair();
+				if (pair != null) {
+					sqlArgs.add(new String[] { "token", "\"" + pair.getString() + "\"" });
+					sqlArgs.add(new String[] { "begin_offset", "" + pair.getOffset() });
+					sqlArgs.add(new String[] { "end_offset", "" + (pair.getOffset() + pair.getLength()) });
+				}
+			} else if (node instanceof HasConstant) {
+				Pair pair = ((HasConstant) node).getConstant().toPair();
+				if (pair != null) {
+					sqlArgs.add(new String[] { "token", "\"" + pair.getString() + "\"" });
+					sqlArgs.add(new String[] { "begin_offset", "" + pair.getOffset() });
+					sqlArgs.add(new String[] { "end_offset", "" + (pair.getOffset() + pair.getLength()) });
+				}
+		}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		SqlArgsAndChildNodes ret = new SqlArgsAndChildNodes(sqlArgs, childNodes);
 		return ret;
@@ -2596,6 +2646,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			
 			// Remove comments
 			text = removeComments(text);
+			
+			// Remove existing triples.
+			ArrayList<SoarDatabaseRow> triples = getChildrenOfType(Table.TRIPLES);
+			for (SoarDatabaseRow triple : triples) {
+				triple.delete();
+			}
 
 			// Try to get AST from the text.
 			// Make sure text starts with "sp {" and ends with "}",
@@ -2615,11 +2671,13 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 					trimmed = text.substring(beginIndex).trim();
 					if (!trimmed.startsWith("{")) {
 						error = true;
+						problems.add(SoarProblem.createError("Production doesn't begin with \"sp {\"", 0, 1));
 					} else {
 						beginIndex = text.indexOf("{", beginIndex) + 1;
 						trimmed = text.substring(beginIndex).trim();
 						if (!trimmed.endsWith("}")) {
 							error = true;
+							problems.add(SoarProblem.createError("Production doesn't end with \"}\"", (text.length() > 1 ? text.length() - 1 : 0), 1));
 						} else {
 							endIndex = text.lastIndexOf("}");
 						}
@@ -2668,8 +2726,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 						// -1 for columns counting starting with 1
 						start += errorToken.beginColumn - 1;
 
-						int length = 2; // (errorToken.endOffset -
-										// errorToken.beginOffset) + 1;
+						int length = 1;
 						if (problems != null) {
 							problems.add(SoarProblem.createError(message, start, length));
 						}
@@ -2695,11 +2752,6 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 					}
 					
 					// Add child triples to this rule.
-					// First delete existing triples.
-					ArrayList<SoarDatabaseRow> triples = getChildrenOfType(Table.TRIPLES);
-					for (SoarDatabaseRow triple : triples) {
-						triple.delete();
-					}
 					ArrayList<Triple> newTriples = TraversalUtil.buildTriplesForRule(this);
 					if (monitor != null) {
 						monitor.beginTask("Writing triples for rule: " + this.getName(), newTriples.size());
@@ -2717,6 +2769,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 					if (monitor != null) {
 						monitor.done();
 					}
+
 				} else {
 					String errorMessage = "Production doesn't begin with \"sp {\" or doesn't end with \"}\" Rule: " + getName();
 					errors.add(errorMessage);

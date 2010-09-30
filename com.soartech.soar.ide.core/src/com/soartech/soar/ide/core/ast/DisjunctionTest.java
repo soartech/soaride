@@ -22,7 +22,7 @@ package com.soartech.soar.ide.core.ast;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class DisjunctionTest
+public final class DisjunctionTest implements HasConstant
 {
     // Data Members
     private List<Constant> d_constants = new ArrayList<Constant>();
@@ -54,4 +54,12 @@ public final class DisjunctionTest
         return "<< " + d_constants + " >>";
     }
 
+	@Override
+	public Constant getConstant() {
+		// Return the first constant, better than nothing
+		if (d_constants.size() > 0) {
+			return d_constants.get(0);
+		}
+		return null;
+	}
 }

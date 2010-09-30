@@ -458,24 +458,20 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 
 	// Convenience method for refreshing tree
 	public void refreshTree() {
+		Display.getDefault().asyncExec(new Runnable() {
 
-		Runnable runnable = new Runnable() {
-		  
-		  @Override public void run() {
+			@Override
+			public void run() {
+				try {
+					TreePath[] paths = tree.getExpandedTreePaths();
+					tree.setInput(problemSpaceRow);
+					tree.setExpandedTreePaths(paths);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 
-		try {
-			Object[] elements = tree.getExpandedElements();
-			TreePath[] paths = tree.getExpandedTreePaths();
-			tree.setInput(problemSpaceRow);
-			tree.setExpandedTreePaths(paths);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		  } };
-		  
-		  Display.findDisplay(Thread.currentThread()).asyncExec(runnable);
-		 
+			}
+		});
 	}
 
 	@Override

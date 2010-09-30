@@ -22,7 +22,7 @@ package com.soartech.soar.ide.core.ast;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class FunctionCall
+public final class FunctionCall implements HasPair
 {
     private Pair d_functionName;
 
@@ -59,5 +59,10 @@ public final class FunctionCall
     {
         return d_functionName.toString() + d_rhsValues.toString();
     }
+
+	@Override
+	public Pair getPair() {
+		return d_functionName;
+	}
 
 }

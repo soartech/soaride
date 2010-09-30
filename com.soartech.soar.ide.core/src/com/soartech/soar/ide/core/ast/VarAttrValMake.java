@@ -22,7 +22,7 @@ package com.soartech.soar.ide.core.ast;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class VarAttrValMake
+public final class VarAttrValMake implements HasPair
 {
     private Pair d_variable;
 
@@ -60,5 +60,10 @@ public final class VarAttrValMake
         // TODO Auto-generated method stub
         return d_variable + ": " + d_attributeValueMakes;
     }
+
+	@Override
+	public Pair getPair() {
+		return d_variable;
+	}
 
 }

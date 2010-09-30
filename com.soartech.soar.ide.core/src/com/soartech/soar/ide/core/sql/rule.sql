@@ -42,6 +42,11 @@ RHS grammar:
 
 */
 
+-- Items that have associated tokens get the following fields:
+-- token varchar
+-- begin_offset integer
+-- end_offset integer
+
 -- Triples, to cache in database instead of re-creating each time they are needed:
 create table if not exists triples
 (
@@ -50,7 +55,10 @@ rule_id integer,
 variable_string varchar(255),
 attribute_string varchar(255),
 value_string varchar(255),
-has_state boolean not null
+has_state boolean not null,
+variable_offset integer,
+attribute_offset integer,
+value_offset integer
 );
 
 create table if not exists directed_join_triples_triples
@@ -86,7 +94,10 @@ id integer primary key,
 positive_condition_id integer,
 name varchar(255) not null,
 has_state boolean not null,
-variable varchar(255) not null
+variable varchar(255) not null,
+token varchar(255),
+begin_offset integer,
+end_offset integer
 );
 
 create table if not exists attribute_value_tests
@@ -95,7 +106,10 @@ id integer primary key,
 condition_for_one_identifier_id integer,
 value_test_id integer,
 name varchar(255) not null,
-is_negated boolean not null
+is_negated boolean not null,
+token varchar(255),
+begin_offset integer,
+end_offset integer
 );
 
 create table if not exists attribute_tests
@@ -149,7 +163,10 @@ create table if not exists disjunction_tests
 (
 id integer primary key,
 simple_test_id integer,
-name varchar(255) not null
+name varchar(255) not null,
+token varchar(255),
+begin_offset integer,
+end_offset integer
 );
 
 create table if not exists relational_tests
@@ -180,7 +197,10 @@ relational_test_id integer,
 /*variable_value varchar(255),*/
 name varchar(255) not null,
 is_constant boolean not null,
-variable varchar(255)
+variable varchar(255),
+token varchar(255),
+begin_offset integer,
+end_offset integer
 );
 
 create table if not exists constants
@@ -193,7 +213,10 @@ constant_type integer not null,
 integer_const integer,
 symbolic_const varchar(255),
 floating_const decimal,
-name varchar(255) not null
+name varchar(255) not null,
+token varchar(255),
+begin_offset integer,
+end_offset integer
 );
 
 --Action side:
@@ -211,7 +234,10 @@ create table if not exists var_attr_val_makes
 id integer primary key,
 action_id integer,
 variable varchar(255),
-name varchar(255) not null
+name varchar(255) not null,
+token varchar(255),
+begin_offset integer,
+end_offset integer
 );
 
 create table if not exists attribute_value_makes
@@ -227,7 +253,10 @@ id integer primary key,
 action_id integer,
 rhs_value_id integer,
 name varchar(255) not null,
-function_name varchar(255) not null
+function_name varchar(255) not null,
+token varchar(255),
+begin_offset integer,
+end_offset integer
 );
 
 create table if not exists function_names
@@ -248,7 +277,10 @@ name varchar(255) not null,
 is_constant boolean not null,
 is_variable boolean not null,
 is_function_call boolean not null,
-variable varchar(255)
+variable varchar(255),
+token varchar(255),
+begin_offset integer,
+end_offset integer
 );
 
 /*

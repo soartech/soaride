@@ -19,7 +19,7 @@
  */
 package com.soartech.soar.ide.core.ast;
 
-public class SingleTest {
+public class SingleTest implements HasPair {
 	// Data Members
 	private Constant d_constant;
 	private Pair d_variable;
@@ -60,6 +60,14 @@ public class SingleTest {
     {
         return isConstant() ? getConstant().toString() : getVariable().toString();
     }
+
+	@Override
+	public Pair getPair() {
+		if (isConstant()) {
+			return d_constant.toPair();
+		}
+		return d_variable;
+	}
     
     
 }

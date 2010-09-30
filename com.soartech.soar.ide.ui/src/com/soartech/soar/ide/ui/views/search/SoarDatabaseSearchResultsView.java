@@ -47,10 +47,9 @@ public class SoarDatabaseSearchResultsView extends ViewPart {
 		table.setInput(results);
 	}
 	
-	private static void setResults(Object[] results) {
-		SoarDatabaseSearchResultsView view;
+	public static void setResults(Object[] results) {
 		try {
-			view = (SoarDatabaseSearchResultsView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ID);
+			SoarDatabaseSearchResultsView view = (SoarDatabaseSearchResultsView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ID);
 			view.setSearchResults(results);
 		} catch (PartInitException e) {
 			e.printStackTrace();

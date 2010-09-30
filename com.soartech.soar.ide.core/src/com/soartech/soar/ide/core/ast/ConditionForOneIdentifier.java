@@ -22,7 +22,7 @@ package com.soartech.soar.ide.core.ast;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ConditionForOneIdentifier
+public final class ConditionForOneIdentifier implements HasPair
 {
     // Data Members
     private boolean d_hasState;
@@ -74,5 +74,10 @@ public final class ConditionForOneIdentifier
         }
         return r + " " + d_variable + " " + d_attributeValueTests;
     }
+
+	@Override
+	public Pair getPair() {
+		return d_variable;
+	}
 
 }

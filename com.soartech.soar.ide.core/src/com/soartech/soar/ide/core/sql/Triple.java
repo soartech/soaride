@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.soartech.soar.ide.core.ast.Pair;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 
 public class Triple {
@@ -18,17 +19,22 @@ public class Triple {
 	
 	// This is a String that begins with '<' and ends with '>'.
 	public String variable;
+	public int variableOffset = -1;
 
 	// This is a String. If it begins with '<' and ends with '>',
 	// it's a variable. Otherwise, it's a constant.
 	public String attribute;
+	public int attributeOffset = -1;
 	
 	// This is a String. If it begins with '<' and ends with '>',
 	// it's a variable. Otherwise, it's a constant.
 	public String value;
+	public int valueOffset = -1;
 	
+	// Whether this triple's variable is the root node <s>.
 	public boolean hasState = false;
 	
+	// The row to which this triple belongs.
 	public SoarDatabaseRow rule;
 	
     // This is a list of all datamap nodes that the triple matches against.
@@ -48,12 +54,22 @@ public class Triple {
     private ArrayList<ArrayList<Triple>> attributePaths = null;
     
     // Set by GenerateDatamapFromVisualSoarFileAction.run() when reading from Visual Soar datamaps
-    public String comment; 
-
+    public String comment;
+    
 	public Triple(String variable, String attribute, String value, SoarDatabaseRow rule) {
 		this.variable = variable;
 		this.attribute = attribute;
 		this.value = value;
+		this.rule = rule;
+	}
+	
+	public Triple(Pair variable, Pair attribute, Pair value, SoarDatabaseRow rule) {
+		this.variable = variable.getString();
+		variableOffset = variable.getOffset();
+		this.attribute = attribute.getString();
+		attributeOffset = attribute.getOffset();
+		this.value = value.getString();
+		valueOffset = value.getOffset();
 		this.rule = rule;
 	}
 	
@@ -62,9 +78,15 @@ public class Triple {
 		String variable = (String) tripleRow.getColumnValue("variable_string");
 		String attribute = (String) tripleRow.getColumnValue("attribute_string");
 		String value = (String) tripleRow.getColumnValue("value_string");
+		Integer variableOffset = (Integer) tripleRow.getColumnValue("variable_offset");
+		Integer attributeOffset = (Integer) tripleRow.getColumnValue("attribute_offset");
+		Integer valueOffset = (Integer) tripleRow.getColumnValue("value_offset");
 		boolean hasState = ((Integer) tripleRow.getColumnValue("has_state")) != 0;
 		SoarDatabaseRow rule = tripleRow.getParents().get(0);
 		Triple ret = new Triple(variable, attribute, value, rule);
+		ret.variableOffset = variableOffset;
+		ret.attributeOffset = attributeOffset;
+		ret.valueOffset = valueOffset;
 		ret.hasState = hasState;
 		return ret;
 	}
@@ -147,12 +169,15 @@ public class Triple {
 		SoarDatabaseRow ret = getDatabaseRow();
 		if (ret != null) return null;
 		StatementWrapper sw  = rule.getDatabaseConnection().prepareStatement("insert into " + Table.TRIPLES.tableName()
-				+ " (rule_id, variable_string, attribute_string, value_string, has_state) values (?,?,?,?,?)");
+				+ " (rule_id, variable_string, variable_offset, attribute_string, attribute_offset, value_string, value_offset, has_state) values (?,?,?,?,?,?,?,?)");
 		sw.setInt(1, rule.getID());
 		sw.setString(2, variable);
-		sw.setString(3, attribute);
-		sw.setString(4, value);
-		sw.setBoolean(5, hasState);
+		sw.setInt(3, variableOffset);
+		sw.setString(4, attribute);
+		sw.setInt(5, attributeOffset);
+		sw.setString(6, value);
+		sw.setInt(7, valueOffset);
+		sw.setBoolean(8, hasState);
 		sw.execute();
 		return getDatabaseRow();
 	}

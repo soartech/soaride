@@ -71,6 +71,7 @@ import com.soartech.soar.ide.ui.actions.explorer.AddAgentActionDelegate;
 import com.soartech.soar.ide.ui.actions.explorer.AddChildRowAction;
 import com.soartech.soar.ide.ui.actions.explorer.AddSubstateAction;
 import com.soartech.soar.ide.ui.actions.explorer.ChangeJoinTypeAction;
+import com.soartech.soar.ide.ui.actions.explorer.CheckRuleAgainstDatamapAction;
 import com.soartech.soar.ide.ui.actions.explorer.DeleteDatabaseRowAction;
 import com.soartech.soar.ide.ui.actions.explorer.ExportSoarDatabaseRowAction;
 import com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapAction;
@@ -220,6 +221,9 @@ public class SoarExplorerView extends ViewPart
 			manager.add(new AddSubstateAction(row, false, tree, JoinType.OPERATOR_NO__CHANGE_IMPASSE));
 			//ret.add(new AddRuleTemplateChildrenAction(row, tree));
 		}
+		if (table == Table.RULES) {
+			manager.add(new CheckRuleAgainstDatamapAction(row));
+		}
 		RemoveJoinFromParentAction remove = new RemoveJoinFromParentAction(selection);
 		if (remove.isRunnable()) {
 			manager.add(remove);
@@ -265,7 +269,7 @@ public class SoarExplorerView extends ViewPart
 						}
 					}
 					if (obj == null) {
-						manager.add(new AddAgentActionDelegate());
+						manager.add(new AddAgentActionDelegate(SoarExplorerView.this));
 					}
 				}
 			}

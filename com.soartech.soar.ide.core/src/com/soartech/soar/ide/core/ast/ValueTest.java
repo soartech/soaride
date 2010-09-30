@@ -28,7 +28,7 @@ import java.util.ArrayList;
  * Modified to support structured-value notation by Miller Tinkerhess 9/15/2010
  */
 
-public final class ValueTest {
+public final class ValueTest implements HasPair {
 	// Data Members
 	private Test d_test;
 	private boolean d_acceptablePreference = false;
@@ -91,6 +91,9 @@ public final class ValueTest {
     {
         return d_test + (hasAcceptablePreference() ? "+" : "");
     }
-    
-    
+
+	@Override
+	public Pair getPair() {
+		return d_variable;
+	}
 }

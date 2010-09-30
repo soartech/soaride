@@ -9,6 +9,7 @@ import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PlatformUI;
 
@@ -70,7 +71,12 @@ public class SoarDatabaseTextEditor extends AbstractSoarDatabaseTextEditor imple
 	public void onEvent(SoarDatabaseEvent event, SoarDatabaseConnection db) {
 		if (event.type == Type.DATABASE_CHANGED) {
 			if (event.row != null && event.row.equals(this.input.getRow())) {
-				this.doRevertToSaved();
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						SoarDatabaseTextEditor.this.doRevertToSaved();
+					}
+				});
 			}
 		}
 	}

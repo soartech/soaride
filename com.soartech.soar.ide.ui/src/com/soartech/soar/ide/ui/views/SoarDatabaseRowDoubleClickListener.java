@@ -11,6 +11,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
+import com.soartech.soar.ide.core.sql.datamap.DatamapInconsistency;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.editors.datamap.SoarDatabaseDatamapEditor;
@@ -25,7 +26,18 @@ public class SoarDatabaseRowDoubleClickListener implements IDoubleClickListener 
 		}
 		IStructuredSelection ss = (IStructuredSelection) selection;
 		Object obj = ss.getFirstElement();
-		if (!(obj instanceof ISoarDatabaseTreeItem)) {
+		if (!(obj instanceof ISoarDatabaseTreeItem ||
+				obj instanceof DatamapInconsistency)) {
+			return;
+		}
+		if (obj instanceof DatamapInconsistency) {
+			try {
+				IWorkbench workbench = SoarEditorUIPlugin.getDefault().getWorkbench();
+				IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
+				SoarUiModelTools.showRuleInEditor(page, ((DatamapInconsistency) obj).rule);
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
 			return;
 		}
 		ISoarDatabaseTreeItem item = (ISoarDatabaseTreeItem) obj;

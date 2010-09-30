@@ -134,7 +134,7 @@ public class SoarLabelProvider extends LabelProvider implements
 			return (String) element;
 		}
 
-		return "<Unknown Label>";
+		return "" + element;
 	}
 
 	/*

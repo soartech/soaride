@@ -173,6 +173,15 @@
               style="push"
               tooltip="Spawns an instance of the Soar Debugger and connects it to the IDE">
         </action>
+        
+        <action
+              class="com.soartech.soar.ide.ui.actions.soarmenu.CheckRulesAgainstDatamapsActionDelegate"
+              id="com.soartech.soar.ide.ui.actions.soarmenu.CheckRulesAgainstDatamapsActionDelegate"
+              label="Check Rules Against Datamaps"
+              menubarPath="com.soartech.soar.ide.ui.soarMenu/soarDebuggerActions"
+              style="push"
+              tooltip="Checks all rules against their datamaps and report inconsistencies in the Search Results view.">
+        </action>
 
      </actionSet>
   </extension>

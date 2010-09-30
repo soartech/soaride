@@ -60,13 +60,13 @@ public class SoarPerspective implements IPerspectiveFactory {
      */
     public void createInitialLayout( IPageLayout layout ) {
     	
-    	layout.addActionSet("com.soartech.soar.ide.ui.FileActions");
+    	//layout.addActionSet("com.soartech.soar.ide.ui.FileActions");
     	layout.addActionSet("com.soartech.soar.ide.ui.projectActions");
-    	layout.addActionSet("com.soartech.soar.ide.ui.debuggerActions");
+    	//layout.addActionSet("com.soartech.soar.ide.ui.debuggerActions");
     	
     	String editorArea = layout.getEditorArea();
         
-        layout.addActionSet("com.soartech.soar.ide.ui.soarActionSet");
+        //layout.addActionSet("com.soartech.soar.ide.ui.soarActionSet");
         
         IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, 0.25f, editorArea); //$NON-NLS-1$
         folder.addView(SoarExplorerView.ID);
