@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Soar Java Debugger API
 Bundle-SymbolicName: com.soartech.soar.ide.debugger_api
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.01
 Export-Package: edu.umich.soar.debugger.jmx
 Require-Bundle: org.eclipse.core.runtime
 Bundle-ClassPath: edu/umich/soar/debugger/jmx/
