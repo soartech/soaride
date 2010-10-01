@@ -135,14 +135,11 @@ public class DatamapUtil {
 			for (SoarDatabaseRow matchingNode : matchingNodes) {
 				childNodes.addAll((Collection<? extends SoarDatabaseRow>) matchingNode.getDirectedJoinedChildren(false));
 			}
-			for (Triple child : triplesByVariable.get(currentTriple.value)) {
-				getInconsistencies(rule,
-						problemSpace,
-						child,
-						childNodes,
-						triplesByVariable,
-						visitedTriples,
-						inconsistencies);
+			ArrayList<Triple> triplesWithVariable = triplesByVariable.get(currentTriple.value);
+			if (triplesWithVariable != null) {
+				for (Triple child : triplesWithVariable) {
+					getInconsistencies(rule, problemSpace, child, childNodes, triplesByVariable, visitedTriples, inconsistencies);
+				}
 			}
 		}
 	}
