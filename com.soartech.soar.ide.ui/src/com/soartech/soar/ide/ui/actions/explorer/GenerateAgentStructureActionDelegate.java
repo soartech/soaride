@@ -77,7 +77,7 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 			assert rule.getTable() == Table.RULES;
 			
 			if (monitor != null) {
-				monitor.subTask("Rule: " + rule.getName());
+				monitor.subTask(rule.getName());
 			}
 			
 			ArrayList<Triple> triples = TraversalUtil.getTriplesForRule(rule);

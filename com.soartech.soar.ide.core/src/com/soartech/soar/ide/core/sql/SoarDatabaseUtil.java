@@ -157,11 +157,13 @@ public class SoarDatabaseUtil {
 							
 							String ruleString = ruleBuffer.toString();
 							String ruleName = getNameFromRule(ruleString);
+							if (monitor != null) {
+								monitor.subTask(ruleName);
+							}
 							SoarDatabaseRow child = agent.createChild(Table.RULES, ruleName);
 							errors.addAll(child.save(ruleString, null, null));
 							
 							if (monitor != null) {
-								monitor.subTask("Imported rule: " + ruleName);
 								monitor.worked(1);
 							}
 							

@@ -32,7 +32,7 @@ public class CheckRuleAgainstDatamapAction extends Action {
 		} else {
 			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 			MessageDialog dialog = new MessageDialog(shell,
-					"No inconsistencies found",
+					"No Inconsistencies Found",
 					null,
 					"Rule checks out against its datamaps.",
 					MessageDialog.INFORMATION,

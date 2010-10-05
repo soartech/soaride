@@ -1,9 +1,15 @@
 package com.soartech.soar.ide.ui.actions.soarmenu;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
+import javax.swing.ProgressMonitor;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -21,18 +27,36 @@ public class CheckRulesAgainstDatamapsActionDelegate implements IWorkbenchWindow
 
 	@Override
 	public void run(IAction action) {
-		SoarDatabaseRow agent = SoarUiModelTools.selectAgent();
+		final SoarDatabaseRow agent = SoarUiModelTools.selectAgent();
 		if (agent == null) return;
-		ArrayList<DatamapInconsistency> errors = new ArrayList<DatamapInconsistency>();
-		for (SoarDatabaseRow rule : agent.getChildrenOfType(Table.RULES)) {
-			errors.addAll(DatamapUtil.getInconsistancies(rule));
+		final ArrayList<DatamapInconsistency> errors = new ArrayList<DatamapInconsistency>();
+		
+		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		try {
+			new ProgressMonitorDialog(shell).run(true, false, new IRunnableWithProgress() {
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					ArrayList<SoarDatabaseRow> rules = agent.getChildrenOfType(Table.RULES);
+					monitor.beginTask("Checking rules against datamaps", rules.size());
+					for (SoarDatabaseRow rule : rules) {
+						monitor.subTask(rule.getName());
+						errors.addAll(DatamapUtil.getInconsistancies(rule));
+						monitor.worked(1);
+					}
+					monitor.done();
+				}
+			});
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
+
 		if (errors.size() > 0) {
 			SoarDatabaseSearchResultsView.setResults(errors.toArray());
 		} else {
-			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 			MessageDialog dialog = new MessageDialog(shell,
-					"No inconsistencies found",
+					"No Inconsistencies Found",
 					null,
 					"All rules check out against datamaps.",
 					MessageDialog.INFORMATION,

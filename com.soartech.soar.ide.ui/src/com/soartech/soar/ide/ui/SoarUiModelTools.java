@@ -162,6 +162,8 @@ public class SoarUiModelTools
 		}
 		
 		ListDialog dialog = new ListDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
+		dialog.setTitle("Select Agent");
+		dialog.setMessage("Please select an agent:");
 		dialog.setContentProvider(new ArrayContentProvider());
 		dialog.setLabelProvider(new LabelProvider());
 		dialog.setInput(agents);

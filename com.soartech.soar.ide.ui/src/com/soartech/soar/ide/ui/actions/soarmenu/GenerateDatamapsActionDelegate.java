@@ -53,7 +53,7 @@ public class GenerateDatamapsActionDelegate implements IWorkbenchWindowActionDel
 		
 		for (GenerateDatamapAction generateAction : actions) {
 			if (monitor != null) {
-				monitor.subTask("Problem space: " + generateAction.getProblemSpace().getName());
+				monitor.subTask(generateAction.getProblemSpace().getName());
 			}
 			generateAction.run(monitor);
 		}

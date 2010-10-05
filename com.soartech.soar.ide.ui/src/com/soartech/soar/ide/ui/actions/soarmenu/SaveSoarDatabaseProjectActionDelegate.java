@@ -27,7 +27,7 @@ import com.soartech.soar.ide.core.SoarCorePlugin;
 public class SaveSoarDatabaseProjectActionDelegate implements IWorkbenchWindowActionDelegate {
 
 	Shell shell;
-	
+
 	@Override
 	public void dispose() {
 	}
