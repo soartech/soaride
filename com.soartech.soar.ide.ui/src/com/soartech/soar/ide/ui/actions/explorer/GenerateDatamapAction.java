@@ -101,6 +101,7 @@ public class GenerateDatamapAction extends Action {
 			dialog.open();
 			result = dialog.getResult();
 		}
+		if (result == null) return;
 		// Apply corrections
 		for (Object obj : result) {
 			Correction correction = (Correction) obj;

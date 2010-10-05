@@ -84,7 +84,7 @@ public class SoarCorePlugin extends Plugin {
 		//modelAdapters = new SoarModelAdapterFactory();
 	    //soarModel = new SoarModel();
 		try {
-		databaseConnection = new SoarDatabaseConnection();
+			databaseConnection = new SoarDatabaseConnection();
 		} catch (FileNotFoundException e) {
 			// shouldn't happen
 			e.printStackTrace();

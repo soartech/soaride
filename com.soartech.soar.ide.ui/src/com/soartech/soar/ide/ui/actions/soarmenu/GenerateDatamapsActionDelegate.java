@@ -61,7 +61,6 @@ public class GenerateDatamapsActionDelegate implements IWorkbenchWindowActionDel
 		if (monitor != null) {
 			monitor.done();
 		}
-			
 	}
 	
 	@Override

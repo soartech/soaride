@@ -3,9 +3,12 @@ package com.soartech.soar.ide.ui.actions.soarmenu;
 import java.util.ArrayList;
 
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
@@ -24,7 +27,19 @@ public class CheckRulesAgainstDatamapsActionDelegate implements IWorkbenchWindow
 		for (SoarDatabaseRow rule : agent.getChildrenOfType(Table.RULES)) {
 			errors.addAll(DatamapUtil.getInconsistancies(rule));
 		}
-		SoarDatabaseSearchResultsView.setResults(errors.toArray());
+		if (errors.size() > 0) {
+			SoarDatabaseSearchResultsView.setResults(errors.toArray());
+		} else {
+			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+			MessageDialog dialog = new MessageDialog(shell,
+					"No inconsistencies found",
+					null,
+					"All rules check out against datamaps.",
+					MessageDialog.INFORMATION,
+					new String[] { "OK" }, 0);
+			dialog.open();
+			SoarDatabaseSearchResultsView.setResults(new Object[0]);
+		}
 	}
 
 	@Override

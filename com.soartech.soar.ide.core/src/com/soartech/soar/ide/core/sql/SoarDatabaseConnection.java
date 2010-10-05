@@ -30,7 +30,7 @@ public class SoarDatabaseConnection {
 	
 	private boolean firingEvent = false;
 	private ArrayList<ISoarDatabaseEventListener> toRemove = new ArrayList<ISoarDatabaseEventListener>();
-	
+		
 	public SoarDatabaseConnection() throws FileNotFoundException {
 		this(":memory:");
 	}

@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -67,7 +68,19 @@ public class SoarDatabaseSearchResultsView extends ViewPart {
 				}
 			}
 		}
-		setResults(result.toArray());
+		if (result.size() > 0) {
+			setResults(result.toArray());
+		} else {
+			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+			MessageDialog dialog = new MessageDialog(shell,
+					"Search query not found",
+					null,
+					"String \"" + query + "\" not found.",
+					MessageDialog.INFORMATION,
+					new String[] { "OK" }, 0);
+			dialog.open();
+			SoarDatabaseSearchResultsView.setResults(new Object[0]);
+		}
 	}
 	
 	public static void searchForRulesWithDatamapAttribute(SoarDatabaseRow attribute) {

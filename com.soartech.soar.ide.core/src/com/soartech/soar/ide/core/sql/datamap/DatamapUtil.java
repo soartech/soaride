@@ -247,7 +247,8 @@ public class DatamapUtil {
 				boolean terminal = !triple.valueIsVariable() || triple.childTriples == null;
 				
 				// Iterate over each path from this triple.
-				for (ArrayList<Triple> path : triple.getTriplePathsFromState()) {
+				ArrayList<ArrayList<Triple>> triplePathsFromState = triple.getTriplePathsFromState();
+				for (ArrayList<Triple> path : triplePathsFromState) {
 					
 					// Figure out if the path loops onto itself
 					// e.g. (<s> ^attr <v1>),(<v1> ^attr <v2>),(<v2> ^attr <v3>),(<v3> ^attr <v1>)
@@ -282,14 +283,27 @@ public class DatamapUtil {
 							}
 						}
 						
-						// Make sure the path isn't identical to a path that's already been proposed.
-						boolean identical = false;
+						// Make sure the path isn't identical to a path that's already been proposed,
+						// and that it's not redundant,
+						// and doesn't make a previously proposed path redundant.
+						boolean identical = false; // Identical (or precluded by redundancy to) existing path
+						ArrayList<TerminalPath> pathsToRemove = new ArrayList<TerminalPath>(); // Paths to remove in case they're redundant
 						for (TerminalPath retPath : ret) {
-							if (path.equals(retPath.path) || pathsAreRedundant(path, retPath.path)) {
+							if (path.equals(retPath.path)) {
 								identical = true;
 								break;
+							} else if (pathsAreRedundant(path, retPath.path)) {
+								if (path.size() > retPath.path.size()) {
+									// The existing path is too short. Remove it and replace it with this one.
+									pathsToRemove.add(retPath);
+									break;
+								} else {
+									identical = true;
+									break;
+								}
 							}
 						}
+						ret.removeAll(pathsToRemove);
 						
 						if (!tooLong && !identical) {
 							grew = true;

@@ -131,8 +131,6 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 				new ProgressMonitorDialog(shell).run(true, true, new IRunnableWithProgress() {
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						// monitor.setTaskName("New Project From Existing Source");
-						monitor.beginTask("Counting Rules", IProgressMonitor.UNKNOWN);
 						monitor.beginTask("Parsing Rules", SoarDatabaseUtil.countRulesFromFile(file, errors));
 						errors.addAll(SoarDatabaseUtil.importRules(file, finalAgent, monitor));
 						monitor.done();

@@ -42,8 +42,8 @@ public class TraversalUtil {
 	}
 
 	public static ArrayList<Triple> getTriplesForRule(SoarDatabaseRow rule) {
-		ArrayList<SoarDatabaseRow> childTriples = rule.getChildrenOfType(Table.TRIPLES);
 		ArrayList<Triple> ret = new ArrayList<Triple>();
+		ArrayList<SoarDatabaseRow> childTriples = rule.getChildrenOfType(Table.TRIPLES);
 		for (SoarDatabaseRow childTriple : childTriples) {
 			Triple triple = Triple.tripleForRow(childTriple);
 			ret.add(triple);
@@ -164,10 +164,12 @@ public class TraversalUtil {
 	private static void visitRuleNode(SoarDatabaseRow row, ArrayList<Triple> triples, ArrayList<String> stateVariables) {
 		debug("visitRuleNode");
 		ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
-		int childIndex = 0;
 		for (ISoarDatabaseTreeItem item : children) {
-			++childIndex;
 			SoarDatabaseRow child = (SoarDatabaseRow) item;
+			
+			if (child.getTable() == Table.ACTIONS) {
+				System.out.println("Action");
+			}
 
 			if (child.getTable() == Table.CONDITION_FOR_ONE_IDENTIFIERS) {
 				String variable = "" + child.getColumnValue("variable");

@@ -3,6 +3,9 @@ package com.soartech.soar.ide.ui.actions.explorer;
 import java.util.ArrayList;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.TraversalUtil;
@@ -24,6 +27,18 @@ public class CheckRuleAgainstDatamapAction extends Action {
 	@Override
 	public void run() {
 		ArrayList<DatamapInconsistency> errors = DatamapUtil.getInconsistancies(row);
-		SoarDatabaseSearchResultsView.setResults(errors.toArray());
+		if (errors.size() > 0) {
+			SoarDatabaseSearchResultsView.setResults(errors.toArray());
+		} else {
+			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+			MessageDialog dialog = new MessageDialog(shell,
+					"No inconsistencies found",
+					null,
+					"Rule checks out against its datamaps.",
+					MessageDialog.INFORMATION,
+					new String[] { "OK" }, 0);
+			dialog.open();
+			SoarDatabaseSearchResultsView.setResults(new Object[0]);
+		}
 	}
 }

@@ -13,6 +13,8 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
+import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 
 /**
@@ -36,9 +38,11 @@ public class OpenSoarDatabaseProjectActionDelegate implements IWorkbenchWindowAc
 	}
 	
 	public void run(boolean warning) {
-		boolean savedToDisk = SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk();
+		SoarDatabaseConnection conn = SoarCorePlugin.getDefault().getDatabaseConnection();
+		boolean savedToDisk = conn.isSavedToDisk();
+		boolean hasAgents = conn.selectAllFromTable(Table.AGENTS, null).size() > 0;
 		
-		if (!savedToDisk && warning) {
+		if (!savedToDisk && warning && hasAgents) {
 			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 			MessageDialog message = new MessageDialog(shell, "Open project?", null, "Open project? Unsaved changes will be lost.", MessageDialog.QUESTION, new String[] {"OK", "Cancel"}, 0);
 			int result = message.open();

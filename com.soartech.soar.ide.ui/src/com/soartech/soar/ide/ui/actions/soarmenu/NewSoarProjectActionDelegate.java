@@ -10,6 +10,8 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
+import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 
 /**
@@ -28,7 +30,10 @@ public class NewSoarProjectActionDelegate implements IWorkbenchWindowActionDeleg
 	}
 	
 	public void run(boolean warning) {
-		if (SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk() || !warning) {
+		SoarDatabaseConnection conn = SoarCorePlugin.getDefault().getDatabaseConnection();
+		boolean hasAgents = conn.selectAllFromTable(Table.AGENTS, null).size() > 0;
+
+		if (conn.isSavedToDisk() || !warning || !hasAgents) {
 			SoarUiModelTools.closeAllEditors(true);
 		} else {
 			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();

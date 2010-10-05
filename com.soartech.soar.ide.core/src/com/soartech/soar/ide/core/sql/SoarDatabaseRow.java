@@ -2634,7 +2634,16 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	public ArrayList<String> save(String text, ArrayList<SoarProblem> problems, IProgressMonitor monitor) {
 		ArrayList<String> errors = new ArrayList<String>();
 		if (table == Table.RULES) {
+			boolean eventsWereSuppressed = db.getSupressEvents();
+			db.setSupressEvents(true);
 
+			if (monitor != null) {
+				monitor.beginTask("Saving rule: " + this.getName(), 5);
+			}
+			
+			// Get old text
+			String oldText = getText();
+			
 			// Update raw text.
 			String sql = "update " + table.tableName() + " set raw_text=? where id=?";
 			StatementWrapper ps = db.prepareStatement(sql);
@@ -2644,6 +2653,17 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			ps.setRow(this);
 			ps.execute();
 			
+			if (monitor != null) {
+				monitor.worked(1);
+			}
+			
+			// If there's not a change to the rule, don't re-parse it.
+			if (oldText.trim().equals(text.trim())) {
+				db.setSupressEvents(eventsWereSuppressed);
+				db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED, this));
+				return errors;
+			}
+			
 			// Remove comments
 			text = removeComments(text);
 			
@@ -2652,6 +2672,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			for (SoarDatabaseRow triple : triples) {
 				triple.delete();
 			}
+			
+			if (monitor != null) {
+				monitor.worked(1);
+			}
+			
 
 			// Try to get AST from the text.
 			// Make sure text starts with "sp {" and ends with "}",
@@ -2685,6 +2710,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 				}
 				// </hacky>
 
+				if (monitor != null) {
+					monitor.worked(1);
+				}
+				
 				if (!error) {
 					// Parse the rule into an AST.
 					String parseText = text.substring(beginIndex, endIndex);
@@ -2695,16 +2724,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 						// System.out.println("Parsed rule:\n" + ast);
 
 						// insert into database
-						boolean eventsWereSupresssed = db.getSupressEvents();
-						db.setSupressEvents(true);
-						deleteAllChildren(false, null);
 						try {
 							createChildrenFromAstNode(ast);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-						db.setSupressEvents(eventsWereSupresssed);
-						db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED, this));
 					} catch (ParseException e) {
 						// e.printStackTrace();
 						String message = e.getLocalizedMessage();
@@ -2754,18 +2778,15 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 					// Add child triples to this rule.
 					ArrayList<Triple> newTriples = TraversalUtil.buildTriplesForRule(this);
 					if (monitor != null) {
-						monitor.beginTask("Writing triples for rule: " + this.getName(), newTriples.size());
+						monitor.worked(1);
 					}
-					boolean eventsWereSupresssed = db.getSupressEvents();
-					db.setSupressEvents(true);
+					
 					for (Triple triple : newTriples) {
 						triple.getOrCreateTripleRow();
-						if (monitor != null) {
-							monitor.worked(1);
-						}
 					}
-					db.setSupressEvents(eventsWereSupresssed);
-					db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
+					if (monitor != null) {
+						monitor.worked(1);
+					}
 					if (monitor != null) {
 						monitor.done();
 					}
@@ -2775,6 +2796,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 					errors.add(errorMessage);
 				}
 			}
+			
+			db.setSupressEvents(eventsWereSuppressed);
+			db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED, this));
+			
 		} else if (table == Table.AGENTS) {
 			// Update raw text.
 			String sql = "update " + table.tableName() + " set raw_text=? where id=?";

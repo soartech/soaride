@@ -19,6 +19,7 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 	
 	String filter = "";
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object[] getChildren(Object element) {
 		if (element instanceof SoarCorePlugin) {
@@ -57,21 +58,18 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 					return ar.toArray();
 				}
 				if (table == Table.PROBLEM_SPACES) {
-					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.OPERATORS, Table.RULES };
-					for (Table folderTable : tables) {
+					Table[] folderTables = new Table[] { Table.RULES };
+					Table[] rawTables = new Table[] { Table.OPERATORS, Table.PROBLEM_SPACES };
+
+					for (Table folderTable : folderTables) {
 						SoarDatabaseRowFolder folder = new SoarDatabaseRowFolder(row, folderTable, true);
 						if (folder.hasChildren()) {
 							ret.add(folder);
 						}
 					}
 					
-					// If there's only one folder, just display items, not in folders.
-					if (ret.size() == 1) {
-						ret.clear();
-						for (Table folderTable : tables) {
-							ret.addAll(SoarDatabaseUtil.sortRowsByName(row.getJoinedRowsFromTable(folderTable)));
-						}
-						ret = SoarDatabaseItemContentProvider.sortExplorerItems(ret);
+					for (Table rawTable : rawTables) {
+						ret.addAll((ArrayList<ISoarDatabaseTreeItem>) SoarDatabaseUtil.sortRowsByName(row.getJoinedRowsFromTable(rawTable)));
 					}
 				}
 				if (table == Table.OPERATORS) {
@@ -110,7 +108,7 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 						includeDatamapNodes);
 				SoarDatabaseUtil.sortRowsByName(ret);
 			}
-			ret = SoarDatabaseItemContentProvider.sortExplorerItems(ret);
+			//ret = SoarDatabaseItemContentProvider.sortExplorerItems(ret);
 			ret = filterAndSearch(ret);
 			return ret.toArray();
 		}
@@ -186,10 +184,68 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 
 	@Override
 	public boolean hasChildren(Object element) {
-		if (element instanceof ISoarDatabaseTreeItem) {
-			Object[] children = getChildren(element);
-			boolean ret = children.length > 0;
-			return ret;
+		if (element instanceof SoarCorePlugin) {
+			SoarDatabaseConnection conn = ((SoarCorePlugin)element).getDatabaseConnection();
+			if (conn.selectAllFromTable(Table.AGENTS, null).size() > 0) return true;
+		}
+		else if (element instanceof ISoarDatabaseTreeItem) {
+			if (element instanceof SoarDatabaseRow) {
+				SoarDatabaseRow row = (SoarDatabaseRow) element;
+				Table table = row.getTable();
+				if (table == Table.AGENTS) {	
+					boolean includeFolders = true;
+					boolean includeChildrenInFolders = false;
+					boolean includeJoinedItems = true;
+					boolean includeDirectionalJoinedItems = true;
+					boolean putDirectionalJoinedItemsInFolders = true;
+					boolean includeDatamapNodes = false;
+					if (row.hasChildrenOfType(Table.PROBLEM_SPACES)) return true;
+					if (row.getChildren(
+							includeFolders,
+							includeChildrenInFolders,
+							includeJoinedItems,
+							includeDirectionalJoinedItems,
+							putDirectionalJoinedItemsInFolders,
+							includeDatamapNodes).size() > 0) return true;
+				}
+				if (table == Table.PROBLEM_SPACES) {
+					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.OPERATORS, Table.RULES };
+					for (Table folderTable : tables) {
+						if (row.getDirectedJoinedChildrenOfType(folderTable, false, false).size() > 0) return true;
+					}
+				}
+				if (table == Table.OPERATORS) {
+					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.RULES };
+					for (Table folderTable : tables) {
+						if (row.getJoinedRowsFromTable(folderTable).size() > 0) return true;
+					}
+				}
+				if (table == Table.RULES) {
+					return false;
+				}
+				if (table == Table.TAGS) {
+					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.OPERATORS, Table.RULES };
+					for (Table folderTable : tables) {
+						if(row.getJoinedRowsFromTable(folderTable).size() > 0);
+					}
+				}
+			}
+			else if (element instanceof SoarDatabaseRowFolder) {
+				SoarDatabaseRowFolder folder = (SoarDatabaseRowFolder) element;
+				boolean includeFolders = true;
+				boolean includeChildrenInFolders = false;
+				boolean includeJoinedItems = true;
+				boolean includeDirectionalJoinedItems = true;
+				boolean putDirectionalJoinedItemsInFolders = true;
+				boolean includeDatamapNodes = false;
+				if (folder.getChildren(
+						includeFolders,
+						includeChildrenInFolders,
+						includeJoinedItems,
+						includeDirectionalJoinedItems,
+						putDirectionalJoinedItemsInFolders,
+						includeDatamapNodes).size() > 0) return true;
+			}
 		}
 		return false;
 	}
