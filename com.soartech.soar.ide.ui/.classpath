@@ -4,7 +4,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.soartech.soar.ide.core"/>
-	<classpathentry kind="lib" path="/com.soartech.soar.ide.debugger_api/edu/umich/soar/debugger/jmx"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.soartech.soar.ide.debugger_api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -20,18 +20,12 @@
          id="com.soartech.soar.ide"
          download-size="0"
          install-size="0"
-         version="1.9.14"/>
+         version="1.9.15"/>
 
    <plugin
          id="com.soartech.soar.ide.ui"
          download-size="0"
          install-size="0"
-         version="1.9.14"/>
-
-   <plugin
-         id="com.soartech.soar.ide.debugger_api"
-         download-size="0"
-         install-size="0"
-         version="1.0.01"/>
+         version="1.9.15"/>
 
 </feature>

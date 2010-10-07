@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Soar IDE Core
 Bundle-SymbolicName: com.soartech.soar.ide;singleton:=true
-Bundle-Version: 1.9.14
+Bundle-Version: 1.9.15
 Bundle-Activator: com.soartech.soar.ide.core.SoarCorePlugin
 Bundle-Vendor: Soar Technology, Inc.
 Bundle-Localization: plugin
@@ -25,4 +25,5 @@ Bundle-ClassPath: soareditor.jar,
 Export-Package: com.soartech.soar.ide.core,
  com.soartech.soar.ide.core.ast,
  com.soartech.soar.ide.core.sql,
- com.soartech.soar.ide.core.sql.datamap
+ com.soartech.soar.ide.core.sql.datamap,
+ edu.umich.soar.debugger.jmx
