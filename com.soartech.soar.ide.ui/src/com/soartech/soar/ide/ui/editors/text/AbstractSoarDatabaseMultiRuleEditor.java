@@ -53,8 +53,7 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 			
 			IDocument doc = getDocumentProvider().getDocument(input);
 			final ArrayList<StringWithOffset> rulesText = getRulesFromText(doc.get());
-			boolean eventsWereSuppressed = row.getDatabaseConnection().getSupressEvents();
-			row.getDatabaseConnection().setSupressEvents(true);
+			row.getDatabaseConnection().pushSuppressEvents();
 			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 			input.clearProblems();
 			
@@ -113,7 +112,7 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 				}
 			}
 			
-			row.getDatabaseConnection().setSupressEvents(eventsWereSuppressed);
+			row.getDatabaseConnection().popSuppressEvents();
 			row.getDatabaseConnection().fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 			
 			// Add the found problems to the row.
@@ -160,6 +159,7 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 				start = i + 1;
 			}
 		}
+		ret.add(new StringWithOffset(buff.toString().trim(), start));
 		return ret;
 	}
 	
@@ -172,16 +172,26 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 	
 	private String getNameOfRules(String rule) {
 		int nameBeginIndex = rule.indexOf('{') + 1;
-		int nameEndIndex1 = rule.indexOf('(');
-		int nameEndIndex2 = rule.indexOf("-->");
+		int nameEndIndex1 = rule.indexOf('(', nameBeginIndex);
+		int nameEndIndex2 = rule.indexOf("-->", nameBeginIndex);
 		int nameEndIndex3 = rule.lastIndexOf('}');
+		int nameEndIndex4 = rule.indexOf('\n', nameBeginIndex);
 		if (nameEndIndex1 == -1)
 			nameEndIndex1 = Integer.MAX_VALUE;
 		if (nameEndIndex2 == -1)
 			nameEndIndex2 = Integer.MAX_VALUE;
 		if (nameEndIndex3 == -1)
-			nameEndIndex3 = Integer.MAX_VALUE; // shouldn't happen with matching regex
-		int nameEndIndex = Math.min(nameEndIndex1, Math.min(nameEndIndex2, nameEndIndex3));
+			nameEndIndex3 = Integer.MAX_VALUE;
+		if (nameEndIndex4 == -1)
+			nameEndIndex4 = Integer.MAX_VALUE;
+		int nameEndIndex = Math.min(nameEndIndex1, Math.min(nameEndIndex2, Math.min(nameEndIndex3, nameEndIndex4)));
+		// If the name end index is too much, make it the first newline, or the length of the string if there is no newline.
+		if (nameEndIndex >= rule.length()) {
+			nameEndIndex = rule.indexOf('\n', nameBeginIndex);
+			if (nameEndIndex == -1) {
+				nameEndIndex = rule.length() - 1;
+			}
+		}
 		String ruleName = rule.substring(nameBeginIndex, nameEndIndex).trim();
 		return ruleName;
 	}

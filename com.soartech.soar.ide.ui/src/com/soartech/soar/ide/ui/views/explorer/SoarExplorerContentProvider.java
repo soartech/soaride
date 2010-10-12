@@ -226,7 +226,7 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 				if (table == Table.TAGS) {
 					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.OPERATORS, Table.RULES };
 					for (Table folderTable : tables) {
-						if(row.getJoinedRowsFromTable(folderTable).size() > 0);
+						if(row.getJoinedRowsFromTable(folderTable).size() > 0) return true;
 					}
 				}
 			}

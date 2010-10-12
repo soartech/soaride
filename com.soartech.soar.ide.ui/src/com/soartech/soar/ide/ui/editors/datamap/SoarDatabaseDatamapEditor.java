@@ -447,10 +447,9 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 			 * (StructuredSelection) sel; tree. }
 			 */
 
-			boolean eventsWereSupressed = rowToDelete.getDatabaseConnection().getSupressEvents();
-			rowToDelete.getDatabaseConnection().setSupressEvents(true);
+			rowToDelete.getDatabaseConnection().pushSuppressEvents();
 			rowToDelete.deleteAllChildren(true, null);
-			rowToDelete.getDatabaseConnection().setSupressEvents(eventsWereSupressed);
+			rowToDelete.getDatabaseConnection().popSuppressEvents();
 		}
 		selectedRows = null;
 		refreshTree();

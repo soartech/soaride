@@ -19,7 +19,12 @@
  */
 package com.soartech.soar.ide.core.ast;
 
-public final class Condition {
+import java.io.Serializable;
+
+public final class Condition implements Serializable {
+
+	private static final long serialVersionUID = -7780745559686800149L;
+
 	// Data Members
 	private boolean d_isNegated;
 	private PositiveCondition d_positiveCondition;

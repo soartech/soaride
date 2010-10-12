@@ -19,12 +19,16 @@
  */
 package com.soartech.soar.ide.core.ast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class AttributeValueTest
+public final class AttributeValueTest implements Serializable
 {
-    // Data Members
+
+	private static final long serialVersionUID = -4314738660614931675L;
+
+	// Data Members
     boolean negated = false;
 
     List<AttributeTest> attributeTests = new ArrayList<AttributeTest>();

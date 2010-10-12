@@ -19,7 +19,12 @@
  */
 package com.soartech.soar.ide.core.ast;
 
-public final class Pair implements Comparable {
+import java.io.Serializable;
+
+public final class Pair implements Comparable, Serializable {
+
+	private static final long serialVersionUID = -5511702947312847336L;
+
 /////////////////////////////////////
 // Data Members
 /////////////////////////////////////

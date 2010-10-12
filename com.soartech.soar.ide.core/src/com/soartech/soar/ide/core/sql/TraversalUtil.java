@@ -12,7 +12,7 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 public class TraversalUtil {
 
 	// global-ish variable, bad practice
-	static SoarDatabaseRow rule = null;
+	static SoarDatabaseRow currentRule = null;
 
 	static long visitingRuleNodes;
 	static long applyingState;
@@ -83,7 +83,7 @@ public class TraversalUtil {
 	public static ArrayList<Triple> buildTriplesForRule(SoarDatabaseRow rule) {
 		Table table = rule.getTable();
 		assert table == Table.RULES;
-		TraversalUtil.rule = rule;
+		TraversalUtil.currentRule = rule;
 		ArrayList<Triple> triples = new ArrayList<Triple>();
 		ArrayList<String> stateVariables = new ArrayList<String>();
 		visitingRuleNodes -= new Date().getTime();
@@ -113,6 +113,19 @@ public class TraversalUtil {
 		 * (String p : path) { System.out.print("." + p); }
 		 * System.out.println(); } } }
 		 */
+		
+		// Add a triple like (<s> ^name state-name) for each problem space this rule belongs to.
+		
+		ArrayList<SoarDatabaseRow> problemSpaces = rule.getDirectedJoinedParentsOfType(Table.PROBLEM_SPACES);
+		ArrayList<SoarDatabaseRow> operators = rule.getDirectedJoinedParentsOfType(Table.PROBLEM_SPACES);
+		for (SoarDatabaseRow operator : operators) {
+			problemSpaces.addAll(operator.getDirectedJoinedParentsOfType(Table.PROBLEM_SPACES));
+		}
+		for (SoarDatabaseRow problemSpace : problemSpaces) {
+			Triple newTriple = new Triple("@<s>", "name", problemSpace.getName(), rule); // use illegal symbol @<s> to avoid collisions
+			newTriple.hasState = true;
+			triples.add(newTriple);
+		}
 
 		return triples;
 	}
@@ -166,10 +179,6 @@ public class TraversalUtil {
 		ArrayList<ISoarDatabaseTreeItem> children = row.getChildren(false, false, false, false, false, false);
 		for (ISoarDatabaseTreeItem item : children) {
 			SoarDatabaseRow child = (SoarDatabaseRow) item;
-			
-			if (child.getTable() == Table.ACTIONS) {
-				System.out.println("Action");
-			}
 
 			if (child.getTable() == Table.CONDITION_FOR_ONE_IDENTIFIERS) {
 				String variable = "" + child.getColumnValue("variable");
@@ -241,7 +250,7 @@ public class TraversalUtil {
 				for (Pair variable : variables) {
 					for (Pair attribute : currentAttributes) {
 						for (Pair value : values) {
-							Triple triple = new Triple(variable, attribute, value, rule);
+							Triple triple = new Triple(variable, attribute, value, currentRule);
 							ret.add(triple);
 						}
 					}
@@ -261,7 +270,7 @@ public class TraversalUtil {
 							variableName = "_" + variableName;
 						}
 						Pair newVariable = new Pair("<" + variableName + "_" + attribute + ">");
-						Triple triple = new Triple(variable, attribute, newVariable, rule);
+						Triple triple = new Triple(variable, attribute, newVariable, currentRule);
 						ret.add(triple);
 						newVariables.add(newVariable);
 					}

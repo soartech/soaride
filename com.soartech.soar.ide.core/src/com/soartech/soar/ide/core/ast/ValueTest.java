@@ -19,6 +19,7 @@
  */
 package com.soartech.soar.ide.core.ast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -28,7 +29,10 @@ import java.util.ArrayList;
  * Modified to support structured-value notation by Miller Tinkerhess 9/15/2010
  */
 
-public final class ValueTest implements HasPair {
+public final class ValueTest implements HasPair, Serializable {
+
+	private static final long serialVersionUID = -2776079147605481480L;
+	
 	// Data Members
 	private Test d_test;
 	private boolean d_acceptablePreference = false;

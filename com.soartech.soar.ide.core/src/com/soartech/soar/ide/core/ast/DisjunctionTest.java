@@ -19,12 +19,16 @@
  */
 package com.soartech.soar.ide.core.ast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class DisjunctionTest implements HasConstant
+public final class DisjunctionTest implements HasConstant, Serializable
 {
-    // Data Members
+
+	private static final long serialVersionUID = 3405496314728002918L;
+
+	// Data Members
     private List<Constant> d_constants = new ArrayList<Constant>();
 
     // Constructors

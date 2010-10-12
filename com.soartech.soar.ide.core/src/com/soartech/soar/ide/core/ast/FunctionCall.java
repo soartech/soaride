@@ -19,12 +19,16 @@
  */
 package com.soartech.soar.ide.core.ast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class FunctionCall implements HasPair
+public final class FunctionCall implements HasPair, Serializable
 {
-    private Pair d_functionName;
+
+	private static final long serialVersionUID = -1298010297467515414L;
+
+	private Pair d_functionName;
 
     private List<RHSValue> d_rhsValues = new ArrayList<RHSValue>();
 
@@ -64,5 +68,4 @@ public final class FunctionCall implements HasPair
 	public Pair getPair() {
 		return d_functionName;
 	}
-
 }

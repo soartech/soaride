@@ -19,7 +19,12 @@
  */
 package com.soartech.soar.ide.core.ast;
 
-public class Constant implements HasPair {
+import java.io.Serializable;
+
+public class Constant implements HasPair, Serializable {
+
+	private static final long serialVersionUID = 3226865893048083615L;
+
 	// Data Members
 	private int beginOffset;
     private int endOffset;
@@ -101,6 +106,6 @@ public class Constant implements HasPair {
 
 	@Override
 	public Pair getPair() {
-		return new Pair("" + this, beginOffset, endOffset);
+		return new Pair(toString(), beginOffset, endOffset);
 	}
 }

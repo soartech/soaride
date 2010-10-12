@@ -19,7 +19,12 @@
  */
 package com.soartech.soar.ide.core.ast;
 
-public class PreferenceSpecifier {
+import java.io.Serializable;
+
+public class PreferenceSpecifier implements Serializable {
+
+	private static final long serialVersionUID = 7896863753738814633L;
+
 	// Data Members
 	private boolean d_isUnaryPreference;
 	private RHSValue d_rhs;

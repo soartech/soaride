@@ -19,7 +19,12 @@
  */
 package com.soartech.soar.ide.core.ast;
 
-public class SingleTest implements HasPair {
+import java.io.Serializable;
+
+public class SingleTest implements HasPair, Serializable {
+
+	private static final long serialVersionUID = -5168110168786342707L;
+
 	// Data Members
 	private Constant d_constant;
 	private Pair d_variable;

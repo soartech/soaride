@@ -20,6 +20,9 @@
 package com.soartech.soar.ide.core.ast;
 
 public final class BinaryPreference extends PreferenceSpecifier {
+
+	private static final long serialVersionUID = 6073191897032369276L;
+
 	public BinaryPreference(int type,RHSValue rhs) {
 		super(type,rhs);
 	}

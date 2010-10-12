@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
@@ -25,11 +26,91 @@ public class SoarDatabaseConnection {
 	public static final boolean debug = false;
 
 	private ArrayList<ISoarDatabaseEventListener> listeners = new ArrayList<ISoarDatabaseEventListener>();
-	private boolean supressEvents = false;
+	private int suppressEvents = 0;
 	private String currentPath;
 	
 	private boolean firingEvent = false;
 	private ArrayList<ISoarDatabaseEventListener> toRemove = new ArrayList<ISoarDatabaseEventListener>();
+
+	public HashMap<String, PreparedStatement> reusedStatements = new HashMap<String, PreparedStatement>();
+
+	// Keep track of how often each statement is called.
+	static HashMap<String, Integer> statementFrequency = new HashMap<String, Integer>();
+	
+	private static String[] sqls = {								
+		"select * from directed_join_datamap_identifiers_datamap_integers where parent_id=?",		// Used 2440 times in a test run.
+		"select * from join_datamap_identifiers_datamap_identifiers where (first_id=? and second_id=?) or (first_id=? and second_id=?)", // Used 415 times in a test run.
+		"delete from directed_join_datamap_identifiers_datamap_enumerations where parent_id=? and child_id=?", // Used 5 times in a test run.
+		"insert into triples (rule_id, variable_string, variable_offset, attribute_string, attribute_offset, value_string, value_offset, has_state) values (?,?,?,?,?,?,?,?)", // Used 2308 times in a test run.
+		"select * from directed_join_problem_spaces_problem_spaces where parent_id=?",			// Used 679 times in a test run.
+		"select (name) from datamap_enumeration_values where id=?",								// Used 5631 times in a test run.
+		"select join_type from directed_join_operators_problem_spaces where parent_id=? and child_id=?", // Used 133 times in a test run.
+		"select * from problem_spaces where agent_id=?",											// Used 287 times in a test run.
+		"select * from directed_join_problem_spaces_rules where parent_id=? and child_id=?",		// Used 15 times in a test run.
+		"select * from problem_spaces where id=?",												// Used 152 times in a test run.
+		"select * from directed_join_operators_problem_spaces where child_id=?",					// Used 16 times in a test run.
+		"select * from problem_spaces where agent_id=? order by name",							// Used 19 times in a test run.
+		"select * from datamap_enumeration_values where id=(last_insert_rowid())",				// Used 154 times in a test run.
+		"select * from agents where id = (select agent_id from operators where id=?)",			// Used 18 times in a test run.
+		"select * from operators where agent_id=?",												// Used 263 times in a test run.
+		"select * from directed_join_datamap_identifiers_datamap_enumerations where parent_id=?",	// Used 2866 times in a test run.
+		"select (name) from agents where id=?",													// Used 22 times in a test run.
+		"select * from directed_join_problem_spaces_problem_spaces where child_id=?",				// Used 24 times in a test run.
+		"select * from directed_join_operators_problem_spaces where parent_id=?",					// Used 4877 times in a test run.
+		"select * from directed_join_problem_spaces_operators where child_id=?",					// Used 26 times in a test run.
+		"select * from directed_join_operators_problem_spaces where parent_id=? and child_id=?",	// Used 151 times in a test run.
+		"insert into directed_join_problem_spaces_operators (parent_id, child_id) values (?,?)",	// Used 34 times in a test run.
+		"select * from directed_join_problem_spaces_operators where parent_id=?",					// Used 649 times in a test run.
+		"select * from directed_join_datamap_identifiers_datamap_enumerations where child_id=?",	// Used 36 times in a test run.
+		"select * from join_datamap_integers_datamap_integers where (first_id=?) or (second_id=?)", // Used 37 times in a test run.
+		"select * from operators where id=(last_insert_rowid())",									// Used 47 times in a test run.
+		"select * from directed_join_operators_rules where parent_id=? and child_id=?",			// Used 318 times in a test run.
+		"select * from triples where rule_id=? and variable_string=? and attribute_string=? and value_string=?", // Used 4797 times in a test run.
+		"select * from datamap_identifiers where problem_space_id=?",								// Used 429 times in a test run.
+		"insert into join_datamap_identifiers_datamap_identifiers (first_id, second_id) values (?,?)", // Used 179 times in a test run.
+		"select * from join_datamap_enumerations_datamap_enumerations where (first_id=?) or (second_id=?)", // Used 177 times in a test run.
+		"select * from datamap_identifiers where id=(last_insert_rowid())",						// Used 182 times in a test run.
+		"select (name) from problem_spaces where id=?",											// Used 1860 times in a test run.
+		"select * from datamap_enumeration_values where datamap_enumeration_id=?",				// Used 1996 times in a test run.
+		"select * from problem_spaces where id = (select problem_space_id from datamap_identifiers where id=?)", // Used 478 times in a test run.
+		"select * from directed_join_datamap_identifiers_datamap_identifiers where child_id=?",	// Used 479 times in a test run.
+		"select * from directed_join_datamap_identifiers_datamap_strings where parent_id=?",		// Used 2811 times in a test run.
+		"select * from join_datamap_identifiers_datamap_identifiers where (first_id=?) or (second_id=?)", // Used 609 times in a test run.
+		"select * from datamap_enumerations where id=?",											// Used 76 times in a test run.
+		"select * from triples where id=?",														// Used 29197 times in a test run.
+		"select * from datamap_identifiers where id=?",											// Used 194 times in a test run.
+		"select * from directed_join_problem_spaces_rules where parent_id=?",						// Used 463 times in a test run.
+		"select * from rules where id=(last_insert_rowid())",										// Used 222 times in a test run.
+		"select (name) from datamap_integers where id=?",											// Used 1717 times in a test run.
+		"select (name) from operators where id=?",												// Used 17428 times in a test run.
+		"select * from directed_join_operators_rules where parent_id=?",							// Used 3894 times in a test run.
+		"select * from datamap_integers where id=?",												// Used 753 times in a test run.
+		"select * from directed_join_datamap_identifiers_datamap_identifiers where parent_id=?",	// Used 3735 times in a test run.
+		"select (name) from datamap_strings where id=?",											// Used 101 times in a test run.
+		"select (raw_text) from rules where id=?",												// Used 233 times in a test run.
+		"select * from directed_join_problem_spaces_rules where child_id=?",						// Used 506 times in a test run.
+		"select * from directed_join_datamap_identifiers_datamap_floats where parent_id=?",		// Used 2412 times in a test run.
+		"select * from directed_join_problem_spaces_operators where parent_id=? and child_id=?",	// Used 107 times in a test run.
+		"select * from rules where id = (select rule_id from triples where id=?)",				// Used 4171 times in a test run.
+		"select (name) from rules where id=?",													// Used 68075 times in a test run.
+		"select (name) from datamap_identifiers where id=?",										// Used 29613 times in a test run.
+		"select * from triples where rule_id=?",													// Used 600 times in a test run.
+		"select (name) from datamap_enumerations where id=?"										// Used 10186 times in a test run.
+	};
+	
+	public static void printFrequencies() {
+		HashMap<Integer, ArrayList<String>> reverse = new HashMap<Integer, ArrayList<String>>();
+		for (String s : statementFrequency.keySet()) {
+			Integer f = statementFrequency.get(s);
+			ArrayList<String> l = reverse.get(f);
+			if (l == null) l = new ArrayList<String>();
+			l.add(s);
+			reverse.put(f, l);
+		}
+		for (Integer i : reverse.keySet()) {
+			System.out.println("\"" + reverse.get(i) + "\", // Used " + i + " times in a test run.");
+		}
+	}
 		
 	public SoarDatabaseConnection() throws FileNotFoundException {
 		this(":memory:");
@@ -40,7 +121,25 @@ public class SoarDatabaseConnection {
 		if (!loadDatabaseConnection(path)) {
 			throw new FileNotFoundException(path);
 		}
+		prepareStatements();
 		// test();
+	}
+	
+	private void prepareStatements() {
+		for (String sql : sqls) {
+			addReusedStatement(sql);
+		}
+	}
+	
+	void addReusedStatement(String sql) {
+		try {
+			PreparedStatement ps = connection.prepareStatement(sql);
+			reusedStatements.put(sql, ps);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -87,7 +186,7 @@ public class SoarDatabaseConnection {
 	}
 
 	public void fireEvent(SoarDatabaseEvent event) {
-		if (supressEvents) return;
+		if (suppressEvents > 0) return;
 		firingEvent = true;
 		for (ISoarDatabaseEventListener listener : listeners) {
 			listener.onEvent(event, this);
@@ -99,17 +198,29 @@ public class SoarDatabaseConnection {
 		toRemove.clear();
 	}
 	
-	public void setSupressEvents(boolean supress) {
-		supressEvents = supress;
-		try {
-			connection.setAutoCommit(!supress);
-		} catch (SQLException e) {
-			e.printStackTrace();
+	public void pushSuppressEvents() {
+		if (suppressEvents == 0) {
+			try {
+				connection.setAutoCommit(false);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
+		++suppressEvents;
 	}
-
-	public boolean getSupressEvents() {
-		return supressEvents;
+	
+	public void popSuppressEvents() {
+		--suppressEvents;
+		if (suppressEvents == 0) {
+			try {
+				connection.setAutoCommit(false);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		if (suppressEvents < 0) {
+			new Exception("Popped suppress events too many times.").printStackTrace();
+		}
 	}
 	
 	private void test() {
@@ -157,8 +268,7 @@ public class SoarDatabaseConnection {
 	 * Connects to the database
 	 */
 	private void buildSchema() {
-		boolean eventsSuppressed = getSupressEvents();
-		setSupressEvents(true);
+		pushSuppressEvents();
 		try {
 			Statement s = connection.createStatement();
 			for (String filename : sqlFiles) {
@@ -169,7 +279,7 @@ public class SoarDatabaseConnection {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		setSupressEvents(eventsSuppressed);
+		popSuppressEvents();
 	}
 
 	private void executeFile(String filename, Statement s) {
@@ -399,6 +509,20 @@ public class SoarDatabaseConnection {
 	}
 	
 	public StatementWrapper prepareStatement(String sql) {
+		
+		/*
+		if (reusedStatements.containsKey(sql)) {
+			PreparedStatement reuse = reusedStatements.get(sql);
+			return new StatementWrapper(preparedStatemnt, this, sql);
+		}
+		*/
+		
+		// Keep track of frequency
+		Integer num = statementFrequency.get(sql);
+		if (num == null) num = 0;
+		++num;
+		statementFrequency.put(sql, num);
+		
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
 			StatementWrapper ret = new StatementWrapper(ps, this, sql);

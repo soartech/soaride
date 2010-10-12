@@ -1,9 +1,12 @@
 package com.soartech.soar.ide.core.sql;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 
 public class StatementWrapper {
@@ -12,7 +15,7 @@ public class StatementWrapper {
 	SoarDatabaseConnection db;
 	private String sql;
 	private SoarDatabaseRow row;
-
+	
 	public StatementWrapper(PreparedStatement ps, SoarDatabaseConnection db, String sql) {
 		this.ps = ps;
 		this.db = db;
@@ -51,12 +54,33 @@ public class StatementWrapper {
 		}
 	}
 	
+	public void setObject(int index, Serializable value) {
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(bos);
+			oos.writeObject(value);
+			oos.flush();
+			bos.flush();
+			ps.setBytes(index, bos.toByteArray());
+			oos.close();
+			bos.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void setRow(SoarDatabaseRow row) {
 		this.row = row;
 	}
 	
 	public SoarDatabaseRow getRow() {
 		return row;
+	}
+	
+	public String getSql() {
+		return sql;
 	}
 
 	/**
@@ -72,7 +96,7 @@ public class StatementWrapper {
 		}
 		try {
 			ps.execute();
-			ps.close();
+			close();
 			db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED, row));
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -103,6 +127,7 @@ public class StatementWrapper {
 	}
 	
 	public void close() {
+		//if (db.reusedStatements.containsKey(sql)) return; // This is reusable, don't close it.
 		try {
 			ps.close();
 		} catch (SQLException e) {

@@ -19,12 +19,16 @@
  */
 package com.soartech.soar.ide.core.ast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class AttributeValueMake
+public final class AttributeValueMake implements Serializable
 {
-    // Data Members
+
+	private static final long serialVersionUID = -3336490807271476463L;
+
+	// Data Members
     private List<ValueMake> valueMakes = new ArrayList<ValueMake>();
 
     private List<RHSValue> rhsValues = new ArrayList<RHSValue>();

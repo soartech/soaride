@@ -123,8 +123,7 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 		}
 		
 		final SoarDatabaseRow finalAgent = agent;
-		boolean eventsWereSupressed = agent.getDatabaseConnection().getSupressEvents();
-		agent.getDatabaseConnection().setSupressEvents(true);
+		agent.getDatabaseConnection().pushSuppressEvents();
 		final ArrayList<String> errors = new ArrayList<String>();
 		try {
 			try {
@@ -183,7 +182,7 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 				errorDialog.open();
 			}
 		}
-		agent.getDatabaseConnection().setSupressEvents(eventsWereSupressed);
+		agent.getDatabaseConnection().popSuppressEvents();
 		agent.getDatabaseConnection().fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 	}
 

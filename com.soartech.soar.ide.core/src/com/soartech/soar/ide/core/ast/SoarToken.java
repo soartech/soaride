@@ -25,7 +25,9 @@ package com.soartech.soar.ide.core.ast;
 public class SoarToken extends Token
 {
     
-    /**
+	private static final long serialVersionUID = 7835849726392711796L;
+
+	/**
      * 
      */
     public SoarToken()

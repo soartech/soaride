@@ -25,6 +25,10 @@ public class DatamapUtil {
 		}
 		ArrayList<DatamapInconsistency> ret = new ArrayList<DatamapInconsistency>();
 		ArrayList<SoarDatabaseRow> problemSpaces = rule.getDirectedJoinedParentsOfType(Table.PROBLEM_SPACES);
+		ArrayList<SoarDatabaseRow> operators = rule.getDirectedJoinedParentsOfType(Table.OPERATORS);
+		for (SoarDatabaseRow operator : operators) {
+			problemSpaces.addAll(operator.getDirectedJoinedParentsOfType(Table.PROBLEM_SPACES));
+		}
 		HashSet<Triple> visitedTriples = new HashSet<Triple>();
 		for (SoarDatabaseRow problemSpace : problemSpaces) {
 			ArrayList<SoarDatabaseRow> roots = new ArrayList<SoarDatabaseRow>();

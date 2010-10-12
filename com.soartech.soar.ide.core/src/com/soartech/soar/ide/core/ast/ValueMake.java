@@ -19,13 +19,17 @@
  */
 package com.soartech.soar.ide.core.ast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public final class ValueMake
+public final class ValueMake implements Serializable
 {
-    // Data Members
+
+	private static final long serialVersionUID = 6512526251266529546L;
+
+	// Data Members
     private RHSValue d_rhsValue;
 
     private List<PreferenceSpecifier> preferenceSpecifiers = new ArrayList<PreferenceSpecifier>();

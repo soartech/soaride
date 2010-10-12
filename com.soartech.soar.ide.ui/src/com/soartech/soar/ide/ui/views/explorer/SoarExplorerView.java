@@ -63,6 +63,7 @@ import com.soartech.soar.ide.core.sql.ISoarDatabaseEventListener;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
+import com.soartech.soar.ide.core.sql.StatementWrapper;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.JoinType;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.actions.dragdrop.SoarDatabaseExplorerDragAdapter;
@@ -228,6 +229,13 @@ public class SoarExplorerView extends ViewPart
 		if (remove.isRunnable()) {
 			manager.add(remove);
 		}
+		
+		manager.add(new Action("PRINT FREQUENCIES") {
+			@Override
+			public void run() {
+				SoarDatabaseConnection.printFrequencies();
+			}
+		});
 
 		
 		manager.add(new Separator());

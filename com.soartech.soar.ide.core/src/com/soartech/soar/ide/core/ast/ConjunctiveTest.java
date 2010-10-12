@@ -19,12 +19,16 @@
  */
 package com.soartech.soar.ide.core.ast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ConjunctiveTest
+public final class ConjunctiveTest implements Serializable
 {
-    private List<SimpleTest> simpleTests = new ArrayList<SimpleTest>();
+
+	private static final long serialVersionUID = -5161555412683968754L;
+
+	private List<SimpleTest> simpleTests = new ArrayList<SimpleTest>();
 
     public ConjunctiveTest()
     {

@@ -20,6 +20,9 @@
 package com.soartech.soar.ide.core.ast;
 
 public final class NaturallyUnaryPreference extends PreferenceSpecifier {
+
+	private static final long serialVersionUID = -782266923189870754L;
+
 	public NaturallyUnaryPreference(int type) {
 		super(type);
 	}

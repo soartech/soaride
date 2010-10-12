@@ -42,6 +42,9 @@ public class SoarDatabaseItemContentProvider implements ITreeContentProvider {
 					}
 					return ret.toArray();
 				}
+				if (row.getTable() == Table.RULES) {
+					return new Object[0];
+				}
 			}
 			if (element instanceof SoarDatamapItemDuplicateGroup) {
 				SoarDatamapItemDuplicateGroup group = (SoarDatamapItemDuplicateGroup) element;

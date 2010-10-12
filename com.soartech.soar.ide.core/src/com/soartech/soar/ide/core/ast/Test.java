@@ -19,7 +19,11 @@
  */
 package com.soartech.soar.ide.core.ast;
 
-public final class Test {
+import java.io.Serializable;
+
+public final class Test implements Serializable {
+
+	private static final long serialVersionUID = 4321091254943682715L;
 	// Data Members
 	private ConjunctiveTest d_conjunctiveTest;
 	private SimpleTest d_simpleTest;

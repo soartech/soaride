@@ -19,8 +19,12 @@
  */
 package com.soartech.soar.ide.core.ast;
 
+import java.io.Serializable;
 
-public final class RHSValue implements HasPair {
+public final class RHSValue implements HasPair, Serializable {
+
+	private static final long serialVersionUID = 8124944147017142921L;
+
 	// Data Members
 	private Constant d_constant;
 	private Pair d_variable;
@@ -100,7 +104,10 @@ public final class RHSValue implements HasPair {
 			return d_variable;
 		}
 		if (isConstant()) {
-			return d_constant.toPair();
+			return d_constant.getPair();
+		}
+		if (isFunctionCall()) {
+			return d_functionCall.getPair();
 		}
 		return null;
 	}

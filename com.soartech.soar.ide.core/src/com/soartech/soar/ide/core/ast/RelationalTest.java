@@ -19,7 +19,12 @@
  */
 package com.soartech.soar.ide.core.ast;
 
-public class RelationalTest {
+import java.io.Serializable;
+
+public class RelationalTest implements Serializable {
+
+	private static final long serialVersionUID = 1755688754881980071L;
+
 	// Enumeration
 	public static final int NEQ = 0;
 	public static final int EQUIV = 1;

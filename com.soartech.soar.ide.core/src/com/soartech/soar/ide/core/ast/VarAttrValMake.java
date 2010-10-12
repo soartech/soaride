@@ -19,12 +19,15 @@
  */
 package com.soartech.soar.ide.core.ast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class VarAttrValMake implements HasPair
-{
-    private Pair d_variable;
+public final class VarAttrValMake implements HasPair, Serializable {
+
+	private static final long serialVersionUID = -8104864985628000142L;
+
+	private Pair d_variable;
 
     private List<AttributeValueMake> d_attributeValueMakes = new ArrayList<AttributeValueMake>();
 

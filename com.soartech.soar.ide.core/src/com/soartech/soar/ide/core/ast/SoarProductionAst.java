@@ -19,7 +19,7 @@
  */
 package com.soartech.soar.ide.core.ast;
 
-import java.io.StringReader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +27,10 @@ import java.util.List;
  * @author Brad Jones
  * @version 0.75 3 Mar 2000
  */
-public final class SoarProductionAst {
+public final class SoarProductionAst implements Serializable {
+
+	private static final long serialVersionUID = 2213831053951547710L;
+	
 	// Data Members
 	private String d_name = "";
 	private int d_startLine;
@@ -104,33 +107,5 @@ public final class SoarProductionAst {
     public String toString()
     {
         return d_name + ":" + d_productionType + "\n" + conditions + "\n" + actions;
-    }
-
-    public static void main(String args[])
-    {
-        String input = "" +
-        "test (state <s> -^attribute) -{ (<s> ^hi) } --> " +
-        "(interrupt)";
-        
-        SoarParserTokenManager tokMgr = new SoarParserTokenManager(new SoarCharStream(new StringReader(input), 0));
-        SoarParser parser = new SoarParser(tokMgr);
-        SoarProductionAst ast;
-        try
-        {
-            ast = parser.soarProduction();
-            System.out.println(ast);
-            
-            TriplesExtractor extractor = new TriplesExtractor(ast);
-            extractor.sortTriples(new ArrayList<String>());
-            System.out.println(extractor.triples());
-            System.out.println(extractor.variables());
-        }
-        catch (ParseException e)
-        {
-            System.err.println(e);
-            //SoarToken token = (SoarToken) e.currentToken;
-            //System.err.println(token.beginOffset + ", " + token.endOffset);
-        }
-            
     }
 }

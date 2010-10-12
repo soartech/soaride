@@ -19,7 +19,12 @@
  */
 package com.soartech.soar.ide.core.ast;
 
-public final class Action {
+import java.io.Serializable;
+
+public final class Action implements Serializable {
+
+	private static final long serialVersionUID = 8159976944781150629L;
+
 	// Data Members
 	private VarAttrValMake d_varAttrValMake;
 	private FunctionCall d_functionCall;

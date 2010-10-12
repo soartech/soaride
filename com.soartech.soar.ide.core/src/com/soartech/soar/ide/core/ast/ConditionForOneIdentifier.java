@@ -19,12 +19,16 @@
  */
 package com.soartech.soar.ide.core.ast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ConditionForOneIdentifier implements HasPair
+public final class ConditionForOneIdentifier implements HasPair, Serializable
 {
-    // Data Members
+
+	private static final long serialVersionUID = 3801267677675666540L;
+
+	// Data Members
     private boolean d_hasState;
 
     private Pair d_variable;

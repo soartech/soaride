@@ -1,7 +1,12 @@
 package com.soartech.soar.ide.core.sql;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.io.StringReader;
+import java.sql.Blob;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -11,9 +16,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import javax.sql.rowset.serial.SerialBlob;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
+import org.ibex.nestedvm.util.Seekable.ByteArray;
 
 import com.soartech.soar.ide.core.SoarProblem;
 import com.soartech.soar.ide.core.ast.Action;
@@ -486,6 +494,22 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	}
 	
 	/**
+	 * Updates the value of a single blob column in this row.
+	 * 
+	 * CAUTION:
+	 * Doesn't use a prepared statment.
+	 * Doesn't properly escape values.
+	 * @param column
+	 * @param value
+	 */
+	public void updateBlobValue(String column, Serializable value) {
+		String sql = "update " + table.tableName() + " set " + column + "=? where id=" + this.id;
+		StatementWrapper sw = db.prepareStatement(sql);
+		sw.setObject(1, value);
+		sw.execute();
+	}
+	
+	/**
 	 * Updates the values of one or more columns in this row.
 	 * 
 	 * CAUTION:
@@ -527,6 +551,39 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			e.printStackTrace();
 		}
 		sw.close();
+		return ret;
+	}
+	
+	public Object getBlobValue(String column) {
+		String sql = "select * from " + table.tableName() + " where id=?";
+		StatementWrapper sw = db.prepareStatement(sql);
+		sw.setInt(1, id);
+		ResultSet rs = sw.executeQuery();
+		byte[] data = null;
+		ByteArrayInputStream bais = null;
+		try {
+			if (rs.next()) {
+				data = rs.getBytes(column);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		sw.close();
+		if (data == null) {
+			return null;
+		}
+		Object ret = null;
+		try {
+			bais = new ByteArrayInputStream(data);
+			ObjectInputStream ois = new ObjectInputStream(bais);
+			ret = ois.readObject();
+			ois.close();
+			bais.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
 		return ret;
 	}
 
@@ -1638,10 +1695,9 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		if (monitor != null) {
 			monitor.beginTask("Deleting \"" + getName() + "\"", IProgressMonitor.UNKNOWN);
 		}
-		boolean eventsWereSuppressed = db.getSupressEvents();
-		db.setSupressEvents(true);
+		db.pushSuppressEvents();
 		deleteAllChildren(alsoDeleteThis, new HashSet<SoarDatabaseRow>(), monitor);
-		db.setSupressEvents(eventsWereSuppressed);
+		db.popSuppressEvents();
 		db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 		if (monitor != null) {
 			monitor.done();
@@ -2595,17 +2651,16 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	 * @param text
 	 * @param suppressEvents
 	 */
-	public void setText(String text, boolean suppressEvents) {
+	public void setText(String text) {
 		if (table == Table.RULES || table == Table.AGENTS) {
 			String sql = "update " + table.tableName()
 					+ " set raw_text=? where id=?";
 			StatementWrapper ps = db.prepareStatement(sql);
 			ps.setString(1, text);
 			ps.setInt(2, id);
-			boolean eventsWereSuppresed = db.getSupressEvents();
-			db.setSupressEvents(suppressEvents);
+			db.pushSuppressEvents();
 			ps.execute();
-			db.setSupressEvents(eventsWereSuppresed);
+			db.popSuppressEvents();
 			db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED, this));
 		}
 	}
@@ -2634,8 +2689,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	public ArrayList<String> save(String text, ArrayList<SoarProblem> problems, IProgressMonitor monitor) {
 		ArrayList<String> errors = new ArrayList<String>();
 		if (table == Table.RULES) {
-			boolean eventsWereSuppressed = db.getSupressEvents();
-			db.setSupressEvents(true);
+			db.pushSuppressEvents();
 
 			if (monitor != null) {
 				monitor.beginTask("Saving rule: " + this.getName(), 5);
@@ -2659,7 +2713,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			
 			// If there's not a change to the rule, don't re-parse it.
 			if (oldText.trim().equals(text.trim())) {
-				db.setSupressEvents(eventsWereSuppressed);
+				db.popSuppressEvents();
 				db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED, this));
 				return errors;
 			}
@@ -2721,14 +2775,19 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 					SoarParser parser = new SoarParser(reader);
 					try {
 						SoarProductionAst ast = parser.soarProduction();
+						
+						this.updateBlobValue("ast", ast);
 						// System.out.println("Parsed rule:\n" + ast);
 
 						// insert into database
+						/*
 						try {
 							createChildrenFromAstNode(ast);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
+						*/
+						
 					} catch (ParseException e) {
 						// e.printStackTrace();
 						String message = e.getLocalizedMessage();
@@ -2776,7 +2835,8 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 					}
 					
 					// Add child triples to this rule.
-					ArrayList<Triple> newTriples = TraversalUtil.buildTriplesForRule(this);
+					ArrayList<Triple> newTriples = TripleExtractor.buildTriplesForRule(this);
+					
 					if (monitor != null) {
 						monitor.worked(1);
 					}
@@ -2797,7 +2857,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 				}
 			}
 			
-			db.setSupressEvents(eventsWereSuppressed);
+			db.popSuppressEvents();
 			db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED, this));
 			
 		} else if (table == Table.AGENTS) {

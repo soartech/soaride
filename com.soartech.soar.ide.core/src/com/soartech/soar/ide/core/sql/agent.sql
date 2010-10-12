@@ -27,7 +27,8 @@ create table if not exists rules
 id integer primary key,
 agent_id integer,
 name varchar(100) not null,
-raw_text text
+raw_text text,
+ast blob
 );
 
 create table if not exists tags

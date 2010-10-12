@@ -19,12 +19,16 @@
  */
 package com.soartech.soar.ide.core.ast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class PositiveCondition
+public final class PositiveCondition implements Serializable
 {
-    // Data Members
+
+	private static final long serialVersionUID = -5712528645933960802L;
+
+	// Data Members
     private ConditionForOneIdentifier d_condition;
 
     private List<Condition> d_conjunction;

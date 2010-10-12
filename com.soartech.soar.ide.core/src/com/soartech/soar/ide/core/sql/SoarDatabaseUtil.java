@@ -49,8 +49,7 @@ public class SoarDatabaseUtil {
 		ArrayList<String> agentLines = new ArrayList<String>();
 		
 		SoarDatabaseConnection db = agent.getDatabaseConnection();
-		boolean eventsWereSupressed = db.getSupressEvents();
-		db.setSupressEvents(true);
+		db.pushSuppressEvents();
 		
 		for (int filesIndex = 0; filesIndex < files.size(); ++filesIndex) {
 			ArrayList<String> newErrors = new ArrayList<String>();
@@ -196,9 +195,9 @@ public class SoarDatabaseUtil {
 			agentText.append(command + '\n');
 		}
 		
-		agent.setText(agentText.toString(), true);
+		agent.setText(agentText.toString());
 		
-		db.setSupressEvents(eventsWereSupressed);
+		db.popSuppressEvents();
 		db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 		
 		return errors;
@@ -377,8 +376,7 @@ public class SoarDatabaseUtil {
 		final boolean debug = false;
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		
-		boolean eventsWereSuppressed = to.getSupressEvents();
-		to.setSupressEvents(true);
+		to.pushSuppressEvents();
 		
 		try {
 			new ProgressMonitorDialog(shell).run(true, true, new IRunnableWithProgress() {
@@ -504,7 +502,7 @@ public class SoarDatabaseUtil {
 			e1.printStackTrace();
 		}
 
-		to.setSupressEvents(eventsWereSuppressed);
+		to.popSuppressEvents();
 		to.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 	}
 

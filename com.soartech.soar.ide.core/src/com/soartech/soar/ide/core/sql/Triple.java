@@ -64,6 +64,7 @@ public class Triple {
 	}
 	
 	public Triple(Pair variable, Pair attribute, Pair value, SoarDatabaseRow rule) {
+		try {
 		this.variable = variable.getString();
 		variableOffset = variable.getOffset();
 		this.attribute = attribute.getString();
@@ -71,6 +72,9 @@ public class Triple {
 		this.value = value.getString();
 		valueOffset = value.getOffset();
 		this.rule = rule;
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static Triple tripleForRow(SoarDatabaseRow tripleRow) {
@@ -132,7 +136,7 @@ public class Triple {
 	public boolean valueIsInteger() {
 		Pattern pattern = Pattern.compile("^-?\\d*$");
 		Matcher matcher = pattern.matcher(value);
-		return matcher.matches();
+		return matcher.matches() && !value.equals("-");
 	}
 	
 	public boolean valueIsFloat() {
@@ -141,7 +145,7 @@ public class Triple {
 		}
 		Pattern pattern = Pattern.compile("^-?\\d*\\.\\d*$");
 		Matcher matcher = pattern.matcher(value);
-		return matcher.matches();
+		return matcher.matches() && !value.equals("-");
 	}
 	
 	public SoarDatabaseRow getDatabaseRow() {

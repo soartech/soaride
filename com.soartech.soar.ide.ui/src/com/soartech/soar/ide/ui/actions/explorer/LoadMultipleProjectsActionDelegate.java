@@ -100,8 +100,7 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 		}
 		
 		final SoarDatabaseRow finalAgent = agent;
-		boolean eventsWereSupressed = agent.getDatabaseConnection().getSupressEvents();
-		agent.getDatabaseConnection().setSupressEvents(true);
+		agent.getDatabaseConnection().pushSuppressEvents();
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		final ArrayList<String> errors = new ArrayList<String>();
 		System.out.println("Beginning import of: " + finalFile.getPath());
@@ -165,7 +164,7 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 				*/
 			}
 		}
-		agent.getDatabaseConnection().setSupressEvents(eventsWereSupressed);
+		agent.getDatabaseConnection().popSuppressEvents();
 	}
 	
 	private void reportErrors(ArrayList<String> errors) {
