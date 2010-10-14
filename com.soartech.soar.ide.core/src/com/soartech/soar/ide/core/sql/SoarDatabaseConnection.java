@@ -213,7 +213,7 @@ public class SoarDatabaseConnection {
 		--suppressEvents;
 		if (suppressEvents == 0) {
 			try {
-				connection.setAutoCommit(false);
+				connection.setAutoCommit(true);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}

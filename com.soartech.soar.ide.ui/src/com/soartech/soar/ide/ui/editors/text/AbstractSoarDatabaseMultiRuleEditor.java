@@ -189,7 +189,7 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 		if (nameEndIndex >= rule.length()) {
 			nameEndIndex = rule.indexOf('\n', nameBeginIndex);
 			if (nameEndIndex == -1) {
-				nameEndIndex = rule.length() - 1;
+				nameEndIndex = rule.length();
 			}
 		}
 		String ruleName = rule.substring(nameBeginIndex, nameEndIndex).trim();

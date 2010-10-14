@@ -6,7 +6,9 @@ import java.util.ListResourceBundle;
 import java.util.ResourceBundle;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.internal.ui.javaeditor.ToggleCommentAction;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.PaintManager;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
@@ -15,6 +17,7 @@ import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.MatchingCharacterPainter;
+import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
@@ -24,8 +27,10 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
+import org.eclipse.ui.texteditor.TextOperationAction;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseEditorInput;
+import com.soartech.soar.ide.ui.actions.editor.ISoarEditorActionDefinitionIds;
 
 public class AbstractSoarDatabaseTextEditor extends TextEditor implements ISoarDatabaseTextEditor {
 
@@ -100,7 +105,7 @@ public class AbstractSoarDatabaseTextEditor extends TextEditor implements ISoarD
         paintManager.addPainter(bracketPainter);
         
         // content assist action
-        final String actionName = "ContentAssistProposal";
+        String actionName = "ContentAssistProposal";
         ListResourceBundle bundle = new ListResourceBundle() {
 			@Override
 			protected Object[][] getContents() {
@@ -114,19 +119,26 @@ public class AbstractSoarDatabaseTextEditor extends TextEditor implements ISoarD
         setAction(actionName, action);
         markAsStateDependentAction(actionName, true);
         
+        setAction("Comment", new Action("Comment") {
+        	@Override
+        	public void run() {
+        		System.out.println("COMMENTING");
+        	}
+        });
+        
         // comment actions
         /*
-        action= new TextOperationAction(SoarEditorMessages.getBundleForConstructedKeys(), "Comment.", this, ITextOperationTarget.PREFIX); //$NON-NLS-1$
+        action= new TextOperationAction(bundle, "Comment.", this, ITextOperationTarget.PREFIX); //$NON-NLS-1$
         action.setActionDefinitionId( ISoarEditorActionDefinitionIds.COMMENT );
         setAction( "Comment", action ); //$NON-NLS-1$
         markAsStateDependentAction( "Comment", true ); //$NON-NLS-1$
         
-        action= new TextOperationAction( SoarEditorMessages.getBundleForConstructedKeys(), "Uncomment.", this, ITextOperationTarget.STRIP_PREFIX ); //$NON-NLS-1$
+        action= new TextOperationAction(bundle, "Uncomment.", this, ITextOperationTarget.STRIP_PREFIX ); //$NON-NLS-1$
         action.setActionDefinitionId( ISoarEditorActionDefinitionIds.UNCOMMENT );
         setAction( "Uncomment", action ); //$NON-NLS-1$
         markAsStateDependentAction( "Uncomment", true ); //$NON-NLS-1$
         
-        action = new ToggleCommentAction( SoarEditorMessages.getBundleForConstructedKeys(), "ToggleComment.", this );
+        action = new ToggleCommentAction(bundle, "ToggleComment.", this );
         action.setActionDefinitionId( ISoarEditorActionDefinitionIds.TOGGLE_COMMENT );
         setAction( "ToggleComment", action) ; //$NON-NLS-1$
         markAsStateDependentAction( "ToggleComment", true ); //$NON-NLS-1$

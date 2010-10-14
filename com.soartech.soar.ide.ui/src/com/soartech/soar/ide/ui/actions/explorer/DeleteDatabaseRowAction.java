@@ -33,15 +33,41 @@ public class DeleteDatabaseRowAction extends Action {
 
 	@Override
 	public void run() {
-		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		String title = "Delete item?";
-		org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
-		String message = "Are you sure you want to delete \"" + row.getName() + "\"?\nThis action cannot be undone.";
-		String[] labels = new String[] { "OK", "Cancel" };
-		MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
-		int result = dialog.open();
-		if (result == 1) {
-			return;
+		run(true, false);
+	}
+	
+	/**
+	 * 
+	 * @param deleteAllOption Whether the option "Delete all" should be displayed.
+	 * @return True if the user selected "Delete all"
+	 */
+	public boolean run(boolean prompt, boolean deleteAllOption) {
+		boolean ret = false;
+		if (prompt) {
+			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+			String title = "Delete item?";
+			org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
+			String message = "Are you sure you want to delete \"" + row.getName() + "\"?\nThis action cannot be undone.";
+			String[] labels = null;
+			int cancelIndex;
+			int deleteAllIndex;
+			if (!deleteAllOption) {
+				labels = new String[] { "OK", "Cancel" };
+				cancelIndex = 1;
+				deleteAllIndex = -1;
+			} else {
+				labels = new String[] { "OK", "Delete All", "Cancel" };
+				cancelIndex = 2;
+				deleteAllIndex = 1;
+			}
+			MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
+			int result = dialog.open();
+			if (result == cancelIndex) {
+				return false;
+			}
+			if (result == deleteAllIndex) {
+				ret = true;
+			}
 		}
 		
 		IWorkbench workbench = SoarEditorUIPlugin.getDefault().getWorkbench();
@@ -61,5 +87,6 @@ public class DeleteDatabaseRowAction extends Action {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		return ret;
 	}
 }

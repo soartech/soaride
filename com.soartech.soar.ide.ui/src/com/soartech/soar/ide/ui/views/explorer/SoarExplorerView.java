@@ -303,9 +303,12 @@ public class SoarExplorerView extends ViewPart
 				if (selection instanceof TreeSelection) {
 					TreeSelection ts = (TreeSelection) selection;
 					if (event.keyCode == KeyEvent.VK_DELETE && event.stateMask == (event.stateMask | SWT.CONTROL)) {
+						boolean deleteAll = false;
 						for (Object element : ts.toArray()) {
 							if (element instanceof SoarDatabaseRow) {
-								new DeleteDatabaseRowAction((SoarDatabaseRow) element).run();
+								if (new DeleteDatabaseRowAction((SoarDatabaseRow) element).run(!deleteAll, true)) {
+									deleteAll = true;
+								}
 							}
 						}
 					}
