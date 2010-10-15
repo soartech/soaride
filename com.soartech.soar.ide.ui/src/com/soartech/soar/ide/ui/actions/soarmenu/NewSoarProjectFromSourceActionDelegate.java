@@ -45,6 +45,10 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 
 	@Override
 	public void run(IAction action) {
+		
+		if (!new NewSoarProjectActionDelegate().run(true, false)) {
+			return;
+		}
 
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		

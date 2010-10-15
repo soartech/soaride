@@ -84,8 +84,13 @@ public class SoarLabelProvider extends LabelProvider implements
 				return SoarEditorPluginImages
 						.get(SoarEditorPluginImages.IMG_OPERATOR);
 			} else if (table == Table.DATAMAP_IDENTIFIERS) {
-				return SoarEditorPluginImages
-					.get(SoarEditorPluginImages.IMG_ATTRIBUTE);
+				if (((SoarDatabaseRow)element).getUndirectedJoinedRowsFromTable(table).size() > 0) {
+					return SoarEditorPluginImages
+						.get(SoarEditorPluginImages.IMG_LINKED_ATTRIBUTE);
+				} else {
+					return SoarEditorPluginImages
+						.get(SoarEditorPluginImages.IMG_ATTRIBUTE);
+				}
 			} else if (table == Table.DATAMAP_ENUMERATIONS) {
 				return SoarEditorPluginImages.get(SoarEditorPluginImages.IMG_ENUMERATION);
 			} else if (table == Table.DATAMAP_STRINGS) {

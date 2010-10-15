@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Soar IDE UI
 Bundle-SymbolicName: com.soartech.soar.ide.ui; singleton:=true
-Bundle-Version: 1.9.17
+Bundle-Version: 1.9.18
 Bundle-Activator: com.soartech.soar.ide.ui.SoarEditorUIPlugin
 Bundle-Vendor: Soar Technology, Inc.
 Bundle-Localization: plugin

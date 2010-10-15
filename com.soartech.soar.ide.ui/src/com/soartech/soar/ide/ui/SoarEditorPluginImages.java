@@ -82,6 +82,7 @@ public class SoarEditorPluginImages {
     public static final String IMG_EXPAND = NAME_PREFIX + "expand.gif";
     public static final String IMG_PACKAGE_OBJ = NAME_PREFIX + "package_obj.gif";
     public static final String IMG_ATTRIBUTE = NAME_PREFIX + "attribute.gif";
+    public static final String IMG_LINKED_ATTRIBUTE = NAME_PREFIX + "linked_attribute.gif";
     public static final String IMG_ALPHAB_SORT = NAME_PREFIX + "alphab_sort_co.gif";
 
     public static final String IMG_START_FILE_OVERLAY = NAME_PREFIX + "startfileoverlay.gif";
@@ -139,6 +140,7 @@ public class SoarEditorPluginImages {
         registerImage(registry, IMG_EXPAND);
         registerImage(registry, IMG_PACKAGE_OBJ);
         registerImage(registry, IMG_ATTRIBUTE);
+        registerImage(registry, IMG_LINKED_ATTRIBUTE);
         registerImage(registry, IMG_ALPHAB_SORT);
         registerImage(registry, IMG_ERROR_OVERLAY);
         registerImage(registry, IMG_WARNING_OVERLAY);

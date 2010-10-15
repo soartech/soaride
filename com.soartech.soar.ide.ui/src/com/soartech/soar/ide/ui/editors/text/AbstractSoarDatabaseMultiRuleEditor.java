@@ -65,6 +65,7 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 						monitor.beginTask("Saving Rules for \"" + getInput().getName() + "\"", rulesText.size());
 						for (StringWithOffset ruleText : rulesText) {
 							String ruleName = getNameOfRules(ruleText.string);
+							monitor.subTask(ruleName);
 							SoarDatabaseRow rule = rulesByName.get(ruleName);
 							if (rule == null) {
 								rule = row.getTopLevelRow().createChild(Table.RULES, ruleName);

@@ -42,6 +42,7 @@ import com.soartech.soar.ide.core.sql.ISoarDatabaseTreeItem;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEditorInput;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
+import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import com.soartech.soar.ide.core.sql.SoarDatabaseJoinFolder;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
@@ -344,9 +345,18 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 										dialog.open();
 										String resultString = dialog.getValue();
 										if (resultString != null && resultString.length() > 0) {
+											row.getDatabaseConnection().pushSuppressEvents();
 											row.createJoinedChild(folderTable, resultString);
-											refreshTree();
+											row.getDatabaseConnection().popSuppressEvents();
 											tree.setExpandedState(row, true);
+											
+											// Don't need to fire the event or refresh the tree
+											// Presumably, other parts of the editor aren't going to change right away because of the addition of a
+											// a datamap identifier to this datamap.
+											// And, refreshing the tree 
+											//row.getDatabaseConnection().fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
+											//refreshTree();
+											
 										}
 									}
 								});

@@ -61,6 +61,7 @@ import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.ISoarDatabaseEventListener;
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
+import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRowFolder;
 import com.soartech.soar.ide.core.sql.StatementWrapper;
@@ -99,11 +100,8 @@ public class SoarExplorerView extends ViewPart
 							  implements ISoarDatabaseEventListener
 {
     public static final String ID = "com.soartech.soar.ide.ui.views.SoarExplorerView";
-    
 	private TreeViewer tree;
-	
 	private ILabelProvider databaseLabelProvider = SoarLabelProvider.createFullLabelProvider();
-	
 	SoarExplorerContentProvider contentProvider = new SoarExplorerContentProvider();
 	
 	/**
@@ -113,7 +111,7 @@ public class SoarExplorerView extends ViewPart
 	{
 		super();
 	}
-
+	
 	@Override
 	public void createPartControl(Composite parent) 
 	{
@@ -229,15 +227,7 @@ public class SoarExplorerView extends ViewPart
 		if (remove.isRunnable()) {
 			manager.add(remove);
 		}
-		
-		manager.add(new Action("PRINT FREQUENCIES") {
-			@Override
-			public void run() {
-				SoarDatabaseConnection.printFrequencies();
-			}
-		});
 
-		
 		manager.add(new Separator());
 		
 		manager.add(new ExportSoarDatabaseRowAction(row));
@@ -276,9 +266,11 @@ public class SoarExplorerView extends ViewPart
 							manager.add(action);
 						}
 					}
+					/*
 					if (obj == null) {
 						manager.add(new AddAgentActionDelegate(SoarExplorerView.this));
 					}
+					*/
 				}
 			}
         	
@@ -304,6 +296,7 @@ public class SoarExplorerView extends ViewPart
 					TreeSelection ts = (TreeSelection) selection;
 					if (event.keyCode == KeyEvent.VK_DELETE && event.stateMask == (event.stateMask | SWT.CONTROL)) {
 						boolean deleteAll = false;
+						getConnection().pushSuppressEvents();
 						for (Object element : ts.toArray()) {
 							if (element instanceof SoarDatabaseRow) {
 								if (new DeleteDatabaseRowAction((SoarDatabaseRow) element).run(!deleteAll, true)) {
@@ -311,9 +304,12 @@ public class SoarExplorerView extends ViewPart
 								}
 							}
 						}
+						getConnection().popSuppressEvents();
+						getConnection().fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 					}
 					
 					else if (event.keyCode == KeyEvent.VK_DELETE) {
+						getConnection().pushSuppressEvents();
 						for (Object element : ts.toArray()) {
 							if (element instanceof SoarDatabaseRow) {
 								RemoveJoinFromParentAction action = new RemoveJoinFromParentAction(ts);
@@ -322,6 +318,8 @@ public class SoarExplorerView extends ViewPart
 								}
 							}
 						}
+						getConnection().popSuppressEvents();
+						getConnection().fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 					}
 				}
 			}
@@ -449,5 +447,9 @@ public class SoarExplorerView extends ViewPart
 	public void setFilterString(String text) {
 		contentProvider.setFilter(text);
 		tree.refresh();
+	}
+	
+	private SoarDatabaseConnection getConnection() {
+		return ((SoarCorePlugin) tree.getInput()).getDatabaseConnection();
 	}
 }

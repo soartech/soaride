@@ -13,6 +13,7 @@ import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
+import com.soartech.soar.ide.ui.actions.explorer.AddAgentActionDelegate;
 
 /**
  * Creates a new Soar IDE project.
@@ -29,7 +30,13 @@ public class NewSoarProjectActionDelegate implements IWorkbenchWindowActionDeleg
 	public void init(IWorkbenchWindow arg0) {
 	}
 	
-	public void run(boolean warning) {
+	/**
+	 * 
+	 * @param warning
+	 * @param addAgent
+	 * @return True on success
+	 */
+	public boolean run(boolean warning, boolean addAgent) {
 		SoarDatabaseConnection conn = SoarCorePlugin.getDefault().getDatabaseConnection();
 		boolean hasAgents = conn.selectAllFromTable(Table.AGENTS, null).size() > 0;
 
@@ -40,16 +47,20 @@ public class NewSoarProjectActionDelegate implements IWorkbenchWindowActionDeleg
 			MessageDialog message = new MessageDialog(shell, "Create new project?", null, "Create new project? Unsaved changes will be lost.", MessageDialog.QUESTION, new String[] {"OK", "Cancel"}, 0);
 			int result = message.open();
 			if (result == 1) {
-				return;
+				return false;
 			}
 			SoarUiModelTools.closeAllEditors(false);
 		}
 		SoarCorePlugin.getDefault().newProject();
+		if (addAgent) {
+			new AddAgentActionDelegate().run();
+		}
+		return true;
 	}
 
 	@Override
 	public void run(IAction action) {
-		run(true);
+		run(true, true);
 	}
 
 	@Override

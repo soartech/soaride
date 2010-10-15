@@ -104,22 +104,11 @@
              class="com.soartech.soar.ide.ui.actions.soarmenu.SearchRulesActionDelegate"
              icon="icons/search_flag.png"
              id="com.soartech.soar.ide.ui.actions.soarmenu.SearchRulesActionDelegate"
-             label="Search"
-             menubarPath="com.soartech.soar.ide.ui.soarMenu/soarAgentActions"
+             label="Search Rules"
+             menubarPath="com.soartech.soar.ide.ui.soarMenu/soarActions"
              style="push"
-             toolbarPath="com.soartech.soar.ide.ui.soarAgentToolbar"
+             toolbarPath="com.soartech.soar.ide.ui.soarToolbar"
              tooltip="Searches the current Soar IDE Project"/>
-
-       <action
-              class="com.soartech.soar.ide.ui.actions.explorer.AddAgentActionDelegate"
-              icon="icons/a_flag.png"
-              id="com.soartech.soar.ide.ui.actions.explorer.AddAgentActionDelegate"
-              label="Add Agent"
-              menubarPath="com.soartech.soar.ide.ui.soarMenu/soarAgentActions"
-              style="push"
-              toolbarPath="com.soartech.soar.ide.ui.soarAgentToolbar"
-              tooltip="Adds a new Agent to the current Soar IDE project">
-        </action>
         
         <action
               class="com.soartech.soar.ide.ui.actions.soarmenu.NewSoarProjectFromSourceActionDelegate"
@@ -132,11 +121,11 @@
               tooltip="Crates a new Agent in the current Soar IDE project from an existing source file">
         </action>
         
-                <action
+        <action
               class="com.soartech.soar.ide.ui.actions.soarmenu.OpenSoarDatabaseProjectActionDelegate"
               icon="icons/o_flag.png"
               id="com.soartech.soar.ide.ui.actions.soarmenu.OpenSoarDatabaseProjectActionDelegate"
-              label="Open Project"
+              label="Open Soar Project"
               menubarPath="com.soartech.soar.ide.ui.soarMenu/soarActions"
               style="push"
               toolbarPath="com.soartech.soar.ide.ui.soarToolbar"
@@ -147,7 +136,7 @@
               class="com.soartech.soar.ide.ui.actions.soarmenu.SaveSoarDatabaseProjectActionDelegate"
               icon="icons/s_flag.png"
               id="com.soartech.soar.ide.ui.actions.soarmenu.SaveSoarDatabaseProjectActionDelegate"
-              label="Save Project"
+              label="Save Soar Project"
               menubarPath="com.soartech.soar.ide.ui.soarMenu/soarActions"
               style="push"
               toolbarPath="com.soartech.soar.ide.ui.soarToolbar"
@@ -158,7 +147,7 @@
               class="com.soartech.soar.ide.ui.actions.soarmenu.NewSoarProjectActionDelegate"
               icon="icons/n_flag.png"
               id="com.soartech.soar.ide.ui.actions.soarmenu.NewSoarProjectActionDelegate"
-              label="New Project"
+              label="New Soar Project"
               menubarPath="com.soartech.soar.ide.ui.soarMenu/soarActions"
               style="push"
               toolbarPath="com.soartech.soar.ide.ui.soarToolbar"
