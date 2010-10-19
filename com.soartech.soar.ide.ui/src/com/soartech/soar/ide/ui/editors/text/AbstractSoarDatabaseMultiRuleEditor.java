@@ -155,12 +155,16 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 			if (c == '}') --braceDepth;
 			if (c < 0) c = 0;
 			if (c == '}' && braceDepth == 0) {
-				ret.add(new StringWithOffset(buff.toString().trim(), start));
+				if (buff.toString().trim().length() > 0) {
+					ret.add(new StringWithOffset(buff.toString().trim(), start));
+				}
 				buff = new StringBuffer();
 				start = i + 1;
 			}
 		}
-		ret.add(new StringWithOffset(buff.toString().trim(), start));
+		if (buff.toString().trim().length() > 0) {
+			ret.add(new StringWithOffset(buff.toString().trim(), start));
+		}
 		return ret;
 	}
 	
