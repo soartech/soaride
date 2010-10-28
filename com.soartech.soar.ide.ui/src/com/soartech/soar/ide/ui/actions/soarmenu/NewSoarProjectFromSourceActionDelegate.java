@@ -52,18 +52,6 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		
-		/*
-		boolean savedToDisk = SoarCorePlugin.getDefault().getDatabaseConnection().isSavedToDisk();
-		
-		if (!savedToDisk) {
-			MessageDialog message = new MessageDialog(shell, "Create new project?", null, "Create new project? Unsaved changes will be lost.", MessageDialog.QUESTION, new String[] {"OK", "Cancel"}, 0);
-			int result = message.open();
-			if (result != 0) {
-				return;
-			}
-		}
-		*/
-		
 		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
 		dialog.setText("Choose Source File To Import");
 		String path = dialog.open();
@@ -74,16 +62,6 @@ public class NewSoarProjectFromSourceActionDelegate implements IWorkbenchWindowA
 		if (file == null || !file.exists()) {
 			return;
 		}
-		
-		/*
-		if (savedToDisk) {
-			SoarUiModelTools.closeAllEditors(true);
-		} else {
-			SoarUiModelTools.closeAllEditors(false);
-		}
-		*/
-		
-		//SoarCorePlugin.getDefault().newProject();
 		
 		// New agent
 		int lastSlashIndex = path.lastIndexOf(File.separatorChar) + 1;

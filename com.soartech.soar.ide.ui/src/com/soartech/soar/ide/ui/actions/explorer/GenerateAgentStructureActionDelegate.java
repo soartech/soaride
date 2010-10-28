@@ -340,14 +340,14 @@ public class GenerateAgentStructureActionDelegate implements IWorkbenchWindowAct
 	private SoarDatabaseRow proposeCreateAndDirectedJoin(SoarDatabaseRow first, Table type, String second) {
 		boolean join = applyAll;
 		if (!join) {
-		String title = "Create and join project elements?";
-		String message = "Create a " + type.englishName() + " \"" + second + "\" and join the " + first.getTable().englishName() + " \"" + first.getName() + "\" to it?";
-		String[] options = { "OK", "Apply All", "Cancel" };
-		Image image = MessageDialog.getDefaultImage();
-		MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, options, 0);
-		int result = dialog.open();
-		if (result == 1) applyAll = true;
-		if (result == 0 || applyAll) join = true;
+			String title = "Create and join project elements?";
+			String message = "Create a " + type.englishName() + " \"" + second + "\" and join the " + first.getTable().englishName() + " \"" + first.getName() + "\" to it?";
+			String[] options = { "OK", "Apply All", "Cancel" };
+			Image image = MessageDialog.getDefaultImage();
+			MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, options, 0);
+			int result = dialog.open();
+			if (result == 1) applyAll = true;
+			if (result == 0 || applyAll) join = true;
 		}
 		if (join) {
 			SoarDatabaseRow agent = first.getTopLevelRow();

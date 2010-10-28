@@ -375,15 +375,13 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 									String[] labels = new String[] { "OK", "Cancel" };
 									MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
 									int result = dialog.open();
-									if (result == 1) {
-										return;
+									if (result == 0) {
+										for (ISoarDatabaseTreeItem item : row.getUndirectedJoinedRowsFromTable(row.getTable())) {
+											SoarDatabaseRow.unjoinRows(row, (SoarDatabaseRow) item, row.getDatabaseConnection());
+										}
+										refreshTree();
+										tree.setExpandedState(row, true);
 									}
-
-									for (ISoarDatabaseTreeItem item : row.getUndirectedJoinedRowsFromTable(row.getTable())) {
-										SoarDatabaseRow.unjoinRows(row, (SoarDatabaseRow) item, row.getDatabaseConnection());
-									}
-									refreshTree();
-									tree.setExpandedState(row, true);
 								};
 							});
 						}
@@ -441,25 +439,25 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 				String[] labels = new String[] { "OK", "Cancel" };
 				MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
 				int result = dialog.open();
-				if (result == 1) {
+				if (result == 0) {
+					// Delete the row
+					SoarDatabaseRow rowToDelete = selectedRow;
+
+					// TODO
+					// select the next item
+					/*
+					 * ISelection sel = tree.getSelection(); if (sel instanceof
+					 * StructuredSelection) { StructuredSelection ss =
+					 * (StructuredSelection) sel; tree. }
+					 */
+
+					rowToDelete.getDatabaseConnection().pushSuppressEvents();
+					rowToDelete.deleteAllChildren(true, null);
+					rowToDelete.getDatabaseConnection().popSuppressEvents();
+				} else {
 					return;
 				}
 			}
-
-			// Delete the row
-			SoarDatabaseRow rowToDelete = selectedRow;
-
-			// TODO
-			// select the next item
-			/*
-			 * ISelection sel = tree.getSelection(); if (sel instanceof
-			 * StructuredSelection) { StructuredSelection ss =
-			 * (StructuredSelection) sel; tree. }
-			 */
-
-			rowToDelete.getDatabaseConnection().pushSuppressEvents();
-			rowToDelete.deleteAllChildren(true, null);
-			rowToDelete.getDatabaseConnection().popSuppressEvents();
 		}
 		selectedRows = null;
 		refreshTree();

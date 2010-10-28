@@ -52,14 +52,12 @@ public class RemoveJoinFromParentAction extends Action {
 			String[] labels = new String[] { "OK", "Cancel" };
 			MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
 			int result = dialog.open();
-			if (result == 1) {
-				return;
-			}
-			
-			if (SoarDatabaseRow.rowsAreJoined(parent, row, parent.getDatabaseConnection())) {
-				SoarDatabaseRow.unjoinRows(parent, row, parent.getDatabaseConnection());
-			} else if (SoarDatabaseRow.rowsAreDirectedJoined(parent, row, parent.getDatabaseConnection())) {
-				SoarDatabaseRow.directedUnjoinRows(parent, row, parent.getDatabaseConnection());
+			if (result == 0) {
+				if (SoarDatabaseRow.rowsAreJoined(parent, row, parent.getDatabaseConnection())) {
+					SoarDatabaseRow.unjoinRows(parent, row, parent.getDatabaseConnection());
+				} else if (SoarDatabaseRow.rowsAreDirectedJoined(parent, row, parent.getDatabaseConnection())) {
+					SoarDatabaseRow.directedUnjoinRows(parent, row, parent.getDatabaseConnection());
+				}
 			}
 		}
 	}

@@ -20,12 +20,14 @@
          id="com.soartech.soar.ide"
          download-size="0"
          install-size="0"
-         version="1.9.19"/>
+<<<<<<< .mine
+         version="1.9.20"/>
 
    <plugin
          id="com.soartech.soar.ide.ui"
          download-size="0"
          install-size="0"
-         version="1.9.19"/>
+<<<<<<< .mine
+         version="1.9.20"/>
 
 </feature>

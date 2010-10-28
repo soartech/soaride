@@ -51,21 +51,24 @@ public class DeleteDatabaseRowAction extends Action {
 			String[] labels = null;
 			int cancelIndex;
 			int deleteAllIndex;
+			int okIndex;
 			if (!deleteAllOption) {
 				labels = new String[] { "OK", "Cancel" };
+				okIndex = 0;
 				cancelIndex = 1;
-				deleteAllIndex = -1;
+				deleteAllIndex = 0;
 			} else {
 				labels = new String[] { "OK", "Delete All", "Cancel" };
+				okIndex = 0;
 				cancelIndex = 2;
 				deleteAllIndex = 1;
 			}
 			MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
 			int result = dialog.open();
-			if (result == cancelIndex) {
+			if (result != okIndex && result != deleteAllIndex) {
 				return false;
 			}
-			if (result == deleteAllIndex) {
+			if (deleteAllOption && result == deleteAllIndex) {
 				ret = true;
 			}
 		}

@@ -141,7 +141,11 @@ public class SoarExplorerView extends ViewPart
 		
 		manager.add(new OpenDatabaseRowInEditorAction(row));
 		manager.add(new RenameDatabaseRowAction(row));
-		manager.add(new DeleteDatabaseRowAction(row));
+		
+		if (table != Table.AGENTS) {
+			manager.add(new DeleteDatabaseRowAction(row));
+		}
+		
 		if (table != Table.TAGS) {
 			manager.add(new ManageTagsAction(row));
 		}

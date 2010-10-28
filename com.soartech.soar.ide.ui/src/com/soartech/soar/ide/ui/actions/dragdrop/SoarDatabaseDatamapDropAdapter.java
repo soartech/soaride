@@ -69,7 +69,7 @@ public class SoarDatabaseDatamapDropAdapter extends ViewerDropAdapter {
 			String[] labels = new String[] { "OK", "Cancel" };
 			MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
 			int result = dialog.open();
-			if (result == 1) {
+			if (result != 0) {
 				return false;
 			}
 

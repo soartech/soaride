@@ -149,9 +149,8 @@ public class SoarDatabaseItemView extends ViewPart implements ISoarDatabaseEvent
 		String[] labels = new String[] { "OK", "Cancel" };
 		MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
 		int result = dialog.open();
-		if (result == 1) {
-			return;
+		if (result == 0) {
+			SoarDatabaseRow.unjoinRows(first, second, first.getDatabaseConnection());
 		}
-		SoarDatabaseRow.unjoinRows(first, second, first.getDatabaseConnection());
 	}
 }

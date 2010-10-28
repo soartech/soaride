@@ -1,6 +1,8 @@
 package com.soartech.soar.ide.ui.actions.soarmenu;
 
 
+import java.util.ArrayList;
+
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -11,6 +13,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.sql.SoarDatabaseConnection;
+import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.actions.explorer.AddAgentActionDelegate;
@@ -46,14 +49,21 @@ public class NewSoarProjectActionDelegate implements IWorkbenchWindowActionDeleg
 			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 			MessageDialog message = new MessageDialog(shell, "Create new project?", null, "Create new project? Unsaved changes will be lost.", MessageDialog.QUESTION, new String[] {"OK", "Cancel"}, 0);
 			int result = message.open();
-			if (result == 1) {
+			if (result == 0) {
+				SoarUiModelTools.closeAllEditors(false);
+			} else {
 				return false;
 			}
-			SoarUiModelTools.closeAllEditors(false);
 		}
 		SoarCorePlugin.getDefault().newProject();
 		if (addAgent) {
 			new AddAgentActionDelegate().run();
+			ArrayList<SoarDatabaseRow> agents = SoarCorePlugin.getDefault().getDatabaseConnection().selectAllFromTable(Table.AGENTS, null);
+			if (agents.size() > 0) {
+				SoarDatabaseRow agent = agents.get(0);
+				SoarDatabaseRow problemSpace = agent.createChild(Table.PROBLEM_SPACES, agent.getName());
+				problemSpace.setIsRootProblemSpace(true);
+			}
 		}
 		return true;
 	}

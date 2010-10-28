@@ -46,6 +46,7 @@ public class SpawnSoarDebuggerActionDelegate implements IWorkbenchWindowActionDe
 		String path = EditorsUI.getPreferenceStore().getString(SoarEditorPreferencePage.SOAR_PATH);
 		while (doit) {
 			try {
+				//-Djava.rmi.server.hostname=localhost
 				SoarCommandLineClient client = new SoarCommandLineClient(path);
 				SoarCommandLineMXBean proxy;
 				proxy = client.startDebuggerGetProxy();
@@ -55,6 +56,7 @@ public class SpawnSoarDebuggerActionDelegate implements IWorkbenchWindowActionDe
 				if (replacedPath) {
 					EditorsUI.getPreferenceStore().setValue(SoarEditorPreferencePage.SOAR_PATH, path);
 				}
+				doit = false;
 			} catch (IOException e) {
 				// e.printStackTrace();
 				final StringBuffer newPath = new StringBuffer();
@@ -69,19 +71,17 @@ public class SpawnSoarDebuggerActionDelegate implements IWorkbenchWindowActionDe
 								null,
 								"Select the location of your Soar installation. Select the directory that contains the 'bin' directory.",
 								MessageDialog.INFORMATION,
-								new String[] { "OK" }, 0);
+								new String[] { "OK", "Cancel" }, 0);
 						
-						message.open();
-						
-						DirectoryDialog dialog = new DirectoryDialog(shell, SWT.OPEN);
-						dialog.setText("Select Soar Installation Location");
-						
-						/*
-						MessageDialog dialog = new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Unable to Spawn Debugger", null,
-								"Check that the path to your Soar installation is set correctly under" + " \"Window > Preferences ... Soar Editor ... Path to Soar Installation\"."
-										+ "\n\nThe path you specify should contain the bin folder.", MessageDialog.ERROR, new String[] { "Ok" }, 0);
-										*/
-						newPath.append(dialog.open());
+						int result = message.open();
+						if (result == 0) {
+							DirectoryDialog dialog = new DirectoryDialog(shell, SWT.OPEN);
+							dialog.setText("Select Soar Installation Location");
+							String resultPath = dialog.open();
+							if (resultPath != null) {
+								newPath.append(resultPath);
+							}
+						}
 					}
 				});
 				
@@ -91,8 +91,6 @@ public class SpawnSoarDebuggerActionDelegate implements IWorkbenchWindowActionDe
 				} else {
 					doit = false;
 				}
-			} finally {
-				doit = false;
 			}
 		}
 	}

@@ -12,6 +12,7 @@ import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PlatformUI;
@@ -257,7 +258,12 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 			*/
 			
 			// Fire every time
-			doRevertToSaved();
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {		
+					AbstractSoarDatabaseMultiRuleEditor.this.doRevertToSaved();
+				}
+			});
 		}
 	}
 }

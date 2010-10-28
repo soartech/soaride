@@ -273,7 +273,8 @@ public class SoarAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 //           ((trimmed.startsWith("sp")) && (trimmed.indexOf("{") != -1)) || 
            ((trimmed.startsWith("(")) && (trimmed.endsWith(")"))) ||
 //           ((trimmed.startsWith("^")) && (trimmed.endsWith(")"))) ||
-           ((trimmed.startsWith("[")) && (trimmed.endsWith("]"))))
+           ((trimmed.startsWith("[")) && (trimmed.endsWith("]"))) ||
+           (trimmed.startsWith(":")))
 //           (trimmed.startsWith("-->")))
         {
             //align indent with previous line
