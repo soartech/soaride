@@ -3,11 +3,10 @@ package com.soartech.soar.ide.ui.editors.text;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListResourceBundle;
-import java.util.ResourceBundle;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.internal.ui.javaeditor.ToggleCommentAction;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.PaintManager;
 import org.eclipse.jface.text.Position;
@@ -31,6 +30,7 @@ import org.eclipse.ui.texteditor.TextOperationAction;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseEditorInput;
 import com.soartech.soar.ide.ui.actions.editor.ISoarEditorActionDefinitionIds;
+import com.soartech.soar.ide.ui.actions.editor.ToggleCommentAction;
 
 public class AbstractSoarDatabaseTextEditor extends TextEditor implements ISoarDatabaseTextEditor {
 
@@ -43,9 +43,11 @@ public class AbstractSoarDatabaseTextEditor extends TextEditor implements ISoarD
 		setSourceViewerConfiguration(configuration);
 	}
 	
-	@Override
-	protected void doSetInput(IEditorInput input) throws CoreException {		
+	protected void doSetInput(IEditorInput input) throws CoreException {
 		super.doSetInput(input);
+
+		configureToggleCommentAction();
+
 		if (input instanceof SoarDatabaseEditorInput) {
 			this.input = (SoarDatabaseEditorInput) input;
 			configuration.setRow(this.input.getRow());
@@ -98,6 +100,9 @@ public class AbstractSoarDatabaseTextEditor extends TextEditor implements ISoarD
 	@Override
     protected void createActions() {
         super.createActions();
+
+        getSite().getKeyBindingService().setScopes(new String[]{"com.soartech.soar.editor.ui.soarEditorScope"});
+
         ISourceViewer sourceViewer = getSourceViewer();
         PaintManager paintManager = new PaintManager(sourceViewer);
         MatchingCharacterPainter bracketPainter = new MatchingCharacterPainter(sourceViewer, new SoarPairMatcher());
@@ -119,21 +124,24 @@ public class AbstractSoarDatabaseTextEditor extends TextEditor implements ISoarD
         setAction(actionName, action);
         markAsStateDependentAction(actionName, true);
         
-        setAction("Comment", new Action("Comment") {
+        /*
+        action = new TextEditorAction(bundle, "Comment", this) {
         	@Override
-        	public void run() {
+        	public void runWithEvent(Event event) {
         		System.out.println("COMMENTING");
         	}
-        });
-        
+        };
+        action.setEnabled(true);
+        setAction("Comment", action);
+        */
         // comment actions
-        /*
-        action= new TextOperationAction(bundle, "Comment.", this, ITextOperationTarget.PREFIX); //$NON-NLS-1$
+        
+        action= new TextOperationAction(bundle, "Comment", this, ITextOperationTarget.PREFIX); //$NON-NLS-1$
         action.setActionDefinitionId( ISoarEditorActionDefinitionIds.COMMENT );
         setAction( "Comment", action ); //$NON-NLS-1$
         markAsStateDependentAction( "Comment", true ); //$NON-NLS-1$
         
-        action= new TextOperationAction(bundle, "Uncomment.", this, ITextOperationTarget.STRIP_PREFIX ); //$NON-NLS-1$
+        action= new TextOperationAction(bundle, "Uncomment", this, ITextOperationTarget.STRIP_PREFIX ); //$NON-NLS-1$
         action.setActionDefinitionId( ISoarEditorActionDefinitionIds.UNCOMMENT );
         setAction( "Uncomment", action ); //$NON-NLS-1$
         markAsStateDependentAction( "Uncomment", true ); //$NON-NLS-1$
@@ -142,9 +150,16 @@ public class AbstractSoarDatabaseTextEditor extends TextEditor implements ISoarD
         action.setActionDefinitionId( ISoarEditorActionDefinitionIds.TOGGLE_COMMENT );
         setAction( "ToggleComment", action) ; //$NON-NLS-1$
         markAsStateDependentAction( "ToggleComment", true ); //$NON-NLS-1$
-        SourceViewerConfiguration configuration = getSourceViewerConfiguration();
-        ((ToggleCommentAction) action).configure(sourceViewer, configuration);
-        */
+        configureToggleCommentAction();
+	}
+
+	private void configureToggleCommentAction() {
+		IAction action = getAction("ToggleComment"); //$NON-NLS-1$
+		if (action instanceof ToggleCommentAction) {
+			ISourceViewer sourceViewer = getSourceViewer();
+			SourceViewerConfiguration configuration = getSourceViewerConfiguration();
+			((ToggleCommentAction) action).configure(sourceViewer, configuration);
+		}
 	}
 
 }

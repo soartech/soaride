@@ -1174,7 +1174,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	 * @return The highest-level row.
 	 */
 	public SoarDatabaseRow getTopLevelRow() {
-		return getAncestorRow(null);
+		return getAncestorRow(Table.AGENTS);
 	}
 	
 	/**

@@ -30,5 +30,5 @@ package com.soartech.soar.ide.ui.actions.editor;
 public interface ISoarEditorActionDefinitionIds {
     public static final String COMMENT = "com.soartech.soar.ide.ui.actions.editor.comment";
     public static final String UNCOMMENT = "com.soartech.soar.ide.ui.actions.editor.uncomment";
-    public static final String TOGGLE_COMMENT = "com.soartech.soar.ide.ui.actions.editor.comment";
+    public static final String TOGGLE_COMMENT = "com.soartech.soar.ide.ui.actions.editor.toggleComment";
 }

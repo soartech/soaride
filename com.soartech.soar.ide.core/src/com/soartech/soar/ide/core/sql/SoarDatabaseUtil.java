@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Scanner;
+import tcl.lang.*;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -218,8 +219,13 @@ public class SoarDatabaseUtil {
 				int lastSlashIndex = basePath.lastIndexOf(File.separatorChar);
 				basePath = basePath.substring(0, lastSlashIndex);
 				int lineNumber = 0;
-				//System.out.println("About to read file: " + file.getPath());
 				Scanner scan = new Scanner(file);
+				//System.out.println("About to read file: " + file.getPath());
+				//TODO: tcl interpretation
+				/*
+				Interp interp = new Interp();
+				StringBuffer interpret
+				*/
 				while (scan.hasNext()) {
 					++lineNumber;
 					String line = scan.nextLine();

@@ -58,4 +58,20 @@ public class SoarDatabaseTextEditorConfiguration extends
 	public SoarDatabaseRow getRow() {
 		return row;
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.jface.text.source.SourceViewerConfiguration#getDefaultPrefixes
+	 * ( org.eclipse.jface.text.source.ISourceViewer, java.lang.String )
+	 */
+	@Override
+	public String[] getDefaultPrefixes(ISourceViewer sourceViewer,
+			String contentType) {
+
+		return (IDocument.DEFAULT_CONTENT_TYPE.equals(contentType) ? new String[] { "#" }
+				: null);
+	}
+
 }

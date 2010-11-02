@@ -47,10 +47,10 @@ public class AddChildRowAction extends Action {
 		String message = "Enter Name:";
 		String initialValue = childTable.soarName() + "-name";
 		InputDialog dialog = new InputDialog(shell, title, message, initialValue, null);
-		dialog.open();
+		int resultInt = dialog.open();
 		String result = dialog.getValue();
 
-		if (result != null && result.length() > 0) {
+		if (resultInt == InputDialog.OK && result != null && result.length() > 0) {
 			SoarDatabaseRow top = parent.getTopLevelRow();
 			if (top == parent) {
 				parent.createChild(childTable, result);

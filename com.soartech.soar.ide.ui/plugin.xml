@@ -42,49 +42,54 @@
   </extension>
   <extension
         point="org.eclipse.ui.commands">
-     <command
-           categoryId="com.soartech.soar.ide.ui.source"
-           description="%ActionDefinition.toggleComment.description"
-           id="com.soartech.soar.ide.ui.toggle.comment"
-           name="%ActionDefinition.toggleComment.name"/>
      <category
            description="Commands for editing Soar source code."
            id="com.soartech.soar.ide.ui.source"
            name="Soar Source"/>
      <command
            categoryId="com.soartech.soar.ide.ui.source"
-           description="%ActionDefinition.comment.description"
-           id="com.soartech.soar.ide.ui.comment"
-           name="%ActionDefinition.comment.name"/>
+           description="Comments out the selected lines"
+           id="com.soartech.soar.ide.ui.actions.editor.comment"
+           name="Soar Comment"/>
      <command
            categoryId="com.soartech.soar.ide.ui.source"
-           description="%ActionDefinition.uncomment.description"
-           id="com.soartech.soar.ide.ui.uncomment"
-           name="%ActionDefinition.uncomment.name"/>
+           description="Toggles Soar comments"
+           id="com.soartech.soar.ide.ui.actions.editor.toggleComment"
+           name="Toggle Soar Comments"/>
      <command
            categoryId="com.soartech.soar.ide.ui.source"
-           description="Format the Soar document according to current tab settings."
-           id="com.soartech.soar.ide.ui.editor.command.FormatSoarDocument"
-           name="Format Soar Document"/>
-     <command
-           categoryId="com.soartech.soar.ide.ui.source"
-           description="Open Soar files that reference this file"
-           id="com.soartech.soar.ide.ui.editor.command.OpenReferencingFiles"
-           name="Open Referencing Files"/>
-     <command
-           categoryId="com.soartech.soar.ide.ui.source"
-           description="Duplicate the production"
-           id="com.soartech.soar.ide.ui.editor.command.DuplicateProduction"
-           name="Duplicate Production">
-     </command>
+           description="Uncomments the selected lines"
+           id="com.soartech.soar.ide.ui.actions.editor.uncomment"
+           name="Soar Uncomment"/>
   </extension>
+  <extension
+        point="org.eclipse.ui.bindings">
+      <!--  win32:  M1=CTRL,    M2=SHIFT, M3=ALT, M4=-
+            carbon: M1=COMMAND, M2=SHIFT, M3=ALT, M4=CTRL -->
+     <key
+           commandId="com.soartech.soar.ide.ui.actions.editor.toggleComment"
+           contextId="com.soartech.soar.editor.ui.soarEditorScope"
+           schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+           sequence="M1+/"/>
+     <key
+           commandId="com.soartech.soar.ide.ui.actions.editor.comment"
+           contextId="com.soartech.soar.editor.ui.soarEditorScope"
+           schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+           sequence="M3+/"/>
+     <key
+           commandId="com.soartech.soar.ide.ui.actions.editor.uncomment"
+           contextId="com.soartech.soar.editor.ui.soarEditorScope"
+           schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+           sequence="M3+\"/>
+  </extension>
+  
   <extension
         point="org.eclipse.ui.contexts">
      <context
            description="Editing Soar Source Context"
            id="com.soartech.soar.editor.ui.soarEditorScope"
            name="Editing Soar Source"
-           parentId="org.eclipse.ui.textEditorScope"/>
+           parentId="org.eclipse.ui.contexts.window"/>
   </extension>
   
   <extension
@@ -173,6 +178,20 @@
         </action>
 
      </actionSet>
+     
+     <actionSet
+           description="Action set containing Soar coding related actions."
+           id="com.soartech.soar.ide.ui.CodingActionSet"
+           label="Soar Coding"
+           visible="true">
+        <action
+              definitionId="com.soartech.soar.ide.ui.actions.editor.toggleComment"
+              id="com.soartech.soar.ide.ui.ToggleComment"
+              label="Toggle Comments"
+              retarget="true"
+              tooltip="Toggle Soar comments on selected lines."/>
+     </actionSet>
+     
   </extension>
   
 	<extension
