@@ -209,7 +209,7 @@ public class SoarDatabaseUtil {
 		ArrayList<String> directoryStack = new ArrayList<String>();
 		
 		// This is the list of files to read.
-		ArrayList<File> files = new ArrayList<File>(); 
+		ArrayList<File> files = new ArrayList<File>();
 		files.add(firstFile);
 		for (int filesIndex = 0; filesIndex < files.size(); ++filesIndex) {
 			ArrayList<String> newErrors = new ArrayList<String>();
@@ -218,14 +218,39 @@ public class SoarDatabaseUtil {
 				String basePath = file.getPath();
 				int lastSlashIndex = basePath.lastIndexOf(File.separatorChar);
 				basePath = basePath.substring(0, lastSlashIndex);
+				System.setProperty("user.dir", basePath);
 				int lineNumber = 0;
 				Scanner scan = new Scanner(file);
 				//System.out.println("About to read file: " + file.getPath());
 				//TODO: tcl interpretation
-				/*
+				
 				Interp interp = new Interp();
-				StringBuffer interpret
-				*/
+				StringBuffer buff = new StringBuffer();
+				String result = null;
+				try {
+					interp.setVar("AGENT_HOME", TclString.newInstance(basePath), 0);
+					while (scan.hasNext()) {
+						String line = scan.nextLine();
+						//System.out.println(line);
+						buff.append(line + '\n');
+					}
+					interp.eval(buff.toString());
+					TclObject res = interp.getResult();
+					result = res.toString();
+				} catch (TclException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} finally {
+					interp.dispose();
+				}
+				scan.close();
+				
+				if (result != null) {
+					scan = new Scanner(result);
+				} else {
+					scan = new Scanner(file);
+				}
+				
 				while (scan.hasNext()) {
 					++lineNumber;
 					String line = scan.nextLine();
