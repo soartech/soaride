@@ -22,7 +22,9 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
+import com.soartech.soar.ide.core.sql.SoarDatabaseEvent;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow;
+import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
 import com.soartech.soar.ide.core.sql.SoarDatabaseUtil;
 import com.soartech.soar.ide.ui.SoarUiModelTools;
@@ -112,7 +114,7 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 						// monitor.setTaskName("New Project From Existing Source");
 						monitor.beginTask("Counting Rules", IProgressMonitor.UNKNOWN);
-						monitor.beginTask("Parsing Rules", SoarDatabaseUtil.countRulesFromFile(finalFile, errors));
+						//monitor.beginTask("Parsing Rules", SoarDatabaseUtil.countRulesFromFile(finalFile, errors));
 						errors.addAll(SoarDatabaseUtil.importRules(finalFile, finalAgent, monitor));
 						System.out.println("Loaded rules for file: " + finalFile.getPath());
 						monitor.done();
@@ -165,6 +167,7 @@ public class LoadMultipleProjectsActionDelegate implements IWorkbenchWindowActio
 			}
 		}
 		agent.getDatabaseConnection().popSuppressEvents();
+		agent.getDatabaseConnection().fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 	}
 	
 	private void reportErrors(ArrayList<String> errors) {

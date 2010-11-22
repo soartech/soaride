@@ -348,6 +348,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 											row.getDatabaseConnection().pushSuppressEvents();
 											row.createJoinedChild(folderTable, resultString);
 											row.getDatabaseConnection().popSuppressEvents();
+											row.getDatabaseConnection().fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 											tree.setExpandedState(row, true);
 											
 											// Don't need to fire the event or refresh the tree
@@ -454,6 +455,7 @@ public class SoarDatabaseDatamapEditor extends EditorPart implements ISoarDataba
 					rowToDelete.getDatabaseConnection().pushSuppressEvents();
 					rowToDelete.deleteAllChildren(true, null);
 					rowToDelete.getDatabaseConnection().popSuppressEvents();
+					rowToDelete.getDatabaseConnection().fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
 				} else {
 					return;
 				}

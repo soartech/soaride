@@ -23,8 +23,37 @@ import org.eclipse.ui.PlatformUI;
 
 import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import com.soartech.soar.ide.core.sql.SoarDatabaseRow.Table;
+import com.soartech.soar.ide.core.tcl.SoarModelTclCommands;
+import com.soartech.soar.ide.core.tcl.TclSpCommand;
 
 public class SoarDatabaseUtil {
+
+	private static RelocatableTclInterpreter makeInterp(File file, boolean countOnly, boolean soarCallbacks, ArrayList<String> comments) {
+		RelocatableTclInterpreter ret = new RelocatableTclInterpreter();
+		String filePath = file.getParent();
+		if (filePath != null) {
+			try {
+				ret.setWorkingDir(filePath);
+			} catch (TclException e) {
+				e.printStackTrace();
+			}
+		}
+		SoarModelTclCommands.installSoarCommands(ret, countOnly, soarCallbacks, comments);
+		String tkLibrary = System.getenv("TK_LIBRARY");
+		String tclLibrary = System.getenv("TCL_LIBRARY");
+		try {
+			if (tkLibrary != null) {
+				ret.setVar("tk_library", TclString.newInstance(tkLibrary), 0);
+			}
+			if (tclLibrary != null) {
+
+				ret.setVar("tcl_library", TclString.newInstance(tclLibrary), 0);
+			}
+		} catch (TclException e) {
+			e.printStackTrace();
+		}
+		return ret;
+	}
 	
 	/**
 	 * Reads a text file of soar rules, creating a new database entry
@@ -34,298 +63,186 @@ public class SoarDatabaseUtil {
 	 * @return list of error messages
 	 */
 	public static ArrayList<String> importRules(File firstFile, SoarDatabaseRow agent, IProgressMonitor monitor) {
-
-		ArrayList<String> errors = new ArrayList<String>();
-		
-		// The stack of pushed and popped directories.
-		ArrayList<String> directoryStack = new ArrayList<String>();
-		
-		// This is the list of files to read.
-		ArrayList<File> files = new ArrayList<File>(); 
-		files.add(firstFile);
-
-		// This is the list of files that have been read, to avoid recursive souce commands.
-		//ArrayList<File> readFiles = new ArrayList<File>();
-		
-		ArrayList<String> agentLines = new ArrayList<String>();
-		
 		SoarDatabaseConnection db = agent.getDatabaseConnection();
 		db.pushSuppressEvents();
-		
-		for (int filesIndex = 0; filesIndex < files.size(); ++filesIndex) {
-			ArrayList<String> newErrors = new ArrayList<String>();
-			File file = files.get(filesIndex);
-			try {
-				//System.out.println(file.getPath());
-
-				//FileReader reader = new FileReader(file);
-				String basePath = file.getPath();
-				int lastSlashIndex = basePath.lastIndexOf(File.separatorChar);
-				basePath = basePath.substring(0, lastSlashIndex);
-				int lineNumber = 0;
-				//System.out.println("About to read file: " + file.getPath());
-				Scanner scan = new Scanner(file);
-				ArrayList<String> lines = new ArrayList<String>();
-				while (scan.hasNext()) {
-					++lineNumber;
-					String line = scan.nextLine();
-					String trimmedLine = line.trim();
-					if (trimmedLine.startsWith("pushd ") && trimmedLine.length() > 6) {
-						//String[] tokens = trimmedLine.split("\\s");
-						//directoryStack.add(tokens[1]);						
-						String pushdPath = trimmedLine.substring(6);
-						if (pushdPath.startsWith("\"")) pushdPath = pushdPath.substring(1);
-						if (pushdPath.endsWith("\"")) pushdPath = pushdPath.substring(0, pushdPath.length() - 1);
-						directoryStack.add(pushdPath);
-					} else if (trimmedLine.startsWith("popd")) {
-						directoryStack.remove(directoryStack.size() - 1);
-					} else if (trimmedLine.startsWith("source ")) {
-						String source = trimmedLine.substring(7);
-						File newFile = fileForFilename(basePath, source, directoryStack);
-						if (!newFile.exists()) {
-							String error = "File not found:" + newFile.getPath();
-							System.out.println(error);
-							errors.add(error);
-						} else {
-							files.add(newFile);
-						}
-					} else if (trimmedLine.startsWith("sp ") || trimmedLine.startsWith("sp{")) {
-						ArrayList<String> ruleLines = new ArrayList<String>();
-						int braceDepth = 0;
-						boolean string = false;
-						boolean hasBraces = false;
-						boolean finished = false;
-						while (true) {
-							ruleLines.add(line);
-							char[] chars = line.toCharArray();
-							char cc = '\0';
-							for (char c : chars) {
-								if (!string) {
-									if (c == '{') {
-										++braceDepth;
-										hasBraces = true;
-									}
-									else if (c == '}') --braceDepth;
-									else if (c == '|') string = true;
-									else if (c == '#') break; // Comment, ignore the rest of the line
-								} else {
-									if (c == '|' && cc != '\\') string = false;
-								}
-
-								cc = c;
-							}
-							
-							if (hasBraces && braceDepth <= 0) {
-								finished = true;
-							}
-							
-							if (finished || !scan.hasNextLine()) break;
-							line = scan.nextLine();
-						}
-						
-						if (finished) {
-							// This was a rule.
-							// Find preceding comment lines and use them and 'ruleLines' to create a new rule.
-							
-							int firstCommentLine = lines.size();
-							for ( ; firstCommentLine > 0; --firstCommentLine) {
-								String commentLine = lines.get(firstCommentLine - 1);
-								if (commentLine.length() > 0 && !commentLine.trim().startsWith("#")) {
-									break;
-								}
-							}
-							
-							for ( ; firstCommentLine < lines.size(); ++firstCommentLine) {
-								if (lines.get(firstCommentLine).length() > 0) break;
-							}
-							
-							ArrayList<String> finalRuleLines = new ArrayList<String>();
-							
-							for (int i = firstCommentLine; i < lines.size(); ++i) {
-								finalRuleLines.add(lines.get(i));
-							}
-							finalRuleLines.addAll(ruleLines);
-							
-							for (int i = lines.size() - 1; i >= firstCommentLine; --i) {
-								lines.remove(i);
-							}
-							
-							StringBuffer ruleBuffer = new StringBuffer();
-							for (String ruleLine : finalRuleLines) {
-								ruleBuffer.append(ruleLine + '\n');
-							}
-							
-							String ruleString = ruleBuffer.toString();
-							String ruleName = getNameFromRule(ruleString);
-							if (monitor != null) {
-								monitor.subTask(ruleName);
-							}
-							SoarDatabaseRow child = agent.createChild(Table.RULES, ruleName);
-							errors.addAll(child.save(ruleString, null, null));
-							
-							if (monitor != null) {
-								monitor.worked(1);
-							}
-							
-						} else {
-							// Oops, this wasn't really a rule
-							// Add collected lines to 'lines'
-							lines.addAll(ruleLines);
-						}
-						
-					} else {
-						lines.add(line);
-					}
-				}
-				scan.close();
-				agentLines.addAll(lines);
-			} catch (FileNotFoundException e) {
-				//e.printStackTrace();
-				String error = "In " + file.getPath() + ": file not found at " + files.get(filesIndex).getPath();
-				newErrors.add(error);
-			}
-			for (String error : newErrors) {
-				System.out.println(error);
-			}
-			errors.addAll(newErrors);
-		}
-		
-		// Add commands to agent
-		StringBuffer agentText = new StringBuffer();
-		for (String command : agentLines) {
-			agentText.append(command + '\n');
-		}
-		
-		agent.setText(agentText.toString());
-		
+		ArrayList<String> comments = new ArrayList<String>();
+		RelocatableTclInterpreter interp = makeInterp(firstFile, false, true, comments);
+		TclSpCommand spCommand = (TclSpCommand) interp.getCommand("sp");
+		SoarModelTclCommands modelCommands = (SoarModelTclCommands) interp.getCommand("watch");
+		spCommand.setAgent(agent);
+		spCommand.setMonitor(monitor);
+		ArrayList<String> errors = importRules(firstFile, interp, comments);
+		monitor.beginTask("Parsing Rules", spCommand.getNumRulesCollected());
+		errors.addAll(readSpCommands(agent, spCommand, monitor));
+		readAgentCommands(agent, modelCommands);
+		interp.dispose();
 		db.popSuppressEvents();
 		db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED));
-		
 		return errors;
 	}
 	
-	public static int countRulesFromFile(File firstFile, ArrayList<String> errors) {
-		int numRules = 0;
-		ArrayList<String> directoryStack = new ArrayList<String>();
+	private static ArrayList<String> readSpCommands(SoarDatabaseRow agent, TclSpCommand spCommand, IProgressMonitor monitor) {
+		ArrayList<String> errors = new ArrayList<String>();
+		for (String ruleText : spCommand.getRules()) {
+			String ruleName = getNameFromRule(ruleText);
+			if (monitor != null) {
+				monitor.subTask(ruleName);
+			}
+			SoarDatabaseRow child = agent.createChild(Table.RULES, ruleName);
+			errors.addAll(child.save(ruleText, null, null));
+
+			if (monitor != null) {
+				monitor.worked(1);
+			}
+		}
+		return errors;
+	}
+	
+	private static void readAgentCommands(SoarDatabaseRow agent, SoarModelTclCommands modelCommands) {
+		if (modelCommands.getCalls().size() > 0) {
+			StringBuffer agentText = new StringBuffer();
+			for (ArrayList<String> args : modelCommands.getCalls()) {
+				int argsSize = args.size();
+				for (int i = 0; i < argsSize; ++i) {
+					agentText.append(args.get(i).toString());
+					if (i + 1 < argsSize) {
+						agentText.append(' ');
+					}
+				}
+				agentText.append("\n\n");
+			}
+			modelCommands.resetCalls();
+			String oldText = agent.getText();
+			String newText = null;
+			if (oldText.length() > 0) {
+				newText = oldText + '\n';
+			} else {
+				newText = agentText.toString();
+			}
+			agent.setText(newText);
+		}
+	}
+	
+	public static ArrayList<String> importRules(File file, RelocatableTclInterpreter interp, ArrayList<String> comments) {
+		TclSpCommand spCommand = (TclSpCommand) interp.getCommand("sp");
+		SoarDatabaseRow agent = spCommand.getAgent();
+
+		ArrayList<String> errors = new ArrayList<String>();
 		
-		// This is the list of files to read.
-		ArrayList<File> files = new ArrayList<File>();
-		files.add(firstFile);
-		for (int filesIndex = 0; filesIndex < files.size(); ++filesIndex) {
-			ArrayList<String> newErrors = new ArrayList<String>();
-			File file = files.get(filesIndex);
+
+		ArrayList<String> newErrors = new ArrayList<String>();
+		try {
+			// System.out.println(file.getPath());
+
+			// FileReader reader = new FileReader(file);
+			String basePath = file.getPath();
+			int lastSlashIndex = basePath.lastIndexOf(File.separatorChar);
+			basePath = basePath.substring(0, lastSlashIndex);
+			// System.out.println("About to read file: " + file.getPath());
+			Scanner scan = new Scanner(file);
+
+			StringBuffer buff = new StringBuffer();
 			try {
-				String basePath = file.getPath();
-				int lastSlashIndex = basePath.lastIndexOf(File.separatorChar);
-				basePath = basePath.substring(0, lastSlashIndex);
-				System.setProperty("user.dir", basePath);
-				int lineNumber = 0;
-				Scanner scan = new Scanner(file);
-				//System.out.println("About to read file: " + file.getPath());
-				//TODO: tcl interpretation
-				
-				Interp interp = new Interp();
-				StringBuffer buff = new StringBuffer();
-				String result = null;
+				interp.setVar("AGENT_HOME", TclString.newInstance(basePath), 0);
+			} catch (TclException e1) {
+				e1.printStackTrace();
+			}
+			while (scan.hasNext()) {
 				try {
-					interp.setVar("AGENT_HOME", TclString.newInstance(basePath), 0);
-					while (scan.hasNext()) {
-						String line = scan.nextLine();
-						//System.out.println(line);
+					String line = scan.nextLine();
+					// System.out.println(line);
+					if (line.trim().startsWith("#")) {
+						comments.add(line);
+					} else {
 						buff.append(line + '\n');
 					}
-					interp.eval(buff.toString());
-					TclObject res = interp.getResult();
-					result = res.toString();
-				} catch (TclException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} finally {
-					interp.dispose();
-				}
-				scan.close();
-				
-				if (result != null) {
-					scan = new Scanner(result);
-				} else {
-					scan = new Scanner(file);
-				}
-				
-				while (scan.hasNext()) {
-					++lineNumber;
-					String line = scan.nextLine();
-					String trimmedLine = line.trim();
-					if (trimmedLine.startsWith("pushd ") && trimmedLine.length() > 6) {						
-						String pushdPath = trimmedLine.substring(6);
-						if (pushdPath.startsWith("\"")) pushdPath = pushdPath.substring(1);
-						if (pushdPath.endsWith("\"")) pushdPath = pushdPath.substring(0, pushdPath.length() - 1);
-						directoryStack.add(pushdPath);
-					} else if (trimmedLine.startsWith("popd")) {
-						directoryStack.remove(directoryStack.size() - 1);
-					} else if (trimmedLine.startsWith("source ")) {
-						String source = trimmedLine.substring(7);
-						File newFile = fileForFilename(basePath, source, directoryStack);
-						if (!newFile.exists()) {
-							String error = "File not found:" + newFile.getPath();
-							System.out.println(error);
-							errors.add(error);
-						} else {
-							files.add(newFile);
-						}
-					} else if (trimmedLine.startsWith("sp ") || trimmedLine.startsWith("sp{")) {
-						ArrayList<String> ruleLines = new ArrayList<String>();
-						int braceDepth = 0;
-						boolean string = false;
-						boolean hasBraces = false;
-						boolean finished = false;
-						while (true) {
-							ruleLines.add(line);
-							char[] chars = line.toCharArray();
-							char cc = '\0';
-							for (char c : chars) {
-								if (!string) {
-									if (c == '{') {
-										++braceDepth;
-										hasBraces = true;
-									}
-									else if (c == '}') --braceDepth;
-									else if (c == '|') string = true;
-									else if (c == '#') break; // Comment, ignore the rest of the line
-								} else {
-									if (c == '|' && cc != '\\') string = false;
-								}
-
-								cc = c;
-							}
-							
-							if (hasBraces && braceDepth <= 0) {
-								finished = true;
-							}
-							
-							if (finished || !scan.hasNextLine()) break;
-							line = scan.nextLine();
-						}
-						
-						if (finished) {
-							// This was a rule
-							++numRules;
-						}
+					if (buff.toString().trim().length() > 0 && Interp.commandComplete(buff.toString())) {
+						String command = buff.toString();
+						buff = new StringBuffer();
+						interp.eval(command);
 					}
+				} catch (TclException e) {
+					System.out.println("ERROR: " + interp.getResult());
 				}
-				scan.close();
-			} catch (FileNotFoundException e) {
-				//e.printStackTrace();
-				String error = "In " + file.getPath() + ": file not found at " + files.get(filesIndex).getPath();
-				newErrors.add(error);
 			}
-			for (String error : newErrors) {
-				System.out.println(error);
-			}
-			errors.addAll(newErrors);
+
+			scan.close();
+		} catch (FileNotFoundException e) {
+			// e.printStackTrace();
+			String error = "In " + file.getPath() + ": file not found at "
+					+ file.getPath();
+			newErrors.add(error);
 		}
+		for (String error : newErrors) {
+			System.out.println(error);
+		}
+		errors.addAll(newErrors);
+		
+		return errors;
+	}
+
+	/*
+	public static int countRulesFromFile(File firstFile, ArrayList<String> errors) {
+		numRules = 0;
+		RelocatableTclInterpreter interp = makeInterp(firstFile, true, false);
+
+		try {
+			String basePath = firstFile.getPath();
+			int lastSlashIndex = basePath.lastIndexOf(File.separatorChar);
+			basePath = basePath.substring(0, lastSlashIndex);
+			System.setProperty("user.dir", basePath);
+			interp.setVar("AGENT_HOME", TclString.newInstance(basePath), 0);
+		} catch (TclException e) {
+			System.out.println("ERROR: " + interp.getResult());
+		}
+		// System.out.println("About to read file: " + file.getPath());
+		countRulesFromFile(firstFile, interp);
+		interp.dispose();
 		return numRules;
 	}
-		
+	
+	private static int numRules;
+	
+	public static void countRulesFromFile(File file, RelocatableTclInterpreter interp) {
+		TclSpCommand spCommand = (TclSpCommand) interp.getCommand("sp");
+
+		ArrayList<String> newErrors = new ArrayList<String>();
+		try {
+			Scanner scan = new Scanner(file);
+			StringBuffer buff = new StringBuffer();
+			while (scan.hasNext()) {
+				try {
+					String line = scan.nextLine();
+					//System.out.println(line);
+					if (line.trim().startsWith("#")) {
+						spCommand.addComment(line);
+					} else {
+						buff.append(line + '\n');
+					}
+					if (buff.toString().trim().length() > 0
+							&& Interp.commandComplete(buff.toString())) {
+						String command = buff.toString();
+						buff = new StringBuffer();
+						interp.eval(command);
+					}
+				} catch (TclException e) {
+					System.out.println("ERROR: " + interp.getResult());
+				}
+			}
+			numRules += spCommand.getNumRulesCollected();
+			spCommand.resetRules();
+			scan.close();
+		} catch (FileNotFoundException e) {
+			// e.printStackTrace();
+			String error = "In " + file.getPath() + ": file not found at " + file.getPath();
+			newErrors.add(error);
+		}
+		for (String error : newErrors) {
+			System.out.println(error);
+		}
+		//errors.addAll(newErrors);
+	}
+		*/
 	private static File fileForFilename(String basePath, String filename, ArrayList<String> directoryStack) {
 		StringBuffer buff = new StringBuffer(basePath);
 		buff.append(File.separatorChar);

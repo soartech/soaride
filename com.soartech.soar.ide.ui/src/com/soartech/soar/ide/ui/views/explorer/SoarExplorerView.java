@@ -78,6 +78,7 @@ import com.soartech.soar.ide.ui.actions.explorer.DeleteDatabaseRowAction;
 import com.soartech.soar.ide.ui.actions.explorer.ExportSoarDatabaseRowAction;
 import com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapAction;
 import com.soartech.soar.ide.ui.actions.explorer.GenerateDatamapFromVisualSoarFileAction;
+import com.soartech.soar.ide.ui.actions.explorer.LoadMultipleProjectsActionDelegate;
 import com.soartech.soar.ide.ui.actions.explorer.ManageTagsAction;
 import com.soartech.soar.ide.ui.actions.explorer.MarkProblemSpaceRootAction;
 import com.soartech.soar.ide.ui.actions.explorer.OpenDatabaseRowInEditorAction;
@@ -270,6 +271,16 @@ public class SoarExplorerView extends ViewPart
 							manager.add(action);
 						}
 					}
+					
+					// For debugging
+					if (obj == null) {
+						manager.add(new Action("LOAD MULTIPLE") {
+							public void run() {
+								new LoadMultipleProjectsActionDelegate().run(null);
+							}
+						});
+					}
+					
 					/*
 					if (obj == null) {
 						manager.add(new AddAgentActionDelegate(SoarExplorerView.this));

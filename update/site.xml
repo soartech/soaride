@@ -3,7 +3,7 @@
    <description name="Soar IDE Database Development Branch" url="http://soaride.googlecode.com/svn/branches/soaride_database_dev_branch/update/">
       Soar IDE Database Development Branch
    </description>
-   <feature url="features/com.soartech.soar.ide.database.feature_1.0.5.201011011749.jar" id="com.soartech.soar.ide.database.feature" version="1.0.5.201011011749">
+   <feature url="features/com.soartech.soar.ide.database.feature_1.0.5.201011221528.jar" id="com.soartech.soar.ide.database.feature" version="1.0.5.201011221528">
       <category name="com.soartech.soar.ide.database_update_category"/>
    </feature>
    <category-def name="com.soartech.soar.ide.database_update_category" label="Soar IDE Database Development Branch">
