@@ -40,37 +40,65 @@ public class SoarModelTclCommands implements Command
     {
         "echo",
         "learn",
+        "l",
         "waitsnc",
         "watch",
+        "w",
         "multi-attributes",
         "multi-attribute",
         "o-support-mode",
         "output-strings-destination",
         "help",
+        "h",
+        "man",
+        "?",
         "init-soar",
+        "init",
+        "is",
         "quit",
+        "exit",
         "run",
+        "d",
+        "e",
+        "step",
         "stop-soar",
+        "interrupt",
+        "ss",
+        "stop",
         "default-wme-depth",
+        "set-default-depth",
         "gds-print",
+        "gds_print",
         "internal-symbols",
         "matches",
         "memories",
         "preferences",
         "print",
+        "p",
+        "pc",
+        "wmes",
         "production-find",
         "chunk-name",
-        "firing-counts", "fc",
+        "chunk-name-format",
+        "firing-counts",
+        "fc",
         "pwatch",
+        "pw",
         "explain-backtraces",
+        "eb",
         "indifferent-selection",
+        "inds",
         "max-chunks",
         "max-elaborations",
+        "max-memory-usage",
         "max-nil-output-cycles",
         "multi-attributes",
         "numeric-indifferent-mode",
         "o-support-mode",
         "save-backtraces",
+        "predict",
+        "select",
+        "set-stop-phase",
         "soar8",
         "timers",
         "dirs",
@@ -78,21 +106,37 @@ public class SoarModelTclCommands implements Command
         "rete-net",
         "set-library-location",
         "add-wme",
+        "aw",
         "remove-wme",
+        "rw",
         "soarnews",
         "version",
         "stats",
+        "st",
+        "verbose",
         "wm",
         "excise",
+        "ex",
         "smem",
         "warnings",
         "srand",
         "alias",
+        "a",
+        "unalias",
+        "un",
+        "edit-production",
+        "sn",
+        "epmem",
+        "wma",
+        "watch-wmes",
+        "rl",
+        "time",
     };
 
     /**
      * Implementation of the null command, i.e. the command that does nothing.
      */
+    /*
     public static final Command NULL_COMMAND = new Command() {
         public void cmdProc(Interp interp, TclObject[] args) throws TclException
         {
@@ -102,6 +146,7 @@ public class SoarModelTclCommands implements Command
             interp.setResult(args[0]);
         }
     };
+    */
 
     private static final Command WINFO_NULL_COMMAND = new Command() {
         public void cmdProc(Interp interp, TclObject[] args) throws TclException
@@ -143,6 +188,7 @@ public class SoarModelTclCommands implements Command
 			strings.add(comment + '\n');
 		}
 		comments.clear();
+
 		for (TclObject arg : args) {
 			strings.add(arg.toString().replace("\n", "\\n"));
 		}

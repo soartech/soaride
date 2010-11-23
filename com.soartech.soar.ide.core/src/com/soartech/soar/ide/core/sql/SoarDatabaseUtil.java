@@ -109,7 +109,7 @@ public class SoarDatabaseUtil {
 						agentText.append(' ');
 					}
 				}
-				agentText.append("\n\n");
+				agentText.append("\n");
 			}
 			modelCommands.resetCalls();
 			String oldText = agent.getText();
