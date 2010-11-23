@@ -42,8 +42,7 @@ public class SoarDatabaseDatamapContentProvider implements ITreeContentProvider 
 		
 		// Group duplicate children together
 
-		// ArrayList<ArrayList<ISoarDatabaseTreeItem>> duplicates = new
-		// ArrayList<ArrayList<ISoarDatabaseTreeItem>>();
+		/*
 		HashMap<String, ArrayList<ISoarDatabaseTreeItem>> pathsToNodes = new HashMap<String, ArrayList<ISoarDatabaseTreeItem>>();
 		for (ISoarDatabaseTreeItem item : ret) {
 			if (item instanceof SoarDatabaseRow) {
@@ -76,6 +75,7 @@ public class SoarDatabaseDatamapContentProvider implements ITreeContentProvider 
 				ret.add(group);
 			}
 		}
+		*/
 
 		SoarDatabaseUtil.sortRowsByName(ret);
 		return ret;
