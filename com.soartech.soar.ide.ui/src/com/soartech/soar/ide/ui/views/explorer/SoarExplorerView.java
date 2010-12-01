@@ -147,9 +147,9 @@ public class SoarExplorerView extends ViewPart
 			manager.add(new DeleteDatabaseRowAction(row));
 		}
 		
-		if (table != Table.TAGS) {
-			manager.add(new ManageTagsAction(row));
-		}
+		//if (table != Table.TAGS) {
+		//	manager.add(new ManageTagsAction(row));
+		//}
 		
 		manager.add(new Separator());
 		
@@ -163,6 +163,7 @@ public class SoarExplorerView extends ViewPart
 
 			manager.add(new AddChildRowAction(row, Table.RULES, row, tree, true));
 			manager.add(new AddChildRowAction(row, Table.OPERATORS, row, tree, true));
+			manager.add(new AddChildRowAction(row, Table.TAGS, row, tree, true));
 			//ret.add(new AddOperatorTemplateChildrenAction(row, tree));
 			//ret.add(new AddRuleTemplateChildrenAction(row, tree));
 			
@@ -223,10 +224,14 @@ public class SoarExplorerView extends ViewPart
 		if (table == Table.OPERATORS) {
 			manager.add(new AddChildRowAction(row, Table.RULES, row, tree, true));
 			manager.add(new AddSubstateAction(row, false, tree, JoinType.OPERATOR_NO__CHANGE_IMPASSE));
+			manager.add(new AddChildRowAction(row, Table.TAGS, row, tree, true));
 			//ret.add(new AddRuleTemplateChildrenAction(row, tree));
 		}
 		if (table == Table.RULES) {
 			manager.add(new CheckRuleAgainstDatamapAction(row));
+		}
+		if (table == Table.TAGS) {
+			manager.add(new AddChildRowAction(row, Table.TAGS, row, tree, true));
 		}
 		RemoveJoinFromParentAction remove = new RemoveJoinFromParentAction(selection);
 		if (remove.isRunnable()) {
@@ -273,6 +278,7 @@ public class SoarExplorerView extends ViewPart
 					}
 					
 					// For debugging
+					/*
 					if (obj == null) {
 						manager.add(new Action("LOAD MULTIPLE") {
 							public void run() {
@@ -280,6 +286,7 @@ public class SoarExplorerView extends ViewPart
 							}
 						});
 					}
+					*/
 					
 					/*
 					if (obj == null) {
@@ -314,7 +321,8 @@ public class SoarExplorerView extends ViewPart
 						getConnection().pushSuppressEvents();
 						for (Object element : ts.toArray()) {
 							if (element instanceof SoarDatabaseRow) {
-								if (new DeleteDatabaseRowAction((SoarDatabaseRow) element).run(!deleteAll, true)) {
+								boolean deleteAllOption = ts.size() > 1;
+								if (new DeleteDatabaseRowAction((SoarDatabaseRow) element).run(!deleteAll, deleteAllOption)) {
 									deleteAll = true;
 								}
 							}

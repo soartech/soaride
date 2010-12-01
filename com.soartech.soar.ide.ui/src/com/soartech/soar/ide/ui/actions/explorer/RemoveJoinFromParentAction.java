@@ -48,7 +48,7 @@ public class RemoveJoinFromParentAction extends Action {
 			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 			String title = "Remove item?";
 			org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
-			String message = "Are you sure you want to remove \"" + row.getName() + "\" from \"" + parent.getName() + "\"?";
+			String message = "Remove \"" + row.getName() + "\" from \"" + parent.getName() + "\"?";
 			String[] labels = new String[] { "OK", "Cancel" };
 			MessageDialog dialog = new MessageDialog(shell, title, image, message, MessageDialog.QUESTION, labels, 0);
 			int result = dialog.open();

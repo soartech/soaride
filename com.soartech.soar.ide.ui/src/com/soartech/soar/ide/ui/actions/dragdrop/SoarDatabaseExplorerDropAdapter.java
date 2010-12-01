@@ -31,25 +31,30 @@ public class SoarDatabaseExplorerDropAdapter extends ViewerDropAdapter {
 	
 	public SoarDatabaseExplorerDropAdapter(Viewer viewer) {
 		super(viewer);
+		directedChildren = new HashMap<Table, HashSet<Table>>();
+
 		
 		undirectedChildren = new HashMap<Table, HashSet<Table>>();
 		HashSet<Table> tagChildren = new HashSet<Table>();
 		tagChildren.add(Table.RULES);
 		tagChildren.add(Table.PROBLEM_SPACES);
 		tagChildren.add(Table.OPERATORS);
-		undirectedChildren.put(Table.TAGS, tagChildren);
+		tagChildren.add(Table.TAGS);
+		directedChildren.put(Table.TAGS, tagChildren);
 		
-		directedChildren = new HashMap<Table, HashSet<Table>>();
 		HashSet<Table> problemSpaceChildren = new HashSet<Table>();
 		problemSpaceChildren.add(Table.OPERATORS);
 		problemSpaceChildren.add(Table.RULES);
 		problemSpaceChildren.add(Table.PROBLEM_SPACES);
+		problemSpaceChildren.add(Table.TAGS);
 		directedChildren.put(Table.PROBLEM_SPACES, problemSpaceChildren);
 		HashSet<Table> operatorChildren = new HashSet<Table>();
 		operatorChildren.add(Table.RULES);
 		operatorChildren.add(Table.PROBLEM_SPACES);
+		operatorChildren.add(Table.TAGS);
 		directedChildren.put(Table.OPERATORS, operatorChildren);
-		
+
+
 		/*
 		undirectedJoins = new HashMap<Table, HashSet<Table>>();
 		HashSet<Table> tagJoins = new HashSet<Table>();

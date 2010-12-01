@@ -2121,9 +2121,12 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		directedJoinTables(Table.OPERATORS, Table.RULES);
 		directedJoinTables(Table.PROBLEM_SPACES, Table.OPERATORS);
 		directedJoinTables(Table.OPERATORS, Table.PROBLEM_SPACES);
-		joinTables(Table.TAGS, Table.PROBLEM_SPACES); // Tags
-		joinTables(Table.TAGS, Table.OPERATORS);
-		joinTables(Table.TAGS, Table.RULES);
+		directedJoinTables(Table.TAGS, Table.PROBLEM_SPACES); // Tags
+		directedJoinTables(Table.TAGS, Table.OPERATORS);
+		directedJoinTables(Table.TAGS, Table.RULES);
+		directedJoinTables(Table.PROBLEM_SPACES, Table.TAGS);
+		directedJoinTables(Table.OPERATORS, Table.TAGS);
+		directedJoinTables(Table.TAGS, Table.TAGS);
 		
 		// For linked attributes
 		joinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_IDENTIFIERS);
@@ -2139,7 +2142,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 		directedJoinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_FLOATS);
 		directedJoinTables(Table.DATAMAP_IDENTIFIERS, Table.DATAMAP_STRINGS);
 		directedJoinTables(Table.PROBLEM_SPACES, Table.PROBLEM_SPACES); // Superstate relationships
-
+		
 		// Triples
 		addParent(Table.TRIPLES, Table.RULES);
 		directedJoinTables(Table.TRIPLES, Table.TRIPLES);

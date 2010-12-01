@@ -59,7 +59,7 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 				}
 				if (table == Table.PROBLEM_SPACES) {
 					Table[] folderTables = new Table[] { Table.RULES };
-					Table[] rawTables = new Table[] { Table.OPERATORS, Table.PROBLEM_SPACES };
+					Table[] rawTables = new Table[] { Table.OPERATORS, Table.PROBLEM_SPACES, Table.TAGS };
 
 					for (Table folderTable : folderTables) {
 						SoarDatabaseRowFolder folder = new SoarDatabaseRowFolder(row, folderTable, true);
@@ -73,7 +73,7 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 					}
 				}
 				if (table == Table.OPERATORS) {
-					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.RULES };
+					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.RULES, Table.TAGS };
 					for (Table folderTable : tables) {
 						ret.addAll(SoarDatabaseUtil.sortRowsByName(row.getJoinedRowsFromTable(folderTable)));
 					}
@@ -83,7 +83,7 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 					return new Object[0];
 				}
 				if (table == Table.TAGS) {
-					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.OPERATORS, Table.RULES };
+					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.OPERATORS, Table.RULES, Table.TAGS };
 					for (Table folderTable : tables) {
 						ret.addAll(SoarDatabaseUtil.sortRowsByName(row.getJoinedRowsFromTable(folderTable)));
 					}
@@ -209,13 +209,13 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 							includeDatamapNodes).size() > 0) return true;
 				}
 				if (table == Table.PROBLEM_SPACES) {
-					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.OPERATORS, Table.RULES };
+					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.OPERATORS, Table.RULES, Table.TAGS };
 					for (Table folderTable : tables) {
 						if (row.getDirectedJoinedChildrenOfType(folderTable, false, false).size() > 0) return true;
 					}
 				}
 				if (table == Table.OPERATORS) {
-					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.RULES };
+					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.RULES, Table.TAGS };
 					for (Table folderTable : tables) {
 						if (row.getJoinedRowsFromTable(folderTable).size() > 0) return true;
 					}
@@ -224,9 +224,9 @@ public class SoarExplorerContentProvider implements ITreeContentProvider {
 					return false;
 				}
 				if (table == Table.TAGS) {
-					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.OPERATORS, Table.RULES };
+					Table[] tables = new Table[] { Table.PROBLEM_SPACES, Table.OPERATORS, Table.RULES, Table.TAGS };
 					for (Table folderTable : tables) {
-						if(row.getJoinedRowsFromTable(folderTable).size() > 0) return true;
+						if(row.getDirectedJoinedChildrenOfType(folderTable, false, false).size() > 0) return true;
 					}
 				}
 			}

@@ -47,7 +47,7 @@ public class DeleteDatabaseRowAction extends Action {
 			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 			String title = "Delete item?";
 			org.eclipse.swt.graphics.Image image = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
-			String message = "Are you sure you want to delete \"" + row.getName() + "\"?\nThis action cannot be undone.";
+			String message = "Delete \"" + row.getName() + "\"?\nThis action cannot be undone.";
 			String[] labels = null;
 			int cancelIndex;
 			int deleteAllIndex;
