@@ -50,7 +50,12 @@ public class SoarDatabaseSearchResultsView extends ViewPart {
 	
 	public static void setResults(Object[] results) {
 		try {
-			SoarDatabaseSearchResultsView view = (SoarDatabaseSearchResultsView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ID);
+			SoarDatabaseSearchResultsView view = null;
+			if (results.length == 0) {
+				view = (SoarDatabaseSearchResultsView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(ID);
+			} else {
+				view = (SoarDatabaseSearchResultsView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ID);
+			}
 			view.setSearchResults(results);
 		} catch (PartInitException e) {
 			e.printStackTrace();

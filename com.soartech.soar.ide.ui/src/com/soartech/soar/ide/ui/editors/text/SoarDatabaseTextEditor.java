@@ -27,6 +27,14 @@ public class SoarDatabaseTextEditor extends AbstractSoarDatabaseTextEditor imple
 	@Override
 	public void doSave(IProgressMonitor progressMonitor) {
 		super.doSave(progressMonitor);
+		doSoarSave(progressMonitor, false);
+	}
+	
+	public void markErrors() {
+		doSoarSave(null, true);
+	}
+	
+	private void doSoarSave(IProgressMonitor progressMonitor, final boolean forceSave) {
 		if (input != null) {
 			input.clearProblems();
 			clearAnnotations();
@@ -38,7 +46,7 @@ public class SoarDatabaseTextEditor extends AbstractSoarDatabaseTextEditor imple
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 						ArrayList<SoarProblem> problems = new ArrayList<SoarProblem>();
-						row.save(doc, problems, monitor);
+						row.save(doc, problems, monitor, forceSave);
 						for (SoarProblem problem : problems) {
 							input.addProblem(problem);
 						}

@@ -73,7 +73,7 @@ public abstract class AbstractSoarDatabaseMultiRuleEditor extends AbstractSoarDa
 								addRow(rule);
 							}
 							ArrayList<SoarProblem> problems = new ArrayList<SoarProblem>();
-							rule.save(ruleText.string, problems, null);
+							rule.save(ruleText.string, problems, null, false);
 							for (SoarProblem problem : problems) { 
 							  problem.start += ruleText.offset;
 							  input.addProblem(problem);

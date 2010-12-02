@@ -68,6 +68,7 @@ public class SoarUiModelTools
         IEditorInput input = row.getEditorInput();
 		if (input != null) {
 			IEditorPart part = page.openEditor(input, editorId);
+			((SoarDatabaseTextEditor) part).markErrors();
 			return part;
 		}
 		return null;

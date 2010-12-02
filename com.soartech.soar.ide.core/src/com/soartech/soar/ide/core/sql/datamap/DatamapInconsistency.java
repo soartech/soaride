@@ -23,11 +23,32 @@ public class DatamapInconsistency {
 		this.message = message;
 		this.offset = offset - 1; // Convert from 1-indexed
 		setColumnAndRow();
+		addExtraLines();
 	}
-	
+
+	public DatamapInconsistency(SoarDatabaseRow rule, String message, int line) {
+		this.problemSpace = null;
+		this.rule = rule;
+		this.message = message;
+		this.offset = -1; // Convert from 1-indexed
+		this.line = line;
+		if (line == -1 && message.startsWith("Lexical error at line ")) {
+			int lineIndex = message.indexOf("line ") + 5;
+			int columnWordIndex = message.indexOf("column ");
+			int columnIndex = columnWordIndex + 7;
+			int periodIndex = message.indexOf('.');
+			int parsedLine = Integer.parseInt(message.substring(lineIndex, columnWordIndex - 2));
+			int parsedColumn = Integer.parseInt(message.substring(columnIndex, periodIndex));
+			this.line = parsedLine;
+			this.column = parsedColumn;
+			this.message = message.substring(periodIndex + 2);
+		}
+		addExtraLines();
+	}
+
 	private void setColumnAndRow() {
 		
-		String text = rule.getText();
+		String text = SoarDatabaseRow.removeComments(rule.getText());
 		String trimmed = text.trim();
 		int beginIndex = 0;
 		if (trimmed.startsWith("sp") || trimmed.startsWith("gp")) {
@@ -65,7 +86,14 @@ public class DatamapInconsistency {
 		column = offset - i - 1;
 	}
 	
+	private void addExtraLines() {
+		String ruleText = rule.getText();
+	}
+	
 	public String toString() {
-		return rule.getName() + ":" + line + " (" + problemSpace.getName() + ") " + message;
+		if (problemSpace != null) {
+			return rule.getName() + ":" + (line >= 0 ? line : "") + " (" + problemSpace.getName() + ") " + message;
+		}
+		return rule.getName() + ":" + (line >= 0 ? line : "") + " " + message;
 	}
 }

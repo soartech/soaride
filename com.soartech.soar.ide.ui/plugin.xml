@@ -176,6 +176,15 @@
               style="push"
               tooltip="Checks all rules against their datamaps and report inconsistencies in the Search Results view.">
         </action>
+        
+        <action
+              class="com.soartech.soar.ide.ui.actions.soarmenu.CheckRulesForSyntaxErrorsActionDelegate"
+              id="com.soartech.soar.ide.ui.actions.soarmenu.CheckRulesForSyntaxErrorsActionDelegate"
+              label="Check Rules For Syntax Errors"
+              menubarPath="com.soartech.soar.ide.ui.soarMenu/soarDebuggerActions"
+              style="push"
+              tooltip="Checks all rules for syntax errors.">
+        </action>
 
      </actionSet>
      

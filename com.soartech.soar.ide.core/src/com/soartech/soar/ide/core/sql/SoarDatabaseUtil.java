@@ -28,7 +28,7 @@ import com.soartech.soar.ide.core.tcl.TclSpCommand;
 
 public class SoarDatabaseUtil {
 
-	private static RelocatableTclInterpreter makeInterp(File file, boolean countOnly, boolean soarCallbacks, ArrayList<String> comments) {
+	public static RelocatableTclInterpreter makeInterp(File file, boolean countOnly, boolean soarCallbacks, ArrayList<String> comments) {
 		RelocatableTclInterpreter ret = new RelocatableTclInterpreter();
 		String filePath = file.getParent();
 		if (filePath != null) {
@@ -89,7 +89,7 @@ public class SoarDatabaseUtil {
 				monitor.subTask(ruleName);
 			}
 			SoarDatabaseRow child = agent.createChild(Table.RULES, ruleName);
-			errors.addAll(child.save(ruleText, null, null));
+			errors.addAll(child.save(ruleText, null, null, false));
 
 			if (monitor != null) {
 				monitor.worked(1);

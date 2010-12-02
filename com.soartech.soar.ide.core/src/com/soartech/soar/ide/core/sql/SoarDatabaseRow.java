@@ -23,6 +23,9 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
 import org.ibex.nestedvm.util.Seekable.ByteArray;
 
+import tcl.lang.RelocatableTclInterpreter;
+import tcl.lang.TclException;
+
 import com.soartech.soar.ide.core.SoarProblem;
 import com.soartech.soar.ide.core.ast.Action;
 import com.soartech.soar.ide.core.ast.AttributeTest;
@@ -59,6 +62,8 @@ import com.soartech.soar.ide.core.sql.SoarDatabaseEvent.Type;
 import com.soartech.soar.ide.core.sql.datamap.Correction;
 import com.soartech.soar.ide.core.sql.datamap.DatamapInconsistency;
 import com.soartech.soar.ide.core.sql.datamap.DatamapUtil;
+import com.soartech.soar.ide.core.tcl.SoarModelTclCommands;
+import com.soartech.soar.ide.core.tcl.TclSpCommand;
 
 /**
  * Represents a row in a database table.
@@ -2676,8 +2681,8 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	 * @param problems Output parameter
 	 * @param monitor
 	 */
-	public void save(IDocument doc, ArrayList<SoarProblem> problems, IProgressMonitor monitor) {
-		save(doc.get(), problems, monitor);
+	public void save(IDocument doc, ArrayList<SoarProblem> problems, IProgressMonitor monitor, boolean forceSave) {
+		save(doc.get(), problems, monitor, forceSave);
 	}
 	
 	/**
@@ -2689,7 +2694,7 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 	 * @param monitor Progress Monitor, or null if none exists.
 	 * @return List of errors
 	 */
-	public ArrayList<String> save(String text, ArrayList<SoarProblem> problems, IProgressMonitor monitor) {
+	public ArrayList<String> save(String text, ArrayList<SoarProblem> problems, IProgressMonitor monitor, boolean forceSave) {
 		ArrayList<String> errors = new ArrayList<String>();
 		if (table == Table.RULES) {
 			db.pushSuppressEvents();
@@ -2715,11 +2720,13 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			}
 			
 			// If there's not a change to the rule, don't re-parse it.
-			if (oldText.trim().equals(text.trim())) {
+			if (!forceSave && oldText.trim().equals(text.trim())) {
 				db.popSuppressEvents();
 				db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED, this));
 				return errors;
 			}
+			
+			/*
 			
 			// Remove comments
 			text = removeComments(text);
@@ -2772,25 +2779,27 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 				}
 				
 				if (!error) {
+				
+				*/
+			
+			RelocatableTclInterpreter interp = new RelocatableTclInterpreter();
+			ArrayList<String> comments = new ArrayList<String>();
+			SoarModelTclCommands.installSoarCommands(interp, false, false, comments);
+			try {
+				interp.eval(text);
+			
+			TclSpCommand spCommand = (TclSpCommand) interp.getCommand("sp");
+			for (String rule : spCommand.getRules()) {
+				rule = rule.substring(4, rule.length() - 1);
+				int ruleOffset = text.indexOf(rule) + 4;
+				rule = SoarDatabaseRow.removeComments(rule);
+
 					// Parse the rule into an AST.
-					String parseText = text.substring(beginIndex, endIndex);
-					StringReader reader = new StringReader(parseText);
+					StringReader reader = new StringReader(rule);
 					SoarParser parser = new SoarParser(reader);
 					try {
 						SoarProductionAst ast = parser.soarProduction();
-						
 						this.updateBlobValue("ast", ast);
-						// System.out.println("Parsed rule:\n" + ast);
-
-						// insert into database
-						/*
-						try {
-							createChildrenFromAstNode(ast);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-						*/
-						
 					} catch (ParseException e) {
 						// e.printStackTrace();
 						String message = e.getLocalizedMessage();
@@ -2801,39 +2810,78 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 						// being parsed and the given column and row
 						int start = 0;
 						for (int i = 1; i < errorToken.beginLine;) {
-							char c = parseText.charAt(start);
+							char c = rule.charAt(start);
 							if (c == '\n') {
 								++i;
 							}
 							++start;
 						}
 
-						start += beginIndex;
 						// -1 for columns counting starting with 1
 						start += errorToken.beginColumn - 1;
 
 						int length = 1;
 						if (problems != null) {
-							problems.add(SoarProblem.createError(message, start, length));
+							problems.add(SoarProblem.createError(message, start + ruleOffset, length));
 						}
 					} catch (TokenMgrError e) {
-						e.printStackTrace();
-						/*
-						 * String message = e.getLocalizedMessage();
-						 * 
-						 * // Get the range of the error, based on the string //
-						 * being parsed and the given column and row int start =
-						 * 0; for (int i = 1; i < e.getErrorLine();) { char c =
-						 * parseText.charAt(start); if (c == '\n') { ++i; }
-						 * ++start; }
-						 * 
-						 * start += beginIndex; // -1 for columns counting
-						 * starting with 1 start += e.getErrorColumn() - 1;
-						 * 
-						 * int length = 2; // (errorToken.endOffset - //
-						 * errorToken.beginOffset) + 1; if (input != null) {
-						 * input.addProblem(SoarProblem.createError(message,
-						 * start, length)); }
+						//e.printStackTrace();
+						
+						  String message = e.getLocalizedMessage();
+							if (problems != null) {
+								assert(message.startsWith("Lexical error at line "));
+									int lineIndex = message.indexOf("line ") + 5;
+									int columnWordIndex = message.indexOf("column ");
+									int columnIndex = columnWordIndex + 7;
+									int periodIndex = message.indexOf('.');
+									int parsedLine = Integer.parseInt(message.substring(lineIndex, columnWordIndex - 2));
+									int parsedColumn = Integer.parseInt(message.substring(columnIndex, periodIndex));
+									message = message.substring(periodIndex + 2);
+									// Get the range of the error, based on the string
+									// being parsed and the given column and row
+									int start = 0;
+									for (int i = 1; i < parsedLine;) {
+										char c = rule.charAt(start);
+										if (c == '\n') {
+											++i;
+										}
+										++start;
+									}
+
+									// -1 for columns counting starting with 1
+									start += parsedColumn - 1;
+
+									int length = 1;
+									problems.add(SoarProblem.createError(message, start + ruleOffset, length));
+							}
+
+						  /** Get the range of the error, based on the string
+						  being parsed and the given column and row
+						  */
+						  /*
+							int start = 0;
+							for (int i = 1; i < e.getErrorLine();) {
+								char c = rule.charAt(start);
+								if (c == '\n') {
+									++i;
+								}
+								++start;
+							}
+							*/
+							/*
+						  int start = 0;
+						  for (int i = 1; i < e.getErrorLine();) {
+							  char c =
+						  parseText.charAt(start); if (c == '\n') { ++i; }
+						  ++start; }
+						  
+						  start += beginIndex; // -1 for columns counting
+						  starting with 1 start += e.getErrorColumn() - 1;
+						  
+						  int length = 2; // (errorToken.endOffset - //
+						  errorToken.beginOffset) + 1; if (input != null) {
+						  input.addProblem(SoarProblem.createError(message,
+						  start, length)); }
 						 */
 					}
 					
@@ -2854,12 +2902,11 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 						monitor.done();
 					}
 
-				} else {
-					String errorMessage = "Production doesn't begin with \"sp {\" or doesn't end with \"}\" Rule: " + getName();
-					errors.add(errorMessage);
 				}
+			//}
+			} catch (TclException e1) {
+				e1.printStackTrace();
 			}
-			
 			db.popSuppressEvents();
 			db.fireEvent(new SoarDatabaseEvent(Type.DATABASE_CHANGED, this));
 			
@@ -2903,6 +2950,10 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 				
 				if (!inString && c == '#') {
 					inComment = true;
+					int builderLength = builder.length();
+					if (builderLength > 0 && builder.charAt(builderLength - 1) == ';') {
+						builder.deleteCharAt(builderLength - 1);
+					}
 				}
 								
 				if (!inComment) {
@@ -2915,6 +2966,38 @@ public class SoarDatabaseRow implements ISoarDatabaseTreeItem {
 			e.printStackTrace();
 		}
 		return builder.toString();
+	}
+	
+	/**
+	 * Counts how many lines are comments, up to some limit index.
+	 * @param text The test to search in.
+	 * @param limit The maximum character index to search to, or -1 to search the whole text.
+	 * @return
+	 */
+	public static int countComments(String text, int limit) {
+		int i = 0;
+		int next = 0;
+		int ret = 0;
+		while(i < text.length()) {
+			next = text.indexOf('\n', i);
+			if (limit != -1 && next > limit) {
+				break;
+			}
+			int hash = text.indexOf('#', i);
+			if (hash < next) {
+				boolean comment = true;
+				for (int space = i + 1; space < hash && comment; ++space) {
+					if (text.charAt(space) != ' ' && text.charAt(space) != '\t') {
+						comment = false;
+					}
+				}
+				if (comment) {
+					++ret;
+				}
+			}
+			i = next;
+		}
+		return ret;
 	}
 	
 	/**
