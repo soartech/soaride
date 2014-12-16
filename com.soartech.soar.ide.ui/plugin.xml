@@ -50,7 +50,7 @@
      <editor
            class="com.soartech.soar.ide.ui.editors.text.SoarEditor"
            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
-           extensions="soar,tcl"
+           extensions="soar,soarunit,tcl"
            icon="icons/soar_file_16.gif"
            id="com.soartech.soar.editor.editors.SoarEditor"
            name="Soar Editor"/>
