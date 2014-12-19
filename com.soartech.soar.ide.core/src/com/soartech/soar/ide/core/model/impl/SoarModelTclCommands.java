@@ -86,7 +86,8 @@ public class SoarModelTclCommands
         "smem",
         "alias",
         "rl",
-        "epmem"
+        "epmem",
+        "dict"
     };
     
     /**
