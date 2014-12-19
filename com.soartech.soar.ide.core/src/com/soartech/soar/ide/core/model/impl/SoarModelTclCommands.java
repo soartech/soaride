@@ -82,6 +82,11 @@ public class SoarModelTclCommands
         "stats",
         
         "wm",
+        
+        "smem",
+        "alias",
+        "rl",
+        "epmem"
     };
     
     /**
