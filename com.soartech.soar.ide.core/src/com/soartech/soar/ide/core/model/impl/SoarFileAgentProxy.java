@@ -332,6 +332,13 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
         {
             elements.add(new TclProcedure(this, reporter, commandNode));
         }
+        else if(name.equals("set"))
+        {
+            //run the set command in the interpreter to add the variable
+            TclAstNode endWord = words.get(words.size() - 1);
+            String input = "\"" + buffer.getText(nameWord.getStart(), endWord.getStart() + endWord.getLength()) + "\"";
+            agent.expandTclString("::", input, 0);
+        }
         else if(isImprobableCommandName(name))
         {
             // TODO: Workspace and project preference for disabling this warning
