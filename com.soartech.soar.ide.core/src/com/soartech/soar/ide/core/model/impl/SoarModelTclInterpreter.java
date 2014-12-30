@@ -24,9 +24,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -73,25 +78,26 @@ public class SoarModelTclInterpreter
     public SoarModelTclInterpreter(boolean sourceChangesDir, 
     			Map<String,ExpandedProductionInfo> previousProductionMap )
     {
-        this.interp = new RelocatableTclInterpreter(new ProgressHandler());
-        this.sourceChangesDir = sourceChangesDir;
-        this.previousProductionMap = previousProductionMap;
-        
-        installCommands();
+            this.interp = new RelocatableTclInterpreter(new ProgressHandler());
+            this.sourceChangesDir = sourceChangesDir;
+            this.previousProductionMap = previousProductionMap;
+            
+            installCommands();
     }
     
     /**
      * Dispose this interpreter.
+     * 
+     * The JTCL requires that the Interp class be disposed with the same thread that instantiated it.
+     * 
+     * This method must only be called from the same thread that created this object instance.
      */
     public void dispose()
     {
         synchronized(lock)
         {
-            // TODO: Stupid Jacl insists that the interpreter be disposed in
-            // thread is was created in so we'll have to think of a different
-            // way to do this :(
-            this.interp.eventuallyDispose();
-            this.interp = null;
+            interp.dispose();
+            interp = null;
             productionMap.clear();
             overwrittenProductions.clear();
             filesToBuild.clear();

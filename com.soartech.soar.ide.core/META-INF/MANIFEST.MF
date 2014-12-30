@@ -17,8 +17,7 @@ Eclipse-AutoStart: true
 Bundle-ClassPath: soareditor.jar,
  lib/sml.jar,
  lib/antlr.jar,
- lib/jacl.jar,
- lib/tcljava.jar,
+ lib/jtcl-2.7.0.jar,
  lib/jdom.jar
 Export-Package: com.soartech.soar.editor.docs,
  com.soartech.soar.editor.model,
