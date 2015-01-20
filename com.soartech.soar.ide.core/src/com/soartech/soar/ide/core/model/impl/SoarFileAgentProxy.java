@@ -335,9 +335,12 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
         else if(name.equals("set"))
         {
             //run the set command in the interpreter to add the variable
+            ExpandedProductionInfo info = agent.getExpandedProductionBody(name);
+            String namespace = info != null ? info.namespace : "::";
+            
             TclAstNode endWord = words.get(words.size() - 1);
-            String input = "\"" + buffer.getText(nameWord.getStart(), endWord.getStart() + endWord.getLength()) + "\"";
-            agent.expandTclString("::", input, 0);
+            String input = "\"" + buffer.getText(nameWord.getStart(), (endWord.getStart() + endWord.getLength()) - nameWord.getStart()) + "\"";
+            agent.expandTclString(namespace, input, 0);
         }
         else if(isImprobableCommandName(name))
         {
@@ -345,6 +348,14 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
             reporter.report(SoarProblem.createWarning("'" + name + "' is an improbable Tcl command. Possible syntax error.", 
                     nameWord.getStart(), nameWord.getLength()));
         }
+//        else {
+//            ExpandedProductionInfo info = agent.getExpandedProductionBody(name);
+//            String namespace = info != null ? info.namespace : "::";
+//            
+//            TclAstNode endWord = words.get(words.size() - 1);
+//            String input = "\"" + buffer.getText(nameWord.getStart(), (endWord.getStart() + endWord.getLength()) - nameWord.getStart()) + "\"";
+//            agent.expandTclString(namespace, input, 0);
+//        }
     }
 
     /**
