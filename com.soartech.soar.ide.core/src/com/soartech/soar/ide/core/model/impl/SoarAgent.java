@@ -307,50 +307,53 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
             @Override
             public void run() {
 
-                // Save the previous production map so we can identify secondary productions
-                Map<String, ExpandedProductionInfo> productionMap = null;
-                if (interpreter != null)
+                synchronized(getLock())
                 {
-                    productionMap = new HashMap<String, ExpandedProductionInfo>(interpreter.getProductions());
-                    interpreter.dispose();
-                    interpreter = null;
-                }
-                else
-                {
-                    productionMap = new HashMap<String, ExpandedProductionInfo>();
-                }
-                
-                interpreter = new SoarModelTclInterpreter(sourceCommandChangesDirectory, productionMap);
-                
-                if (startFile != null)
-                {
-                    System.out.println(name + ": Processing Tcl from start file '"
-                            + startFile.getFullPath());
-                    monitor.subTask(name + ": Processing Tcl from start file '"
-                            + startFile.getFullPath());
-                    IPath location = startFile.getLocation();
-                    try
+                    // Save the previous production map so we can identify secondary productions
+                    Map<String, ExpandedProductionInfo> productionMap = null;
+                    if (interpreter != null)
                     {
-                        long start = System.currentTimeMillis();
-                        TclExpansionError error = interpreter.evaluate(location.toFile(), 
-                                                             new SubProgressMonitor(monitor, 1));
-                        System.out.println(name + ": Ran Tcl processing on "
-                                + location.toPortableString() + " in "
-                                + (System.currentTimeMillis() - start) + " ms");
-                        if (error != null)
-                        {
-                            createTclPreprocessorErrorMarker(error);
-                            System.out.println("### " + name + ": ERROR: " + error);
-                        }
+                        productionMap = new HashMap<String, ExpandedProductionInfo>(interpreter.getProductions());
+                        interpreter.dispose();
+                        interpreter = null;
                     }
-                    catch (RelocatableTclInterpreter.InterruptedException | SoarModelException e)
+                    else
                     {
-                        // TODO: I don't think there's really anything to do here, but
-                        // think about it.
-                        System.out.println("### " + name + ": Tcl processing cancelled by user ###");
+                        productionMap = new HashMap<String, ExpandedProductionInfo>();
                     }
                     
-                    creatingTclInterp = false;
+                    interpreter = new SoarModelTclInterpreter(sourceCommandChangesDirectory, productionMap);
+                    
+                    if (startFile != null)
+                    {
+                        System.out.println(name + ": Processing Tcl from start file '"
+                                + startFile.getFullPath());
+                        monitor.subTask(name + ": Processing Tcl from start file '"
+                                + startFile.getFullPath());
+                        IPath location = startFile.getLocation();
+                        try
+                        {
+                            long start = System.currentTimeMillis();
+                            TclExpansionError error = interpreter.evaluate(location.toFile(), 
+                                                                 new SubProgressMonitor(monitor, 1));
+                            System.out.println(name + ": Ran Tcl processing on "
+                                    + location.toPortableString() + " in "
+                                    + (System.currentTimeMillis() - start) + " ms");
+                            if (error != null)
+                            {
+                                createTclPreprocessorErrorMarker(error);
+                                System.out.println("### " + name + ": ERROR: " + error);
+                            }
+                        }
+                        catch (RelocatableTclInterpreter.InterruptedException | SoarModelException e)
+                        {
+                            // TODO: I don't think there's really anything to do here, but
+                            // think about it.
+                            System.out.println("### " + name + ": Tcl processing cancelled by user ###");
+                        }
+                        
+                        creatingTclInterp = false;
+                    }
                 }
                 
             }
