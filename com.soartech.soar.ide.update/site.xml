@@ -3,6 +3,8 @@
    <description url="http://soaride.googlecode.com/svn/update/">
       Soar IDE Update Site
    </description>
-   <feature url="features/com.soartech.soar.ide.feature_1.2.1.jar" id="com.soartech.soar.ide.feature" version="1.2.1"/>
+   <feature url="features/com.soartech.soar.ide.feature_1.2.1.jar" id="com.soartech.soar.ide.feature" version="1.2.1">
+      <category name="Soar IDE"/>
+   </feature>
    <category-def name="Soar IDE" label="Soar IDE"/>
 </site>
