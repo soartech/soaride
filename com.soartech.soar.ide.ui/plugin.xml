@@ -554,8 +554,8 @@
  <extension
        point="org.eclipse.ui.console.consoleFactories">
     <consoleFactory
-          class="com.soartech.soar.ide.ui.views.console.TestConsoleFactory"
-          label="Test Console">
+          class="com.soartech.soar.ide.ui.views.console.TclConsoleFactory"
+          label="Tcl Console">
     </consoleFactory>
  </extension>
 
