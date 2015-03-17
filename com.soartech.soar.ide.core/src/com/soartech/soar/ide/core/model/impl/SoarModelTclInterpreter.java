@@ -152,6 +152,33 @@ public class SoarModelTclInterpreter
     }
     
     /**
+     * Execute a command string in the interpreter.
+     * 
+     * @param command
+     * @return
+     */
+    public String executeString(String command)
+    {
+        synchronized(lock)
+        {
+            if(interp == null)
+            {
+                throw new IllegalStateException("Interpreter is disposed");
+            }
+            
+            try {
+                interp.eval(command, TCL.EVAL_GLOBAL);
+                String result = interp.getResult().toString();
+                return result;
+            } catch (TclException e) {
+                String result = interp.getResult().toString();
+                return result;
+            }
+        }
+        
+    }
+    
+    /**
      * Evaluate the given file in this interpreter.
      * 
      * @param file The file to evaluate

@@ -1463,6 +1463,11 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
             }
         }
     }
-    
+
+    @Override
+    public String executeString(String command) 
+    {
+        return this.interpreter.executeString(command);
+    }
 
 }

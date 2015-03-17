@@ -551,5 +551,12 @@
 
     </quickAssistProcessor>
  </extension>
+ <extension
+       point="org.eclipse.ui.console.consoleFactories">
+    <consoleFactory
+          class="com.soartech.soar.ide.ui.views.console.TestConsoleFactory"
+          label="Test Console">
+    </consoleFactory>
+ </extension>
 
  </plugin>

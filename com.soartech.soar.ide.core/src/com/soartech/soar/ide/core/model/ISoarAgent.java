@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 
+
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamap;
 
 /**
@@ -270,5 +271,12 @@ public interface ISoarAgent extends ISoarElement
      * @return The soar productions.
      */
     List<ISoarProduction> getAllProductions();
+    
+    /**
+     * Execute the given string command in the agent's interpreter. 
+     * 
+     * @return The interpreter's result.
+     */
+    String executeString(String command);
 
 }
