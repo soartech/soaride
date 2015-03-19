@@ -38,7 +38,7 @@ public class TclConsole extends IOConsole
     
     public TclConsole(String name, ISoarProject soarProject) 
     {
-        super(name, null);
+        super("TCL> " + name, null);
         
         this.soarProject = soarProject;
         

@@ -99,6 +99,11 @@
            id="com.soartech.soar.ide.ui.editor.command.DuplicateProduction"
            name="Duplicate Production">
      </command>
+     <category
+           description="Commands having to do with the tcl console"
+           id="com.soartech.soar.ide.ui.console"
+           name="Tcl Console Commands">
+     </category>
   </extension>
   <extension
         point="org.eclipse.ui.contexts">
@@ -555,7 +560,8 @@
        point="org.eclipse.ui.console.consoleFactories">
     <consoleFactory
           class="com.soartech.soar.ide.ui.views.console.TclConsoleFactory"
-          label="Tcl Console">
+          icon="icons/tcl-variable.ico"
+          label="Tcl Consoles">
     </consoleFactory>
  </extension>
 

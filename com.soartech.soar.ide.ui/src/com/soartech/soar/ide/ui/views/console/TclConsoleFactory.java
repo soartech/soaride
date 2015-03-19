@@ -4,6 +4,9 @@
 package com.soartech.soar.ide.ui.views.console;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleFactory;
@@ -25,34 +28,21 @@ public class TclConsoleFactory implements IConsoleFactory {
     @Override
     public void openConsole() 
     {
-        ISoarProject tfProject = findProject("tf-agent");
-        ISoarProject testProject = findProject("test");
-        
-        //create and add the TestConsole
-        addConsoleForProject("", testProject);
-    }
-    
-    private void addConsoleForProject(String name, ISoarProject proj)
-    {
-        //create and add the TestConsole
-        final TclConsole myConsole = new TclConsole(name, proj);
-        ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { myConsole });
-        
-        //consoleView.display(myConsole);
-        myConsole.writePromptToConsole();
-    }
-    
-    private ISoarProject findProject(String name)
-    {
+        //create a console for each soar project
+        List<IConsole> consoles = new ArrayList<IConsole>();
         ISoarModel soarModel = SoarCorePlugin.getDefault().getSoarModel();
-        
         try {
-            return soarModel.getProject(name);
+            for(ISoarProject p : soarModel.getProjects())
+            {
+                consoles.add(new TclConsole(p.getProject().getName(), p));
+            }
         } catch (SoarModelException e) {
             e.printStackTrace();
         }
         
-        return null;
+        //add the consoles to the console manager
+        ConsolePlugin.getDefault().getConsoleManager().addConsoles(consoles.toArray(new IConsole[]{}));
+        
     }
     
 }
