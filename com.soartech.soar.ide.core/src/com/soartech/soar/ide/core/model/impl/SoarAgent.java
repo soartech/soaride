@@ -53,6 +53,10 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.jsoar.kernel.Agent;
+import org.jsoar.runtime.ThreadedAgent;
+import org.jsoar.tcl.SoarTclInterfaceFactory;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 
 import tcl.lang.RelocatableTclInterpreter;
 
@@ -122,6 +126,8 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     
     private ScheduledExecutorService tclExecutorService = null;
     private boolean creatingTclInterp = false;
+    
+    private ThreadedAgent jsoarAgent;
 
     public SoarAgent(SoarProject soarProject, IFile file)
             throws SoarModelException
@@ -129,6 +135,17 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         super(soarProject);
         this.file = file;
         this.datamap.setAgent(this);
+        
+        //create a new jsoar agent
+        Agent agent = new Agent(soarProject.getProject().getName() + "-agent");
+        //create a TCL command interpreter for the agent
+        SoarTclInterfaceFactory factory = new SoarTclInterfaceFactory();
+        SoarCommandInterpreter scInterp = factory.create(agent);
+        //add the interpreter to the agent
+        agent.setInterpreter(scInterp);
+        //create a new ThreadedAgent and initialize it
+        this.jsoarAgent = ThreadedAgent.attach(agent);
+        this.jsoarAgent.initialize();
 
         String fileName = file.getName();
         int dotIndex = fileName.lastIndexOf('.');
@@ -158,7 +175,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
 
         System.out.println("Constructed working copy for " + this);
     }
-
+    
     /**
      * Retrieve the expansion information for a named production
      * 
@@ -322,7 +339,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
                         productionMap = new HashMap<String, ExpandedProductionInfo>();
                     }
                     
-                    interpreter = new SoarModelTclInterpreter(sourceCommandChangesDirectory, productionMap);
+                    interpreter = new SoarModelTclInterpreter(sourceCommandChangesDirectory, productionMap, jsoarAgent.getInterpreter());
                     
                     if (startFile != null)
                     {

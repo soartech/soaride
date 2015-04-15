@@ -18,7 +18,10 @@ Bundle-ClassPath: soareditor.jar,
  lib/sml.jar,
  lib/antlr.jar,
  lib/jtcl-2.7.0.jar,
- lib/jdom.jar
+ lib/jdom.jar,
+ lib/jsoar-core-snapshot-0.14.0.jar,
+ lib/jsoar-debugger-snapshot-0.14.0.jar,
+ lib/jsoar-tcl-snapshot-0.14.0.jar
 Export-Package: com.soartech.soar.editor.docs,
  com.soartech.soar.editor.model,
  com.soartech.soar.ide.console,

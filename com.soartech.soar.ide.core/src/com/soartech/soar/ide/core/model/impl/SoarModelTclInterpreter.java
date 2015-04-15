@@ -32,6 +32,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.jsoar.kernel.SoarException;
+import org.jsoar.tcl.SoarTclInterface;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -60,7 +63,10 @@ import com.soartech.soar.ide.core.model.TclExpansionError;
  */
 public class SoarModelTclInterpreter
 {
+    private SoarCommandInterpreter jsoarInterp;
+    
     private RelocatableTclInterpreter interp;
+    
     private boolean sourceChangesDir;
     private TclSourceCommand sourceCommand;
     private TclWorkingDirectoryCommands workingDirectoryCommands;
@@ -75,10 +81,10 @@ public class SoarModelTclInterpreter
     
     private Set<String> filesToBuild = new HashSet<String>();
     
-    public SoarModelTclInterpreter(boolean sourceChangesDir, 
-    			Map<String,ExpandedProductionInfo> previousProductionMap )
+    public SoarModelTclInterpreter(boolean sourceChangesDir, Map<String,ExpandedProductionInfo> previousProductionMap, SoarCommandInterpreter jsoarInterp )
     {
             this.interp = new RelocatableTclInterpreter(new ProgressHandler());
+            this.jsoarInterp = jsoarInterp;
             this.sourceChangesDir = sourceChangesDir;
             this.previousProductionMap = previousProductionMap;
             
@@ -96,8 +102,14 @@ public class SoarModelTclInterpreter
     {
         synchronized(lock)
         {
+            //JSOAR
+            jsoarInterp.dispose();
+            jsoarInterp = null;
+            
+            //TCL
             interp.dispose();
             interp = null;
+            
             productionMap.clear();
             overwrittenProductions.clear();
             filesToBuild.clear();
@@ -129,23 +141,34 @@ public class SoarModelTclInterpreter
             enterExpandMode();
             TclExpansionError error = null;
             String result = "";
-            try
-            {
-                // How does this work? Well, it evaluates the command
-                //      namespace eval <namespace> { return <input> }
-                // and returns the result.  The return command just returns
-                // the expansion of its argument. "namespace eval" evaluates
-                // commands in a particular namespace and returns the result.
-                interp.eval("namespace eval " + namespace + " {" + 
-                            "return " + input + "}", TCL.EVAL_GLOBAL);
-                result = interp.getResult().toString();
+            
+            //JSOAR
+            try {
+                result = jsoarInterp.eval("namespace eval " + namespace + " {" + 
+                        "return " + input + "}");
+            } catch (SoarException e) {
+                error = new TclExpansionError(null,e.getMessage(),e.getMessage(), offset, 0);
             }
-            catch (TclException e)
-            {
-            	//Less informative error
-                //error = new TclExpansionError(interp.getResult().toString(), offset, 0);
-            	error = new TclExpansionError(null,getErrorInfo(),interp.getResult().toString(), offset, 0);
-            }
+            
+            //TCL
+//            try
+//            {
+//                // How does this work? Well, it evaluates the command
+//                //      namespace eval <namespace> { return <input> }
+//                // and returns the result.  The return command just returns
+//                // the expansion of its argument. "namespace eval" evaluates
+//                // commands in a particular namespace and returns the result.
+//                interp.eval("namespace eval " + namespace + " {" + 
+//                            "return " + input + "}", TCL.EVAL_GLOBAL);
+//                result = interp.getResult().toString();
+//                
+//            }
+//            catch (TclException e)
+//            {
+//            	//Less informative error
+//                //error = new TclExpansionError(interp.getResult().toString(), offset, 0);
+//            	error = new TclExpansionError(null,getErrorInfo(),interp.getResult().toString(), offset, 0);
+//            } 
             exitExpandMode();
             return new ExpandedTclCode(error, result);
         }
@@ -166,14 +189,27 @@ public class SoarModelTclInterpreter
                 throw new IllegalStateException("Interpreter is disposed");
             }
             
-            try {
-                interp.eval(command, TCL.EVAL_GLOBAL);
-                String result = interp.getResult().toString();
-                return result;
-            } catch (TclException e) {
-                String result = interp.getResult().toString();
-                return result;
+            //JSOAR
+            try 
+            {
+                String jsoarResult = jsoarInterp.eval(command); 
+                return jsoarResult;
+            } 
+            catch (SoarException e) 
+            {
+//                e.printStackTrace();
+                return e.getMessage();
             }
+            
+            //TCL
+//            try {
+//                interp.eval(command, TCL.EVAL_GLOBAL);
+//                String result = interp.getResult().toString();
+//                return result;
+//            } catch (TclException e) {
+//                String result = interp.getResult().toString();
+//                return result;
+//            }
         }
         
     }
@@ -187,47 +223,71 @@ public class SoarModelTclInterpreter
      */
     public TclExpansionError evaluate(File file, IProgressMonitor monitor)
     {
-        String dir = file.getParent().replace('\\', '/');
-        String fileName = file.getName().replace('\\', '/');
+        //JSOAR
         synchronized(lock)
         {
-            if(interp == null)
+            try 
             {
-                throw new IllegalStateException("Interpreter is disposed");
-            }
-            try
-            {
-                sourceCommand.reset();
-                workingDirectoryCommands.reset();
-                
                 currentMonitor = monitor;
-                if(dir != null)
-                {
-                    interp.eval("pushd \"" + dir + "\"", TCL.EVAL_GLOBAL);
-                    interp.eval("source \"" + fileName + "\"", TCL.EVAL_GLOBAL);
-                    interp.eval("popd", TCL.EVAL_GLOBAL);
-                }
-                else
-                {
-                    interp.eval("source \"" + fileName + "\"", TCL.EVAL_GLOBAL);            
-                }
+                jsoarInterp.source(file);
                 return null;
-            }
-            catch(TclException e)
+            } 
+            catch (SoarException e) 
             {
-                return new TclExpansionError(sourceCommand.getCurrentFile(), 
-                                             getErrorInfo(), 0, 0);
-            }
-            finally
+                e.printStackTrace();
+                return new TclExpansionError(file.getName(), e.getMessage(), 0, 0);
+            } 
+            finally 
             {
                 currentMonitor.done();
                 currentMonitor = null;
             }
         }
+        
+        
+        //TCL
+//        String dir = file.getParent().replace('\\', '/');
+//        String fileName = file.getName().replace('\\', '/');
+//        synchronized(lock)
+//        {
+//            if(interp == null)
+//            {
+//                throw new IllegalStateException("Interpreter is disposed");
+//            }
+//            try
+//            {
+//                sourceCommand.reset();
+//                workingDirectoryCommands.reset();
+//                
+//                currentMonitor = monitor;
+//                if(dir != null)
+//                {
+//                    interp.eval("pushd \"" + dir + "\"", TCL.EVAL_GLOBAL);
+//                    interp.eval("source \"" + fileName + "\"", TCL.EVAL_GLOBAL);
+//                    interp.eval("popd", TCL.EVAL_GLOBAL);
+//                }
+//                else
+//                {
+//                    interp.eval("source \"" + fileName + "\"", TCL.EVAL_GLOBAL);            
+//                }
+//                return null;
+//            }
+//            catch(TclException e)
+//            {
+//                return new TclExpansionError(sourceCommand.getCurrentFile(), 
+//                                             getErrorInfo(), 0, 0);
+//            }
+//            finally
+//            {
+//                currentMonitor.done();
+//                currentMonitor = null;
+//            }
+//        }
     }
     
     public String getErrorInfo()
     {
+        //this method is only used by the TCL interpreter
         synchronized (lock)
         {
             try
@@ -417,7 +477,7 @@ public class SoarModelTclInterpreter
     public static void main(String[] args)
     {
         SoarModelTclInterpreter interp = new SoarModelTclInterpreter(false, 
-        		new HashMap<String,ExpandedProductionInfo>());
+        		new HashMap<String,ExpandedProductionInfo>(), null);
         
         try
         {
