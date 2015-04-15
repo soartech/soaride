@@ -20,7 +20,12 @@ import com.soartech.soar.ide.core.model.SoarModelException;
  * @author aron
  *
  */
-public class TclConsoleFactory implements IConsoleFactory {
+public class TclConsoleFactory implements IConsoleFactory 
+{
+    
+    //keep a list of the already added consoles so we don't add duplicates
+    //although the addConsoles() doc says it won't add duplicates it does
+    List<String> addedConsoles = new ArrayList<String>();
     
     /* (non-Javadoc)
      * @see org.eclipse.ui.console.IConsoleFactory#openConsole()
@@ -34,7 +39,11 @@ public class TclConsoleFactory implements IConsoleFactory {
         try {
             for(ISoarProject p : soarModel.getProjects())
             {
-                consoles.add(new TclConsole(p.getProject().getName(), p));
+                if(!addedConsoles.contains(p.getProject().getName()))
+                {
+                    consoles.add(new TclConsole(p.getProject().getName(), p));
+                    addedConsoles.add(p.getProject().getName());                    
+                }
             }
         } catch (SoarModelException e) {
             e.printStackTrace();
@@ -42,7 +51,6 @@ public class TclConsoleFactory implements IConsoleFactory {
         
         //add the consoles to the console manager
         ConsolePlugin.getDefault().getConsoleManager().addConsoles(consoles.toArray(new IConsole[]{}));
-        
     }
     
 }
