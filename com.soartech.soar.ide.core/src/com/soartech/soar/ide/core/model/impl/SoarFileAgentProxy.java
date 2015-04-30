@@ -353,7 +353,7 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
         }
         else if(name.equals("define-heuristic"))
         {
-            elements.add(new TclDefineHeuristicCommand(this, commandNode));
+//            elements.add(new TclDefineHeuristicCommand(this, commandNode));
         }
         else if(isImprobableCommandName(name))
         {
