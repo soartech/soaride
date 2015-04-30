@@ -312,8 +312,13 @@ public class SoarModelTclInterpreter
     RelocatableTclInterpreter getInterpreter()
     {
         return interp;
-        
     }
+    
+    public SoarCommandInterpreter getJSoarInterpreter()
+    {
+        return jsoarInterp;
+    }
+    
     IProgressMonitor getProgressMonitor()
     {
         return currentMonitor;

@@ -19,7 +19,9 @@
  */
 package com.soartech.soar.ide.core.model.impl;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -248,8 +250,15 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
             
             this.root = root;
             
+            //get the list of this agent's sourced files from jsoar
+            //these should always have a "/" as the path separator
+            Collection<String> sourcedFiles = agent.getInterpreter().getJSoarInterpreter().getSourcedFiles();
+            
+            //get the current filename and format it's path to use backslashes since that's what jsoar is giving us
+            String filename = getFile().getFile().getLocation().makeAbsolute().toString();
+            
             // Only report this warning if a start file has actually be specified.
-            if(agent.getStartFile() != null && !agent.fileWasVisited(getFile().getFile()))
+            if(agent.getStartFile() != null && !sourcedFiles.contains(filename))
             {
                 // Here were taking advantage of the fact that the reporter ignores
                 // duplicate problems.
@@ -341,6 +350,10 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
             TclAstNode endWord = words.get(words.size() - 1);
             String input = "\"" + buffer.getText(nameWord.getStart(), (endWord.getStart() + endWord.getLength()) - nameWord.getStart()) + "\"";
             agent.expandTclString(namespace, input, 0);
+        }
+        else if(name.equals("define-heuristic"))
+        {
+            elements.add(new TclDefineHeuristicCommand(this, commandNode));
         }
         else if(isImprobableCommandName(name))
         {

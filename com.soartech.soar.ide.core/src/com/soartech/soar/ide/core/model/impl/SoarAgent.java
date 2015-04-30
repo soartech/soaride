@@ -190,6 +190,10 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         }
     }
     
+    public ThreadedAgent getJsoarAgent() {
+        return jsoarAgent;
+    }
+
     boolean fileWasVisited(IFile file)
     {
         synchronized(getLock())
