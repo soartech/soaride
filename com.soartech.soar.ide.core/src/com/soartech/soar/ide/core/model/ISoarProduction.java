@@ -41,13 +41,6 @@ public interface ISoarProduction extends ITclCommand
     ISoarSourceRange getProductionNameRange();
     
     /**
-     * @return The source for this production after Tcl expansion has been
-     *  applied. If Tcl processing failed, this will return <code>null</code>.
-     * @throws SoarModelException 
-     */
-    String getExpandedSource() throws SoarModelException;
-    
-    /**
      * Parse the content of this production and return the syntax tree.
      * 
      * @return The syntax tree or null if failed to parse

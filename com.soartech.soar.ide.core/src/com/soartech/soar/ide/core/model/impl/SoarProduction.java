@@ -23,6 +23,7 @@ import java.io.StringReader;
 import java.util.List;
 
 import com.soartech.soar.ide.core.model.BasicSoarSourceRange;
+import com.soartech.soar.ide.core.model.IExpandableElement;
 import com.soartech.soar.ide.core.model.IExpandedTclCode;
 import com.soartech.soar.ide.core.model.ISoarAgent;
 import com.soartech.soar.ide.core.model.ISoarBuffer;
@@ -62,8 +63,7 @@ import com.soartech.soar.ide.core.tcl.TclAstNodeSourceRange;
  * 
  * @author ray
  */
-public class SoarProduction extends TclCommand implements
-        ISoarProduction
+public class SoarProduction extends TclCommand implements ISoarProduction, IExpandableElement
 {
     private TclAstNode bodyNode;
     private boolean bodyInBraces = false;

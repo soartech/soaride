@@ -43,6 +43,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
+import com.soartech.soar.ide.core.model.IExpandableElement;
 import com.soartech.soar.ide.core.model.ISoarElement;
 import com.soartech.soar.ide.core.model.ISoarFile;
 import com.soartech.soar.ide.core.model.ISoarFileAgentProxy;
@@ -241,9 +242,9 @@ public class SoarElementSourceViewer extends ViewPart
         try
         {
             String source = "";
-            if(selectedSourceRef instanceof ISoarProduction)
+            if(selectedSourceRef instanceof IExpandableElement)
             {
-                ISoarProduction p = (ISoarProduction) selectedSourceRef;
+                IExpandableElement p = (IExpandableElement) selectedSourceRef;
                 if(expandTcl.isChecked())
                 {
                     source = p.getExpandedSource();
