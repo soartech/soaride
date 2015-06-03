@@ -2,7 +2,7 @@
 <feature
       id="com.soartech.soar.ide.feature"
       label="Soar IDE"
-      version="1.2.1"
+      version="1.2.2"
       provider-name="Soar Technology, Inc.">
 
    <description url="http://soaride.googlecode.com">
@@ -27,7 +27,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&
    </license>
 
    <url>
-      <update label="Soar IDE Update Site" url="http://soaride.googlecode.com/git/com.soartech.soar.ide.update/"/>
+      <update label="Soar IDE Update Site" url="https://github.com/soartech/soaride/tree/master/com.soartech.soar.ide.update"/>
    </url>
 
    <requires>
