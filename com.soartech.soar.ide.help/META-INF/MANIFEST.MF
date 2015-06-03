@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Soar IDE Online Help
 Bundle-SymbolicName: com.soartech.soar.ide.help; singleton:=true
-Bundle-Version: 1.2.1
+Bundle-Version: 1.2.2
 Bundle-Vendor: Soar Technology, Inc
 Bundle-Localization: plugin
 Eclipse-LazyStart: true
