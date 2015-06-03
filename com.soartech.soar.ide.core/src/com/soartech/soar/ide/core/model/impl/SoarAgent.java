@@ -54,6 +54,7 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.tcl.SoarTclInterfaceFactory;
 import org.jsoar.util.commands.SoarCommandInterpreter;
@@ -345,6 +346,8 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
                     
                     interpreter = new SoarModelTclInterpreter(sourceCommandChangesDirectory, productionMap, jsoarAgent.getInterpreter());
                     
+                    initCommands(jsoarAgent.getInterpreter());
+                    
                     if (startFile != null)
                     {
                         System.out.println(name + ": Processing Tcl from start file '"
@@ -382,6 +385,15 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         
         final ScheduledFuture<?> tclExecutorServiceHandle = tclExecutorService.schedule(tclPreprocessingRunnable, 0, TimeUnit.MILLISECONDS);
         creatingTclInterp = true;
+    }
+    
+    private void initCommands(SoarCommandInterpreter jsoarInterp)
+    {
+        try {
+            jsoarInterp.eval("proc svs { args } { }");
+        } catch (SoarException e) {
+            System.out.println(e.getMessage());
+        }
     }
     
     SoarModelTclInterpreter getInterpreter()
