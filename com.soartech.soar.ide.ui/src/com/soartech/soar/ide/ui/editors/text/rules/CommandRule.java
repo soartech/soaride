@@ -53,11 +53,11 @@ public class CommandRule extends KeywordRule {
     };
     
     private static String[] RUNTIME_COMMANDS = new String[] {
-            "attribute-preferences-mode", "explain-backtraces",
+            "attribute-preferences-mode", "epmem", "explain-backtraces",
             "indifferent-selection", "learn", "max-chunks",
             "max-elaborations", "max-nil-output-cycles",
             "multi-attributes", "numeric-indifferent-mode",
-            "o-support-mode", "save-backtraces", "soar8", "timers",
+            "o-support-mode", "rl", "save-backtraces", "smem", "soar8", "svs", "timers",
             "waitsnc",
             "output-strings-destination"
     };
