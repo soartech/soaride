@@ -307,7 +307,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         								 "", // location
                                          range.getOffset(), range.getLength(), message,
                                          "", //quickFixID
-                                         new HashMap()); // empty hashmap
+                                         new HashMap<String, Comparable<?>>()); // empty hashmap
     }
     
     /**
@@ -660,7 +660,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         // See if the file exists in Eclipse...
         IResource resource = SoarModelTools.getEclipseResource(new Path(file));
         
-        Map attributes = new HashMap();
+        Map<String, Comparable<?>> attributes = new HashMap<String, Comparable<?>>();
         attributes.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
         attributes.put(IMarker.LOCATION, "Tcl pre-processing phase");
         

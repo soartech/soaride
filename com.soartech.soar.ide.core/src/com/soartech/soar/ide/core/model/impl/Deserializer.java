@@ -62,7 +62,7 @@ public class Deserializer
         throw new SoarModelException("Unsupported memento object type: " + memento.getClass().getName());
     }
     
-    private static void checkType(Object o, Class type) throws SoarModelException
+    private static void checkType(Object o, Class<?> type) throws SoarModelException
     {
         if(!type.isInstance(o))
         {

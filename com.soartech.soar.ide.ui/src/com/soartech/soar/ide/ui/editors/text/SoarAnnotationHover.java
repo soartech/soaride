@@ -19,6 +19,7 @@
  */
 package com.soartech.soar.ide.ui.editors.text;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -76,9 +77,9 @@ public class SoarAnnotationHover implements IAnnotationHover
             return new String[0];
 
         ArrayList<String> messages = new ArrayList<String>();
-        Map messagesAtPosition = new HashMap();
+        Map<Position, Serializable> messagesAtPosition = new HashMap<Position, Serializable>();
         
-        Iterator iter = model.getAnnotationIterator();
+        Iterator<?> iter = model.getAnnotationIterator();
         while (iter.hasNext()) {
             Object object = iter.next();
             
@@ -130,7 +131,7 @@ public class SoarAnnotationHover implements IAnnotationHover
     } 
 
     @SuppressWarnings("unchecked")
-    private boolean isDuplicateMessage(Map messagesAtPosition, Position position, String message) {
+    private boolean isDuplicateMessage(Map<Position, Serializable> messagesAtPosition, Position position, String message) {
         if (message == null)
             return false;
         
@@ -140,12 +141,12 @@ public class SoarAnnotationHover implements IAnnotationHover
                 return true;
 
             if (value instanceof List) {
-                List messages= (List)value;
+                List<String> messages= (List<String>)value;
                 if  (messages.contains(message))
                     return true;
                 messages.add(message);
             } else {
-                ArrayList messages= new ArrayList();
+                ArrayList<Object> messages= new ArrayList<Object>();
                 messages.add(value);
                 messages.add(message);
                 messagesAtPosition.put(position, messages);

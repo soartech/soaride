@@ -73,7 +73,7 @@ public abstract class AbstractRefactoringAction extends Action implements
 		return IDE.saveAllEditors(new IResource[] { workspaceRoot }, true);
 	}
 
-	private void setupRefactoring(Class refactoringClass, String name)
+	private void setupRefactoring(Class<?> refactoringClass, String name)
 			throws InterruptedException {
 
 		try {
@@ -95,7 +95,7 @@ public abstract class AbstractRefactoringAction extends Action implements
 		MessageDialog.openInformation(getShell(), "Info Title", msg);
 	}
 
-	private void openWizard(IAction action, Class refactoring) {
+	private void openWizard(IAction action, Class<?> refactoring) {
 	}
 
 	private String getTitle(IAction action) {
@@ -104,7 +104,7 @@ public abstract class AbstractRefactoringAction extends Action implements
 		return title;
 	}
 
-	protected void run(Class refactoring, IAction action) {
+	protected void run(Class<?> refactoring, IAction action) {
 		if (saveAll()) {
 			this.openWizard(action, refactoring);
 		}

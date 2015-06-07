@@ -429,7 +429,7 @@ public class SoarDatamapView extends ViewPart
                 return Collections.EMPTY_LIST.toArray();
             }
             
-            return ((Set) inputElement).toArray();
+            return ((Set<?>) inputElement).toArray();
         }
 
         /* (non-Javadoc)

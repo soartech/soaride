@@ -557,7 +557,7 @@ public class SoarFile extends AbstractSoarOpenable implements ISoarFile
     {
         // Use a raw list here so we can pass to addChildren() below and also
         // return it without Java complaining too much.
-        List newProxies = new ArrayList();
+        List newProxies = new ArrayList<SoarFileAgentProxy>();
         
         // First get the new set of proxies for this file
         for(ISoarAgent agent : getSoarProject().getAgents())

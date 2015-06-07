@@ -110,7 +110,7 @@ public class TriplesExtractor {
             for(Pair p : variables())
             {
 				String varName = p.getString();
-				for(Iterator j = triples().iterator(); j.hasNext();) {
+				for(Iterator<?> j = triples().iterator(); j.hasNext();) {
 					CoverageTriple ct = (CoverageTriple)j.next();
 					if(varName.equals(ct.getVariable().getString())  || 
 					   varName.equals(ct.getAttribute().getString()) || 
@@ -148,7 +148,7 @@ public class TriplesExtractor {
 		variables.offer(d_stateVariables.iterator().next());
 		while(!variables.isEmpty()) {
 			String currentVar = variables.poll().getString();
-			Iterator i = d_triples.iterator();
+			Iterator<Triple> i = d_triples.iterator();
 			while(i.hasNext()) {
 				Triple t = (Triple)i.next();
 				if (t.getVariable().getString().equals(currentVar)) {

@@ -311,17 +311,17 @@ public class SoarAgentInitialFileSelector extends SelectionDialog implements ITr
      * Initializes this dialog's controls.
      */
     private void initializeDialog() {
-    	List ar = this.getInitialElementSelections();
+    	List<?> ar = this.getInitialElementSelections();
     	if(ar.size()==1 && ar.get(0) instanceof IFile)
     	{
     		IFile file = (IFile)ar.get(0);
     		IContainer folder= file.getParent();
-    		ArrayList l = new ArrayList();
+    		ArrayList<IResource> l = new ArrayList<IResource>();
     		l.add(folder);
     		StructuredSelection sel = new StructuredSelection(l);
     		treeViewer.setSelection(sel);
     		listViewer.setInput(folder);
-    		ArrayList l2 = new ArrayList();
+    		ArrayList<IResource> l2 = new ArrayList<IResource>();
     		l2.add(file);
     		StructuredSelection sel2 = new StructuredSelection(l2);
     		listViewer.setSelection(sel2);
@@ -354,7 +354,7 @@ public class SoarAgentInitialFileSelector extends SelectionDialog implements ITr
     		if(ssel.getFirstElement() instanceof IFile)
     		{
     			IFile file = (IFile)ssel.getFirstElement();
-    	    	ArrayList list = new ArrayList();
+    	    	ArrayList<IFile> list = new ArrayList<IFile>();
     	    	list.add(file);
     	    	setResult(list);
     		}

@@ -20,6 +20,7 @@
 package com.soartech.soar.ide.core.model;
 
 import java.util.HashMap;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 
@@ -40,15 +41,15 @@ public class SoarProblem
     public String message = "";
     public String quickFixID = "";
     @SuppressWarnings("unchecked")
-	public HashMap map = null;
+	public HashMap<String, Comparable<?>> map = null;
     
     @SuppressWarnings("unchecked")
     public static final SoarProblem createError(String message, int start, int length)
     {
-        return SoarProblem.createError(message, "Unknown", start, length, "", new HashMap());
+        return SoarProblem.createError(message, "Unknown", start, length, "", new HashMap<String, Comparable<?>>());
     }
     @SuppressWarnings("unchecked")
-    public static final SoarProblem createError(String message, String location, int start, int length, String fixID, HashMap map)
+    public static final SoarProblem createError(String message, String location, int start, int length, String fixID, HashMap<String, Comparable<?>> map)
     {
         SoarProblem p = new SoarProblem();
         
@@ -65,10 +66,10 @@ public class SoarProblem
     @SuppressWarnings("unchecked")
     public static final SoarProblem createWarning(String message, int start, int length)
     {
-        return SoarProblem.createWarning(message, "Unknown", start, length, "", new HashMap());
+        return SoarProblem.createWarning(message, "Unknown", start, length, "", new HashMap<String, Comparable<?>>());
     }
     @SuppressWarnings("unchecked")
-    public static final SoarProblem createWarning(String message, String location, int start, int length, String fixID, HashMap map)
+    public static final SoarProblem createWarning(String message, String location, int start, int length, String fixID, HashMap<String, Comparable<?>> map)
     {
         SoarProblem p = new SoarProblem();
         
@@ -87,7 +88,7 @@ public class SoarProblem
     public void createMarkerMap()
     {
     	if(map==null)
-    		map = new HashMap();
+    		map = new HashMap<String, Comparable<?>>();
     	map.put("com.soartech.soar.ide.core.quickFixId",quickFixID);
         if(start >= 0)
         {

@@ -19,7 +19,7 @@
  */
 package com.soartech.soar.ide.core.model.ast;
 
-public final class Pair implements Comparable {
+public final class Pair implements Comparable<Object> {
 /////////////////////////////////////
 // Data Members
 /////////////////////////////////////

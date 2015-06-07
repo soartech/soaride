@@ -83,7 +83,7 @@ public class SoarFoldingSupport
     @SuppressWarnings("unchecked")
     public void updateFoldingStructure()
     {
-        HashMap additions = new HashMap();
+        HashMap<SoarProjectionAnnotation, Position> additions = new HashMap<SoarProjectionAnnotation, Position>();
         modified.clear();
         regions.clear();
         
@@ -125,7 +125,7 @@ public class SoarFoldingSupport
     }
     
     @SuppressWarnings("unchecked")
-    private void addAnnotation(HashMap additions, int start, int length)
+    private void addAnnotation(HashMap<SoarProjectionAnnotation, Position> additions, int start, int length)
     {
         Position pos = createPosition(start, length - 1);
         if(pos != null)

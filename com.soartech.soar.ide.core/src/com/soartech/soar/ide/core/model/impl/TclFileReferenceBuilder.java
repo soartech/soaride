@@ -309,7 +309,7 @@ class TclFileReferenceBuilder implements ITclFileReferenceConstants
     private void createError(ReferenceCommand ref, String message) throws SoarModelException
     {
     	//int lineNumber = SoarModelTools.getLineNumber((IFile)this.soarFile.getFile(), ref.node.getStart());
-        reporter.report(SoarProblem.createError(message, "Line 1", ref.node.getStart(), ref.node.getLength(),"test",new HashMap()));
+        reporter.report(SoarProblem.createError(message, "Line 1", ref.node.getStart(), ref.node.getLength(),"test",new HashMap<String, Comparable<?>>()));
     	reporter.report(SoarProblem.createError(message, ref.node.getStart(), ref.node.getLength()));
     }
     

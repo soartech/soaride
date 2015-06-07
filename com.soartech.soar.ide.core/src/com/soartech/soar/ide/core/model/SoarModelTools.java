@@ -150,7 +150,7 @@ public class SoarModelTools
         {
             ISoarSourceRange range = ((ISoarSourceReference) element).getSourceRange();
 
-            HashMap map = new HashMap();
+            HashMap<String, Integer> map = new HashMap<String, Integer>();
             map.put(IMarker.CHAR_START, range.getOffset());
             map.put(IMarker.CHAR_END, range.getOffset() + range.getLength());
 
@@ -237,11 +237,11 @@ public class SoarModelTools
     public static IMarker createErrorMarker(IFile file, int start, int length, String message) throws SoarModelException
     {
         // TODO: Put line number in second argument of:
-        return createErrorMarker(SoarCorePlugin.PROBLEM_MARKER_ID, file, "", start, length, message,"",new HashMap());
+        return createErrorMarker(SoarCorePlugin.PROBLEM_MARKER_ID, file, "", start, length, message,"",new HashMap<String, Comparable<?>>());
     }
 
     @SuppressWarnings("unchecked")
-    public static IMarker createErrorMarker(String markerType, IFile file, String location, int start, int length, String message, String fixID, HashMap map) throws SoarModelException
+    public static IMarker createErrorMarker(String markerType, IFile file, String location, int start, int length, String message, String fixID, HashMap<String, Comparable<?>> map) throws SoarModelException
     {
     	SoarProblem p = SoarProblem.createError(message,location,start,length,fixID,map);
         try
@@ -270,7 +270,7 @@ public class SoarModelTools
     public static IMarker createWarningMarker(IResource resource, int start, int length, String message) throws SoarModelException
     {
         // TODO: Put line number in second argument of:
-    	return createWarningMarker(resource,"", start,length,message, "",new HashMap());
+    	return createWarningMarker(resource,"", start,length,message, "",new HashMap<String, Comparable<?>>());
     }
     /**
      * Create an warning marker on a file.
@@ -286,7 +286,7 @@ public class SoarModelTools
      * @throws SoarModelException
      */
     @SuppressWarnings("unchecked")
-    public static IMarker createWarningMarker(IResource resource, String location, int start, int length, String message, String fixID, HashMap map) throws SoarModelException
+    public static IMarker createWarningMarker(IResource resource, String location, int start, int length, String message, String fixID, HashMap<String, Comparable<?>> map) throws SoarModelException
     {
         SoarProblem p = SoarProblem.createWarning(message, location, start, length, fixID, map);
 
