@@ -21,10 +21,12 @@ package com.soartech.soar.ide.core;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.prefs.BackingStoreException;
 
 import com.soartech.soar.ide.core.model.ISoarModel;
 import com.soartech.soar.ide.core.model.ISoarProduction;
@@ -112,7 +114,7 @@ public class SoarCorePlugin extends Plugin {
     @Override
     protected void initializeDefaultPluginPreferences()
     {
-        getPluginPreferences().setDefault(ISoarCorePluginConstants.SOURCE_CHANGES_DIRECTORY, false);
+    	DefaultScope.INSTANCE.getNode(PLUGIN_ID).putBoolean(ISoarCorePluginConstants.SOURCE_CHANGES_DIRECTORY, false);
     }
 
     /**
@@ -157,17 +159,13 @@ public class SoarCorePlugin extends Plugin {
 
     public boolean getSourceCommandChangesDirectory()
     {
-        Preferences prefs = getPluginPreferences();
-
-        return prefs.getBoolean(ISoarCorePluginConstants.SOURCE_CHANGES_DIRECTORY);
+        return Platform.getPreferencesService().getBoolean(PLUGIN_ID, ISoarCorePluginConstants.SOURCE_CHANGES_DIRECTORY, false, null);
     }
 
-    public void setSourceCommandChangesDirectory(boolean v)
+    public void setSourceCommandChangesDirectory(boolean v) throws BackingStoreException
     {
-        Preferences prefs = getPluginPreferences();
-
-        prefs.setValue(ISoarCorePluginConstants.SOURCE_CHANGES_DIRECTORY, v);
-        savePluginPreferences();
+        DefaultScope.INSTANCE.getNode(PLUGIN_ID).putBoolean(ISoarCorePluginConstants.SOURCE_CHANGES_DIRECTORY, v);
+        DefaultScope.INSTANCE.getNode(PLUGIN_ID).flush();
     }
 
     // TODO: Placeholder factory method to allow access to core.model.impl.InMemoryProduction

@@ -56,7 +56,7 @@ public class SoarPerspective implements IPerspectiveFactory {
         IFolderLayout folder= layout.createFolder("left", IPageLayout.LEFT, (float)0.25, editorArea); //$NON-NLS-1$
         folder.addView("org.eclipse.jdt.ui.PackageExplorer");
         folder.addView(SoarExplorerView.ID);
-        folder.addPlaceholder(IPageLayout.ID_RES_NAV);
+        folder.addPlaceholder(IPageLayout.ID_PROJECT_EXPLORER);
 
         IFolderLayout datamapFolder = layout.createFolder("datamap", IPageLayout.BOTTOM, (float) 0.55, "left");
         datamapFolder.addView(SoarDatamapView.ID);
@@ -90,7 +90,7 @@ public class SoarPerspective implements IPerspectiveFactory {
         // views - standard workbench
         layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);
         layout.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
-        layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);
+        layout.addShowViewShortcut(IPageLayout.ID_PROJECT_EXPLORER);
         layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
         
         // wizard actions in the "new" menu.

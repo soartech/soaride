@@ -13,7 +13,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.resources,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.text
-Eclipse-AutoStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: soareditor.jar,
  lib/sml.jar,
  lib/antlr.jar,

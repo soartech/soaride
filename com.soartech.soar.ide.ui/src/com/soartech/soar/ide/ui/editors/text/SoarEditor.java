@@ -20,6 +20,7 @@
 package com.soartech.soar.ide.ui.editors.text;
 
 import java.util.List;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.Action;
@@ -47,6 +48,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
@@ -308,8 +310,8 @@ public class SoarEditor extends TextEditor
 
         super.createActions();
         
-        getSite().getKeyBindingService().setScopes(new String[]{
-                ISoarEditorContextIds.SOAR_EDITOR_CONTEXT });
+        IContextService contextService = (IContextService) getSite().getService(IContextService.class);
+        contextService.activateContext(ISoarEditorContextIds.SOAR_EDITOR_CONTEXT);
         
         installContentAssistAction();
         

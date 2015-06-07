@@ -19,7 +19,8 @@
  */
 package com.soartech.soar.ide.ui.actions;
 
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.StructuredViewer;
 
@@ -47,8 +48,7 @@ public class OutlineSortingAction extends Action
 		setImageDescriptor(SoarEditorPluginImages.getDescriptor(SoarEditorPluginImages.IMG_ALPHAB_SORT));
 		
 		//get the initial saved state of this action
-		Preferences prefs = SoarEditorUIPlugin.getDefault().getPluginPreferences();
-		boolean checked = prefs.getBoolean(OUTLINE_SORT);
+		boolean checked = Platform.getPreferencesService().getBoolean(SoarEditorUIPlugin.PLUGIN_ID, OUTLINE_SORT, true, null);
 		
 		valueChanged(checked);
 	}
@@ -81,7 +81,6 @@ public class OutlineSortingAction extends Action
 		}
 		
 		//store the state of the action
-		Preferences prefs = SoarEditorUIPlugin.getDefault().getPluginPreferences();
-		prefs.setValue(OUTLINE_SORT, value);
+		InstanceScope.INSTANCE.getNode(SoarEditorUIPlugin.PLUGIN_ID).putBoolean(OUTLINE_SORT, value);
 	}
 }

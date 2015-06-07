@@ -5,4 +5,4 @@ Bundle-SymbolicName: com.soartech.soar.ide.help; singleton:=true
 Bundle-Version: 1.2.2
 Bundle-Vendor: Soar Technology, Inc
 Bundle-Localization: plugin
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
