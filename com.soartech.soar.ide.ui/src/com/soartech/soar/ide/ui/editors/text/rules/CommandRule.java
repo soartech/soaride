@@ -63,7 +63,7 @@ public class CommandRule extends KeywordRule {
     };
     
     private static String[] SYSTEM_COMMANDS = new String[] {
-            "cd", "dirs", "log", "ls",
+            "cd", "cli", "dirs", "log", "ls",
             "rete-net", "set-library-location"
     };
     

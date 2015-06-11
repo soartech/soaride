@@ -391,6 +391,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     {
         try {
             jsoarInterp.eval("proc svs { args } { }");
+            jsoarInterp.eval("proc cli { args } { }");
         } catch (SoarException e) {
             System.out.println(e.getMessage());
         }
