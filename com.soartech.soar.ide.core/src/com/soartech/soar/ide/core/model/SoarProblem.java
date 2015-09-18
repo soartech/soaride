@@ -37,15 +37,13 @@ public class SoarProblem
     public String location = "Unknown";
     public String message = "";
     public String quickFixID = "";
-    @SuppressWarnings("unchecked")
 	public HashMap<String, Comparable<?>> map = null;
     
-    @SuppressWarnings("unchecked")
     public static final SoarProblem createError(String message, int start, int length)
     {
         return SoarProblem.createError(message, "Unknown", start, length, "", new HashMap<String, Comparable<?>>());
     }
-    @SuppressWarnings("unchecked")
+
     public static final SoarProblem createError(String message, String location, int start, int length, String fixID, HashMap<String, Comparable<?>> map)
     {
         SoarProblem p = new SoarProblem();
@@ -60,12 +58,12 @@ public class SoarProblem
 
         return p;
     }
-    @SuppressWarnings("unchecked")
+
     public static final SoarProblem createWarning(String message, int start, int length)
     {
         return SoarProblem.createWarning(message, "Unknown", start, length, "", new HashMap<String, Comparable<?>>());
     }
-    @SuppressWarnings("unchecked")
+
     public static final SoarProblem createWarning(String message, String location, int start, int length, String fixID, HashMap<String, Comparable<?>> map)
     {
         SoarProblem p = new SoarProblem();
@@ -81,7 +79,7 @@ public class SoarProblem
 
         return p;
     }
-    @SuppressWarnings("unchecked")
+
     public void createMarkerMap()
     {
     	if(map==null)

@@ -62,7 +62,7 @@ import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 
 public class NewSoarFolderWizardPage extends WizardNewFolderMainPage
 {
-    private IWorkbench workbench;
+//    private IWorkbench workbench;
     private Button addToLoadCheckBox;
     private IFolder newFolder;
     private IFile newFile;
@@ -75,7 +75,7 @@ public class NewSoarFolderWizardPage extends WizardNewFolderMainPage
         super("newSoarDirectoryWizardPage", selection);
         setTitle("New Soar Directory");
         setDescription("Create a new Soar Directory");
-        this.workbench = workbench;
+//        this.workbench = workbench;
     }
 
     public void createControl(Composite parent)

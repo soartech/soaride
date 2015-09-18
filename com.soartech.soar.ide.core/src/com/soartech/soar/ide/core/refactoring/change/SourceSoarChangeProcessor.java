@@ -35,13 +35,13 @@ public class SourceSoarChangeProcessor implements IChangeProcessor {
 
 	private TextFileChange change;
 
-	private String name;
+//	private String name;
 
 	private IFile soarFile;
 	private IFile loadFile;
 
 	public SourceSoarChangeProcessor(String name, IFile soarFile, IFile loadFile) {
-		this.name = name;
+//		this.name = name;
 		this.soarFile = soarFile;
 		this.loadFile = loadFile;
 	}

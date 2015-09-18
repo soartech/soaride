@@ -24,11 +24,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -41,8 +37,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 import org.eclipse.ui.ide.IDE;
 
-import com.soartech.soar.ide.core.model.ITclFileReferenceConstants;
-import com.soartech.soar.ide.core.model.SoarModelTools;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 
 public class NewSoarFileWizardPage extends WizardNewFileCreationPage
@@ -184,57 +178,57 @@ public class NewSoarFileWizardPage extends WizardNewFileCreationPage
     {
     	return sourceFile;
     }
-    private void addToLoadFile(IFile file, IProgressMonitor monitor) throws CoreException
-    {
-        if(!addToLoadCheckBox.getSelection())
-        {
-            return;
-        }
-        
-        String name = file.getName();
-        if(name.endsWith(".tcl"))
-        {
-            return;
-        }
-        
-        IContainer parent = file.getParent();
-        IResource resource = parent.findMember("load.soar");
-        if(resource == null || 
-           resource.getType() != IResource.FILE ||
-           resource.equals(file))
-        {
-            return;
-        }
-        
-        IFile loadFile = (IFile) resource;
-        StringBuilder contents = new StringBuilder();
-        contents.append(SoarModelTools.readFileAsCharArray(loadFile));
-        
-        contents.append("\n" + getSourceCommand(contents.toString()) + " \"" + name + "\"\n");
-        InputStream inByteStream = new ByteArrayInputStream(
-                contents.toString().getBytes());
-
-        loadFile.setContents(inByteStream, false, true, monitor);
-    }
+//    private void addToLoadFile(IFile file, IProgressMonitor monitor) throws CoreException
+//    {
+//        if(!addToLoadCheckBox.getSelection())
+//        {
+//            return;
+//        }
+//        
+//        String name = file.getName();
+//        if(name.endsWith(".tcl"))
+//        {
+//            return;
+//        }
+//        
+//        IContainer parent = file.getParent();
+//        IResource resource = parent.findMember("load.soar");
+//        if(resource == null || 
+//           resource.getType() != IResource.FILE ||
+//           resource.equals(file))
+//        {
+//            return;
+//        }
+//        
+//        IFile loadFile = (IFile) resource;
+//        StringBuilder contents = new StringBuilder();
+//        contents.append(SoarModelTools.readFileAsCharArray(loadFile));
+//        
+//        contents.append("\n" + getSourceCommand(contents.toString()) + " \"" + name + "\"\n");
+//        InputStream inByteStream = new ByteArrayInputStream(
+//                contents.toString().getBytes());
+//
+//        loadFile.setContents(inByteStream, false, true, monitor);
+//    }
     
-    private String getSourceCommand(String contents)
-    {
-        for(String c : ITclFileReferenceConstants.LP_COMMANDS)
-        {
-            if(contents.contains(c))
-            {
-                return ITclFileReferenceConstants.LP_SOURCE_FILE;
-            }
-        }
-        
-        for(String c : ITclFileReferenceConstants.NGS_COMMANDS)
-        {
-            if(contents.contains(c))
-            {
-                return ITclFileReferenceConstants.NGS_SOURCE;
-            }
-        }
-        
-        return ITclFileReferenceConstants.SOURCE;
-    }
+//    private String getSourceCommand(String contents)
+//    {
+//        for(String c : ITclFileReferenceConstants.LP_COMMANDS)
+//        {
+//            if(contents.contains(c))
+//            {
+//                return ITclFileReferenceConstants.LP_SOURCE_FILE;
+//            }
+//        }
+//        
+//        for(String c : ITclFileReferenceConstants.NGS_COMMANDS)
+//        {
+//            if(contents.contains(c))
+//            {
+//                return ITclFileReferenceConstants.NGS_SOURCE;
+//            }
+//        }
+//        
+//        return ITclFileReferenceConstants.SOURCE;
+//    }
 }

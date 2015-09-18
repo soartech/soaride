@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.IContainer;
@@ -279,7 +278,6 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
      * @param soarFile The Soar file to report the error in
      * @throws SoarModelException
      */
-    @SuppressWarnings("unchecked")
     private void reportOverwrittenProduction(OverwrittenProductionInfo info, ISoarFile soarFile) throws SoarModelException
     {
         ISoarProduction production = getProductionInFile(soarFile, info.name);
@@ -383,7 +381,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
             }
         };
         
-        final ScheduledFuture<?> tclExecutorServiceHandle = tclExecutorService.schedule(tclPreprocessingRunnable, 0, TimeUnit.MILLISECONDS);
+        tclExecutorService.schedule(tclPreprocessingRunnable, 0, TimeUnit.MILLISECONDS);
         creatingTclInterp = true;
     }
     
@@ -655,7 +653,6 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
      * @param error The error
      * @throws SoarModelException
      */
-    @SuppressWarnings("unchecked")
     private void createTclPreprocessorErrorMarker(TclExpansionError error) throws SoarModelException
     {
         String file = error.getFile();
@@ -1386,6 +1383,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
      * 
      * @see com.soartech.soar.ide.core.model.impl.AbstractSoarElement#getAdapter(java.lang.Class)
      */
+    @SuppressWarnings({ "rawtypes" })
     @Override
     public Object getAdapter(Class adapter)
     {

@@ -128,7 +128,6 @@ public class SoarModelTools
      *      could not be displayed.
      * @throws CoreException
      */
-    @SuppressWarnings("unchecked")
     public static IEditorPart showElementInEditor(IWorkbenchPage page, ISoarElement element) throws CoreException
     {
         // Find the resource that contains the element
@@ -233,14 +232,12 @@ public class SoarModelTools
      * @return the marker
      * @throws SoarModelException
      */
-    @SuppressWarnings("unchecked")
     public static IMarker createErrorMarker(IFile file, int start, int length, String message) throws SoarModelException
     {
         // TODO: Put line number in second argument of:
         return createErrorMarker(SoarCorePlugin.PROBLEM_MARKER_ID, file, "", start, length, message,"",new HashMap<String, Comparable<?>>());
     }
 
-    @SuppressWarnings("unchecked")
     public static IMarker createErrorMarker(String markerType, IFile file, String location, int start, int length, String message, String fixID, HashMap<String, Comparable<?>> map) throws SoarModelException
     {
     	SoarProblem p = SoarProblem.createError(message,location,start,length,fixID,map);
@@ -266,7 +263,6 @@ public class SoarModelTools
      * @return the marker
      * @throws SoarModelException
      */
-    @SuppressWarnings("unchecked")
     public static IMarker createWarningMarker(IResource resource, int start, int length, String message) throws SoarModelException
     {
         // TODO: Put line number in second argument of:
@@ -285,7 +281,6 @@ public class SoarModelTools
      * @return the marker
      * @throws SoarModelException
      */
-    @SuppressWarnings("unchecked")
     public static IMarker createWarningMarker(IResource resource, String location, int start, int length, String message, String fixID, HashMap<String, Comparable<?>> map) throws SoarModelException
     {
         SoarProblem p = SoarProblem.createWarning(message, location, start, length, fixID, map);

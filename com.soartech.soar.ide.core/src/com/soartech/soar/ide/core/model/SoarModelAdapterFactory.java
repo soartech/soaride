@@ -35,8 +35,8 @@ import com.soartech.soar.ide.core.SoarCorePlugin;
  */
 public class SoarModelAdapterFactory implements IAdapterFactory
 {
-    private static Class[] SUPPORTED_TYPES = 
-        new Class[] { ISoarProject.class, ISoarFile.class, ISoarSourceReference.class };
+    private static Class<?>[] SUPPORTED_TYPES = 
+        new Class<?>[] { ISoarProject.class, ISoarFile.class, ISoarSourceReference.class };
 
     /**
      * Register this adapter factory with the adapter manager
@@ -59,6 +59,7 @@ public class SoarModelAdapterFactory implements IAdapterFactory
     /* (non-Javadoc)
      * @see org.eclipse.core.runtime.IAdapterFactory#getAdapter(java.lang.Object, java.lang.Class)
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Object getAdapter(Object adaptableObject, Class adapterType)
     {
     	ISoarModel model = SoarCorePlugin.getDefault().getSoarModel();
@@ -97,7 +98,7 @@ public class SoarModelAdapterFactory implements IAdapterFactory
     /* (non-Javadoc)
      * @see org.eclipse.core.runtime.IAdapterFactory#getAdapterList()
      */
-    public Class[] getAdapterList()
+    public Class<?>[] getAdapterList()
     {
         return SUPPORTED_TYPES;
     }

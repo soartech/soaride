@@ -598,10 +598,10 @@ public class SoarDatamapView extends ViewPart
             fActionOrientation = orientation;
         }
 
-        public int getOrientation()
-        {
-            return fActionOrientation;
-        }
+//        public int getOrientation()
+//        {
+//            return fActionOrientation;
+//        }
 
         public void run()
         {

@@ -165,7 +165,6 @@ public class SoarResourceProblemReporter implements ISoarProblemReporter
         }
     }
     
-    @SuppressWarnings("unchecked")
     private void doAdd(SoarProblem problem) throws SoarModelException
     {
         try

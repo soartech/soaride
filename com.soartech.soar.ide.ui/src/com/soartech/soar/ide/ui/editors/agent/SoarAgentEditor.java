@@ -48,7 +48,7 @@ public class SoarAgentEditor extends FormEditor
 {
     private ISoarAgent agent;
     private boolean dirty = false;
-    private SoarAgentOverviewPage overviewPage;
+//    private SoarAgentOverviewPage overviewPage;
     private ProjectListener projectListener = new ProjectListener();
     
     public SoarAgentEditor()
@@ -150,7 +150,7 @@ public class SoarAgentEditor extends FormEditor
     {
         try
         {
-            addPage(overviewPage = new SoarAgentOverviewPage(this));
+            addPage(new SoarAgentOverviewPage(this));
         }
         catch (PartInitException e)
         {

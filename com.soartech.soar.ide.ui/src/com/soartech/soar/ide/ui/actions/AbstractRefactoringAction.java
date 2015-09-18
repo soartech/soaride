@@ -34,12 +34,10 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import com.soartech.soar.ide.core.refactoring.AbstractSoarRefactoring;
-
 public abstract class AbstractRefactoringAction extends Action implements
 		IEditorActionDelegate {
 
-	private AbstractSoarRefactoring refactoring;
+//	private AbstractSoarRefactoring refactoring;
 
 	private ITextEditor targetEditor;
 
@@ -72,23 +70,23 @@ public abstract class AbstractRefactoringAction extends Action implements
 		return IDE.saveAllEditors(new IResource[] { workspaceRoot }, true);
 	}
 
-	private void setupRefactoring(Class<?> refactoringClass, String name)
-			throws InterruptedException {
+//	private void setupRefactoring(Class<?> refactoringClass, String name)
+//			throws InterruptedException {
+//
+//		try {
+//			this.refactoring = (AbstractSoarRefactoring) refactoringClass
+//					.getConstructors()[0]
+//					.newInstance(new Object[] { name });
+//			return;
+//		} catch (Throwable e) {
+//			showError("Info Unavailable: " + e.getMessage());
+//		}
+//		throw new InterruptedException();
+//	}
 
-		try {
-			this.refactoring = (AbstractSoarRefactoring) refactoringClass
-					.getConstructors()[0]
-					.newInstance(new Object[] { name });
-			return;
-		} catch (Throwable e) {
-			showError("Info Unavailable: " + e.getMessage());
-		}
-		throw new InterruptedException();
-	}
-
-	private void showError(String msg) {
-		MessageDialog.openError(getShell(), "Error Title", msg);
-	}
+//	private void showError(String msg) {
+//		MessageDialog.openError(getShell(), "Error Title", msg);
+//	}
 
 	protected void showInfo(String msg) {
 		MessageDialog.openInformation(getShell(), "Info Title", msg);
@@ -97,11 +95,11 @@ public abstract class AbstractRefactoringAction extends Action implements
 	private void openWizard(IAction action, Class<?> refactoring) {
 	}
 
-	private String getTitle(IAction action) {
-		String title = action.getText();
-		title = title.substring(0, title.length());
-		return title;
-	}
+//	private String getTitle(IAction action) {
+//		String title = action.getText();
+//		title = title.substring(0, title.length());
+//		return title;
+//	}
 
 	protected void run(Class<?> refactoring, IAction action) {
 		if (saveAll()) {

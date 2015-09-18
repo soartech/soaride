@@ -52,7 +52,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.dialogs.FileSystemElement;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.model.WorkbenchContentProvider;
@@ -281,31 +280,31 @@ public class SoarAgentInitialFileSelector extends SelectionDialog implements ITr
      * Returns a content provider for <code>FileSystemElement</code>s that returns 
      * only files as children.
      */
-    private ITreeContentProvider getFileProvider() {
-        return new WorkbenchContentProvider() {
-            public Object[] getChildren(Object o) {
-                if (o instanceof FileSystemElement) {
-                    return ((FileSystemElement) o).getFiles().getChildren(o);
-                }
-                return new Object[0];
-            }
-        };
-    }
+//    private ITreeContentProvider getFileProvider() {
+//        return new WorkbenchContentProvider() {
+//            public Object[] getChildren(Object o) {
+//                if (o instanceof FileSystemElement) {
+//                    return ((FileSystemElement) o).getFiles().getChildren(o);
+//                }
+//                return new Object[0];
+//            }
+//        };
+//    }
 
     /**
      * Returns a content provider for <code>FileSystemElement</code>s that returns 
      * only folders as children.
      */
-    private ITreeContentProvider getFolderProvider() {
-        return new WorkbenchContentProvider() {
-            public Object[] getChildren(Object o) {
-                if (o instanceof FileSystemElement) {
-                    return ((FileSystemElement) o).getFolders().getChildren(o);
-                }
-                return new Object[0];
-            }
-        };
-    }
+//    private ITreeContentProvider getFolderProvider() {
+//        return new WorkbenchContentProvider() {
+//            public Object[] getChildren(Object o) {
+//                if (o instanceof FileSystemElement) {
+//                    return ((FileSystemElement) o).getFolders().getChildren(o);
+//                }
+//                return new Object[0];
+//            }
+//        };
+//    }
 
     /**
      * Initializes this dialog's controls.

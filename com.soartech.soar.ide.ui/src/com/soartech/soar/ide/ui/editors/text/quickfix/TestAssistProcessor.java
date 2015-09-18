@@ -42,12 +42,14 @@ public class TestAssistProcessor implements IQuickAssistProcessor
 		return assists;
 	}
 	private class TextCompletionProposal implements IJavaCompletionProposal {
-		private IInvocationContext context;
-		private IProblemLocation[] locations;
+		
+//		private IInvocationContext context;
+//		private IProblemLocation[] locations;
+		
 		public TextCompletionProposal(IInvocationContext context, IProblemLocation[] locations)
 		{
-			this.context=context;
-			this.locations=locations;
+//			this.context=context;
+//			this.locations=locations;
 		}
 		public void apply(IDocument document)
 		{

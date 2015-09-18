@@ -80,7 +80,6 @@ public class SoarFoldingSupport
         return regions;
     }
 
-    @SuppressWarnings("unchecked")
     public void updateFoldingStructure()
     {
         HashMap<SoarProjectionAnnotation, Position> additions = new HashMap<SoarProjectionAnnotation, Position>();
@@ -124,7 +123,6 @@ public class SoarFoldingSupport
         currentProjectionAnnotations.addAll(additions.keySet());
     }
     
-    @SuppressWarnings("unchecked")
     private void addAnnotation(HashMap<SoarProjectionAnnotation, Position> additions, int start, int length)
     {
         Position pos = createPosition(start, length - 1);

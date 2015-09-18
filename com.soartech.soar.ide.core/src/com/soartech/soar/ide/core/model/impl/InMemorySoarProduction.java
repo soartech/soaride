@@ -197,6 +197,8 @@ public class InMemorySoarProduction implements ISoarProduction
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
     public Object getAdapter(Class adapter)
     {
         throw new UnsupportedOperationException();

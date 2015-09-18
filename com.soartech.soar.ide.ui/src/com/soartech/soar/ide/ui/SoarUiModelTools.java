@@ -54,7 +54,6 @@ public class SoarUiModelTools
      *      could not be displayed.
      * @throws CoreException
      */
-    @SuppressWarnings("unchecked")
     public static IEditorPart showElementInEditor(IWorkbenchPage page, ISoarElement element) throws CoreException
     {
         // Find the resource that contains the element

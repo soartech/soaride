@@ -520,6 +520,7 @@ public class SoarEditor extends TextEditor
     /* (non-Javadoc)
      * @see org.eclipse.ui.editors.text.TextEditor#getAdapter(java.lang.Class)
      */
+    @SuppressWarnings({ "rawtypes" })
     @Override
     public Object getAdapter( Class required ) {
         

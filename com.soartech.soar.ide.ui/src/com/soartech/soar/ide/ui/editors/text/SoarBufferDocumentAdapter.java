@@ -34,7 +34,6 @@ import com.soartech.soar.ide.core.model.ISoarBuffer;
 import com.soartech.soar.ide.core.model.ISoarBufferChangedListener;
 import com.soartech.soar.ide.core.model.ISoarFile;
 import com.soartech.soar.ide.core.model.ISoarOpenable;
-import com.soartech.soar.ide.core.model.SoarBufferChangedEvent;
 import com.soartech.soar.ide.core.model.SoarModelException;
 
 /**
@@ -294,14 +293,14 @@ public class SoarBufferDocumentAdapter implements ISoarBuffer,
         return new ArrayList<ISoarBufferChangedListener>(listeners);
     }
     
-    private void fireChangedEvent(int offset, int length, String text)
-    {
-        SoarBufferChangedEvent e = new SoarBufferChangedEvent(this, offset, length, text);
-        
-        for(ISoarBufferChangedListener listener : getListeners())
-        {
-            listener.onBufferChanged(e);
-        }
-    }
+//    private void fireChangedEvent(int offset, int length, String text)
+//    {
+//        SoarBufferChangedEvent e = new SoarBufferChangedEvent(this, offset, length, text);
+//        
+//        for(ISoarBufferChangedListener listener : getListeners())
+//        {
+//            listener.onBufferChanged(e);
+//        }
+//    }
 
 }

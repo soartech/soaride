@@ -69,11 +69,11 @@ public abstract class AbstractSoarRefactoring extends Refactoring {
 	public Change createChange(IProgressMonitor pm) throws CoreException,
 			OperationCanceledException {
 		IChangeProcessor changeProcessor = new CompositeChangeProcessor(name, getChangeProcessors());
-		if (changeProcessor == null)
-		{
-			status.addFatalError("Fatal Error in Abstract Soar Refactoring.");
-			return new NullChange();
-		}
+//		if (changeProcessor == null)
+//		{
+//			status.addFatalError("Fatal Error in Abstract Soar Refactoring.");
+//			return new NullChange();
+//		}
 		return changeProcessor.createChange();
 	}
 

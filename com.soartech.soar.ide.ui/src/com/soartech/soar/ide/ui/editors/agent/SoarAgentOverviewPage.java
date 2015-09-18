@@ -46,7 +46,6 @@ import org.eclipse.ui.forms.widgets.Section;
 import com.soartech.soar.ide.core.model.ISoarAgent;
 import com.soartech.soar.ide.core.model.SoarModelException;
 import com.soartech.soar.ide.core.model.SoarModelTools;
-import com.soartech.soar.ide.ui.editors.agent.SoarAgentInitialFileSelector;
 
 /**
  * @author ray
@@ -57,7 +56,6 @@ public class SoarAgentOverviewPage extends FormPage
     
     private SoarAgentEditor editor;
     private Text startFileText;
-    private SoarAgentFileSelector fileSelector;
     
     public SoarAgentOverviewPage(SoarAgentEditor editor)
     {
@@ -195,7 +193,7 @@ public class SoarAgentOverviewPage extends FormPage
         gd.horizontalAlignment = GridData.FILL;
         gd.grabExcessHorizontalSpace = true;  
         
-        fileSelector = new SoarAgentFileSelector(editor, sectionBody);
+        new SoarAgentFileSelector(editor, sectionBody);
     }
     
     
@@ -249,7 +247,6 @@ public class SoarAgentOverviewPage extends FormPage
     private void selectStartFile()
     {
         ISoarAgent agent = editor.getAgent();
-        IProject project = agent.getSoarProject().getProject();
         IFile currentSoarFile = agent.getStartFile();
         
         SoarAgentInitialFileSelector dialog = 

@@ -23,11 +23,13 @@ package com.soartech.soar.ide.core.model.ast;
 
 public class TokenMgrError extends Error
 {
-   /*
-    * Ordinals for various reasons why an Error of this type can be thrown.
-    */
+	private static final long serialVersionUID = 1L;
 
-   /**
+	/*
+	 * Ordinals for various reasons why an Error of this type can be thrown.
+	 */
+
+/**
     * Lexical error occured.
     */
    static final int LEXICAL_ERROR = 0;

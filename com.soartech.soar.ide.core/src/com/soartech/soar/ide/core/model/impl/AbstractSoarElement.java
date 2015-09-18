@@ -432,7 +432,8 @@ public abstract class AbstractSoarElement extends PlatformObject implements ISoa
         return false;
     }
 
-    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
     public Object getAdapter(Class adapter)
     {
         // If requesting a resource, return containing resource

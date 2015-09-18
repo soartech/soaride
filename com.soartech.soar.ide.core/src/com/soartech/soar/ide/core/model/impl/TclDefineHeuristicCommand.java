@@ -6,10 +6,7 @@ package com.soartech.soar.ide.core.model.impl;
 import java.util.List;
 
 import com.soartech.soar.ide.core.model.IExpandableElement;
-import com.soartech.soar.ide.core.model.ISoarSourceRange;
-import com.soartech.soar.ide.core.model.ITclComment;
 import com.soartech.soar.ide.core.model.SoarModelException;
-import com.soartech.soar.ide.core.model.ast.SoarProductionAst;
 import com.soartech.soar.ide.core.tcl.TclAstNode;
 
 /**
@@ -18,11 +15,11 @@ import com.soartech.soar.ide.core.tcl.TclAstNode;
  */
 public class TclDefineHeuristicCommand extends TclCommand implements IExpandableElement
 {
-    private TclAstNode bodyNode;
-    private ISoarSourceRange bodyRange;
-    private ISoarSourceRange nameRange;
-    private String name = "";
-    private SoarProductionAst ast;
+//    private TclAstNode bodyNode;
+//    private ISoarSourceRange bodyRange;
+//    private ISoarSourceRange nameRange;
+//    private String name = "";
+//    private SoarProductionAst ast;
 
     public TclDefineHeuristicCommand(SoarFileAgentProxy parent, TclAstNode astNode) throws SoarModelException 
     {
@@ -64,24 +61,24 @@ public class TclDefineHeuristicCommand extends TclCommand implements IExpandable
         return null;
     }
     
-    private String rebuildFromExpandedBody(String body) throws SoarModelException
-    {
-        StringBuilder builder = new StringBuilder();
-        ITclComment comment = getAssociatedComment();
-        if(comment != null)
-        {
-            builder.append(comment.getSource());
-            //builder.append("\n");
-        }
-        builder.append("sp {");
-        builder.append(body);
-        builder.append("}");
-        return builder.toString();
-    }
+//    private String rebuildFromExpandedBody(String body) throws SoarModelException
+//    {
+//        StringBuilder builder = new StringBuilder();
+//        ITclComment comment = getAssociatedComment();
+//        if(comment != null)
+//        {
+//            builder.append(comment.getSource());
+//            //builder.append("\n");
+//        }
+//        builder.append("sp {");
+//        builder.append(body);
+//        builder.append("}");
+//        return builder.toString();
+//    }
     
-    private SoarAgent getAgent()
-    {
-        return (SoarAgent) getSoarFile().getAgent();
-    }
+//    private SoarAgent getAgent()
+//    {
+//        return (SoarAgent) getSoarFile().getAgent();
+//    }
 
 }

@@ -82,15 +82,15 @@ public class SoarEditorColoringPreferencePage extends PreferencePage
 		/** Color preference key */
 		private String fColorKey;
 		/** Bold preference key */
-		private String fBoldKey;
+//		private String fBoldKey;
 		/** Italic preference key */
-		private String fItalicKey;
+//		private String fItalicKey;
 		/** Strikethrough preference key */
-		private String fStrikethroughKey;
+//		private String fStrikethroughKey;
 		/** Underline preference key */
-		private String fUnderlineKey;
+//		private String fUnderlineKey;
 		/** Enable preference key */
-		private String fEnableKey;
+//		private String fEnableKey;
 		
 		/**
 		 * Initialize the item with the given values.
@@ -104,39 +104,39 @@ public class SoarEditorColoringPreferencePage extends PreferencePage
 		public HighlightingColorListItem(String displayName, String colorKey, String boldKey, String italicKey, String underlineKey, String enableKey) {
 			fDisplayName = displayName;
 			fColorKey = colorKey;
-			fBoldKey = boldKey;
-			fItalicKey = italicKey;
-			fUnderlineKey = underlineKey;
-			fEnableKey = enableKey;
+//			fBoldKey = boldKey;
+//			fItalicKey = italicKey;
+//			fUnderlineKey = underlineKey;
+//			fEnableKey = enableKey;
 		}
 		
 		/**
 		 * @return the bold preference key
 		 */
-		public String getBoldKey() {
-			return fBoldKey;
-		}
+//		public String getBoldKey() {
+//			return fBoldKey;
+//		}
 		
 		/**
 		 * @return the bold preference key
 		 */
-		public String getItalicKey() {
-			return fItalicKey;
-		}
+//		public String getItalicKey() {
+//			return fItalicKey;
+//		}
 		
 		/**
 		 * @return the strikethrough preference key
 		 */
-		public String getStrikethroughKey() {
-			return fStrikethroughKey;
-		}
+//		public String getStrikethroughKey() {
+//			return fStrikethroughKey;
+//		}
 		
 		/**
 		 * @return the underline preference key
 		 */
-		public String getUnderlineKey() {
-			return fUnderlineKey;
-		}
+//		public String getUnderlineKey() {
+//			return fUnderlineKey;
+//		}
 		
 		/**
 		 * @return the color preference key
@@ -155,9 +155,9 @@ public class SoarEditorColoringPreferencePage extends PreferencePage
 		/**
 		 * @return the enable key
 		 */
-		public String getEnableKey() {
-			return fEnableKey;
-		}
+//		public String getEnableKey() {
+//			return fEnableKey;
+//		}
 	}
 	
 	/**

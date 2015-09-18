@@ -618,6 +618,7 @@ public class SoarProject extends AbstractSoarOpenable
     /* (non-Javadoc)
      * @see com.soartech.soar.ide.core.model.impl.AbstractSoarElement#getAdapter(java.lang.Class)
      */
+    @SuppressWarnings("rawtypes")
     @Override
     public Object getAdapter(Class adapter)
     {

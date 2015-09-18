@@ -58,7 +58,6 @@ public class TclConsoleViewer extends TextConsoleViewer {
      * 
      * @see org.eclipse.jface.text.TextViewer#handleVerifyEvent(org.eclipse.swt.events.VerifyEvent)
      */
-    @SuppressWarnings("unused")
     protected void handleVerifyEvent(VerifyEvent verifyEvent) {
         IDocument doc = getDocument();
         String[] legalLineDelimiters = doc.getLegalLineDelimiters();

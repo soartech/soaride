@@ -41,7 +41,8 @@ public class SoarAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
      * update this stack count if/when necessary.
      * 
      */
-    private int parenStack = 0;
+	@SuppressWarnings("unused")
+	private int parenStack = 0;
     
     /**
      * The length of the document. 
