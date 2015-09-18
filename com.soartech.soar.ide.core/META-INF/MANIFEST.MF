@@ -5,7 +5,6 @@ Bundle-SymbolicName: com.soartech.soar.ide;singleton:=true
 Bundle-Version: 1.2.2
 Bundle-Activator: com.soartech.soar.ide.core.SoarCorePlugin
 Bundle-Vendor: Soar Technology, Inc.
-Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.debug.core,
@@ -15,8 +14,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.text
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: soareditor.jar,
- lib/sml.jar,
- lib/antlr.jar,
  lib/jtcl-2.7.0.jar,
  lib/jdom.jar,
  lib/jsoar-core-0.14.2.5.jar,
