@@ -556,6 +556,8 @@ public class SoarFile extends AbstractSoarOpenable implements ISoarFile
     @SuppressWarnings("unchecked")
     private List<SoarFileAgentProxy> updateProxies() throws SoarModelException
     {
+    	// TOOD: This sounds wacky!
+    	
         // Use a raw list here so we can pass to addChildren() below and also
         // return it without Java complaining too much.
         List newProxies = new ArrayList<SoarFileAgentProxy>();
