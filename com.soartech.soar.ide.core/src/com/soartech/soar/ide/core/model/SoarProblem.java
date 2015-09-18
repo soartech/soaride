@@ -21,10 +21,7 @@ package com.soartech.soar.ide.core.model;
 
 import java.util.HashMap;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-
-import com.soartech.soar.ide.core.SoarCorePlugin;
 
 /**
  * Representation of a Soar problem, independent of the Eclipse marker

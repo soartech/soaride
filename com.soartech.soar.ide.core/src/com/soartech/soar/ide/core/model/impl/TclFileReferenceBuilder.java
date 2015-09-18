@@ -20,9 +20,9 @@
 package com.soartech.soar.ide.core.model.impl;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 
@@ -39,7 +39,6 @@ import com.soartech.soar.ide.core.model.ISoarProblemReporter;
 import com.soartech.soar.ide.core.model.ITclFileReferenceConstants;
 import com.soartech.soar.ide.core.model.SoarModelException;
 import com.soartech.soar.ide.core.model.SoarProblem;
-import com.soartech.soar.ide.core.model.SoarModelTools;
 import com.soartech.soar.ide.core.tcl.TclAstNode;
 
 /**

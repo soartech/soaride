@@ -20,16 +20,11 @@
 package com.soartech.soar.ide.core.refactoring.change;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.text.edits.InsertEdit;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.IOException;
-import org.eclipse.core.runtime.CoreException;
 
-import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.model.SoarModelException;
 import com.soartech.soar.ide.core.model.SoarModelTools;
 

@@ -24,17 +24,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.commands.SoarCommandInterpreter;
+
+import com.soartech.soar.ide.core.model.IExpandedTclCode;
+import com.soartech.soar.ide.core.model.TclExpansionError;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -43,9 +40,6 @@ import tcl.lang.TCL;
 import tcl.lang.TclException;
 import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
-
-import com.soartech.soar.ide.core.model.IExpandedTclCode;
-import com.soartech.soar.ide.core.model.TclExpansionError;
 
 /**
  * This is the wrapper around the Jacl Tcl interpreter used by each Soar

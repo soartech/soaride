@@ -6,7 +6,6 @@ package com.soartech.soar.ide.core.model.impl;
 import java.util.List;
 
 import com.soartech.soar.ide.core.model.IExpandableElement;
-import com.soartech.soar.ide.core.model.IExpandedTclCode;
 import com.soartech.soar.ide.core.model.ISoarSourceRange;
 import com.soartech.soar.ide.core.model.ITclComment;
 import com.soartech.soar.ide.core.model.SoarModelException;

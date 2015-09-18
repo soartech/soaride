@@ -19,7 +19,6 @@
  */
 package com.soartech.soar.ide.core.model.impl;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

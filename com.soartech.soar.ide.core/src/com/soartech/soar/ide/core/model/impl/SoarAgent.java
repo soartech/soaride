@@ -59,8 +59,6 @@ import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.tcl.SoarTclInterfaceFactory;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 
-import tcl.lang.RelocatableTclInterpreter;
-
 import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.model.IExpandedTclCode;
 import com.soartech.soar.ide.core.model.ISoarAgent;
@@ -76,6 +74,8 @@ import com.soartech.soar.ide.core.model.SoarModelTools;
 import com.soartech.soar.ide.core.model.TclExpansionError;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamap;
 import com.soartech.soar.ide.core.model.impl.datamap.SoarDatamap;
+
+import tcl.lang.RelocatableTclInterpreter;
 
 /**
  * Implementation of {@link ISoarAgent} interface
