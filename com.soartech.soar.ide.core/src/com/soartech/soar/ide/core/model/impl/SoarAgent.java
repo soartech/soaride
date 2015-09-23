@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.IContainer;
@@ -101,17 +102,18 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     
     private static final String EMPTY_AGENT = "<" + ROOT_TAG + "><" + MEMBERS_TAG + "/></" + ROOT_TAG  + ">";
     
-        
+    // TODO: Not clear how these are different
+    private IFile startFile;
     private IFile file;
 
     private String name;
-
-    private IFile startFile;
 
     private Set<IResource> members = new LinkedHashSet<IResource>();
 
     private SoarAgent primary = null;
 
+    // TODO: Unclear what the purpose of the working copy is, not sure why
+    // there is a workingCopyCount but only one pointer to a workingCopy
     private SoarAgent workingCopy = null;
 
     private int workingCopyCount = 0;
@@ -388,6 +390,10 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     private void initCommands(SoarCommandInterpreter jsoarInterp)
     {
         try {
+            // Adding some stubs proc's to the JSoar TCL interp to avoid errors
+            // for commands that are in CSoar but not JSoar
+            // TODO: Seems like this needs to be hooked up to the preferences information
+            // (isn't this info stored in preferences)
             jsoarInterp.eval("proc cli { args } { }");
             jsoarInterp.eval("proc indifferent-selection { args } { }");
             jsoarInterp.eval("proc max-chunks { args } { }");
@@ -719,7 +725,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
                     interpreter = null;
                 }
                 
-                System.out.println("Detaching tcl interpreter");
+                System.out.println("Detaching the interpreter");
                 
                 productions.clear();
                 procedures.clear();
@@ -727,11 +733,20 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
                 members.clear();
 
                 SoarAgent.super.detach();
+                
+                System.out.println("Finished detaching the interpreter!");
             }
         };
         
-        final ScheduledFuture<?> tclExecutorServiceHandle = tclExecutorService.schedule(tclDisposeRunnable, 0, TimeUnit.MILLISECONDS);
-        
+        /*ScheduledFuture<?> future =*/ tclExecutorService.schedule(tclDisposeRunnable, 0, TimeUnit.MILLISECONDS);
+//        try {
+//			future.get();
+//		} catch (InterruptedException e) {
+//			System.out.println("Interrupted while waiting for soar agent to cleared!");
+//		} catch (ExecutionException e) {
+//			e.printStackTrace();
+//			SoarCorePlugin.log(e);
+//		}
     }
 
     /*
