@@ -33,14 +33,6 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
 import com.soartech.soar.ide.core.model.IExpandedTclCode;
 import com.soartech.soar.ide.core.model.TclExpansionError;
 
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.RelocatableTclInterpreter;
-import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
-
 /**
  * This is the wrapper around the Jacl Tcl interpreter used by each Soar
  * project to process Tcl.
@@ -58,31 +50,18 @@ import tcl.lang.TclObject;
 public class SoarModelTclInterpreter
 {
     private SoarCommandInterpreter jsoarInterp;
-    
-    private RelocatableTclInterpreter interp;
-    
-    private boolean sourceChangesDir;
-    private TclSourceCommand sourceCommand;
-    private TclWorkingDirectoryCommands workingDirectoryCommands;
-    private Map<String, ExpandedProductionInfo> previousProductionMap;
     private Map<String, ExpandedProductionInfo> productionMap = new HashMap<String, ExpandedProductionInfo>();
     private Map<String, OverwrittenProductionInfo> overwrittenProductions = new HashMap<String, OverwrittenProductionInfo>();
     private Set<IPath> visitedFiles = new HashSet<IPath>();
     
     private Object lock = new Object();
-    private boolean expanding = false;
     private IProgressMonitor currentMonitor;
     
     private Set<String> filesToBuild = new HashSet<String>();
     
     public SoarModelTclInterpreter(boolean sourceChangesDir, Map<String,ExpandedProductionInfo> previousProductionMap, SoarCommandInterpreter jsoarInterp )
     {
-            this.interp = new RelocatableTclInterpreter(new ProgressHandler());
             this.jsoarInterp = jsoarInterp;
-            this.sourceChangesDir = sourceChangesDir;
-            this.previousProductionMap = previousProductionMap;
-            
-            installCommands();
     }
     
     /**
@@ -96,13 +75,8 @@ public class SoarModelTclInterpreter
     {
         synchronized(lock)
         {
-            //JSOAR
             jsoarInterp.dispose();
             jsoarInterp = null;
-            
-            //TCL
-            interp.dispose();
-            interp = null;
             
             productionMap.clear();
             overwrittenProductions.clear();
@@ -128,15 +102,9 @@ public class SoarModelTclInterpreter
         
         synchronized(lock)
         {
-            if(interp == null)
-            {
-                throw new IllegalStateException("Interpreter is disposed");
-            }
-            enterExpandMode();
             TclExpansionError error = null;
             String result = "";
             
-            //JSOAR
             try {
                 result = jsoarInterp.eval("namespace eval " + namespace + " {" + 
                         "return " + input + "}");
@@ -144,26 +112,6 @@ public class SoarModelTclInterpreter
                 error = new TclExpansionError(null,e.getMessage(),e.getMessage(), offset, 0);
             }
             
-            //TCL
-//            try
-//            {
-//                // How does this work? Well, it evaluates the command
-//                //      namespace eval <namespace> { return <input> }
-//                // and returns the result.  The return command just returns
-//                // the expansion of its argument. "namespace eval" evaluates
-//                // commands in a particular namespace and returns the result.
-//                interp.eval("namespace eval " + namespace + " {" + 
-//                            "return " + input + "}", TCL.EVAL_GLOBAL);
-//                result = interp.getResult().toString();
-//                
-//            }
-//            catch (TclException e)
-//            {
-//            	//Less informative error
-//                //error = new TclExpansionError(interp.getResult().toString(), offset, 0);
-//            	error = new TclExpansionError(null,getErrorInfo(),interp.getResult().toString(), offset, 0);
-//            } 
-            exitExpandMode();
             return new ExpandedTclCode(error, result);
         }
     }
@@ -178,12 +126,6 @@ public class SoarModelTclInterpreter
     {
         synchronized(lock)
         {
-            if(interp == null)
-            {
-                throw new IllegalStateException("Interpreter is disposed");
-            }
-            
-            //JSOAR
             try 
             {
                 String jsoarResult = jsoarInterp.eval(command); 
@@ -191,19 +133,8 @@ public class SoarModelTclInterpreter
             } 
             catch (SoarException e) 
             {
-//                e.printStackTrace();
                 return e.getMessage();
-            }
-            
-            //TCL
-//            try {
-//                interp.eval(command, TCL.EVAL_GLOBAL);
-//                String result = interp.getResult().toString();
-//                return result;
-//            } catch (TclException e) {
-//                String result = interp.getResult().toString();
-//                return result;
-//            }
+            }            
         }
         
     }
@@ -217,7 +148,6 @@ public class SoarModelTclInterpreter
      */
     public TclExpansionError evaluate(File file, IProgressMonitor monitor)
     {
-        //JSOAR
         synchronized(lock)
         {
             try 
@@ -236,65 +166,9 @@ public class SoarModelTclInterpreter
                 currentMonitor.done();
                 currentMonitor = null;
             }
-        }
-        
-        
-        //TCL
-//        String dir = file.getParent().replace('\\', '/');
-//        String fileName = file.getName().replace('\\', '/');
-//        synchronized(lock)
-//        {
-//            if(interp == null)
-//            {
-//                throw new IllegalStateException("Interpreter is disposed");
-//            }
-//            try
-//            {
-//                sourceCommand.reset();
-//                workingDirectoryCommands.reset();
-//                
-//                currentMonitor = monitor;
-//                if(dir != null)
-//                {
-//                    interp.eval("pushd \"" + dir + "\"", TCL.EVAL_GLOBAL);
-//                    interp.eval("source \"" + fileName + "\"", TCL.EVAL_GLOBAL);
-//                    interp.eval("popd", TCL.EVAL_GLOBAL);
-//                }
-//                else
-//                {
-//                    interp.eval("source \"" + fileName + "\"", TCL.EVAL_GLOBAL);            
-//                }
-//                return null;
-//            }
-//            catch(TclException e)
-//            {
-//                return new TclExpansionError(sourceCommand.getCurrentFile(), 
-//                                             getErrorInfo(), 0, 0);
-//            }
-//            finally
-//            {
-//                currentMonitor.done();
-//                currentMonitor = null;
-//            }
-//        }
+        }        
     }
     
-    public String getErrorInfo()
-    {
-        //this method is only used by the TCL interpreter
-        synchronized (lock)
-        {
-            try
-            {
-                return interp.getVar("errorInfo", TCL.GLOBAL_ONLY).toString();
-            }
-            catch (TclException e)
-            {
-                e.printStackTrace();
-                return "Error while retrieving errorInfo: " + e.getMessage();
-            }
-        }
-    }
     public ExpandedProductionInfo getExpandedProductionBody(String name)
     {
         synchronized(lock)
@@ -303,193 +177,11 @@ public class SoarModelTclInterpreter
         }
     }
     
-    RelocatableTclInterpreter getInterpreter()
-    {
-        return interp;
-    }
-    
     public SoarCommandInterpreter getJSoarInterpreter()
     {
         return jsoarInterp;
     }
     
-    IProgressMonitor getProgressMonitor()
-    {
-        return currentMonitor;
-    }
-    
-    private void installCommands()
-    {
-        sourceCommand = new TclSourceCommand(this, sourceChangesDir);
-        workingDirectoryCommands = new TclWorkingDirectoryCommands(interp);
-        interp.createCommand("sp", new SoarProductionCommand());
-        interp.createCommand("excise", new ExciseCommand());
-        SoarModelTclCommands.installNullCommands(interp);
-    }
-    
-    private void enterExpandMode()
-    {
-        sourceCommand.uninstall();
-        workingDirectoryCommands.uninstall();
-        expanding = true;
-    }
-    
-    private void exitExpandMode()
-    {
-        expanding = false;
-        workingDirectoryCommands.install();
-        sourceCommand.install();
-    }
-    
-    private class ProgressHandler implements RelocatableTclInterpreter.ProgressHandler
-    {
-        /* (non-Javadoc)
-         * @see tcl.lang.RelocatableTclInterpreter.ProgressHandler#onProgress(tcl.lang.RelocatableTclInterpreter)
-         */
-        public void onProgress(RelocatableTclInterpreter interp)
-        {
-            if(currentMonitor != null)
-            {
-                if(currentMonitor.isCanceled())
-                {
-                    throw new RelocatableTclInterpreter.InterruptedException();
-                }
-                else
-                {
-                    currentMonitor.worked(1);
-                }
-            }
-        }
-    }
-    
-    private class SoarProductionCommand implements Command
-    {
-        /* (non-Javadoc)
-         * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.TclObject[])
-         */
-        public void cmdProc(Interp interp, TclObject[] args) throws TclException
-        {
-            if(args.length != 2)
-            {
-                throw new TclNumArgsException(interp, 1, args, "body");
-            }
-            
-            String body = args[1].toString();
-            String name = getProductionName(body);
-            
-            if(!expanding)
-            {
-                // First check whether this is overwriting an existing, non-excised, production
-                ExpandedProductionInfo overwritten = productionMap.get(name);
-                if(overwritten != null && 
-                   !overwritten.excised && 
-                   !overwrittenProductions.containsKey(name))
-                {
-                    OverwrittenProductionInfo opi = new OverwrittenProductionInfo();
-                    opi.file = sourceCommand.getCurrentFile();
-                    opi.name = name;
-                    opi.previousInstance = overwritten;
-                    
-                    overwrittenProductions.put(name, opi);
-                }
-                
-                // Construct expansion info and store in production map
-                ExpandedProductionInfo info = new ExpandedProductionInfo();
-                info.name = name;
-                info.expandedBody = body;
-                interp.eval("namespace current");
-                info.namespace = interp.getResult().toString();
-                info.file = sourceCommand.getCurrentFile();
-                
-                productionMap.put(name, info);
-                
-                // Check whether this production's expansion has changed since the
-                // previous run of the interpreter. If so, the file needs to marked
-                // for reprocessing to catch secondary affects of Tcl macro changes.
-                ExpandedProductionInfo previousInfo = previousProductionMap.get( name );
-                if ( previousInfo != null ) 
-                {
-                	String previousBody = previousInfo.expandedBody;
-                	if ( ( previousBody == null && body != null ) ||
-                	     ( previousBody != null && body == null ) ||
-                		 ( previousBody != null && body != null &&
-                		 !previousBody.equals( body ) ) ) 
-                    {
-                	    filesToBuild.add( info.file );
-                	}
-                }
-                
-            }
-            
-            interp.setResult(args[1]);
-        }
-        
-    }
-    
-    private class ExciseCommand implements Command
-    {
-        /* (non-Javadoc)
-         * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.TclObject[])
-         */
-        public void cmdProc(Interp interp, TclObject[] args) throws TclException
-        {
-            if(args.length != 2)
-            {
-                throw new TclNumArgsException(interp, 1, args, "production");
-            }
-            
-            String name = args[1].toString();
-            
-            if(!expanding)
-            {
-                ExpandedProductionInfo info = productionMap.get( name );
-                if ( info != null ) 
-                {
-                    info.excised = true;
-                }
-            }
-            
-            interp.setResult(args[1]);
-        }
-        
-    }
-
-    private String getProductionName(String body)
-    {
-        int i = 0;
-        boolean nonWSFound = false;
-        while(i < body.length())
-        {
-            if(Character.isWhitespace(body.charAt(i)))
-            {
-            	if ( nonWSFound ) {
-            		break;
-            	}
-            } else {
-            	nonWSFound = true;
-            }
-            ++i;
-        }
-        return body.substring(0, i).trim();
-    }
-    
-    public static void main(String[] args)
-    {
-        SoarModelTclInterpreter interp = new SoarModelTclInterpreter(false, 
-        		new HashMap<String,ExpandedProductionInfo>(), null);
-        
-        try
-        {
-            interp.interp.eval("namespace eval Foo { variable x 99 }");
-            interp.interp.eval(" puts $Foo::x");
-        }
-        catch (TclException e)
-        {
-            System.err.println(interp.interp.getResult().toString());
-            e.printStackTrace();
-        }
-    }
-
 	/**
 	 * @return The map of expanded production info
 	 */
