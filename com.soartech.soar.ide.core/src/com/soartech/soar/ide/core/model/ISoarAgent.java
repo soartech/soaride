@@ -86,7 +86,7 @@ public interface ISoarAgent extends ISoarElement
     ISoarAgent getPrimary();
     
     /**
-     * Resyncrhonize this agent with its file on disk. If this is a working
+     * Resynchronize this agent with its file on disk. If this is a working
      * copy, then the working copy is reverted to the state of the agent
      * from which is was created.
      * 
