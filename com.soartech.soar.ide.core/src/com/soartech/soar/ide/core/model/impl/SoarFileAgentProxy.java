@@ -197,6 +197,7 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
                     }
                 }
             } catch (SoarModelException e) {
+                // TODO: Make sure that this is appropriate
                 //nothing
             }
             return procedures;
@@ -223,6 +224,7 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
                     }
                 }
             } catch (SoarModelException e) {
+                // TODO: Make sure that this is appropriate
                 //nothing
             }
             
