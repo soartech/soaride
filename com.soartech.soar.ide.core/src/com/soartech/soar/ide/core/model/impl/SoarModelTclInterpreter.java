@@ -59,7 +59,7 @@ public class SoarModelTclInterpreter
     
     private Set<String> filesToBuild = new HashSet<String>();
     
-    public SoarModelTclInterpreter(boolean sourceChangesDir, Map<String,ExpandedProductionInfo> previousProductionMap, SoarCommandInterpreter jsoarInterp )
+    public SoarModelTclInterpreter(SoarCommandInterpreter jsoarInterp )
     {
             this.jsoarInterp = jsoarInterp;
     }
@@ -177,6 +177,8 @@ public class SoarModelTclInterpreter
         }
     }
     
+    // TODO: Should probably not expose this, really just need to expose the list of 
+    // sourced files
     public SoarCommandInterpreter getJSoarInterpreter()
     {
         return jsoarInterp;

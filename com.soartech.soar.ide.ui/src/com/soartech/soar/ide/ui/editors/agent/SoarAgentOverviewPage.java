@@ -140,23 +140,6 @@ public class SoarAgentOverviewPage extends FormPage
             }});
     }
     
-    private void createSCCDControls(IManagedForm managedForm, Composite body, GridLayout layout)
-    {
-        FormToolkit toolkit = managedForm.getToolkit();
-        
-        Button button = toolkit.createButton(body, "", SWT.CHECK);
-        button.setSelection(editor.getAgent().getSourceCommandChangesDirectory());
-        button.setText("Source command changes to directory of sourced file");
-        
-        button.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(SelectionEvent e)
-            {
-                setSourceCommandChangesDirectory(e);
-            }});
-    }
-    
     /**
      * @param body
      * @param layout
@@ -222,8 +205,6 @@ public class SoarAgentOverviewPage extends FormPage
         Composite sectionBody = toolkit.createComposite(section);
         section.setClient(sectionBody);
         sectionBody.setLayout(new GridLayout());
-        
-        createSCCDControls(managedForm, sectionBody, layout);
     }
     
     private void setStartFile(IFile file)
@@ -323,15 +304,5 @@ public class SoarAgentOverviewPage extends FormPage
         }
         
         setStartFile(file);
-    }
-    
-    private void setSourceCommandChangesDirectory(SelectionEvent e)
-    {
-        Button b = (Button) e.getSource();
-        
-        boolean sel = b.getSelection();
-        
-        editor.getAgent().setSourceCommandChangesDirectory(sel);
-        editor.setDirty(true);
-    }
+    }    
 }

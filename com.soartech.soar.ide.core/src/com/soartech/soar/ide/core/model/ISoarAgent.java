@@ -110,21 +110,7 @@ public interface ISoarAgent extends ISoarElement
      * @throws SoarModelException
      */
     boolean save(IProgressMonitor monitor) throws SoarModelException;
-    
-    /**
-     * @return true if the source command automatically changes directory 
-     *      (UofM-style), or false otherwise (Tcl/SoarTech-style)
-     */
-    boolean getSourceCommandChangesDirectory();
-    
-    /**
-     * Set to true if the source command automatically changes directory 
-     * (UofM-style), or false otherwise (Tcl/SoarTech-style).
-     * 
-     * @param sourceCommandChangesDirectory
-     */
-    void setSourceCommandChangesDirectory(boolean sourceCommandChangesDirectory);
-    
+        
     /**
      * Returns the root startup file, e.g. load.soar, for this project. This
      * is the file that is loaded when the project is run in Soar

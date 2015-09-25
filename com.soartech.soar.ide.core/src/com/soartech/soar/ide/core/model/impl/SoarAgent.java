@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.IContainer;
@@ -88,11 +87,6 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     private static final String START_FILE_TAG = "startfile";
 
     private static final String START_FILE_PATH_ATTR = "path";
-
-    /**
-     * Attribute name representing sourceCommandChangesDirectory variable.
-     */
-    private static final String START_FILE_SCCD_ATTR = "sourceCommandChangesDirectory";
     
     private static final String MEMBER_PATH_ATTR = "path";
 
@@ -118,8 +112,6 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
 
     private int workingCopyCount = 0;
     
-    private boolean sourceCommandChangesDirectory = false;
-
     private SoarModelTclInterpreter interpreter;
     private SoarDatamap datamap = new SoarDatamap();
     
@@ -170,7 +162,6 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         this.name = primary.name;
         this.startFile = primary.startFile;
         this.members = new LinkedHashSet<IResource>(primary.members);
-        this.sourceCommandChangesDirectory = primary.sourceCommandChangesDirectory;
         this.datamap.setAgent(this);
         
         this.tclExecutorService = primary.tclExecutorService;
@@ -192,10 +183,11 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         }
     }
     
-    public ThreadedAgent getJsoarAgent() {
-        return jsoarAgent;
-    }
+//    public ThreadedAgent getJsoarAgent() {
+//        return jsoarAgent;
+//    }
 
+    // TODO: I don't see this being used anywhere?
     boolean fileWasVisited(IFile file)
     {
         synchronized(getLock())
@@ -332,19 +324,13 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
                 synchronized(getLock())
                 {
                     // Save the previous production map so we can identify secondary productions
-                    Map<String, ExpandedProductionInfo> productionMap = null;
                     if (interpreter != null)
                     {
-                        productionMap = new HashMap<String, ExpandedProductionInfo>(interpreter.getProductions());
                         interpreter.dispose();
                         interpreter = null;
                     }
-                    else
-                    {
-                        productionMap = new HashMap<String, ExpandedProductionInfo>();
-                    }
                     
-                    interpreter = new SoarModelTclInterpreter(sourceCommandChangesDirectory, productionMap, jsoarAgent.getInterpreter());
+                    interpreter = new SoarModelTclInterpreter(jsoarAgent.getInterpreter());
                     
                     initCommands(jsoarAgent.getInterpreter());
                     
@@ -461,7 +447,6 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     {
         this.startFile = primary.startFile;
         this.members = new LinkedHashSet<IResource>(primary.members);
-        this.sourceCommandChangesDirectory = primary.sourceCommandChangesDirectory;
     }
     
     private static ISoarFile getSoarFile(IFile file)
@@ -577,8 +562,6 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
             return;
         }
         
-        sourceCommandChangesDirectory = Boolean.parseBoolean(root.getAttributeValue(START_FILE_SCCD_ATTR, "false"));
-
         IContainer container = file.getParent();
 
         Element startFileElement = root.getChild(START_FILE_TAG);
@@ -706,6 +689,11 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     @Override
     public Object getLock()
     {
+        // TODO: We really need to document the approach to locking here, there
+        // clearly is one but why it exists is unclear. I'm having trouble believing
+        // that this type of locking is necessary in typical Eclipse plugins so 
+        // I'm wondering if this complexity is self inflicted.
+        
         // The working copy and primary share the same lock object. This makes
         // some of the working copy code simpler since we only have to lock
         // this.
@@ -715,7 +703,8 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     @Override
     protected void detach()
     {
-        //dispose of the tcl interpreter is the same thread it was created
+        // HACK:
+        //dispose of the tcl interpreter in the same thread it was created
         final Runnable tclDisposeRunnable = new Runnable() {
             @Override
             public void run() {
@@ -1162,9 +1151,6 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
             Element root = new Element(ROOT_TAG);
             Document doc = new Document(root);
 
-            root.setAttribute(START_FILE_SCCD_ATTR, 
-                              Boolean.toString(sourceCommandChangesDirectory));
-            
             saveStartFile(file, startFile, root);
             saveMembers(root);
 
@@ -1214,12 +1200,6 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         // Check if the start file is different
         if(startFile == null && primary.startFile != null ||
            (startFile != null && !startFile.equals(primary.startFile)))
-        {
-            return true;
-        }
-        
-        //check if the sourceCommandChangesDirectory has changed
-        if(sourceCommandChangesDirectory != primary.sourceCommandChangesDirectory)
         {
             return true;
         }
@@ -1423,24 +1403,6 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         return "SoarAgent " + file;
     }
     
-    /* (non-Javadoc)
-     * @see com.soartech.soar.ide.core.model.ISoarAgent#getSourceCommandChangesDirectory()
-     */
-    public boolean getSourceCommandChangesDirectory() 
-    {
-        return sourceCommandChangesDirectory;
-    }
-    
-    /* (non-Javadoc)
-     * @see com.soartech.soar.ide.core.model.ISoarAgent#setSourceCommandChangesDirectory(boolean)
-     */
-    public void setSourceCommandChangesDirectory(boolean sourceCommandChangesDirectory) 
-    {
-        enforceWorkingCopy();
-        
-        this.sourceCommandChangesDirectory = sourceCommandChangesDirectory;
-    }
-
     /**
      * Returns initial contents for a new Soar agent.
      * 
