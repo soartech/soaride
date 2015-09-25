@@ -16,8 +16,8 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: soareditor.jar,
  lib/jtcl-2.7.0.jar,
  lib/jdom.jar,
- lib/jsoar-core-0.14.2.5.jar,
- lib/jsoar-tcl-0.14.2.5.jar
+ lib/jsoar-core-0.14.3.jar,
+ lib/jsoar-tcl-0.14.3.jar
 Export-Package: com.soartech.soar.editor.docs,
  com.soartech.soar.editor.model,
  com.soartech.soar.ide.console,
