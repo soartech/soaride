@@ -38,16 +38,17 @@ Some quick notes on various important components/classes in SOAR IDE:
 
 ## Design and Refactoring Notes
 Some quick observations about the code base:
+* What are "Working Copies" for?
 * It has a lot of locking in it and threading model isn't really apparent
+* What is the lifecycle of the JSoar agent contained in the SoarAgent class?
 * There is quite a bit of complexity in various parts of the ISoarElement hierarchy. It seems like a lot for a system that's essentially producing error/warning markers and doing syntax highlighting. Maybe it supports live running and debugging of agents and the Outline view in eclipse.
 * Both SoarAgent and SoarModelTclInterpreter expose some internals that probably seem like a bad idea (SoarAgent exposes the underlying JSoar agent and the interpreter exposes it's multiple interpreter internals)
 
 ## KNOWN BUGS
 * Throws null pointer exceptions on startup and sometimes during a clean.
-* Some errors point to the top level agent file instead of the appropriate low level production file. 
+* Some errors point to the top level agent file instead of the appropriate low level production file.
 
 ## TODO
-
 * This README needs to be fleshed out
 * We're using a lot of deprecated eclipse concepts (actions, actionSets, popupMenus, etc...), at some point we'll have to update these.
 
