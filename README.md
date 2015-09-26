@@ -46,6 +46,7 @@ Some quick observations about the code base:
 * In JSoar it looks like interp doesn't have to be a member of the Agent class, it's only really sourcing the aliases definition, also doesn't look like the interp in the plugin needs to be attached to an agent.
 * SoarTclInterface should be rewritten so that multiple dispose calls don't cause problems, also it leaves one Rhs function still regestered
 * SoarAgent doesn't handle the case when setInterpreter is called twice with the same interpreter
+* TclExpansionError should really return a SourceLocation, otherwise you've got to reach into the interpreter to pull out this type of information, also message should be what is currently the last line of the multiline error message
 
 ## KNOWN BUGS
 * Throws null pointer exceptions on startup and sometimes during a clean.
