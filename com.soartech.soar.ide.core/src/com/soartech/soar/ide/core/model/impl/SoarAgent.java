@@ -19,10 +19,12 @@
  */
 package com.soartech.soar.ide.core.model.impl;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,6 +58,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.tcl.SoarTclInterfaceFactory;
+import org.jsoar.util.SourceLocation;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
@@ -624,11 +627,30 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
      */
     private void createTclPreprocessorErrorMarker(TclExpansionError error) throws SoarModelException
     {
-        String file = error.getFile();
+        // HACK: We shouldn't have to reach into the interpreter to get this state, a SourceLocation
+        // should be in the TclExpansionError
+        SoarTclInterface sti = (SoarTclInterface) jsoarAgent.getInterpreter();
+        SourceLocation sloc = sti.getContext().getSourceLocation();
+        
+        // Best error message is on the last line of the TclExpansion error...
+        BufferedReader bufread = new BufferedReader(new StringReader(error.getMessage()));
+        String msg = "Unknown error";
+        try
+        {
+            String line = null;
+            while ( (line = bufread.readLine()) != null )
+            {
+                msg = line;
+            }
+        }
+        catch (IOException e1)
+        {
+            msg = "Difficulty reading error string";
+        }
         
         // See if the file exists in Eclipse...
-        IResource resource = SoarModelTools.getEclipseResource(new Path(file));
-        
+        IResource resource = SoarModelTools.getEclipseResource(new Path(sloc.getFile()));
+                
         Map<String, Comparable<?>> attributes = new HashMap<String, Comparable<?>>();
         attributes.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
         attributes.put(IMarker.LOCATION, "Tcl pre-processing phase");
@@ -636,15 +658,14 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         if(resource != null && resource.exists())
         {
             // If it's in the workspace, then mark it as usual
-            attributes.put(IMarker.LINE_NUMBER, 1);
-            attributes.put(IMarker.MESSAGE, name + ": " + error.getMessage());
+            attributes.put(IMarker.LINE_NUMBER, sloc.getLine());
+            attributes.put(IMarker.MESSAGE, name + ": " + msg);
         }
         else
         {
             // If it's an external file, we add the marker to the project and
             // expand the error message a bit.
-            attributes.put(IMarker.MESSAGE, name + ": In external or unknown file '" + file + ": " + 
-                           error.getMessage());
+            attributes.put(IMarker.MESSAGE, name + ": In external or unknown file '" + file + ": " + msg);
             resource = this.file;
         }
         
