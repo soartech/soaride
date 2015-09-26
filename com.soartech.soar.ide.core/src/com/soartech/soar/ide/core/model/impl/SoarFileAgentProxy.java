@@ -251,9 +251,10 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
             
             this.root = root;
             
+            // TODO: Null pointer exception below!!!!
             //get the list of this agent's sourced files from jsoar
             //these should always have a "/" as the path separator
-            Collection<String> sourcedFiles = agent.getInterpreter().getJSoarInterpreter().getSourcedFiles();
+            Collection<String> sourcedFiles = agent.getInterpreter().getSourcedFiles();
             
             //get the current filename and format it's path to use backslashes since that's what jsoar is giving us
             String filename = getFile().getFile().getLocation().makeAbsolute().toString();

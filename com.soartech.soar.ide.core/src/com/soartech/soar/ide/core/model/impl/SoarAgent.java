@@ -32,9 +32,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -54,7 +54,7 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.runtime.ThreadedAgent;
+import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.tcl.SoarTclInterfaceFactory;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 
@@ -118,36 +118,37 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     private Set<ISoarProduction> productions = new HashSet<ISoarProduction>();
     private Set<ITclProcedure> procedures = new HashSet<ITclProcedure>();
     
+    // Keeping a handle on the SoarTclInterface and also this ScheduledExecutorService
+    // because the SoarTclInterface can only be disposed by the thread that created it.
     private ScheduledExecutorService tclExecutorService = null;
-    private boolean creatingTclInterp = false;
+    private Agent jsoarAgent;
     
-    private ThreadedAgent jsoarAgent;
-
     public SoarAgent(SoarProject soarProject, IFile file)
             throws SoarModelException
     {
         super(soarProject);
+        
+        preloadClasses();
+        this.tclExecutorService = Executors.newSingleThreadScheduledExecutor();
+        
         this.file = file;
         this.datamap.setAgent(this);
         
-        //create a new jsoar agent
-        Agent agent = new Agent(soarProject.getProject().getName() + "-agent");
-        //create a TCL command interpreter for the agent
-        SoarTclInterfaceFactory factory = new SoarTclInterfaceFactory();
-        SoarCommandInterpreter scInterp = factory.create(agent);
-        //add the interpreter to the agent
-        agent.setInterpreter(scInterp);
-        //create a new ThreadedAgent and initialize it
-        this.jsoarAgent = ThreadedAgent.attach(agent);
-        this.jsoarAgent.initialize();
+        // Create a new jsoar agent
+        jsoarAgent = new Agent(soarProject.getProject().getName() + "-agent");
+
+        // Doing this in a helper function because the associated TCL interpreter
+        // needs to be created and deleted in the same thread
+        createAndRegisterInterpInIsolatedThread();
+
+        // The agent should be ready to initialize at this point
+        jsoarAgent.initialize();
 
         String fileName = file.getName();
         int dotIndex = fileName.lastIndexOf('.');
         this.name = fileName.substring(0, dotIndex != -1 ? dotIndex : fileName
                 .length());
         
-        this.tclExecutorService = Executors.newSingleThreadScheduledExecutor();
-
         System.out.println("Constructed " + this);
 
         makeConsistent(new NullProgressMonitor());
@@ -157,6 +158,8 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     {
         super((SoarProject) primary.getParent());
 
+        this.tclExecutorService = primary.tclExecutorService;
+
         this.primary = primary;
         this.file = primary.file;
         this.name = primary.name;
@@ -164,8 +167,6 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         this.members = new LinkedHashSet<IResource>(primary.members);
         this.datamap.setAgent(this);
         
-        this.tclExecutorService = primary.tclExecutorService;
-
         System.out.println("Constructed working copy for " + this);
     }
     
@@ -183,10 +184,6 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         }
     }
     
-//    public ThreadedAgent getJsoarAgent() {
-//        return jsoarAgent;
-//    }
-
     // TODO: I don't see this being used anywhere?
     boolean fileWasVisited(IFile file)
     {
@@ -202,6 +199,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
      */
     void checkForOverwrittenProductions()
     {
+        // TODO: Are these null checks here for the right reason
         if(interpreter == null)
         {
             return;
@@ -316,61 +314,43 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         //be reused to dispose the interpreter as well.
         //
         //the JTCL library enforces creating/disposing from the same thread
-        final Runnable tclPreprocessingRunnable = new Runnable() {
-            
-            @Override
-            public void run() {
+        synchronized(getLock())
+        {
+            // We need a new tcl interpreter here
+            createAndRegisterInterpInIsolatedThread();
 
-                synchronized(getLock())
+            interpreter = new SoarModelTclInterpreter(this.jsoarAgent.getInterpreter());
+            initCommands(this.jsoarAgent.getInterpreter());
+
+            if (startFile != null)
+            {
+                System.out.println(name + ": Processing Tcl from start file '"
+                        + startFile.getFullPath());
+                monitor.subTask(name + ": Processing Tcl from start file '"
+                        + startFile.getFullPath());
+                IPath location = startFile.getLocation();
+                try
                 {
-                    // Save the previous production map so we can identify secondary productions
-                    if (interpreter != null)
+                    long start = System.currentTimeMillis();
+                    TclExpansionError error = interpreter.evaluate(location.toFile(), 
+                                                                   new SubProgressMonitor(monitor, 1));
+                    System.out.println(name + ": Ran Tcl processing on "
+                            + location.toPortableString() + " in "
+                            + (System.currentTimeMillis() - start) + " ms");
+                    if (error != null)
                     {
-                        interpreter.dispose();
-                        interpreter = null;
-                    }
-                    
-                    interpreter = new SoarModelTclInterpreter(jsoarAgent.getInterpreter());
-                    
-                    initCommands(jsoarAgent.getInterpreter());
-                    
-                    if (startFile != null)
-                    {
-                        System.out.println(name + ": Processing Tcl from start file '"
-                                + startFile.getFullPath());
-                        monitor.subTask(name + ": Processing Tcl from start file '"
-                                + startFile.getFullPath());
-                        IPath location = startFile.getLocation();
-                        try
-                        {
-                            long start = System.currentTimeMillis();
-                            TclExpansionError error = interpreter.evaluate(location.toFile(), 
-                                                                 new SubProgressMonitor(monitor, 1));
-                            System.out.println(name + ": Ran Tcl processing on "
-                                    + location.toPortableString() + " in "
-                                    + (System.currentTimeMillis() - start) + " ms");
-                            if (error != null)
-                            {
-                                createTclPreprocessorErrorMarker(error);
-                                System.out.println("### " + name + ": ERROR: " + error);
-                            }
-                        }
-                        catch (RelocatableTclInterpreter.InterruptedException | SoarModelException e)
-                        {
-                            // TODO: I don't think there's really anything to do here, but
-                            // think about it.
-                            System.out.println("### " + name + ": Tcl processing cancelled by user ###");
-                        }
-                        
-                        creatingTclInterp = false;
+                        createTclPreprocessorErrorMarker(error);
+                        System.out.println("### " + name + ": ERROR: " + error);
                     }
                 }
-                
+                catch (RelocatableTclInterpreter.InterruptedException | SoarModelException e)
+                {
+                    // TODO: I don't think there's really anything to do here, but
+                    // think about it.
+                    System.out.println("### " + name + ": Tcl processing cancelled by user ###");
+                }
             }
-        };
-        
-        tclExecutorService.schedule(tclPreprocessingRunnable, 0, TimeUnit.MILLISECONDS);
-        creatingTclInterp = true;
+        }
     }
     
     private void initCommands(SoarCommandInterpreter jsoarInterp)
@@ -703,39 +683,23 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     @Override
     protected void detach()
     {
-        // HACK:
-        //dispose of the tcl interpreter in the same thread it was created
-        final Runnable tclDisposeRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (interpreter != null)
-                {
-                    interpreter.dispose();
-                    interpreter = null;
-                }
-                
-                System.out.println("Detaching the interpreter");
-                
-                productions.clear();
-                procedures.clear();
-                datamap.clear();
-                members.clear();
-
-                SoarAgent.super.detach();
-                
-                System.out.println("Finished detaching the interpreter!");
-            }
-        };
+        // TODO: What's going on here???
+        if (interpreter != null)
+        {
+            disposeInterpInIsolatedThread();
+            interpreter = null;
+        }
         
-        /*ScheduledFuture<?> future =*/ tclExecutorService.schedule(tclDisposeRunnable, 0, TimeUnit.MILLISECONDS);
-//        try {
-//			future.get();
-//		} catch (InterruptedException e) {
-//			System.out.println("Interrupted while waiting for soar agent to cleared!");
-//		} catch (ExecutionException e) {
-//			e.printStackTrace();
-//			SoarCorePlugin.log(e);
-//		}
+        System.out.println("Detaching the interpreter");
+        
+        productions.clear();
+        procedures.clear();
+        datamap.clear();
+        members.clear();
+
+        SoarAgent.super.detach();
+                
+        System.out.println("Finished detaching the interpreter!");
     }
 
     /*
@@ -1281,21 +1245,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
             int offset)
     {
         synchronized (getLock())
-        {
-            //wait until the thread creating the tcl interpreter has finished
-            int count = 0;
-            while(creatingTclInterp) {
-                System.out.println("*** Still creating Tcl Interp");
-                count++;
-                if(count > 20) {creatingTclInterp = false;}
-                
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            
+        {            
             if (interpreter == null)
             {
                 TclExpansionError error = new TclExpansionError(
@@ -1480,5 +1430,83 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     {
         return this.interpreter.executeString(command);
     }
+    
+    /**
+     * HACK
+     * 
+     * This function helps avoid class loader problems in other threads by
+     * exercising the creation classes on a temporary agent.
+     */
+    private void preloadClasses()
+    {
+        Agent tempAgent = new Agent(null, true);
+        SoarTclInterfaceFactory fac = new SoarTclInterfaceFactory();
+        SoarCommandInterpreter sti = fac.create(tempAgent);
+        tempAgent.setInterpreter(sti);
+        tempAgent.setInterpreter(null);
+    }
 
+    /**
+     * This method handles creating the TCL interpreter for the agent and registering
+     * it. The tricky part here is that it has to be done in the same thread that 
+     * disposes of the interpreter latter.
+     * 
+     * @return
+     */
+    private void createAndRegisterInterpInIsolatedThread()
+    {
+        try
+        {
+            this.tclExecutorService.submit(new Runnable() {
+
+                @Override
+                public void run()
+                {
+                    // This will cause the previous one to be disposed in JSoar
+                    SoarAgent.this.jsoarAgent.setInterpreter(null);
+
+                    // Create a TCL command interpreter for the agent
+                    SoarTclInterfaceFactory factory = new SoarTclInterfaceFactory();
+                    SoarCommandInterpreter scInterp = factory.create(jsoarAgent);                    
+                    SoarAgent.this.jsoarAgent.setInterpreter(scInterp);
+                }
+                
+            }).get();
+        }
+        catch (InterruptedException | ExecutionException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * This method handles cleaning up the TCL interpreter in the same thread that 
+     * created it earlier.
+     * 
+     * @param scInterp
+     */
+    private void disposeInterpInIsolatedThread()
+    {
+        try
+        {
+            // The "get" at the end should mean that this method won't
+            // return until the dispose has been called and completed
+            // so this should be essentially "running in this thread"
+            this.tclExecutorService.submit(new Runnable() {
+
+                @Override
+                public void run()
+                {
+                    SoarAgent.this.jsoarAgent.setInterpreter(null);
+                }
+                
+            }).get();
+        }
+        catch (InterruptedException | ExecutionException e)
+        {
+            // Logging that it was interrupted, this shouldn't really ever happen
+            SoarCorePlugin.log(e);
+        }
+    }
 }

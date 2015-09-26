@@ -20,6 +20,7 @@
 package com.soartech.soar.ide.core.model.impl;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -63,27 +64,7 @@ public class SoarModelTclInterpreter
     {
             this.jsoarInterp = jsoarInterp;
     }
-    
-    /**
-     * Dispose this interpreter.
-     * 
-     * The JTCL requires that the Interp class be disposed with the same thread that instantiated it.
-     * 
-     * This method must only be called from the same thread that created this object instance.
-     */
-    public void dispose()
-    {
-        synchronized(lock)
-        {
-            jsoarInterp.dispose();
-            jsoarInterp = null;
-            
-            productionMap.clear();
-            overwrittenProductions.clear();
-            filesToBuild.clear();
-        }
-    }
-    
+        
     /**
      * Expand the given input string as if it were an argument to a Tcl command.
      * 
@@ -177,13 +158,6 @@ public class SoarModelTclInterpreter
         }
     }
     
-    // TODO: Should probably not expose this, really just need to expose the list of 
-    // sourced files
-    public SoarCommandInterpreter getJSoarInterpreter()
-    {
-        return jsoarInterp;
-    }
-    
 	/**
 	 * @return The map of expanded production info
 	 */
@@ -214,4 +188,12 @@ public class SoarModelTclInterpreter
 	public Set<String> getFilesToBuild() {
 		return filesToBuild;
 	}
+
+    /**
+     * @return a list of file names that have been sourced by the interpreter
+     */
+    public Collection<String> getSourcedFiles()
+    {
+        return jsoarInterp.getSourcedFiles();
+    }
 }
