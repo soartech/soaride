@@ -17,7 +17,12 @@ Bundle-ClassPath: soareditor.jar,
  lib/jtcl-2.7.0.jar,
  lib/jdom.jar,
  lib/jsoar-core-0.14.3.jar,
- lib/jsoar-tcl-0.14.3.jar
+ lib/jsoar-tcl-0.14.3.jar,
+ lib/commons-beanutils-1.8.3.jar,
+ lib/commons-math3-3.2.jar,
+ lib/jcl-over-slf4j-1.7.5.jar,
+ lib/slf4j-api-1.7.5.jar,
+ lib/guava-16.0.1.jar 
 Export-Package: com.soartech.soar.editor.docs,
  com.soartech.soar.editor.model,
  com.soartech.soar.ide.console,

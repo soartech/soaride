@@ -2,10 +2,18 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/jtcl-2.7.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-beanutils-1.8.3.jar"/>
+	<classpathentry kind="lib" path="lib/commons-math3-3.2.jar"/>
+	<classpathentry kind="lib" path="lib/guava-16.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jcl-over-slf4j-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/tcljava.jar"/>
+	<classpathentry kind="lib" path="lib/logback-classic-1.0.13.jar"/>
+	<classpathentry kind="lib" path="lib/logback-core-1.0.13.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="lib" path="lib/jdom.jar"/>
-	<classpathentry kind="lib" path="lib/jsoar-core-0.14.3.jar"/>
-	<classpathentry kind="lib" path="lib/jsoar-tcl-0.14.3.jar"/>
+	<classpathentry kind="lib" path="lib/jsoar-core-0.14.3.jar" sourcepath="/jsoar-core/src/main/java"/>
+	<classpathentry kind="lib" path="lib/jsoar-tcl-0.14.3.jar" sourcepath="/jsoar-tcl/src/main/java"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
