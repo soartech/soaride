@@ -19,8 +19,11 @@
  */
 package com.soartech.soar.ide.core.model.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -256,11 +259,27 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
             //these should always have a "/" as the path separator
             Collection<String> sourcedFiles = agent.getInterpreter().getSourcedFiles();
             
+            // TODO: Get sourced paths should probably by absolute/canonical
+            HashSet<String> sourcedPaths = new HashSet<String>();
+            for ( String spath : sourcedFiles )
+            {
+                File file = new File(spath);
+                try
+                {
+                    sourcedPaths.add(file.getCanonicalPath());
+                }
+                catch (IOException e)
+                {
+                    // There isn't much we can do here except log it
+                    SoarCorePlugin.log(e);
+                }
+            }
+            
             //get the current filename and format it's path to use backslashes since that's what jsoar is giving us
             String filename = getFile().getFile().getLocation().makeAbsolute().toString();
             
             // Only report this warning if a start file has actually be specified.
-            if(agent.getStartFile() != null && !sourcedFiles.contains(filename))
+            if(agent.getStartFile() != null && !sourcedPaths.contains(filename))
             {
                 // Here were taking advantage of the fact that the reporter ignores
                 // duplicate problems.
