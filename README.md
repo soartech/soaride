@@ -48,9 +48,15 @@ Some quick observations about the code base:
 * SoarAgent doesn't handle the case when setInterpreter is called twice with the same interpreter
 * TclExpansionError should really return a SourceLocation, otherwise you've got to reach into the interpreter to pull out this type of information, also message should be what is currently the last line of the multiline error message
 
+## How To Test SOARIDE
+
+## How To Release SOARIDE
+
 ## KNOWN BUGS
 * Throws null pointer exceptions on startup and sometimes during a clean.
 * Some errors point to the top level agent file instead of the appropriate low level production file.
+* Some files show up as unsourcable due to relative vs. absolute path issues
+* Some TCL errors disappear if you open the offending file for editting and do a clean (you don't have to )
 
 ## TODO
 * This README needs to be fleshed out
