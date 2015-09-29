@@ -55,6 +55,11 @@ public class SoarModelTools
 {
     public static boolean isSoarFile(IResourceProxy proxy)
     {
+        if(proxy.isDerived())
+        {
+            return false;
+        }
+        
         if(proxy.getType() == IResource.FILE)
         {
             return isSoarFile(proxy.getName());
@@ -64,6 +69,11 @@ public class SoarModelTools
 
     public static boolean isSoarFile(IFile file)
     {
+        if (file.isDerived(IResource.CHECK_ANCESTORS) )
+        {
+            return false;
+        }
+        
         return isSoarFile(file.getName());
     }
     
@@ -74,11 +84,21 @@ public class SoarModelTools
 
     public static boolean isAgentFile(IFile file)
     {
+        if ( file.isDerived(IResource.CHECK_ANCESTORS) )
+        {
+            return false;
+        }
+        
         return "soaragent".equals(file.getFileExtension());
     }
 
     public static boolean isAgentFile(IResourceProxy proxy)
     {
+        if ( proxy.isDerived() )
+        {
+            return false;
+        }
+        
         if(proxy.getType() == IResource.FILE)
         {
             String name = proxy.getName();
