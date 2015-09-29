@@ -321,8 +321,6 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         {
             // We need a new tcl interpreter here
             createAndRegisterInterpInIsolatedThread();
-
-            interpreter = new SoarModelTclInterpreter(this.jsoarAgent.getInterpreter());
             initCommands(this.jsoarAgent.getInterpreter());
 
             if (startFile != null)
@@ -649,7 +647,11 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         }
         
         // See if the file exists in Eclipse...
-        IResource resource = SoarModelTools.getEclipseResource(new Path(sloc.getFile()));
+        IResource resource = null;
+        if ( sloc != null && sloc.getFile() != null )
+        {
+            resource = SoarModelTools.getEclipseResource(new Path(sloc.getFile()));
+        }
                 
         Map<String, Comparable<?>> attributes = new HashMap<String, Comparable<?>>();
         attributes.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
@@ -1465,6 +1467,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         SoarCommandInterpreter sti = fac.create(tempAgent);
         tempAgent.setInterpreter(sti);
         tempAgent.setInterpreter(null);
+        new SoarModelTclInterpreter(tempAgent.getInterpreter());
     }
 
     /**
@@ -1484,12 +1487,14 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
                 public void run()
                 {
                     // This will cause the previous one to be disposed in JSoar
-                    SoarAgent.this.jsoarAgent.setInterpreter(null);
+                    jsoarAgent.setInterpreter(null);
 
                     // Create a TCL command interpreter for the agent
                     SoarTclInterfaceFactory factory = new SoarTclInterfaceFactory();
                     SoarCommandInterpreter scInterp = factory.create(jsoarAgent);                    
-                    SoarAgent.this.jsoarAgent.setInterpreter(scInterp);
+                    jsoarAgent.setInterpreter(scInterp);
+
+                    SoarAgent.this.interpreter = new SoarModelTclInterpreter(jsoarAgent.getInterpreter());
                 }
                 
             }).get();
