@@ -276,7 +276,7 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
             }
             
             //get the current filename and format it's path to use backslashes since that's what jsoar is giving us
-            String filename = getFile().getFile().getLocation().makeAbsolute().toString();
+            String filename = getFile().getFile().getLocation().makeAbsolute().toOSString();
             
             // Only report this warning if a start file has actually be specified.
             if(agent.getStartFile() != null && !sourcedPaths.contains(filename))
