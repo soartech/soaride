@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description url="http://soaride.googlecode.com/svn/update/">
+   <description name="Soar IDE Update Site" url="https://github.com/soartech/soaride/raw/master/com.soartech.soar.ide.update">
       Soar IDE Update Site
    </description>
    <feature url="features/com.soartech.soar.ide.feature_1.3.jar" id="com.soartech.soar.ide.feature" version="1.3">
