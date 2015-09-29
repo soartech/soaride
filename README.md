@@ -56,7 +56,13 @@ Some quick observations about the code base:
 * Throws null pointer exceptions on startup and sometimes during a clean.
 * Some errors point to the top level agent file instead of the appropriate low level production file.
 * Some files show up as unsourcable due to relative vs. absolute path issues
-* Some TCL errors disappear if you open the offending file for editting and do a clean (you don't have to )
+* Some TCL errors disappear if you open the offending file for editting and do a clean (you don't have to)
+* Doesn't seem to run a clean on startup
+* We don't want to process files in "target"
+* Check windows sourcing issue (fix seems to work on mac but maybe not windows)
+* Icon's may not be loading in new release, need to work out kinks in release process
+* Soar Source Viewer seems to be totally disconnected
+* New null pointer exception on bad source location ()
 
 ## TODO
 * This README needs to be fleshed out
