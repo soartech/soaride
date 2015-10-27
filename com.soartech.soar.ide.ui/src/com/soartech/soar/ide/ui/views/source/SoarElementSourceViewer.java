@@ -102,25 +102,28 @@ public class SoarElementSourceViewer extends ViewPart
         
         if(memento == null)
         {
-            expandTcl.setChecked(false);
-            return;
+            //turn on tcl expansion by default
+            expandTcl.setChecked(true);
+        } 
+        else 
+        {
+            String checked = memento.getString(ExpandTclToggleAction.ID);
+            if(checked == null)
+            {
+                //turn on tcl expansion by default
+                expandTcl.setChecked(true);
+            }
+            
+            if(checked.equals("true"))
+            {
+                expandTcl.setChecked(true);
+            }
+            else
+            {
+                expandTcl.setChecked(false);
+            }
         }
 		
-		String checked = memento.getString(ExpandTclToggleAction.ID);
-        
-        if(checked == null)
-        {
-        	return;
-        }
-        
-        if(checked.equals("true"))
-        {
-        	expandTcl.setChecked(true);
-        }
-        else
-        {
-        	expandTcl.setChecked(false);
-        }
 	}
 
 	/* (non-Javadoc)
