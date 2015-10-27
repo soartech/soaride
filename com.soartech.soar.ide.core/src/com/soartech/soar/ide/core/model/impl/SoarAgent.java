@@ -1323,6 +1323,16 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
                 {
                     return proc;
                 }
+
+                //check for namespaced procs
+                //::foo_namespace::proc_name
+                String procName = proc.getProcedureName();
+                int index = proc.getProcedureName().lastIndexOf("::");
+                procName = procName.substring(index + 2);
+                if(name.equals(procName))
+                {
+                    return proc;
+                }
             }
             return null;
         }
