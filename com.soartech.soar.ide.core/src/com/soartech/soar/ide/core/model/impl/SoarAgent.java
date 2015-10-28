@@ -365,6 +365,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
             jsoarInterp.eval("proc indifferent-selection { args } { }");
             jsoarInterp.eval("proc max-chunks { args } { }");
             jsoarInterp.eval("proc svs { args } { }");
+            jsoarInterp.eval("proc watch { args } { }");
         } catch (SoarException e) {
             System.out.println(e.getMessage());
         }
