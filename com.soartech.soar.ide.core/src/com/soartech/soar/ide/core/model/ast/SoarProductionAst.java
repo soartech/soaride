@@ -31,6 +31,7 @@ public final class SoarProductionAst {
 	// Data Members
 	private String d_name = "";
 	private int d_startLine;
+	private int ruleOffset;
 	private String d_comment = "";
 	private String d_productionType = "";
 	private List<Condition> conditions = new ArrayList<Condition>();
@@ -104,6 +105,14 @@ public final class SoarProductionAst {
     public String toString()
     {
         return d_name + ":" + d_productionType + "\n" + conditions + "\n" + actions;
+    }
+
+    public void setRuleOffset(int ruleOffset) {
+        this.ruleOffset = ruleOffset;
+    }
+
+    public int getRuleOffset() {
+        return ruleOffset;
     }
 
     public static void main(String args[])

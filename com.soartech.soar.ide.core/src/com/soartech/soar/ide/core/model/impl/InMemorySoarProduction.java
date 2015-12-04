@@ -214,4 +214,9 @@ public class InMemorySoarProduction implements ISoarProduction
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public SoarFileAgentProxy getSoarFileProxy() {
+        return null;
+    }
+
 }

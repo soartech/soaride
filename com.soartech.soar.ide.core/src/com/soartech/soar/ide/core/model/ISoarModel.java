@@ -22,7 +22,9 @@ package com.soartech.soar.ide.core.model;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
+
 
 /**
  * The root interface of the  Soar model. This is the main entry point for
@@ -93,4 +95,6 @@ public interface ISoarModel extends ISoarElement, ISoarOpenable
      *      return <code>null</code>
      */
     ITclHelpModel getTclHelpModel();
+    
+    ISoarProject createSoarProject(IProject project) throws SoarModelException;
 }

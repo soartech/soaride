@@ -131,6 +131,11 @@ public class SoarProduction extends TclCommand implements ISoarProduction, IExpa
         this.nameRange = new BasicSoarSourceRange(memento.getProductionNameRange());
     }
     
+    public SoarFileAgentProxy getSoarFileProxy()
+    {
+        return getSoarFile();
+    }
+    
     /* (non-Javadoc)
      * @see com.soartech.soar.ide.core.model.impl.AbstractSoarElement#detach()
      */

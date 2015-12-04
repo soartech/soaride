@@ -20,6 +20,7 @@
 package com.soartech.soar.ide.core.model;
 
 import com.soartech.soar.ide.core.model.ast.SoarProductionAst;
+import com.soartech.soar.ide.core.model.impl.SoarFileAgentProxy;
 
 /**
  * Represents a Soar command. Extends {@link ITclCommand} because sp is
@@ -52,4 +53,9 @@ public interface ISoarProduction extends ITclCommand
      *      it is safe to interpret as pure soar code.
      */
     boolean isBodyInBraces();
+    
+    /**
+     * @return The soar file
+     */
+    SoarFileAgentProxy getSoarFileProxy();
 }

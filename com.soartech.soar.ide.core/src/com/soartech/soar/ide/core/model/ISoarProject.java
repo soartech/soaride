@@ -62,4 +62,6 @@ public interface ISoarProject extends ISoarElement, ISoarOpenable
     
     void setAgentPriorities(List<ISoarAgent> agents) throws SoarModelException;
     
+    ISoarFile getSoarFile(IFile file) throws SoarModelException;
+    
 }

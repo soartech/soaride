@@ -30,7 +30,9 @@ Export-Package: com.soartech.soar.editor.docs,
  com.soartech.soar.ide.core.model,
  com.soartech.soar.ide.core.model.ast,
  com.soartech.soar.ide.core.model.datamap,
+ com.soartech.soar.ide.core.model.impl,
  com.soartech.soar.ide.core.refactoring,
  com.soartech.soar.ide.core.refactoring.change,
  com.soartech.soar.ide.core.tcl,
- com.soartech.util
+ com.soartech.util,
+ tcl.lang

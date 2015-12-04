@@ -37,6 +37,10 @@ public final class Pair implements Comparable<Object> {
         this.endOffset = endOffset + 1; // TODO: This is a hack to get errors to appear correctly in Eclipse.
 	}
 	
+    public Pair(String string) {
+        this (string, -1, -1);
+    }
+	
 /////////////////////////////////////
 // Accessors
 /////////////////////////////////////
@@ -47,6 +51,10 @@ public final class Pair implements Comparable<Object> {
 	public final int getOffset() {
 		return beginOffset;
 	}
+
+    public final int getEndOffset() {
+        return endOffset;
+    }
     
     public final int getLength()
     {
@@ -73,6 +81,21 @@ public final class Pair implements Comparable<Object> {
     public String toString()
     {
         return d_string;
+    }
+    
+
+    /**
+     * Helper function to get a pair from an instance of
+     * HasPair or HasConstant.
+     */
+    public static Pair getPair(Object item) {
+        if (item instanceof HasPair) {
+            return ((HasPair)item).getPair();
+        }
+        if (item instanceof HasConstant) {
+            return ((HasConstant)item).getConstant().toPair();
+        }
+        return null;
     }
 
 }

@@ -337,6 +337,9 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
         {
             datamap.endModification();
         }
+        
+        //TODO: compare the ast with the soareditor manual datamap
+        
     }
     
     private void processTclCommand(TclAstNode commandNode, 

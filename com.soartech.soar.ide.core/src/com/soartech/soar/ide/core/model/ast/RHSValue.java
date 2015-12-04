@@ -20,7 +20,7 @@
 package com.soartech.soar.ide.core.model.ast;
 
 
-public final class RHSValue {
+public final class RHSValue implements HasPair {
 	// Data Members
 	private Constant d_constant;
 	private Pair d_variable;
@@ -92,6 +92,21 @@ public final class RHSValue {
         {
             return d_functionCall.toString();
         }
+    }
+    
+
+    @Override
+    public Pair getPair() {
+        if (isVariable()) {
+            return d_variable;
+        }
+        if (isConstant()) {
+            return d_constant.getPair();
+        }
+        if (isFunctionCall()) {
+            return d_functionCall.getPair();
+        }
+        return null;
     }
     
 }

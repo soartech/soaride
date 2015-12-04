@@ -19,22 +19,55 @@
  */
 package com.soartech.soar.ide.core.model.ast;
 
+import java.util.ArrayList;
+
 /**
  * @author Brad Jones
  * @version 0.75 3 Mar 2000
  */
 
-public final class ValueTest {
+public final class ValueTest implements HasPair {
 	// Data Members
 	private Test d_test;
 	private boolean d_acceptablePreference = false;
 
-	// Constructor
+	private ArrayList<AttributeValueTest> d_attributeValueTests = null;
+    private Pair d_variable = null;
+
+    // Constructors
+    public ValueTest() {
+        d_attributeValueTests = new ArrayList<AttributeValueTest>();
+    }
+    
 	public ValueTest(Test test) {
 		d_test = test;
 	}
 	
 	// Accessors
+	public boolean isStructuredValueNotation() {
+        return d_attributeValueTests != null;
+    }
+    
+    public ArrayList<AttributeValueTest> getAttributeValueTests() {
+        return d_attributeValueTests;
+    }
+    
+    public void addAttributeValueTest(AttributeValueTest avt) {
+        d_attributeValueTests.add(avt);
+    }
+    
+    public boolean hasVariable() {
+        return d_variable == null;
+    }
+    
+    public void setVariable(Pair variable) {
+        d_variable = variable;
+    }
+    
+    public Pair getVariable() {
+        return d_variable;
+    }
+	
 	public final Test getTest() {
 		return d_test;
 	}
@@ -57,5 +90,8 @@ public final class ValueTest {
         return d_test + (hasAcceptablePreference() ? "+" : "");
     }
     
-    
+    @Override
+    public Pair getPair() {
+        return d_variable;
+    }
 }
