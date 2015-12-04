@@ -61,6 +61,14 @@
            icon="icons/soaragentfile.gif"
            id="com.soartech.soar.ide.ui.editors.agent.SoarAgentEditor"
            name="Soar Agent Editor"/>
+     <editor
+            class="edu.umich.soar.editor.editors.datamap.DatamapEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            extensions="dm"
+            icon="icons/s_flag.gif"
+            id="edu.umich.soar.editor.editors.datamap.DatamapEditor"
+            name="Datamap Editor">
+      </editor>
   </extension>
   <extension
         point="org.eclipse.ui.commands">
@@ -377,6 +385,12 @@
           icon="icons/attribute.gif"
           id="com.soartech.soar.ide.ui.views.datamap.SoarDatamapView"
           name="Soar Datamap"/>
+    <view
+          category="com.soartech.soar.ide.ui.SoarCategory"
+          class="edu.umich.soar.editor.search.SoarSearchResultsView"
+          icon="icons/package.gif"
+          id="edu.umich.soar.editor.search.SoarSearchResultsView"
+          name="Soar Search Results"/>
  </extension>
  <extension
        point="org.eclipse.ui.viewActions">
@@ -474,8 +488,16 @@
           icon="icons/newsoarfolder.gif"
           id="com.soartech.soar.ide.ui.NewSoarFolderWizard"
           name="Soar Folder"
-          project="false">
+          project="false"/>
+    <wizard
+       category="com.soartech.soar.ide.ui.SoarCategory"
+       class="edu.umich.soar.editor.wizards.DatamapFileWizard"
+       icon="icons/s_flag.gif"
+       id="edu.umich.soar.editor.wizards.DatamapFileWizard"
+       name="Soar Datamap"
+       project="false">
     </wizard>
+    
  </extension>
  <extension
        point="org.eclipse.ui.editorActions">
