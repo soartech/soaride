@@ -97,6 +97,23 @@ public class SoarModelTclInterpreter
         }
     }
     
+    public String getChildrenNamespaces()
+    {
+        synchronized(lock)
+        {
+            TclExpansionError error = null;
+            String result = "";
+            
+            try {
+                result = jsoarInterp.eval("namespace children");
+            } catch (SoarException e) {
+                return e.getMessage();
+            }
+            
+            return result;
+        }
+    }
+    
     /**
      * Execute a command string in the interpreter.
      * 

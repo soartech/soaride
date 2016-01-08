@@ -465,6 +465,28 @@ public class SoarProduction extends TclCommand implements ISoarProduction, IExpa
 
         if(code.getError() != null)
         {
+            //try diff namespaces than the default one
+            //childrenNamespaces formatted like "::NGS ::tcl"
+            String childrenNamespaces = agent.getInterpreter().getChildrenNamespaces();
+//            System.out.println("children namespaces: " + childrenNamespaces);
+            String[] cnsArray = childrenNamespaces.split(" ");
+            for(String ns:cnsArray)
+            {
+                ns = ns.replaceAll("::", "");
+//                System.out.println("trying namespace: " + ns);
+                IExpandedTclCode tempCode = agent.expandTclString(ns, bodySource, bodyRange.getOffset());
+                if(tempCode.getError() != null)
+                {
+                    //continue and try again
+                }
+                else
+                {
+                    //this namespace works, return and don't show an error
+                    return tempCode.getResultString();
+                }
+            }
+            
+            //report the original error of none of the other namespaces work
             reporter.report(SoarProblem.createError(
                     "Tcl error: " + code.getError().getSummary(), 
                     bodyRange.getOffset(), 0));
