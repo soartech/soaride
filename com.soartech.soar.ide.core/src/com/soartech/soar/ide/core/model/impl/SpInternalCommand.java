@@ -32,7 +32,14 @@ public class SpInternalCommand implements SoarCommand {
         if(Integer.parseInt(procLevel) > 0)
         {
              procName = agent.getInterpreter().eval("lindex [info level 1] 0");
-             soarAgent.getExpandedSourceMap().put(procName, args[0] + " \"" + args[1] + "\"");
+             
+             String expSource = "";
+             if(soarAgent.getExpandedSourceMap().containsKey(procName))
+             {
+                 expSource = soarAgent.getExpandedSourceMap().get(procName) + "\n"; 
+             }
+             
+             soarAgent.getExpandedSourceMap().put(procName, expSource + args[0] + " \"" + args[1] + "\"");
         }
         
         return command.execute(commandContext, args);
