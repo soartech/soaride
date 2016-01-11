@@ -385,14 +385,25 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
             reporter.report(SoarProblem.createWarning("'" + name + "' is an improbable Tcl command. Possible syntax error.", 
                     nameWord.getStart(), nameWord.getLength()));
         }
-//        else {
-//            ExpandedProductionInfo info = agent.getExpandedProductionBody(name);
-//            String namespace = info != null ? info.namespace : "::";
-//            
-//            TclAstNode endWord = words.get(words.size() - 1);
-//            String input = "\"" + buffer.getText(nameWord.getStart(), (endWord.getStart() + endWord.getLength()) - nameWord.getStart()) + "\"";
-//            agent.expandTclString(namespace, input, 0);
-//        }
+        else if(isIngorableCommandName(name))
+        {
+            //do nothing
+        }
+        else {
+
+            //make a new source command
+            elements.add(new GenericCommand(this,  reporter, commandNode));
+        }
+    }
+    
+    private boolean isIngorableCommandName(String name)
+    {
+        if(name.equals("source"))
+        {
+            return true;
+        }
+        
+        return false;
     }
 
     /**

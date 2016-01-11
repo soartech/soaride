@@ -121,6 +121,8 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     private Set<ISoarProduction> productions = new HashSet<ISoarProduction>();
     private Set<ITclProcedure> procedures = new HashSet<ITclProcedure>();
     
+    private Map<String, String> expandedSourceMap = new HashMap<String, String>();
+    
     // Keeping a handle on the SoarTclInterface and also this ScheduledExecutorService
     // because the SoarTclInterface can only be disposed by the thread that created it.
     private ScheduledExecutorService tclExecutorService = null;
@@ -322,7 +324,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
             // We need a new tcl interpreter here
             createAndRegisterInterpInIsolatedThread();
             initCommands(this.jsoarAgent.getInterpreter());
-
+            
             if (startFile != null)
             {
                 System.out.println(name + ": Processing Tcl from start file '"
@@ -366,6 +368,10 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
             jsoarInterp.eval("proc max-chunks { args } { }");
             jsoarInterp.eval("proc svs { args } { }");
             jsoarInterp.eval("proc watch { args } { }");
+            
+            //add the command for spInternal
+            jsoarInterp.addCommand("sp", new SpInternalCommand(this.jsoarAgent, this));
+            
         } catch (SoarException e) {
             System.out.println(e.getMessage());
         }
@@ -440,6 +446,10 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         return (ISoarFile) file.getAdapter(ISoarFile.class);
     }
     
+    public Map<String, String> getExpandedSourceMap() {
+        return expandedSourceMap;
+    }
+
     private void notifyStartFileChanged(IFile oldStartFile)
     {
         if(oldStartFile == startFile ||

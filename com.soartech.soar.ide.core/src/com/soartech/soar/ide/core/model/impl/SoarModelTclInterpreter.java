@@ -29,6 +29,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 
 import com.soartech.soar.ide.core.model.IExpandedTclCode;
@@ -135,6 +136,14 @@ public class SoarModelTclInterpreter
             }            
         }
         
+    }
+    
+    public void addCommand(String name, SoarCommand command)
+    {
+        synchronized(lock)
+        {
+            jsoarInterp.addCommand(name, command);
+        }
     }
     
     /**
