@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Soar IDE Core
 Bundle-SymbolicName: com.soartech.soar.ide;singleton:=true
-Bundle-Version: 1.4
+Bundle-Version: 1.4.1
 Bundle-Activator: com.soartech.soar.ide.core.SoarCorePlugin
 Bundle-Vendor: Soar Technology, Inc.
 Require-Bundle: org.eclipse.ui,
