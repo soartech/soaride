@@ -1,6 +1,14 @@
 package com.soartech.soar.ide.core.model.impl;
 
 
+import java.util.List;
+import java.util.Map;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.commands.SpCommand;
@@ -33,13 +41,21 @@ public class SpInternalCommand implements SoarCommand {
         {
              procName = agent.getInterpreter().eval("lindex [info level 1] 0");
              
+             String filename = commandContext.getSourceLocation().getFile();
+             
+             IWorkspace workspace= ResourcesPlugin.getWorkspace();    
+             IPath location= Path.fromOSString(filename); 
+             IFile ifile= workspace.getRoot().getFileForLocation(location);
+             String procKey = procName + "-" + ifile.getFullPath().toOSString();
+//             System.out.println("SpInternalCommand Adding key: " + procKey);
+             
              String expSource = "";
-             if(soarAgent.getExpandedSourceMap().containsKey(procName))
+             if(soarAgent.getExpandedSourceMap().containsKey(procKey))
              {
-                 expSource = soarAgent.getExpandedSourceMap().get(procName) + "\n"; 
+                 expSource = soarAgent.getExpandedSourceMap().get(procKey) + "\n"; 
              }
              
-             soarAgent.getExpandedSourceMap().put(procName, expSource + args[0] + " \"" + args[1] + "\"");
+             soarAgent.getExpandedSourceMap().put(procKey, expSource + args[0] + " \"" + args[1] + "\"");
         }
         
         return command.execute(commandContext, args);

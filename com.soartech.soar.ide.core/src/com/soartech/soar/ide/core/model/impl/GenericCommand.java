@@ -3,28 +3,30 @@ package com.soartech.soar.ide.core.model.impl;
 import java.util.List;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 
 import com.soartech.soar.ide.core.model.BasicSoarSourceRange;
 import com.soartech.soar.ide.core.model.IExpandableElement;
 import com.soartech.soar.ide.core.model.ISoarElement;
-import com.soartech.soar.ide.core.model.ISoarModelConstants;
 import com.soartech.soar.ide.core.model.ISoarProblemReporter;
 import com.soartech.soar.ide.core.model.ISoarSourceRange;
+import com.soartech.soar.ide.core.model.ITclCommand;
+import com.soartech.soar.ide.core.model.ITclComment;
 import com.soartech.soar.ide.core.model.SoarModelException;
 import com.soartech.soar.ide.core.model.impl.serialization.TclCommandMemento;
 import com.soartech.soar.ide.core.tcl.TclAstNode;
 import com.soartech.soar.ide.core.tcl.TclAstNodeSourceRange;
 
-import javafx.scene.Parent;
 
-public class GenericCommand extends AbstractSourceReferenceElement implements IExpandableElement
+public class GenericCommand extends AbstractSourceReferenceElement implements IExpandableElement, ITclCommand
 {
     private SoarFileAgentProxy soarFile;
     private TclAstNode astNode;
     private String commandName;
     private ISoarSourceRange commandNameRange;
     private TclComment comment;
-
+    
     public GenericCommand(SoarFileAgentProxy parent, ISoarProblemReporter reporter, TclAstNode astNode) throws SoarModelException 
     {
         super(parent);
@@ -72,9 +74,38 @@ public class GenericCommand extends AbstractSourceReferenceElement implements IE
     public String getExpandedSource() throws SoarModelException 
     {
         SoarAgent soarAgent = (SoarAgent) soarFile.getAgent();
-        String ret = soarAgent.getExpandedSourceMap().get(commandName);
+        
+        String filename = soarFile.getFile().getPath().toOSString();
+        
+        //get object which represents the workspace  
+        IWorkspace workspace = ResourcesPlugin.getWorkspace();  
+        
+        String key = commandName + "-" + filename;
+//        System.out.println("GenericCommand Adding key: " + key);
+        
+        String ret = soarAgent.getExpandedSourceMap().get(key);
         
         return ret;
+    }
+    
+    @Override
+    public String getCommandName() {
+        return commandName;
+    }
+
+    @Override
+    public ISoarSourceRange getCommandNameRange() {
+        return null;
+    }
+
+    @Override
+    public ITclComment getAssociatedComment() {
+        return null;
+    }
+
+    @Override
+    public TclAstNode getTclSyntaxTree() {
+        return null;
     }
     
 }

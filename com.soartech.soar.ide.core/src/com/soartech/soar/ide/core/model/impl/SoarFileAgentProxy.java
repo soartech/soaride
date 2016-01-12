@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -375,10 +376,6 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
             String input = "\"" + buffer.getText(nameWord.getStart(), (endWord.getStart() + endWord.getLength()) - nameWord.getStart()) + "\"";
             agent.expandTclString(namespace, input, 0);
         }
-        else if(name.equals("define-heuristic"))
-        {
-//            elements.add(new TclDefineHeuristicCommand(this, commandNode));
-        }
         else if(isImprobableCommandName(name))
         {
             // TODO: Workspace and project preference for disabling this warning
@@ -392,7 +389,8 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
         else {
 
             //make a new source command
-            elements.add(new GenericCommand(this,  reporter, commandNode));
+            GenericCommand command = new GenericCommand(this,  reporter, commandNode);
+            elements.add(command);
         }
     }
     

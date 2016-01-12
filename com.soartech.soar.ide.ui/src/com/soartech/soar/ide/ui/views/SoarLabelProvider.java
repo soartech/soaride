@@ -41,6 +41,7 @@ import com.soartech.soar.ide.core.model.ITclFileReference;
 import com.soartech.soar.ide.core.model.ITclProcedure;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamapAttribute;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamapValue;
+import com.soartech.soar.ide.core.model.impl.GenericCommand;
 import com.soartech.soar.ide.ui.SoarEditorPluginImages;
 import com.soartech.soar.ide.ui.editors.text.SoarFoldingRegion;
 import com.soartech.soar.ide.ui.views.explorer.SoarExplorerFullViewContentProvider.SoarFolderHeader;
@@ -182,6 +183,11 @@ public class SoarLabelProvider extends LabelProvider implements ITableLabelProvi
 				ISoarProduction production = (ISoarProduction) element;
 				return production.getProductionName();
 			}
+			else if(element instanceof ITclCommand)
+            {
+			    ITclCommand command = (ITclCommand) element;
+                return command.getCommandName();
+            }
 		}
 		else if(element instanceof ITclFileReference)
         {
