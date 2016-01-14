@@ -25,6 +25,10 @@ public class GenericCommand extends AbstractSourceReferenceElement implements IE
     private TclAstNode astNode;
     private String commandName;
     private ISoarSourceRange commandNameRange;
+    
+    private String commandArgs = "";
+    private ISoarSourceRange commandArgRange;
+    
     private TclComment comment;
     
     public GenericCommand(SoarFileAgentProxy parent, ISoarProblemReporter reporter, TclAstNode astNode) throws SoarModelException 
@@ -44,6 +48,12 @@ public class GenericCommand extends AbstractSourceReferenceElement implements IE
         {
             commandNameRange = new TclAstNodeSourceRange(words.get(0));
             commandName = getSource(commandNameRange);
+            
+            for(int i = 1; i < words.size(); i++)
+            {
+                commandArgRange = new TclAstNodeSourceRange(words.get(i));
+                commandArgs += getSource(commandArgRange);
+            }
         }
     }
     
@@ -80,7 +90,7 @@ public class GenericCommand extends AbstractSourceReferenceElement implements IE
         //get object which represents the workspace  
         IWorkspace workspace = ResourcesPlugin.getWorkspace();  
         
-        String key = commandName + "-" + filename;
+        String key = commandName + " " + commandArgs + "-" + filename;
 //        System.out.println("GenericCommand Adding key: " + key);
         
         String ret = soarAgent.getExpandedSourceMap().get(key);

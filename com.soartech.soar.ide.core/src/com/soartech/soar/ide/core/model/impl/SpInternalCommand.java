@@ -39,7 +39,8 @@ public class SpInternalCommand implements SoarCommand {
         String procName = null;
         if(Integer.parseInt(procLevel) > 0)
         {
-             procName = agent.getInterpreter().eval("lindex [info level 1] 0");
+//             procName = agent.getInterpreter().eval("lindex [info level 1] 0");
+             procName = agent.getInterpreter().eval("info level 1");
              
              String filename = commandContext.getSourceLocation().getFile();
              
