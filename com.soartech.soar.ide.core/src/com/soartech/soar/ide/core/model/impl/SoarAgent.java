@@ -122,6 +122,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     private Set<ITclProcedure> procedures = new HashSet<ITclProcedure>();
     
     private Map<String, String> expandedSourceMap = new HashMap<String, String>();
+    private String previousExpandedSourceKey;
     
     // Keeping a handle on the SoarTclInterface and also this ScheduledExecutorService
     // because the SoarTclInterface can only be disposed by the thread that created it.
@@ -448,6 +449,14 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     
     public Map<String, String> getExpandedSourceMap() {
         return expandedSourceMap;
+    }
+    
+    public String getPreviousExpandedSourceKey() {
+        return previousExpandedSourceKey;
+    }
+
+    public void setPreviousExpandedSourceKey(String previousExpandedSourceKey) {
+        this.previousExpandedSourceKey = previousExpandedSourceKey;
     }
 
     private void notifyStartFileChanged(IFile oldStartFile)

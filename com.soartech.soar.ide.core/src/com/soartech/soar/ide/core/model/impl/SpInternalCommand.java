@@ -50,12 +50,20 @@ public class SpInternalCommand implements SoarCommand {
 //             System.out.println("SpInternalCommand Adding key: " + procKey);
              
              String expSource = "";
-             if(soarAgent.getExpandedSourceMap().containsKey(procKey))
+             if(soarAgent.getExpandedSourceMap().containsKey(procKey) && 
+                procKey.equals(soarAgent.getPreviousExpandedSourceKey()))
              {
+                 //concat to the existing source if we're still adding to the same source key
                  expSource = soarAgent.getExpandedSourceMap().get(procKey) + "\n"; 
              }
              
              soarAgent.getExpandedSourceMap().put(procKey, expSource + args[0] + " \"" + args[1] + "\"");
+             
+             soarAgent.setPreviousExpandedSourceKey(procKey);
+        }
+        else
+        {
+            soarAgent.setPreviousExpandedSourceKey("");
         }
         
         return command.execute(commandContext, args);
