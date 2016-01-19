@@ -5,6 +5,7 @@ import java.util.List;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.jsoar.kernel.SoarException;
 
 import com.soartech.soar.ide.core.model.BasicSoarSourceRange;
 import com.soartech.soar.ide.core.model.IExpandableElement;
@@ -52,7 +53,20 @@ public class GenericCommand extends AbstractSourceReferenceElement implements IE
             for(int i = 1; i < words.size(); i++)
             {
                 commandArgRange = new TclAstNodeSourceRange(words.get(i));
-                commandArgs += getSource(commandArgRange);
+                
+                SoarAgent soarAgent = (SoarAgent) soarFile.getAgent();
+                try {
+                    String nonexpandedCmd = getSource(commandArgRange);
+                    
+                    String expandedCmd = soarAgent.getJsoarAgent().getInterpreter().eval("subst {" + nonexpandedCmd + "}");
+                    
+                    commandArgs += " " + expandedCmd;
+                    
+                } catch (SoarException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                
             }
         }
     }
@@ -90,7 +104,7 @@ public class GenericCommand extends AbstractSourceReferenceElement implements IE
         //get object which represents the workspace  
         IWorkspace workspace = ResourcesPlugin.getWorkspace();  
         
-        String key = commandName + " " + commandArgs + "-" + filename;
+        String key = commandName + commandArgs + "-" + filename;
 //        System.out.println("GenericCommand Adding key: " + key);
         
         String ret = soarAgent.getExpandedSourceMap().get(key);

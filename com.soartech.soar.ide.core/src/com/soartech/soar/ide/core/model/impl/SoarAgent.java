@@ -382,6 +382,11 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     {
         return interpreter;
     }
+    
+    public Agent getJsoarAgent() 
+    {
+        return jsoarAgent;
+    }
 
     void addElements(List<ISoarElement> elements)
     {
