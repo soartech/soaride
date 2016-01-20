@@ -36,18 +36,18 @@ public class SpInternalCommand implements SoarCommand {
         //save the command name
         String procLevel = agent.getInterpreter().eval("info level");
         
-        String procName = null;
+        String procNameAndArgs = null;
         if(Integer.parseInt(procLevel) > 0)
         {
 //             procName = agent.getInterpreter().eval("lindex [info level 1] 0");
-             procName = agent.getInterpreter().eval("info level 1");
+             procNameAndArgs = agent.getInterpreter().eval("info level 1");
              
              String filename = commandContext.getSourceLocation().getFile();
              
              IWorkspace workspace= ResourcesPlugin.getWorkspace();    
              IPath location= Path.fromOSString(filename); 
              IFile ifile= workspace.getRoot().getFileForLocation(location);
-             String procKey = procName + "-" + ifile.getFullPath().toOSString();
+             String procKey = procNameAndArgs + "-" + ifile.getFullPath().toOSString();
 //             System.out.println("SpInternalCommand Adding key: " + procKey);
              
              String expSource = "";

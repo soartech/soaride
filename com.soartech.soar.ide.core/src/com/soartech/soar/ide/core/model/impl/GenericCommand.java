@@ -27,6 +27,8 @@ public class GenericCommand extends AbstractSourceReferenceElement implements IE
     private String commandName;
     private ISoarSourceRange commandNameRange;
     
+    private String commandWithArgsExpanded = "";
+    
     private String commandArgs = "";
     private ISoarSourceRange commandArgRange;
     
@@ -55,21 +57,41 @@ public class GenericCommand extends AbstractSourceReferenceElement implements IE
                 commandArgRange = new TclAstNodeSourceRange(words.get(i));
                 
                 SoarAgent soarAgent = (SoarAgent) soarFile.getAgent();
+                String nonexpandedCmd = "";
                 try {
-                    String nonexpandedCmd = getSource(commandArgRange);
+                    nonexpandedCmd = getSource(commandArgRange);
                     
                     String expandedCmd = soarAgent.getJsoarAgent().getInterpreter().eval("subst {" + nonexpandedCmd + "}");
                     
                     commandArgs += " " + expandedCmd;
                     
+                    System.out.println("TCL SUCCESS: expanded " + nonexpandedCmd + " to " + expandedCmd + " in the global namespace");
+                    
                 } catch (SoarException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+//                    e.printStackTrace();
+                    System.out.println("TCL ERROR: could not expand " + nonexpandedCmd + " in the global namespace");
+                    
+                    String childrenNamespaces = soarAgent.getInterpreter().getChildrenNamespaces();
+                    String[] cnsArray = childrenNamespaces.split(" ");
+                    for(String ns:cnsArray)
+                    {
+                        ns = ns.replaceAll("::", "");
+                        try {
+                            String expandedCmd = soarAgent.getJsoarAgent().getInterpreter().eval("namespace eval " + ns + " {subst {" + nonexpandedCmd + "}}");
+                            commandArgs += " " + expandedCmd;
+                            System.out.println("TCL SUCCESS: expanded " + nonexpandedCmd + " to " + expandedCmd + " in the " + ns + " namespace");
+                        } catch (SoarException e1) {
+//                            e1.printStackTrace();
+                            System.out.println("TCL ERROR: could not expand " + nonexpandedCmd + " in the " + ns + " namespace");
+                        }
+                    }
+                    
                 }
                 
             }
         }
     }
+    
     
     public GenericCommand(SoarFileAgentProxy parent, TclCommandMemento memento) throws SoarModelException
     {
