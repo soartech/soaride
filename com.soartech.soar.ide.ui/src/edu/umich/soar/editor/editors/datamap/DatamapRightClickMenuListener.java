@@ -103,7 +103,7 @@ public class DatamapRightClickMenuListener implements IMenuListener {
 			manager.add(addChildManager);
 
             //show a menu action to scan entire project and generate errors
-            manager.add(new ValidateDatamapAction());
+            manager.add(new ValidateDatamapAction(datamap));
 		}
 	}
 }

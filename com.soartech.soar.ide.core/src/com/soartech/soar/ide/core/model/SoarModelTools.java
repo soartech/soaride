@@ -257,6 +257,12 @@ public class SoarModelTools
         // TODO: Put line number in second argument of:
         return createErrorMarker(SoarCorePlugin.PROBLEM_MARKER_ID, file, "", start, length, message,"",new HashMap<String, Comparable<?>>());
     }
+    
+    public static IMarker createErrorMarker(String markerType, IFile file, int start, int length, String message) throws SoarModelException
+    {
+        // TODO: Put line number in second argument of:
+        return createErrorMarker(markerType, file, "", start, length, message,"",new HashMap<String, Comparable<?>>());
+    }
 
     public static IMarker createErrorMarker(String markerType, IFile file, String location, int start, int length, String message, String fixID, HashMap<String, Comparable<?>> map) throws SoarModelException
     {

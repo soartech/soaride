@@ -22,8 +22,10 @@ package com.soartech.soar.ide.core.model.datamap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -55,6 +57,49 @@ public class SoarDatamapTools
             }
         }
         return true;
+    }
+    
+    public static Map<String, ISoarDatamapNode> getAllElementNodes(ISoarDatamap datamap, boolean includeVariablized)
+    {
+//        List<ISoarDatamapNode> nodes = new ArrayList<ISoarDatamapNode>();
+        
+        Map<String, ISoarDatamapNode> nodes = new HashMap<String, ISoarDatamapNode>();
+        
+        ISoarDatamapNode state = datamap.getState();
+        
+        Set<ISoarDatamapAttribute> lvl0Attrs = state.getAttributes();
+        
+        for(ISoarDatamapAttribute attr : lvl0Attrs)
+        {
+            System.out.println("Level 0 attr: " + attr.getName());
+            
+            recurseElements(attr, attr.getName(), includeVariablized, 0, nodes);
+        }
+        
+        return nodes;
+    }
+    
+    private static void recurseElements(ISoarDatamapAttribute inputAttr, String path, boolean includeVariablized, int index, Map<String, ISoarDatamapNode> nodes)
+    {
+        index++;
+        
+        Set<ISoarDatamapAttribute> attrs = inputAttr.getTarget().getAttributes();
+        
+        for(ISoarDatamapAttribute attr : attrs)
+        {
+            System.out.println("Level " + index + " attr: " + attr.getName());
+            
+            recurseElements(attr, path + "." + attr.getName(), includeVariablized, index, nodes);
+        }
+        
+        if(attrs.isEmpty())
+        {
+            System.out.println("Found full path to attr: " + path);
+            
+            //check this result
+            nodes.put(path, inputAttr.getTarget());
+        }
+        
     }
 
     public static Set<ISoarDatamapAttribute> getElements(ISoarDatamap datamap,

@@ -57,6 +57,11 @@ public class SoarCorePlugin extends Plugin {
      * Id for general problem markers created by the Soar plugin.
      */
     public static final String PROBLEM_MARKER_ID = MARKER_TYPE_PREFIX + ".problemmarker";
+    
+    /**
+     * Id for problem markers created by the static datamap.
+     */
+    public static final String DATAMAP_PROBLEM_MARKER_ID = MARKER_TYPE_PREFIX + ".datamapproblemmarker";
 
     /**
      * Id for problem markers created during the Tcl pre-processing phase.

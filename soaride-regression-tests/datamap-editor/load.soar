@@ -1,0 +1,50 @@
+##!
+# @file: 
+#
+# @created aron 20160201
+
+sp { test*datamap-editor-1
+   (state <s> ^name foo)
+   
+-->
+    (interrupt)
+}
+
+sp { test*datamap-editor-2
+   (state <s> ^name bar)
+-->
+    (interrupt)
+}
+
+sp { test*datamap-editor-3
+   (state <s> ^location here)
+   (<s> ^name bar)
+-->
+    (interrupt)
+}
+
+sp { test*datamap-editor-4
+   (state <s> ^io <io>)
+   (<io> ^input-link <il>)
+   (<il> ^contacts.contact <con>)
+   (<con> ^loc there)
+   (<con> ^speed fast)
+-->
+    (interrupt)
+}
+
+sp { test*datamap-editor-5
+   (state <s> ^io <io>)
+   (<io> ^input-link <il>)
+   (<il> ^contacts.contact <con>)
+   (<con> ^loc somewhere)
+   (<con> ^status good)
+-->
+    (interrupt)
+}
+
+sp { test*datamap-editor-6
+   (state <s> ^color blue)
+-->
+    (interrupt)
+}
