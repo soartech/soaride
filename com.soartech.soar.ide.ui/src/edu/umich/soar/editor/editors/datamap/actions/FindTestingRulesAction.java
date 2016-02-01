@@ -157,8 +157,15 @@ public class FindTestingRulesAction extends Action implements ISearchQuery
             {
                 ISoarDatamapAttribute attr = attrMap.get(attrName[0]);
                 
-                System.out.println("Matched full path: " + attribute.getPathStringCorrected());
-                results.addAll(matchAttribute(attr));
+                if(attr != null)
+                {
+                    System.out.println("Matched full path: " + attribute.getPathStringCorrected());
+                    results.addAll(matchAttribute(attr));
+                }
+                else
+                {
+                    System.out.println("No attribute with full path: " + attribute.getPathStringCorrected());
+                }
             }
             else
             {
@@ -203,6 +210,12 @@ public class FindTestingRulesAction extends Action implements ISearchQuery
          * null) { ISearchResultPage page = resultsView.getActivePage();
          * page.setInput(results, null); }
          */
+        
+
+        if(results.size() == 0)
+        {
+            System.out.println("No rules matched the attribute: " + attribute.getPathStringCorrected());
+        }
         
         //sort the results
         Collections.sort(results, new ResultComparator());
