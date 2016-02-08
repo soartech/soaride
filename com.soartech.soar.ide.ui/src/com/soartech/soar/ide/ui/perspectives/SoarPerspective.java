@@ -97,5 +97,8 @@ public class SoarPerspective implements IPerspectiveFactory {
         layout.addNewWizardShortcut("com.soartech.soar.ide.ui.NewSoarAgentWizard");
         layout.addNewWizardShortcut("com.soartech.soar.ide.ui.NewSoarFolderWizard");//$NON-NLS-1$
         layout.addNewWizardShortcut("com.soartech.soar.ide.ui.NewSoarFileWizard");//$NON-NLS-1$
+        layout.addNewWizardShortcut("edu.umich.soar.editor.wizards.DatamapFileWizard");
     }
+    
+    
 }
