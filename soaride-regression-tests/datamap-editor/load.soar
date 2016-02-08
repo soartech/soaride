@@ -3,6 +3,8 @@
 #
 # @created aron 20160201
 
+set var1 value1
+
 sp { test*datamap-editor-1
    (state <s> ^name foo)
    
@@ -11,7 +13,7 @@ sp { test*datamap-editor-1
 }
 
 sp { test*datamap-editor-2
-   (state <s> ^name bar)
+   (state <s> ^name bari)
 -->
     (interrupt)
 }
@@ -39,6 +41,7 @@ sp { test*datamap-editor-5
    (<il> ^contacts.contact <con>)
    (<con> ^loc somewhere)
    (<con> ^status good)
+   (<con> ^speed regular)
 -->
     (interrupt)
 }
@@ -48,3 +51,10 @@ sp { test*datamap-editor-6
 -->
     (interrupt)
 }
+
+sp { test*datamap-editor-7
+   (state <s> ^$var1 foo)
+-->
+    (interrupt)
+}
+

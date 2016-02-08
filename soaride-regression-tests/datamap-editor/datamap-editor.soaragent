@@ -2,7 +2,8 @@
 <soaragent>
   <startfile path="load.soar" />
   <members>
-    <member path="" />
+    <member path="load.soar" />
+    <member path="datamap-editor.dm" />
   </members>
 </soaragent>
 

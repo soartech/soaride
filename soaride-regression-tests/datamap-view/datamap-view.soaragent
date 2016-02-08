@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<soaragent sourceCommandChangesDirectory="false">
+<soaragent>
   <startfile path="load.soar" />
   <members>
-    <member path="" />
+    <member path="load.soar" />
+    <member path="bar.dm" />
   </members>
 </soaragent>
 
