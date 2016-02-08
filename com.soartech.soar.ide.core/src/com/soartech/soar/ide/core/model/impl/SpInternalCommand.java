@@ -1,6 +1,7 @@
 package com.soartech.soar.ide.core.model.impl;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +40,10 @@ public class SpInternalCommand implements SoarCommand {
         String procNameAndArgs = null;
         if(Integer.parseInt(procLevel) > 0)
         {
-//             procName = agent.getInterpreter().eval("lindex [info level 1] 0");
+             String procName = agent.getInterpreter().eval("lindex [info level 1] 0");
+             System.out.println("*** SpInternalCommand *** " + procName);
+             
+             
              procNameAndArgs = agent.getInterpreter().eval("info level 1");
              
              String filename = commandContext.getSourceLocation().getFile();
@@ -58,9 +62,17 @@ public class SpInternalCommand implements SoarCommand {
                  expSource = soarAgent.getExpandedSourceMap().get(procKey) + "\n"; 
              }
              
+             //save the expanded source for this production
              soarAgent.getExpandedSourceMap().put(procKey, expSource + args[0] + " \"" + args[1] + "\"");
-             
              soarAgent.setPreviousExpandedSourceKey(procKey);
+             
+             //save each procedure according to its file
+             Map<String, List<String>> fileSourceMap = soarAgent.getFileSourceMap();
+             if(!fileSourceMap.containsKey(filename))
+             {
+                 fileSourceMap.put(filename, new ArrayList<String>());
+             }
+             fileSourceMap.get(filename).add(procKey);
         }
         else
         {

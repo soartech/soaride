@@ -86,6 +86,12 @@ public class SoarDatamapContentProvider implements ITreeContentProvider
             
             return datamap.getState().getAttributes().toArray();
         }
+        else if(parentElement instanceof ISoarDatamap)
+        {
+            ISoarDatamap datamap = (ISoarDatamap) parentElement;
+            
+            return datamap.getState().getAttributes().toArray();
+        }
         else if(parentElement instanceof ISoarDatamapAttribute)
         {
             ISoarDatamapAttribute a = (ISoarDatamapAttribute) parentElement;

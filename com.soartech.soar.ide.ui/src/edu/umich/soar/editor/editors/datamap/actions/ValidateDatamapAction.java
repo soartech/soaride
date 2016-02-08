@@ -16,11 +16,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.Action;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.texteditor.AbstractTextEditor;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.model.ISoarAgent;
@@ -36,7 +31,6 @@ import com.soartech.soar.ide.core.model.datamap.ISoarDatamap;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamapAttribute;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamapNode;
 import com.soartech.soar.ide.core.model.datamap.SoarDatamapTools;
-import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 
 import edu.umich.soar.editor.editors.datamap.Datamap;
 import edu.umich.soar.editor.editors.datamap.DatamapAttribute;
@@ -48,13 +42,17 @@ import edu.umich.soar.editor.editors.datamap.DatamapAttribute;
  */
 public class ValidateDatamapAction extends Action {
 
-    private Datamap datamap;
+    private Datamap staticDatamap;
+    private ISoarDatamap soarDatamap;
+    private String source;
     
-    public ValidateDatamapAction(Datamap datamap)
+    public ValidateDatamapAction(Datamap staticDatamap, ISoarDatamap soarDatamap, String source)
     {
         super("Validate Datamap against Soar Project");
         
-        this.datamap = datamap;
+        this.staticDatamap = staticDatamap;
+        this.soarDatamap = soarDatamap;
+        this.source = source;
     }
 
     @Override
@@ -63,8 +61,8 @@ public class ValidateDatamapAction extends Action {
         System.out.println("Validating datamap against the Soar Project");
         
         //get the datamap file
-        File datamapFile = datamap.getFile();
-        IFile datamapIFile = datamap.getIFile();
+        File datamapFile = staticDatamap.getFile();
+        IFile datamapIFile = staticDatamap.getIFile();
         File datamapDir = null;
         IContainer datamapIDir = null;
         try
@@ -125,13 +123,15 @@ public class ValidateDatamapAction extends Action {
             System.out.println("Processing Soar Agent: " + agentToCheck.getName());
             
             //get the static datamap
-            ISoarDatamap soarDatamap = agentToCheck.getDatamap();
-            Map<Integer, ArrayList<DatamapAttribute>> attrMap = datamap.getAttributes();
+            Map<Integer, ArrayList<DatamapAttribute>> attrMap = staticDatamap.getAttributes();
             
-            //get the dynamic datamap attrs
-            Set<ISoarDatamapAttribute> dynamicDatamapAttrs = SoarDatamapTools.getElements(soarDatamap, "", true);
+            //get the dynamic datamap and attrs
+            if(soarDatamap == null)
+            {
+                soarDatamap = agentToCheck.getDatamap();
+            }
             
-            Map<String, ISoarDatamapNode> dynamicNodes = SoarDatamapTools.getAllElementNodes(soarDatamap, true);
+            Map<String, ISoarDatamapNode> dynamicNodes = SoarDatamapTools.getAllElementNodes(soarDatamap);
             
             //create a map
             ArrayList<DatamapAttribute> level0Attrs = attrMap.get(0);
@@ -221,12 +221,33 @@ public class ValidateDatamapAction extends Action {
                     {
                         System.out.println(" -> error in " + sp.getProductionName());
                         
-                        try {
-//                            ISoarSourceRange sourceRange = getEditorLocation(sp);
-                            createErrorMarker(sp, currDynamicAttr, soarProject);
+                        if(source != null)
+                        {
+
+                            //sp is the ISoarProduction from the expanded code
+                            //ideally we want the ISoarProduction from the file's code
+                            //so the marker is in the right spot
+                            int index = source.indexOf(sp.getProductionName());
+                            int length = sp.getProductionName().length();
                             
-                        } catch (CoreException e) {
-                            e.printStackTrace();
+                            try {
+//                                ISoarSourceRange sourceRange = getEditorLocation(sp);
+//                                createErrorMarker(sp, currDynamicAttr, soarProject);
+                                createErrorMarker(sp, index, length, currDynamicAttr, soarProject);
+                                
+                            } catch (CoreException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        else
+                        {
+                            try {
+//                                ISoarSourceRange sourceRange = getEditorLocation(sp);
+                                createErrorMarker(sp, currDynamicAttr, soarProject);
+                                
+                            } catch (CoreException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
@@ -242,13 +263,14 @@ public class ValidateDatamapAction extends Action {
             e1.printStackTrace();
         }
         
+        System.out.println("Finished Validating datamap!");
         
     }
     
     private void createErrorMarker(ISoarElement element, ISoarDatamapAttribute attr, ISoarProject soarProject) throws CoreException
     {
-        IWorkbench workbench = SoarEditorUIPlugin.getDefault().getWorkbench();
-        IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
+//        IWorkbench workbench = SoarEditorUIPlugin.getDefault().getWorkbench();
+//        IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
         
         // Find the resource that contains the element
         IResource resource = element.getContainingResource();
@@ -260,6 +282,12 @@ public class ValidateDatamapAction extends Action {
         // Now see if it's a file
         IFile file = (IFile) resource.getAdapter(IFile.class);
         if(file == null)
+        {
+            return;
+        }
+        
+        //don't proceed with null attrs?
+        if(attr == null || attr.getName() == null)
         {
             return;
         }
@@ -276,7 +304,7 @@ public class ValidateDatamapAction extends Action {
             
             String source = sourceRef.getSource();
             
-            System.out.println("source: " + source);
+//            System.out.println("source: " + source);
             
             //try to get the offset of the attr in the production
             int offsetIntoProduction = source.indexOf("^" + attr.getName());
@@ -287,13 +315,15 @@ public class ValidateDatamapAction extends Action {
                 lengthAdded = 0;
             }
             
+            System.out.println("[ValidateDatamapAction]: XXX creating error marker for attr " + attr.getName());
+            
             if(offsetIntoProduction > 0)
             {
-                SoarModelTools.createErrorMarker(file, range.getOffset() + offsetIntoProduction, attr.getName().length() + lengthAdded, "Attribute " + attr.getName() + " not in static datamap");
+                SoarModelTools.createErrorMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, range.getOffset() + offsetIntoProduction, attr.getName().length() + lengthAdded, "Attribute " + attr.getName() + " not in static datamap");
             }
             else
             {
-                SoarModelTools.createErrorMarker(file, range.getOffset(), range.getLength(), "Attribute " + attr.getName() + " not in static datamap");
+                SoarModelTools.createErrorMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, range.getOffset(), range.getLength(), "Attribute " + attr.getName() + " not in static datamap");
             }
             
             
@@ -321,6 +351,40 @@ public class ValidateDatamapAction extends Action {
 //            part = IDE.openEditor(page, file);
             return;
         }
+    }
+    
+    
+    private void createErrorMarker(ISoarElement element, int index, int length, ISoarDatamapAttribute attr, ISoarProject soarProject) throws CoreException
+    {
+//        IWorkbench workbench = SoarEditorUIPlugin.getDefault().getWorkbench();
+//        IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
+        
+        // Find the resource that contains the element
+        IResource resource = element.getContainingResource();
+        if(resource == null)
+        {
+            return;
+        }
+        
+        // Now see if it's a file
+        IFile file = (IFile) resource.getAdapter(IFile.class);
+        if(file == null)
+        {
+            return;
+        }
+        
+        //don't proceed with null attrs?
+        if(attr == null || attr.getName() == null)
+        {
+            return;
+        }
+        
+        System.out.println(" -> with file " + file.getFullPath().toOSString());
+        System.out.println(" -> with offset " + index + " and length " + length);
+        
+        System.out.println("[ValidateDatamapAction]: ZZZ creating error marker for attr " + attr.getName());
+        
+        SoarModelTools.createErrorMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, index, length, "Attribute " + attr.getName() + " not in static datamap");
     }
     
     

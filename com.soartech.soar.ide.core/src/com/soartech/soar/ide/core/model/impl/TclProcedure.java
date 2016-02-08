@@ -54,7 +54,7 @@ public class TclProcedure extends TclCommand implements ITclProcedure
     public TclProcedure(SoarFileAgentProxy parent, ISoarProblemReporter reporter, TclAstNode astNode)
             throws SoarModelException
     {
-        super(parent, astNode);
+        super(parent, astNode, null);
         
         nameRange = new BasicSoarSourceRange(astNode.getStart(), 0);
         

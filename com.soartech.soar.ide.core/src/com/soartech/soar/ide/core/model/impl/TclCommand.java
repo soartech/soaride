@@ -53,9 +53,9 @@ public class TclCommand extends AbstractSourceReferenceElement implements ITclCo
      * @param parent
      * @throws SoarModelException 
      */
-    public TclCommand(SoarFileAgentProxy parent, TclAstNode astNode) throws SoarModelException
+    public TclCommand(SoarFileAgentProxy parent, TclAstNode astNode, String expandedSource) throws SoarModelException
     {
-        super(parent);
+        super(parent, expandedSource);
         this.soarFile = parent;
         this.astNode = astNode;
         

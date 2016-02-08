@@ -122,6 +122,12 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     private Set<ITclProcedure> procedures = new HashSet<ITclProcedure>();
     
     private Map<String, String> expandedSourceMap = new HashMap<String, String>();
+    private Map<String, List<String>> fileSourceMap = new HashMap<String, List<String>>();
+    
+    private Map<String, SoarDatamap> fileDatamapMap = new HashMap<String, SoarDatamap>();
+    
+//    private List<Datam>
+    
     private String previousExpandedSourceKey;
     
     // Keeping a handle on the SoarTclInterface and also this ScheduledExecutorService
@@ -456,6 +462,32 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         return expandedSourceMap;
     }
     
+    public Map<String, List<String>> getFileSourceMap() {
+        return fileSourceMap;
+    }
+    
+    public Map<String, SoarDatamap> getFileDatamapMap() {
+        return fileDatamapMap;
+    }
+    
+    /**
+     * 
+     * @param file
+     * @param clear create a new datamap if true
+     * @return
+     */
+    public SoarDatamap getOrCreateDatamapForFile(IFile file, boolean clear)
+    {
+        String key = file.getFullPath().toString();
+        
+        if(!fileDatamapMap.containsKey(key) || clear)
+        {
+            fileDatamapMap.put(key, new SoarDatamap());
+        }
+        
+        return fileDatamapMap.get(key);
+    }
+    
     public String getPreviousExpandedSourceKey() {
         return previousExpandedSourceKey;
     }
@@ -499,8 +531,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     {
         try
         {
-            SoarModelTools
-                    .deleteMarkers(file, SoarCorePlugin.PROBLEM_MARKER_ID);
+            SoarModelTools.deleteMarkers(file, SoarCorePlugin.PROBLEM_MARKER_ID);
             SoarModelTools.deleteMarkers(file, SoarCorePlugin.TASK_MARKER_ID);
         }
         catch (CoreException e)
@@ -611,6 +642,8 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
             IResource resource = container.findMember(new Path(path));
             if (resource != null)
             {
+                System.out.println("[SoarAgent] Resource '" + resource + "' added to agent " + name);
+                
                 members.add(resource);
                 SoarModelTools.getPathRelativeToContainer(file.getParent(),
                         resource);
@@ -781,7 +814,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
 
             members.add(file);
 
-            System.out.println("File '" + file + "' added to agent " + name);
+            System.out.println("[SoarAgent] File '" + file + "' added to agent " + name);
         }
     }
 
@@ -1292,6 +1325,8 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     public IExpandedTclCode expandTclString(String namespace, String input,
             int offset)
     {
+        System.out.println("[SoarAgent] expandTclString()");
+        
         synchronized (getLock())
         {            
             if (interpreter == null)

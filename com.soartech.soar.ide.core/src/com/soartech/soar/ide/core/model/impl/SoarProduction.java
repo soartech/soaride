@@ -72,9 +72,9 @@ public class SoarProduction extends TclCommand implements ISoarProduction, IExpa
     private String name = "";
     private SoarProductionAst ast;
     
-    public SoarProduction(SoarFileAgentProxy parent, ISoarProblemReporter reporter, TclAstNode astNode) throws SoarModelException
+    public SoarProduction(SoarFileAgentProxy parent, ISoarProblemReporter reporter, TclAstNode astNode, String expandedSource) throws SoarModelException
     {
-        super(parent, astNode);
+        super(parent, astNode, expandedSource);
         
         List<TclAstNode> words = getTclSyntaxTree().getWordChildren();
         if(words.size() >= 2)
@@ -84,6 +84,7 @@ public class SoarProduction extends TclCommand implements ISoarProduction, IExpa
             bodyInBraces = bodyNode.getType() == TclAstNode.BRACED_WORD;
             bodyRange = new TclAstNodeSourceRange(bodyNode);
             String bodySource = getSource(bodyRange);
+            
             extractProductionName(bodySource);
             
             // Report an error if there are too many args to sp. We'll still 
@@ -185,8 +186,11 @@ public class SoarProduction extends TclCommand implements ISoarProduction, IExpa
      */
     public String getExpandedSource() throws SoarModelException
     {
+        System.out.println("[SoarProduction] getExpandedSource()");
+        
         if(bodyInBraces)
         {
+//            System.out.println("[SoarProduction] getExpandedSource() : bodyInBraces = true : returning getSource()");
             return getSource();
         }
         
@@ -433,16 +437,20 @@ public class SoarProduction extends TclCommand implements ISoarProduction, IExpa
     
     private String getParseableBody(ISoarProblemReporter reporter) throws SoarModelException
     {
-        ISoarBuffer buffer = getOpenableParent().getBuffer();
-        if(buffer == null)
+        //don't try to get from the file if there is a valid expandedSource
+        if(expandedSource == null)
         {
-            return "";
-        }
-        
-        // If the body's in braces, we can just parse it directly. Yay.
-        if(isBodyInBraces())
-        {
-            return bodyNode.getInternalText(buffer.getCharacters());
+            ISoarBuffer buffer = getOpenableParent().getBuffer();
+            if(buffer == null)
+            {
+                return "";
+            }
+            
+            // If the body's in braces, we can just parse it directly. Yay.
+            if(isBodyInBraces())
+            {
+                return bodyNode.getInternalText(buffer.getCharacters());
+            }
         }
         
         SoarAgent agent = getAgent();

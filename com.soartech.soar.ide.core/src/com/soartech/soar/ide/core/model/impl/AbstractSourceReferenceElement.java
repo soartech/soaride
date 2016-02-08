@@ -44,6 +44,7 @@ public abstract class AbstractSourceReferenceElement extends AbstractSoarElement
     BasicSoarSourceRange range;
     boolean errors;
     boolean warnings;
+    String expandedSource = null;
     
     /**
      * @param parent
@@ -51,6 +52,15 @@ public abstract class AbstractSourceReferenceElement extends AbstractSoarElement
     public AbstractSourceReferenceElement(AbstractSoarElement parent)
     {
         super(parent);
+    }
+    
+    /**
+     * @param parent
+     */
+    public AbstractSourceReferenceElement(AbstractSoarElement parent, String expandedSource)
+    {
+        super(parent);
+        this.expandedSource = expandedSource;
     }
     
     public AbstractSourceReferenceElement(AbstractSoarElement parent, SourceReferenceMemento memento) throws SoarModelException
@@ -81,6 +91,13 @@ public abstract class AbstractSourceReferenceElement extends AbstractSoarElement
 
     public String getSource(ISoarSourceRange range) throws SoarModelException
     {
+        if(expandedSource != null)
+        {
+            int start = range.getOffset();
+            int end = range.getOffset() + range.getLength();
+            return expandedSource.substring(start, end);
+        }
+        
         ISoarOpenable openable = getOpenableParent();
         ISoarBuffer buffer = openable.getBuffer();
         if(buffer == null)
@@ -181,6 +198,11 @@ public abstract class AbstractSourceReferenceElement extends AbstractSoarElement
      */
     public String getSource() throws SoarModelException
     {
+        if(expandedSource != null)
+        {
+            return expandedSource;
+        }
+        
         ISoarOpenable openable = getOpenableParent();
         ISoarBuffer buffer = openable.getBuffer();
         if(buffer == null)

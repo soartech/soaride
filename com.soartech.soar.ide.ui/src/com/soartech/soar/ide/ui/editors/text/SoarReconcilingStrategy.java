@@ -19,6 +19,12 @@
  */
 package com.soartech.soar.ide.ui.editors.text;
 
+import java.util.List;
+import java.util.Set;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
@@ -27,9 +33,16 @@ import org.eclipse.jface.text.reconciler.DirtyRegion;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategyExtension;
 
+import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.model.ISoarFile;
+import com.soartech.soar.ide.core.model.ISoarFileAgentProxy;
 import com.soartech.soar.ide.core.model.SoarModelException;
+import com.soartech.soar.ide.core.model.SoarModelTools;
+import com.soartech.soar.ide.core.model.impl.SoarAgent;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
+
+import edu.umich.soar.editor.editors.datamap.Datamap;
+import edu.umich.soar.editor.editors.datamap.actions.ValidateDatamapAction;
 
 /**
  * <code>SoarReconcilingStrategy</code> is responsible for reconciling the 
@@ -70,8 +83,53 @@ public class SoarReconcilingStrategy implements IReconcilingStrategy, IReconcili
         {
             workingCopy.makeConsistent(new NullProgressMonitor() /*, 
                                        editor.getProblemReporter()*/);
+            
+
+            //validate against the static datamap
+
+            //get the agent associated with this file
+            SoarAgent agentToCheck = null;
+            try {
+                List<ISoarFileAgentProxy> proxies = workingCopy.getAgentProxies();
+                for(ISoarFileAgentProxy p : proxies)
+                {
+                    if(p.getAgent() != null)
+                    {
+                        //get the first agent for now
+                        agentToCheck = (SoarAgent) p.getAgent();
+                        break;
+                    }
+                }
+            } catch (SoarModelException e) {
+                e.printStackTrace();
+            }
+            
+            //get the static datamaps
+            Set<IResource> agentFiles = agentToCheck.getMembers();
+            for(IResource res : agentFiles)
+            {
+                if (res instanceof IFile)
+                {
+                    IFile f = (IFile) res;
+                    
+                    System.out.println("[SoarReconcilingStrategy] checking member file " + f.getName());
+                    
+                    String extension = f.getFileExtension();
+                    if(extension.equals("dm"))
+                    {
+                        SoarModelTools.deleteMarkers(workingCopy.getFile(), SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID);
+                        
+                        Datamap staticDatamap = Datamap.read(f);
+                        
+                        ValidateDatamapAction validateDatamap = new ValidateDatamapAction(staticDatamap, agentToCheck.getOrCreateDatamapForFile(workingCopy.getFile(), false), workingCopy.getSource());
+                        validateDatamap.run();
+                    }
+                }
+            }
+            
+//            ValidateDatamapAction validateDatamap = new ValidateDatamapAction(staticDatamap, agentToCheck.getOrCreateDatamapForFile(workingCopy.getFile(), false));
         }
-        catch (SoarModelException e)
+        catch (CoreException e)
         {
             SoarEditorUIPlugin.log(e.getStatus());
         }

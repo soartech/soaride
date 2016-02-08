@@ -23,7 +23,7 @@ public class TclDefineHeuristicCommand extends TclCommand implements IExpandable
 
     public TclDefineHeuristicCommand(SoarFileAgentProxy parent, TclAstNode astNode) throws SoarModelException 
     {
-        super(parent, astNode);
+        super(parent, astNode, null);
         
         List<TclAstNode> words = getTclSyntaxTree().getWordChildren();
         if(words.size() >= 2)

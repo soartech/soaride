@@ -42,14 +42,18 @@ import com.soartech.soar.ide.core.model.ISoarFile;
 import com.soartech.soar.ide.core.model.ISoarFileAgentProxy;
 import com.soartech.soar.ide.core.model.ISoarProblemReporter;
 import com.soartech.soar.ide.core.model.ISoarProduction;
+import com.soartech.soar.ide.core.model.ISoarSourceRange;
 import com.soartech.soar.ide.core.model.ITclProcedure;
 import com.soartech.soar.ide.core.model.SoarModelException;
 import com.soartech.soar.ide.core.model.SoarModelTools;
 import com.soartech.soar.ide.core.model.SoarProblem;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamap;
+import com.soartech.soar.ide.core.model.datamap.SoarDatamapAdditionResult;
+import com.soartech.soar.ide.core.model.impl.datamap.SoarDatamap;
 import com.soartech.soar.ide.core.model.impl.serialization.ElementMemento;
 import com.soartech.soar.ide.core.model.impl.serialization.FileAgentProxyMemento;
 import com.soartech.soar.ide.core.tcl.TclAstNode;
+import com.soartech.soar.ide.core.tcl.TclParser;
 
 /**
  * @author ray
@@ -327,7 +331,85 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
                 }
             }
             
-            // Tell the agent about new productions and stuff
+            List<AbstractSoarElement> unexpandedSoarElements = new ArrayList<AbstractSoarElement>();
+            
+            //construct a string buffer of the expanded elements
+            String expandedSource = "";
+            for(AbstractSoarElement elem : elements)
+            {
+                if(elem instanceof SoarProduction)
+                {
+//                    productions.add((ISoarProduction) e);
+                    SoarProduction sp = (SoarProduction) elem;
+                    expandedSource += sp.getExpandedSource();
+                    expandedSource += "\n";
+                }
+                else if(elem instanceof ITclProcedure)
+                {
+//                    procedures.add((ITclProcedure) e);
+                    
+                } 
+                else if(elem instanceof GenericCommand)
+                {
+                    GenericCommand com = (GenericCommand) elem;
+                    expandedSource += com.getExpandedSource();
+                    expandedSource += "\n";
+                }
+            }
+            
+            // Get the contents of the file
+//            ISoarBuffer buffer = getBuffer();
+            char[] contents = expandedSource.toCharArray();
+            
+            // re-parse the tcl commands, this time with their expanded values
+            TclParser parser = new TclParser();
+            parser.setInput(contents, 0, contents.length);
+            TclAstNode expandedRoot = parser.parse();
+            
+            //get the datamap for this file
+            SoarDatamap dm = agent.getOrCreateDatamapForFile(file.getFile(), true);
+            
+            //get the commands in the expanded tcl graph and make a datamap out of them
+            for(TclAstNode child : expandedRoot.getChildren())
+            {
+                SoarModelTools.checkForCancellation(monitor);
+                if(child.getType() == TclAstNode.COMMAND)
+                {
+                    //get the name and words that make up this production
+                    List<TclAstNode> words = child.getWordChildren();
+                    if(words.isEmpty())
+                    {
+                        return;
+                    }
+                    TclAstNode nameWord = words.get(0);
+//                    ISoarBuffer buffer = file.getBuffer();
+                    
+                    String name = "";
+                    for(int i = nameWord.getStart(); i < nameWord.getStart() + nameWord.getLength(); i++)
+                    {
+                        name += contents[i];
+                    }
+//                    contents.
+//                    String name = buffer.getText(nameWord.getStart(), nameWord.getLength());
+                    
+                    //evaluate every sp we find
+                    if(name.equals("sp"))
+                    {
+                        //create a SoarProduction object from the TclAstNode
+                        ISoarProduction p = new SoarProduction2(this, reporter, child, expandedSource, elements);
+                        
+                        //add this SoarProduction to the datamap 
+                        SoarDatamapAdditionResult result = dm.addProduction(p);
+                    }
+                }
+            }
+            
+            //validate against the dynamic file datamap we just created
+            
+            
+            //tell the agent about new productions and stuff
+            //"elements" is the array of unexpanded code
+            //do we want to use the expanded code instead??
             if(!isWorkingCopy())
             {
                 agent.addElements((List) elements);
@@ -360,7 +442,13 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
         
         if(name.equals("sp"))
         {
-            elements.add(new SoarProduction(this, reporter, commandNode));
+            SoarProduction p = new SoarProduction(this, reporter, commandNode, null);
+            elements.add(p);
+            
+//            SoarDatamap dm = agent.getOrCreateDatamapForFile(file.getFile());
+//            dm.addProduction(p);
+//            p.getExpandedSource();
+            
         }
         else if(name.equals("proc"))
         {

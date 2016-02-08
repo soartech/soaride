@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+
 /**
  * Utility methods for the datamap
  *
@@ -59,11 +60,14 @@ public class SoarDatamapTools
         return true;
     }
     
-    public static Map<String, ISoarDatamapNode> getAllElementNodes(ISoarDatamap datamap, boolean includeVariablized)
+    public static Map<String, ISoarDatamapNode> getAllElementNodes(ISoarDatamap datamap)
     {
-//        List<ISoarDatamapNode> nodes = new ArrayList<ISoarDatamapNode>();
-        
         Map<String, ISoarDatamapNode> nodes = new HashMap<String, ISoarDatamapNode>();
+        
+        Set<ISoarDatamapAttribute> uniqueAttrs = new HashSet<ISoarDatamapAttribute>();
+        Set<ISoarDatamapNode> uniqueNodes = new HashSet<ISoarDatamapNode>();
+        
+//        Map<ISoarDatamapAttribute, String>
         
         ISoarDatamapNode state = datamap.getState();
         
@@ -73,31 +77,44 @@ public class SoarDatamapTools
         {
             System.out.println("Level 0 attr: " + attr.getName());
             
-            recurseElements(attr, attr.getName(), includeVariablized, 0, nodes);
+            recurseElements(attr, attr.getName(), 0, nodes, uniqueAttrs, uniqueNodes);
         }
         
         return nodes;
     }
     
-    private static void recurseElements(ISoarDatamapAttribute inputAttr, String path, boolean includeVariablized, int index, Map<String, ISoarDatamapNode> nodes)
+    private static void recurseElements(ISoarDatamapAttribute inputAttr, String path, int index, Map<String, ISoarDatamapNode> nodes, Set<ISoarDatamapAttribute> uniqueAttrs, Set<ISoarDatamapNode> uniqueNodes)
     {
         index++;
         
         Set<ISoarDatamapAttribute> attrs = inputAttr.getTarget().getAttributes();
         
-        for(ISoarDatamapAttribute attr : attrs)
-        {
-            System.out.println("Level " + index + " attr: " + attr.getName());
-            
-            recurseElements(attr, path + "." + attr.getName(), includeVariablized, index, nodes);
-        }
-        
-        if(attrs.isEmpty())
+        //don't ever recurse more than 25 times
+        if(attrs.isEmpty() || index > 25)
         {
             System.out.println("Found full path to attr: " + path);
             
             //check this result
             nodes.put(path, inputAttr.getTarget());
+            return;
+        }
+        
+        for(ISoarDatamapAttribute attr : attrs)
+        {
+            System.out.println("Level " + index + " attr: " + attr.getName());
+            
+            //check if we've recursed this attribute before
+            if(uniqueAttrs.contains(attr))  
+            {
+                System.out.println("Already followed attr " + attr.getName() + " with obj id " + System.identityHashCode(attr));
+            }
+            else //only recurse if we haven't already followed this attribute
+            {
+                //mark this attr as having been followed
+                uniqueAttrs.add(attr);
+                recurseElements(attr, path + "." + attr.getName(), index, nodes, uniqueAttrs, uniqueNodes);
+            }
+            
         }
         
     }
@@ -116,7 +133,7 @@ public class SoarDatamapTools
         }
         return datamap.getElements(pathParts, includeVariablized);
     }
-
+    
     public static List<ISoarDatamapAttribute> getPathToNode(ISoarDatamapNode target)
     {
         List<ISoarDatamapAttribute> path = new ArrayList<ISoarDatamapAttribute>();

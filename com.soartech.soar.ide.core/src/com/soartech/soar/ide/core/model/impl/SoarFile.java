@@ -39,6 +39,7 @@ import com.soartech.soar.ide.core.model.ISoarWorkingCopyOwner;
 import com.soartech.soar.ide.core.model.SoarModelException;
 import com.soartech.soar.ide.core.model.SoarModelTools;
 import com.soartech.soar.ide.core.model.SoarProblem;
+import com.soartech.soar.ide.core.model.impl.datamap.SoarDatamap;
 import com.soartech.soar.ide.core.model.impl.serialization.ElementMemento;
 import com.soartech.soar.ide.core.model.impl.serialization.FileMemento;
 import com.soartech.soar.ide.core.tcl.TclAstNode;
@@ -316,7 +317,7 @@ public class SoarFile extends AbstractSoarOpenable implements ISoarFile
             // Get the contents of the file
             ISoarBuffer buffer = getBuffer();
             
-            // Parse the file as raw tcl
+            // Parse the file as raw tcl with nothing expanded
             TclParser parser = new TclParser();
             parser.setInput(buffer.getCharacters(), 0, buffer.getLength());
             this.root = parser.parse();

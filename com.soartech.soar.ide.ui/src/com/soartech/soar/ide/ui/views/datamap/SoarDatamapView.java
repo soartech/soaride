@@ -31,6 +31,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -51,8 +52,10 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
+import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.DrillDownAdapter;
 import org.eclipse.ui.part.ViewPart;
@@ -60,17 +63,24 @@ import org.eclipse.ui.part.ViewPart;
 import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.model.ISoarAgent;
 import com.soartech.soar.ide.core.model.ISoarElement;
+import com.soartech.soar.ide.core.model.ISoarFile;
+import com.soartech.soar.ide.core.model.ISoarFileAgentProxy;
 import com.soartech.soar.ide.core.model.ISoarModel;
 import com.soartech.soar.ide.core.model.ISoarModelListener;
 import com.soartech.soar.ide.core.model.ISoarProduction;
 import com.soartech.soar.ide.core.model.ISoarProject;
 import com.soartech.soar.ide.core.model.SoarModelEvent;
+import com.soartech.soar.ide.core.model.SoarModelException;
 import com.soartech.soar.ide.core.model.datamap.CompositeSoarDatamapListener;
+import com.soartech.soar.ide.core.model.datamap.ISoarDatamap;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamapAttribute;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamapListener;
 import com.soartech.soar.ide.core.model.datamap.SoarDatamapEvent;
+import com.soartech.soar.ide.core.model.impl.SoarAgent;
 import com.soartech.soar.ide.ui.SoarEditorPluginImages;
+import com.soartech.soar.ide.ui.SoarUiModelTools;
 import com.soartech.soar.ide.ui.SoarUiTools;
+import com.soartech.soar.ide.ui.editors.text.SoarEditor;
 import com.soartech.soar.ide.ui.views.ElementDoubleClickListener;
 import com.soartech.soar.ide.ui.views.SoarLabelProvider;
 
@@ -109,6 +119,15 @@ public class SoarDatamapView extends ViewPart
 	private int fCurrentOrientation;
 	
 	private ToggleOrientationAction[] fToggleOrientationActions;
+	
+	ToggleFileDatamapAction toggleFileDatamapAction = new ToggleFileDatamapAction();
+	
+	private IWorkbenchPart currentPart = null;
+	
+	/**
+	 * true to show the agent datamap, false to show the file datamap
+	 */
+	private boolean showAgentDatamap = true;
 	
 	/**
 	 * The parent composite of this view part.
@@ -149,7 +168,57 @@ public class SoarDatamapView extends ViewPart
 
     private Object getInitialTreeInput()
     {
-        return SoarCorePlugin.getDefault().getSoarModel();
+        if(showAgentDatamap)
+        {
+            return SoarCorePlugin.getDefault().getSoarModel();
+        }
+        else
+        {
+            SoarEditor editor = SoarUiModelTools.getActiveSoarEditor();
+            
+            if(editor == null) 
+            {
+                return "error: no editor";
+            }
+            
+            ISoarFile workingCopy = editor.getSoarFileWorkingCopy();
+            if(workingCopy == null)
+            {
+                return "error: no working copy";
+            }
+            
+
+            //get the agent associated with this file
+            SoarAgent agentToCheck = null;
+            try {
+                List<ISoarFileAgentProxy> proxies = workingCopy.getAgentProxies();
+                for(ISoarFileAgentProxy p : proxies)
+                {
+                    if(p.getAgent() != null)
+                    {
+                        //get the first agent for now
+                        agentToCheck = (SoarAgent) p.getAgent();
+                        break;
+                    }
+                }
+            } catch (SoarModelException e) {
+                e.printStackTrace();
+            }
+            
+            if(agentToCheck != null)
+            {
+                //get the datamap and put it in
+                ISoarDatamap fileDatamap = agentToCheck.getOrCreateDatamapForFile(workingCopy.getFile(), false);
+                return fileDatamap;
+            }
+            else
+            {
+                return "error: agentToCheck is null";
+            }
+            
+            
+        }
+        
     }
     
 	/* (non-Javadoc)
@@ -169,6 +238,21 @@ public class SoarDatamapView extends ViewPart
             {
                 safeRefresh(null, event);
             }});
+        
+//        private ISelectionListener selectionListener = ;
+        getSite().getPage().addPostSelectionListener(new ISelectionListener()
+        {
+            public void selectionChanged(IWorkbenchPart part, ISelection selection)
+            {
+                //check and see if we've selected a different editor
+                if(!part.equals(currentPart) && part instanceof SoarEditor)
+                {
+                    currentPart = part;
+                    safeRefresh(null, null);
+                }
+            }
+        });
+        
         
         addResizeListener(parent);
         
@@ -483,6 +567,10 @@ public class SoarDatamapView extends ViewPart
                 }
             }
         }
+        if(sme == null && sde == null)
+        {
+            reset = true;
+        }
         return reset;
     }
     
@@ -551,6 +639,9 @@ public class SoarDatamapView extends ViewPart
             layoutSubMenu.add(fToggleOrientationActions[i]);
         }
         viewMenu.add(layoutSubMenu);
+        
+        IToolBarManager toolbarManager = actionBars.getToolBarManager();
+        toolbarManager.add(toggleFileDatamapAction);
 
         actionBars.updateActionBars();
 
@@ -612,4 +703,28 @@ public class SoarDatamapView extends ViewPart
             }
         }
     }
+	
+	private class ToggleFileDatamapAction extends Action
+	{
+	    static final String ID = "com.soartech.soar.ide.ui.views.source.ToggleFileDatamapAction";
+	    
+	    public ToggleFileDatamapAction()
+	    {
+	        super("Show Datamap Type", Action.AS_CHECK_BOX);
+            setToolTipText("Toggle between showing the agent datamap and the file datamap");
+            setImageDescriptor(SoarEditorPluginImages.getDescriptor(SoarEditorPluginImages.IMG_EXPAND));
+            setId(ID);
+	    }
+	    
+        @Override
+        public void run()
+        {
+            showAgentDatamap = !isChecked();
+            
+            System.out.println("[ToggleFileDatamapAction] showAgentDatamap = " + showAgentDatamap);
+            
+            safeRefresh(null, null);
+        }
+	    
+	}
 }

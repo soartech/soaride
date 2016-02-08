@@ -155,7 +155,7 @@ class SoarAgentFileSelector implements ITreeViewerListener, ICheckStateListener,
         //And the test bits with the resource types to see if they are what we want
         return ((member.getType() & resourceType) > 0 &&
              !member.getName().startsWith(".") &&
-             ((memberType != IResource.FILE && ext == null) || "soar".equals(ext) || "tcl".equals(ext)));
+             ((memberType != IResource.FILE && ext == null) || "soar".equals(ext) || "tcl".equals(ext) || "dm".equals(ext)));
     }
     
     private ViewerFilter getViewerFilter(final int resourceType, final IProject project) {
