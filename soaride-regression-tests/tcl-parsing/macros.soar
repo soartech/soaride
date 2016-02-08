@@ -1,0 +1,31 @@
+##!
+# @file
+#
+# @created aron 20151208
+
+set myVar foo
+set myVar2 bar
+
+sp "test-soar
+   (state <s> ^superstate nil)
+-->
+   (<s> ^$myVar bar)
+"
+
+proc tclTest { one two } {
+    sp "test-tcl
+       (state <s> ^baz chef)
+    -->
+       (<s> ^working true)
+    "
+
+    sp "test-tcl2
+       (state <s> ^baz chef)
+    -->
+       (<s> ^working true)
+    "
+}
+
+tclTest $myVar $myVar
+
+
