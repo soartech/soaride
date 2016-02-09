@@ -35,4 +35,5 @@ Export-Package: com.soartech.soar.editor.docs,
  com.soartech.soar.ide.core.refactoring.change,
  com.soartech.soar.ide.core.tcl,
  com.soartech.util,
+ edu.umich.soar.editor.editors.datamap,
  tcl.lang

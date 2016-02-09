@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.umich.soar.editor.editors.datamap.actions;
+package edu.umich.soar.editor.editors.datamap;
 
 import java.io.File;
 import java.io.IOException;

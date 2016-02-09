@@ -42,7 +42,7 @@ import com.soartech.soar.ide.core.model.impl.SoarAgent;
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
 
 import edu.umich.soar.editor.editors.datamap.Datamap;
-import edu.umich.soar.editor.editors.datamap.actions.ValidateDatamapAction;
+import edu.umich.soar.editor.editors.datamap.ValidateDatamapAction;
 
 /**
  * <code>SoarReconcilingStrategy</code> is responsible for reconciling the 
@@ -104,6 +104,9 @@ public class SoarReconcilingStrategy implements IReconcilingStrategy, IReconcili
                 e.printStackTrace();
             }
             
+            //delete any datamap problem markers
+            SoarModelTools.deleteMarkers(workingCopy.getFile(), SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID);
+            
             //get the static datamaps
             Set<IResource> agentFiles = agentToCheck.getMembers();
             for(IResource res : agentFiles)
@@ -117,8 +120,6 @@ public class SoarReconcilingStrategy implements IReconcilingStrategy, IReconcili
                     String extension = f.getFileExtension();
                     if(extension.equals("dm"))
                     {
-                        SoarModelTools.deleteMarkers(workingCopy.getFile(), SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID);
-                        
                         Datamap staticDatamap = Datamap.read(f);
                         
                         ValidateDatamapAction validateDatamap = new ValidateDatamapAction(staticDatamap, agentToCheck.getOrCreateDatamapForFile(workingCopy.getFile(), false), workingCopy.getSource());

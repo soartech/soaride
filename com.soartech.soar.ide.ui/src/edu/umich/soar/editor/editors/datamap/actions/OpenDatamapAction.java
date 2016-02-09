@@ -3,6 +3,7 @@ package edu.umich.soar.editor.editors.datamap.actions;
 import org.eclipse.jface.action.Action;
 
 import edu.umich.soar.editor.editors.datamap.Datamap;
+import edu.umich.soar.editor.editors.datamap.DatamapUtil;
 
 public class OpenDatamapAction extends Action {
 
@@ -16,6 +17,7 @@ public class OpenDatamapAction extends Action {
 	
 	@Override
 	public void run() {
-	    datamap.openInEditor();
+	    DatamapUtil.openInEditor(datamap);
+//	    datamap.openInEditor();
 	}
 }

@@ -529,6 +529,8 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
      */
     private void readFromFile() throws SoarModelException
     {
+        System.out.println("[SoarAgent] readFromFile() : " + file.getName());
+        
         try
         {
             SoarModelTools.deleteMarkers(file, SoarCorePlugin.PROBLEM_MARKER_ID);
@@ -1068,6 +1070,8 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     public void makeConsistent(IProgressMonitor monitor)
             throws SoarModelException
     {
+        System.out.println("[SoarAgent] makeConsistent() : " + name);
+        
         monitor = SoarModelTools.getSafeMonitor(monitor);
         try
         {

@@ -142,7 +142,7 @@ public class Correction implements SelectionListener
         if (solutionIndex == -1)
         {
             // Open corresponding datamap
-            node.getDatamap().openInEditor();
+            DatamapUtil.openInEditor(node.getDatamap());
             return;
         }
         if (!anyChildren)

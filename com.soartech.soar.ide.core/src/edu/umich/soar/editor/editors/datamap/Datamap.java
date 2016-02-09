@@ -734,35 +734,35 @@ public class Datamap implements ITreeContentProvider
         datamap.contentChanged(null, true);
     }
 
-    public DatamapEditor openInEditor()
-    {
-        return openInEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage());
-    }
-
-    public DatamapEditor openInEditor(IWorkbenchPage page)
-    {
-        DatamapEditor view = null;
-        String ID = DatamapEditor.ID;
-
-        try
-        {
-            FileEditorInput editorInput = new FileEditorInput(input);
-            view = (DatamapEditor) page.findEditor(editorInput);
-            if (view == null)
-            {
-                view = (DatamapEditor) page.openEditor(editorInput, ID);
-            }
-            else
-            {
-                page.activate(view);
-            }
-            return view;
-        }
-        catch (PartInitException e)
-        {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//    public DatamapEditor openInEditor()
+//    {
+//        return openInEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage());
+//    }
+//
+//    public DatamapEditor openInEditor(IWorkbenchPage page)
+//    {
+//        DatamapEditor view = null;
+//        String ID = DatamapEditor.ID;
+//
+//        try
+//        {
+//            FileEditorInput editorInput = new FileEditorInput(input);
+//            view = (DatamapEditor) page.findEditor(editorInput);
+//            if (view == null)
+//            {
+//                view = (DatamapEditor) page.openEditor(editorInput, ID);
+//            }
+//            else
+//            {
+//                page.activate(view);
+//            }
+//            return view;
+//        }
+//        catch (PartInitException e)
+//        {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
 }

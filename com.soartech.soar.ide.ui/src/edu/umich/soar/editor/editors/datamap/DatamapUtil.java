@@ -5,6 +5,11 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.FileEditorInput;
+
 import edu.umich.soar.editor.editors.datamap.DatamapNode.NodeType;
 
 /**
@@ -457,4 +462,36 @@ public class DatamapUtil {
 		}
 		return null;
 	}
+	
+
+    public static DatamapEditor openInEditor(Datamap datamap)
+    {
+        return openInEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), datamap);
+    }
+
+    public static DatamapEditor openInEditor(IWorkbenchPage page, Datamap datamap)
+    {
+        DatamapEditor view = null;
+        String ID = DatamapEditor.ID;
+
+        try
+        {
+            FileEditorInput editorInput = new FileEditorInput(datamap.getIFile());
+            view = (DatamapEditor) page.findEditor(editorInput);
+            if (view == null)
+            {
+                view = (DatamapEditor) page.openEditor(editorInput, ID);
+            }
+            else
+            {
+                page.activate(view);
+            }
+            return view;
+        }
+        catch (PartInitException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

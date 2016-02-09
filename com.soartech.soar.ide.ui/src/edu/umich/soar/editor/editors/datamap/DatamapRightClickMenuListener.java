@@ -16,7 +16,6 @@ import edu.umich.soar.editor.editors.datamap.actions.FindTestingRulesAction;
 import edu.umich.soar.editor.editors.datamap.actions.OpenDatamapAction;
 import edu.umich.soar.editor.editors.datamap.actions.RenameAttributeAction;
 import edu.umich.soar.editor.editors.datamap.actions.ShowLinkedAttributesAction;
-import edu.umich.soar.editor.editors.datamap.actions.ValidateDatamapAction;
 
 public class DatamapRightClickMenuListener implements IMenuListener {
 

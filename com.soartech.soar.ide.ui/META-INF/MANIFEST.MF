@@ -28,4 +28,5 @@ Export-Package: com.soartech.soar.ide.ui,
  com.soartech.soar.ide.ui.editors.text,
  com.soartech.soar.ide.ui.editors.text.actions;x-friends:="com.soartech.soar.ide.ui.test",
  com.soartech.soar.ide.ui.editors.text.rules,
- com.soartech.soar.ide.ui.perspectives
+ com.soartech.soar.ide.ui.perspectives,
+ edu.umich.soar.editor.editors.datamap

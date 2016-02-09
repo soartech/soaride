@@ -25,11 +25,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -42,7 +43,6 @@ import com.soartech.soar.ide.core.model.ISoarFile;
 import com.soartech.soar.ide.core.model.ISoarFileAgentProxy;
 import com.soartech.soar.ide.core.model.ISoarProblemReporter;
 import com.soartech.soar.ide.core.model.ISoarProduction;
-import com.soartech.soar.ide.core.model.ISoarSourceRange;
 import com.soartech.soar.ide.core.model.ITclProcedure;
 import com.soartech.soar.ide.core.model.SoarModelException;
 import com.soartech.soar.ide.core.model.SoarModelTools;
@@ -54,6 +54,10 @@ import com.soartech.soar.ide.core.model.impl.serialization.ElementMemento;
 import com.soartech.soar.ide.core.model.impl.serialization.FileAgentProxyMemento;
 import com.soartech.soar.ide.core.tcl.TclAstNode;
 import com.soartech.soar.ide.core.tcl.TclParser;
+
+import edu.umich.soar.editor.editors.datamap.Datamap;
+import edu.umich.soar.editor.editors.datamap.ValidateDatamapAction;
+
 
 /**
  * @author ray
@@ -313,6 +317,8 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
     @SuppressWarnings("unchecked")
     private void processParseResult(IProgressMonitor monitor, ISoarProblemReporter reporter, ISoarDatamap datamap) throws SoarModelException
     {
+        System.out.println("[SoarFileAgentProxy] processParseResult() for " + file.getFile().getName());
+        
         try
         {
             datamap.beginModification();
@@ -382,15 +388,12 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
                         return;
                     }
                     TclAstNode nameWord = words.get(0);
-//                    ISoarBuffer buffer = file.getBuffer();
                     
                     String name = "";
                     for(int i = nameWord.getStart(); i < nameWord.getStart() + nameWord.getLength(); i++)
                     {
                         name += contents[i];
                     }
-//                    contents.
-//                    String name = buffer.getText(nameWord.getStart(), nameWord.getLength());
                     
                     //evaluate every sp we find
                     if(name.equals("sp"))
@@ -404,7 +407,34 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
                 }
             }
             
+
+            //delete any datamap problem markers
+            try {
+                SoarModelTools.deleteMarkers(file.getFile(), SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID);
+            } catch (CoreException e) {
+                e.printStackTrace();
+            }
+            
             //validate against the dynamic file datamap we just created
+            Set<IResource> agentFiles = agent.getMembers();
+            for(IResource res : agentFiles)
+            {
+                if (res instanceof IFile)
+                {
+                    IFile f = (IFile) res;
+                    
+                    System.out.println("[SoarReconcilingStrategy] checking member file " + f.getName());
+                    
+                    String extension = f.getFileExtension();
+                    if(extension.equals("dm"))
+                    {
+                        Datamap staticDatamap = Datamap.read(f);
+                        
+                        ValidateDatamapAction validateDatamap = new ValidateDatamapAction(staticDatamap, agent.getOrCreateDatamapForFile(file.getFile(), false), file.getSource());
+                        validateDatamap.run();
+                    }
+                }
+            }
             
             
             //tell the agent about new productions and stuff
