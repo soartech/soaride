@@ -164,10 +164,11 @@ public class Datamap implements ITreeContentProvider
 
     // Maps attribute.to values onto a list of attributes with that .to value.
     private Map<Integer, ArrayList<DatamapAttribute>> reversedAttributes;
-    private int maxId = -1;
     private boolean valid = true;
     private String filename;
     private IFile input;
+
+    private Set<Integer> ids = new HashSet<Integer>();
 
     // Maps the name of a state onto root nodes for that state.
     private Map<String, DatamapNode> stateNodeMap;
@@ -211,7 +212,7 @@ public class Datamap implements ITreeContentProvider
                         valid = false;
                         continue;
                     }
-                    checkId(node.id);
+                    ids.add(new Integer(node.id));
                     nodes.put(node.id, node);
                     --num_nodes;
                     if (num_nodes == 0)
@@ -300,18 +301,24 @@ public class Datamap implements ITreeContentProvider
         }
     }
 
-    private void checkId(int id)
-    {
-        if (id >= maxId)
-        {
-            maxId = id + 1;
-        }
-    }
-
     public int newId()
     {
-        maxId += 1;
-        return maxId - 1;
+        //this is unique
+        String uuid = java.util.UUID.randomUUID().toString();
+        
+        //this is not unique
+        int hash = uuid.hashCode();
+        
+        //keep creating new hashes until a unique one is found
+        if(ids.contains(new Integer(hash)))
+        {
+            return newId();
+    }
+        else
+    {
+            ids.add(new Integer(hash));
+            return hash;
+        }
     }
 
     public String getFilename()
