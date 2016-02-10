@@ -364,7 +364,6 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
             }
             
             // Get the contents of the file
-//            ISoarBuffer buffer = getBuffer();
             char[] contents = expandedSource.toCharArray();
             
             // re-parse the tcl commands, this time with their expanded values
@@ -450,8 +449,6 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
         {
             datamap.endModification();
         }
-        
-        //TODO: compare the ast with the soareditor manual datamap
         
     }
     
