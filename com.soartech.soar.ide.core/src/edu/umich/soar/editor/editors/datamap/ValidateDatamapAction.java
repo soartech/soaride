@@ -31,6 +31,8 @@ import com.soartech.soar.ide.core.model.datamap.ISoarDatamap;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamapAttribute;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamapNode;
 import com.soartech.soar.ide.core.model.datamap.SoarDatamapTools;
+import com.soartech.soar.ide.core.model.impl.SoarProduction;
+import com.soartech.soar.ide.core.model.impl.SoarProduction2;
 
 import edu.umich.soar.editor.editors.datamap.Datamap;
 import edu.umich.soar.editor.editors.datamap.DatamapAttribute;
@@ -223,12 +225,22 @@ public class ValidateDatamapAction extends Action {
                         
                         if(source != null)
                         {
-
+                            
                             //sp is the ISoarProduction from the expanded code
                             //ideally we want the ISoarProduction from the file's code
                             //so the marker is in the right spot
                             int index = source.indexOf(sp.getProductionName());
                             int length = sp.getProductionName().length();
+                            
+                            if(sp instanceof SoarProduction2)
+                            {
+                                ISoarSourceRange tclMacroRange = ((SoarProduction2) sp).getTclSourceRange();
+                                if(tclMacroRange != null)
+                                {
+                                    index = tclMacroRange.getOffset();
+                                    length = tclMacroRange.getLength();
+                                }
+                            }
                             
                             try {
 //                                ISoarSourceRange sourceRange = getEditorLocation(sp);

@@ -1,0 +1,18 @@
+##!
+# @file
+#
+# @created aron 20160211
+
+proc tclTest { one two } {
+    sp "test-tcl
+       (state <s> ^baz chef)
+    -->
+       (<s> ^working true)
+    "
+
+    sp "test-tcl2
+       (state <s> ^baz chef)
+    -->
+       (<s> ^working2 true)
+    "
+}

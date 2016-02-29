@@ -26,7 +26,6 @@ import java.util.List;
 import com.soartech.soar.ide.core.model.BasicSoarSourceRange;
 import com.soartech.soar.ide.core.model.IExpandableElement;
 import com.soartech.soar.ide.core.model.IExpandedTclCode;
-import com.soartech.soar.ide.core.model.ISoarAgent;
 import com.soartech.soar.ide.core.model.ISoarBuffer;
 import com.soartech.soar.ide.core.model.ISoarProblemReporter;
 import com.soartech.soar.ide.core.model.ISoarProduction;
@@ -34,25 +33,15 @@ import com.soartech.soar.ide.core.model.ISoarSourceRange;
 import com.soartech.soar.ide.core.model.ITclComment;
 import com.soartech.soar.ide.core.model.SoarModelException;
 import com.soartech.soar.ide.core.model.SoarProblem;
-import com.soartech.soar.ide.core.model.ast.Action;
-import com.soartech.soar.ide.core.model.ast.AttributeValueMake;
-import com.soartech.soar.ide.core.model.ast.AttributeValueTest;
-import com.soartech.soar.ide.core.model.ast.Condition;
-import com.soartech.soar.ide.core.model.ast.ConditionForOneIdentifier;
 import com.soartech.soar.ide.core.model.ast.CustomSoarParserTokenManager;
 import com.soartech.soar.ide.core.model.ast.FunctionCall;
 import com.soartech.soar.ide.core.model.ast.ParseException;
-import com.soartech.soar.ide.core.model.ast.PositiveCondition;
 import com.soartech.soar.ide.core.model.ast.RHSValue;
 import com.soartech.soar.ide.core.model.ast.SoarCharStream;
 import com.soartech.soar.ide.core.model.ast.SoarParser;
 import com.soartech.soar.ide.core.model.ast.SoarProductionAst;
 import com.soartech.soar.ide.core.model.ast.Token;
 import com.soartech.soar.ide.core.model.ast.TokenMgrError;
-import com.soartech.soar.ide.core.model.ast.ValueMake;
-import com.soartech.soar.ide.core.model.datamap.ISoarDatamap;
-import com.soartech.soar.ide.core.model.datamap.SoarDatamapAdditionResult;
-import com.soartech.soar.ide.core.model.impl.datamap.SoarDatamap;
 import com.soartech.soar.ide.core.model.impl.serialization.ElementMemento;
 import com.soartech.soar.ide.core.model.impl.serialization.ProductionMemento;
 import com.soartech.soar.ide.core.model.impl.serialization.SourceRangeMemento;
@@ -74,13 +63,17 @@ public class SoarProduction2 extends TclCommand implements ISoarProduction, IExp
     private SoarProductionAst ast;
     private List<AbstractSoarElement> elements = new ArrayList<AbstractSoarElement>();
     
+    private ISoarSourceRange tclSourceRange;
+    
 //    private String expandedSource;
     
-    public SoarProduction2(SoarFileAgentProxy parent, ISoarProblemReporter reporter, TclAstNode astNode, String expandedSource, List<AbstractSoarElement> elements) throws SoarModelException
+    public SoarProduction2(SoarFileAgentProxy parent, ISoarSourceRange tclSourceRange, ISoarProblemReporter reporter, TclAstNode astNode, String expandedSource, List<AbstractSoarElement> elements) throws SoarModelException
     {
         super(parent, astNode, expandedSource);
         
 //        this.expandedSource = expandedSource;
+        
+        this.tclSourceRange = tclSourceRange;
         
         this.elements.addAll(elements);
         
@@ -147,6 +140,8 @@ public class SoarProduction2 extends TclCommand implements ISoarProduction, IExp
         return getSoarFile();
     }
     
+    
+    
 //    private String getSourceExp(ISoarSourceRange range) throws SoarModelException
 //    {
 ////        if(expandedSource != null)
@@ -161,6 +156,13 @@ public class SoarProduction2 extends TclCommand implements ISoarProduction, IExp
 ////        }
 //    }
     
+    /**
+     * @return the tclSourceRange
+     */
+    public ISoarSourceRange getTclSourceRange() {
+        return tclSourceRange;
+    }
+
     /* (non-Javadoc)
      * @see com.soartech.soar.ide.core.model.impl.AbstractSoarElement#detach()
      */
@@ -210,7 +212,7 @@ public class SoarProduction2 extends TclCommand implements ISoarProduction, IExp
      */
     public String getExpandedSource() throws SoarModelException
     {
-        System.out.println("[SoarProduction] getExpandedSource()");
+        System.out.println("[SoarProduction2] getExpandedSource()");
         
         if(bodyInBraces)
         {

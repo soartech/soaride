@@ -1,0 +1,69 @@
+##!
+# @file
+#
+# @created aron 20160210
+
+
+set var1 value1
+set var2 value2
+
+sp { test*datamap-editor-1
+   (state <s> ^name foo)
+   
+-->
+    (interrupt)
+}
+
+sp { test*datamap-editor-2
+   (state <s> ^name bari)
+-->
+    (interrupt)
+}
+
+sp { test*datamap-editor-3
+   (state <s> ^location here)
+   (<s> ^name bar)
+-->
+    (interrupt)
+}
+
+sp { test*datamap-editor-4
+   (state <s> ^io <io>)
+   (<io> ^input-link <il>)
+   (<il> ^contacts.contact <con>)
+   (<con> ^loc there)
+   (<con> ^speed fast)
+-->
+    (interrupt)
+}
+
+sp { test*datamap-editor-5
+   (state <s> ^io <io>)
+   (<io> ^input-link <il>)
+   (<il> ^contacts.contact <con>)
+   (<con> ^loc somewhere)
+   (<con> ^status good)
+   (<con> ^speed regular)
+-->
+    (interrupt)
+}
+
+sp { test*datamap-editor-6
+   (state <s> ^color blue)
+-->
+    (interrupt)
+}
+
+sp { test*datamap-editor-7
+   (state <s> ^$var5 foo)
+-->
+    (interrupt)
+}
+
+sp " test*datamap-editor-8
+   (state <s> ^$var1 foo)
+-->
+    (interrupt)
+"
+
+tclTest $var1 $var2

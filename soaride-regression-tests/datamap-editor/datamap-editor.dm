@@ -1,4 +1,4 @@
-19
+21
 SOAR_ID 0
 SOAR_ID 1
 SOAR_ID 2
@@ -18,18 +18,22 @@ ENUMERATION 15 2 fast slow
 INT_RANGE 16 0 0
 LINKED_DATAMAP 17 ../datamap-view
 LINKED_DATAMAP 18 ../datamap-view/foo.dm
-14
-12 speed2 16
-0 io 1
-0 speed 9
-11 contact 12
-0 location 8
-1 output-link 3
-1 input-link 2
-0 name 6
-12 speed 15
+STRING 19
+STRING 999291058
+16
 0 name 7
 0 type 4
+0 value1 999291058
+1 input-link 2
+0 io 1
+12 speed 15
+1 output-link 3
+12 loc 14
+12 speed2 16
+0 name 6
+0 speed 9
+11 contact 12
 0 superstate 5
 2 contacts 11
-12 loc 14
+0 color 19
+0 location 8

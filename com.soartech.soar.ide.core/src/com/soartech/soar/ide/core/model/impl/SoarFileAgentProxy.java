@@ -43,6 +43,7 @@ import com.soartech.soar.ide.core.model.ISoarFile;
 import com.soartech.soar.ide.core.model.ISoarFileAgentProxy;
 import com.soartech.soar.ide.core.model.ISoarProblemReporter;
 import com.soartech.soar.ide.core.model.ISoarProduction;
+import com.soartech.soar.ide.core.model.ISoarSourceRange;
 import com.soartech.soar.ide.core.model.ITclProcedure;
 import com.soartech.soar.ide.core.model.SoarModelException;
 import com.soartech.soar.ide.core.model.SoarModelTools;
@@ -339,8 +340,13 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
             
             List<AbstractSoarElement> unexpandedSoarElements = new ArrayList<AbstractSoarElement>();
             
+            ISoarSourceRange elemSourceRange;
+            
             //construct a string buffer of the expanded elements
             String expandedSource = "";
+            
+            List<GenericCommand> expandedGenericCommands = new ArrayList<GenericCommand>();
+            
             for(AbstractSoarElement elem : elements)
             {
                 if(elem instanceof SoarProduction)
@@ -358,54 +364,25 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
                 else if(elem instanceof GenericCommand)
                 {
                     GenericCommand com = (GenericCommand) elem;
-                    expandedSource += com.getExpandedSource();
-                    expandedSource += "\n";
+                    
+//                    expandedSource += com.getExpandedSource();
+//                    expandedSource += "\n";
+                    expandedGenericCommands.add(com);
+                    
                 }
             }
-            
-            // Get the contents of the file
-            char[] contents = expandedSource.toCharArray();
-            
-            // re-parse the tcl commands, this time with their expanded values
-            TclParser parser = new TclParser();
-            parser.setInput(contents, 0, contents.length);
-            TclAstNode expandedRoot = parser.parse();
             
             //get the datamap for this file
             SoarDatamap dm = agent.getOrCreateDatamapForFile(file.getFile(), true);
             
-            //get the commands in the expanded tcl graph and make a datamap out of them
-            for(TclAstNode child : expandedRoot.getChildren())
-            {
-                SoarModelTools.checkForCancellation(monitor);
-                if(child.getType() == TclAstNode.COMMAND)
-                {
-                    //get the name and words that make up this production
-                    List<TclAstNode> words = child.getWordChildren();
-                    if(words.isEmpty())
-                    {
-                        return;
-                    }
-                    TclAstNode nameWord = words.get(0);
-                    
-                    String name = "";
-                    for(int i = nameWord.getStart(); i < nameWord.getStart() + nameWord.getLength(); i++)
-                    {
-                        name += contents[i];
-                    }
-                    
-                    //evaluate every sp we find
-                    if(name.equals("sp"))
-                    {
-                        //create a SoarProduction object from the TclAstNode
-                        ISoarProduction p = new SoarProduction2(this, reporter, child, expandedSource, elements);
-                        
-                        //add this SoarProduction to the datamap 
-                        SoarDatamapAdditionResult result = dm.addProduction(p);
-                    }
-                }
-            }
+            //add the expanded source for the sp's to the file datamap
+            addSourceToFileDatamap(expandedSource, null, dm, monitor, reporter, elements);
             
+            //add the expanded source for the generic commands to the file datamap
+            for(GenericCommand gc : expandedGenericCommands)
+            {
+                addSourceToFileDatamap(gc.getExpandedSource(), gc.getSourceRange(), dm, monitor, reporter, elements);
+            }
 
             //delete any datamap problem markers
             try {
@@ -448,6 +425,55 @@ public class SoarFileAgentProxy extends AbstractSoarElement implements ISoarFile
         finally
         {
             datamap.endModification();
+        }
+        
+    }
+    
+    private void addSourceToFileDatamap(String expandedSource, ISoarSourceRange tclSourceRange, SoarDatamap dm, IProgressMonitor monitor, ISoarProblemReporter reporter, List<AbstractSoarElement> elements) throws SoarModelException
+    {
+        if(expandedSource == null)
+        {
+            return;
+        }
+        
+        // Get the contents of the source
+        char[] contents = expandedSource.toCharArray();
+        
+        // re-parse the tcl commands, this time with their expanded values
+        TclParser parser = new TclParser();
+        parser.setInput(contents, 0, contents.length);
+        TclAstNode expandedRoot = parser.parse();
+
+        //get the commands in the expanded tcl graph and make a datamap out of them
+        for(TclAstNode child : expandedRoot.getChildren())
+        {
+            SoarModelTools.checkForCancellation(monitor);
+            if(child.getType() == TclAstNode.COMMAND)
+            {
+                //get the name and words that make up this production
+                List<TclAstNode> words = child.getWordChildren();
+                if(words.isEmpty())
+                {
+                    return;
+                }
+                TclAstNode nameWord = words.get(0);
+                
+                String name = "";
+                for(int i = nameWord.getStart(); i < nameWord.getStart() + nameWord.getLength(); i++)
+                {
+                    name += contents[i];
+                }
+                
+                //evaluate every sp we find
+                if(name.equals("sp"))
+                {
+                    //create a SoarProduction object from the TclAstNode
+                    ISoarProduction p = new SoarProduction2(this, tclSourceRange, reporter, child, expandedSource, elements);
+                    
+                    //add this SoarProduction to the datamap 
+                    SoarDatamapAdditionResult result = dm.addProduction(p);
+                }
+            }
         }
         
     }

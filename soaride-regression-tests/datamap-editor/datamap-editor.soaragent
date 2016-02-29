@@ -4,6 +4,8 @@
   <members>
     <member path="load.soar" />
     <member path="datamap-editor.dm" />
+    <member path="datamap-editor-tests.soar" />
+    <member path="macros.soar" />
   </members>
 </soaragent>
 
