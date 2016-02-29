@@ -232,6 +232,11 @@ public class SoarHyperlinkDetector implements IHyperlinkDetector
 		
 		for(int i = beginIndex; i < endIndex; i++)
 		{
+		    if(i >= source.length)
+		    {
+		        break;
+		    }
+		    
 			str += source[i];
 		}
 		
