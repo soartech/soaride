@@ -239,17 +239,12 @@ public class SoarDatamapView extends ViewPart
                 safeRefresh(null, event);
             }});
         
-//        private ISelectionListener selectionListener = ;
         getSite().getPage().addPostSelectionListener(new ISelectionListener()
         {
             public void selectionChanged(IWorkbenchPart part, ISelection selection)
             {
-                //check and see if we've selected a different editor
-                if(!part.equals(currentPart) && part instanceof SoarEditor)
-                {
-                    currentPart = part;
-                    safeRefresh(null, null);
-                }
+                safeRefresh(null, null);
+                currentPart = part;
             }
         });
         
