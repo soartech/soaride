@@ -279,16 +279,109 @@
            contextTypeId="com.soartech.soar.ide.ui.soar.file"
            description="Soar Production"
            icon="icons/soar.gif"
-           id="com.soartech.soar.ide.ui.soar.production"
+           id="com.soartech.soar.ide.ui.soar.templates.production"
            name="sp">
         <pattern>
-           sp { ${productionname}
-   ( state &lt;s&gt; ^${state} ${value} )
+           sp &quot; ${productionname}
+   ( state&lt;s&gt; ^${state} ${value} )
 --&gt;
-}
+&quot;
         </pattern>
      </template>
-  </extension>
+     
+     <template
+           autoinsert="true"
+           contextTypeId="com.soartech.soar.ide.ui.soar.file"
+           description="Compare Operator"
+           icon="icons/soar.gif"
+           id="com.soartech.soar.ide.ui.soar.templates.CompareOperator"
+           name="sp">
+        <pattern>
+sp &quot;${problemspace}*compare*${operator}
+   (state&lt;s&gt; ^name ${problemspace}
+              ^operator &lt;op1&gt; +
+                        &lt;op2&gt; +)
+   (&lt;op1&gt; ^name ${op1})
+   (&lt;op2&gt; ^name ${op2})
+--&gt;
+   (&lt;s&gt; ^operator &lt;op1&gt; &gt; &lt;op2&gt;)
+&quot;
+        </pattern>
+     </template>
+     
+     <template
+           autoinsert="true"
+           contextTypeId="com.soartech.soar.ide.ui.soar.file"
+           description="Apply Operator"
+           icon="icons/soar.gif"
+           id="com.soartech.soar.ide.ui.soar.templates.ApplyOperator"
+           name="sp">
+        <pattern>
+sp &quot;${problemspace}*apply*${operator}
+   (state&lt;s&gt; ^operator &lt;op&gt;)
+   (&lt;op&gt; ^name ${operator})
+--&gt;
+   (&lt;s&gt; ^${})
+&quot;
+        </pattern>
+     </template>
+     
+     <template
+           autoinsert="true"
+           contextTypeId="com.soartech.soar.ide.ui.soar.file"
+           description="Elaborate Substate"
+           icon="icons/soar.gif"
+           id="com.soartech.soar.ide.ui.soar.templates.ElaborateSubstate"
+           name="sp">
+        <pattern>
+sp &quot;${problemspace}*elaborate-state*substate
+   (state&lt;s&gt; ^name ${problemspace}
+              ^superstate.operator &lt;so&gt;)
+   (&lt;so&gt; ^name ${superstateoperator})
+--&gt;
+   (&lt;s&gt; ^${})
+&quot;
+        </pattern>
+     </template>
+     
+     <template
+           autoinsert="true"
+           contextTypeId="com.soartech.soar.ide.ui.soar.file"
+           description="Propose Operator"
+           icon="icons/soar.gif"
+           id="com.soartech.soar.ide.ui.soar.templates.ProposeOperator"
+           name="sp">
+        <pattern>
+sp &quot;${problemspace}*propose*${operator}
+   (state&lt;s&gt; ^name ${problemspace})
+--&gt;
+   (&lt;s&gt; ^operator &lt;op&gt; + =)
+   (&lt;op&gt; ^name ${operator})
+&quot;
+        </pattern>
+     </template>
+     
+     <template
+           autoinsert="true"
+           contextTypeId="com.soartech.soar.ide.ui.soar.file"
+           description="Elaborate State"
+           icon="icons/soar.gif"
+           id="com.soartech.soar.ide.ui.soar.templates.ElaborateState"
+           name="sp">
+        <pattern>
+sp &quot;${problemspace}*elaborate-operator*${operator}
+   (state&lt;s&gt; ^name ${problemspace})
+--&gt;
+   (&lt;s&gt; ^${})
+&quot;
+        </pattern>
+     </template>
+   </extension>
+      
+  
+  
+  
+  
  <extension
        point="org.eclipse.ui.popupMenus">
     <objectContribution
