@@ -234,6 +234,8 @@ public class SoarHyperlinkDetector implements IHyperlinkDetector
 		{
 		    if(i >= source.length)
 		    {
+		        System.out.println("[SoarHyperlinkDetector]:getStringFromRegion() beginIndex: " + beginIndex + " endIndex: " + endIndex);
+		        System.out.println("[SoarHyperlinkDetector]:getStringFromRegion() ERROR: ArrayOutOfBounds - current string: " + str);
 		        break;
 		    }
 		    
