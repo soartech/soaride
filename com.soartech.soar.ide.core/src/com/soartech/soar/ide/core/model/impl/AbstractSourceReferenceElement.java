@@ -100,7 +100,7 @@ public abstract class AbstractSourceReferenceElement extends AbstractSoarElement
         
         ISoarOpenable openable = getOpenableParent();
         ISoarBuffer buffer = openable.getBuffer();
-        if(buffer == null)
+        if(buffer == null || range == null)
         {
             return null;
         }
@@ -200,6 +200,7 @@ public abstract class AbstractSourceReferenceElement extends AbstractSoarElement
     {
         if(expandedSource != null)
         {
+            System.out.println("[AbstractSourceRefElement] getSource() returning expandedSource");
             return expandedSource;
         }
         
@@ -210,6 +211,7 @@ public abstract class AbstractSourceReferenceElement extends AbstractSoarElement
             return null;
         }
         
+        System.out.println("[AbstractSourceRefElement] getSource() returning UNEXPANDED source from file buffer");
         return buffer.getText(range.getOffset(), range.getLength());
     }
 

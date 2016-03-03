@@ -186,7 +186,7 @@ public class SoarProduction extends TclCommand implements ISoarProduction, IExpa
      */
     public String getExpandedSource() throws SoarModelException
     {
-        System.out.println("[SoarProduction] getExpandedSource()");
+        System.out.println("[SoarProduction] getExpandedSource() for " + name);
         
         if(bodyInBraces)
         {
@@ -207,6 +207,10 @@ public class SoarProduction extends TclCommand implements ISoarProduction, IExpa
         
         // Well, let's see if we can expand it manually...
         String bodySource = getSource(bodyRange);
+        if(bodySource == null)
+        {
+            return "";
+        }
         
         IExpandedTclCode code = agent.expandTclString(namespace, bodySource, bodyRange.getOffset());
 
