@@ -79,6 +79,11 @@ public class SoarModelTools
     
     public static boolean isSoarFile(String name)
     {
+        if(name.startsWith("."))
+        {
+            return false;
+        }
+        
         return name.endsWith(".soar") || name.endsWith(".tcl");
     }
 
