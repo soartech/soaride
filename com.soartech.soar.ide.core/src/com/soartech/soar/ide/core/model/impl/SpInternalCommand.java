@@ -51,7 +51,7 @@ public class SpInternalCommand implements SoarCommand {
              IWorkspace workspace= ResourcesPlugin.getWorkspace();    
              IPath location= Path.fromOSString(filename); 
              IFile ifile= workspace.getRoot().getFileForLocation(location);
-             String procKey = procNameAndArgs + "-" + ifile.getFullPath().toOSString();
+             String procKey = procNameAndArgs.replace("\"", "") + "-" + ifile.getFullPath().toOSString();
 //             System.out.println("SpInternalCommand Adding key: " + procKey);
              
              String expSource = "";

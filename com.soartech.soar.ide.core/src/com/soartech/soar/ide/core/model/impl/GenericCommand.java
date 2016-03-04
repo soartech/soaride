@@ -24,6 +24,7 @@ public class GenericCommand extends AbstractSourceReferenceElement implements IE
 {
     private SoarFileAgentProxy soarFile;
     private TclAstNode astNode;
+    
     private String commandName;
     private ISoarSourceRange commandNameRange;
     
@@ -126,7 +127,7 @@ public class GenericCommand extends AbstractSourceReferenceElement implements IE
         //get object which represents the workspace  
         IWorkspace workspace = ResourcesPlugin.getWorkspace();  
         
-        String key = commandName + commandArgs + "-" + filename;
+        String key = commandName.replace("\"", "") + commandArgs.replace("\"", "") + "-" + filename;
 //        System.out.println("GenericCommand Adding key: " + key);
         
         String ret = soarAgent.getExpandedSourceMap().get(key);
