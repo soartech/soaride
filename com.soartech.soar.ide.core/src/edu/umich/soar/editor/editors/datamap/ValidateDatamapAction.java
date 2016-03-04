@@ -15,8 +15,11 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jface.action.Action;
+import org.eclipse.core.runtime.Status;
 
+import com.soartech.soar.ide.core.Logger;
 import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.model.ISoarAgent;
 import com.soartech.soar.ide.core.model.ISoarElement;
@@ -311,8 +314,8 @@ public class ValidateDatamapAction extends Action {
             
             ISoarSourceRange range = sourceRef.getSourceRange();
             
-            System.out.println(" -> with file " + file.getFullPath().toOSString());
-            System.out.println(" -> with offset " + range.getOffset() + " and length " + range.getLength());
+//            System.out.println(" -> with file " + file.getFullPath().toOSString());
+//            System.out.println(" -> with offset " + range.getOffset() + " and length " + range.getLength());
             
             String source = sourceRef.getSource();
             
@@ -327,15 +330,15 @@ public class ValidateDatamapAction extends Action {
                 lengthAdded = 0;
             }
             
-            System.out.println("[ValidateDatamapAction]: XXX creating error marker for attr " + attr.getName());
+            System.out.println("[ValidateDatamapAction]: creating error marker for attr " + attr.getName());
             
             if(offsetIntoProduction > 0)
             {
-                SoarModelTools.createErrorMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, range.getOffset() + offsetIntoProduction, attr.getName().length() + lengthAdded, "Attribute " + attr.getName() + " not in static datamap");
+                SoarModelTools.createWarningMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, range.getOffset() + offsetIntoProduction, attr.getName().length() + lengthAdded, "Attribute " + attr.getName() + " not in static datamap");
             }
             else
             {
-                SoarModelTools.createErrorMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, range.getOffset(), range.getLength(), "Attribute " + attr.getName() + " not in static datamap");
+                SoarModelTools.createWarningMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, range.getOffset(), range.getLength(), "Attribute " + attr.getName() + " not in static datamap");
             }
             
             
@@ -391,13 +394,11 @@ public class ValidateDatamapAction extends Action {
             return;
         }
         
-        System.out.println(" -> with file " + file.getFullPath().toOSString());
-        System.out.println(" -> with offset " + index + " and length " + length);
+//        System.out.println(" -> with file " + file.getFullPath().toOSString());
+//        System.out.println(" -> with offset " + index + " and length " + length);
+        System.out.println("[ValidateDatamapAction]: creating error marker for attr " + attr.getName());
         
-        System.out.println("[ValidateDatamapAction]: ZZZ creating error marker for attr " + attr.getName());
-        
-        SoarModelTools.createErrorMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, index, length, "Attribute " + attr.getName() + " not in static datamap");
+        SoarModelTools.createWarningMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, index, length, "Attribute " + attr.getName() + " not in static datamap");
     }
-    
     
 }

@@ -259,13 +259,13 @@ public class SoarModelTools
      */
     public static IMarker createErrorMarker(IFile file, int start, int length, String message) throws SoarModelException
     {
-        // TODO: Put line number in second argument of:
+        // TODO: Put line number in third argument of:
         return createErrorMarker(SoarCorePlugin.PROBLEM_MARKER_ID, file, "", start, length, message,"",new HashMap<String, Comparable<?>>());
     }
     
     public static IMarker createErrorMarker(String markerType, IFile file, int start, int length, String message) throws SoarModelException
     {
-        // TODO: Put line number in second argument of:
+        // TODO: Put line number in third argument of:
         return createErrorMarker(markerType, file, "", start, length, message,"",new HashMap<String, Comparable<?>>());
     }
 
@@ -296,9 +296,16 @@ public class SoarModelTools
      */
     public static IMarker createWarningMarker(IResource resource, int start, int length, String message) throws SoarModelException
     {
-        // TODO: Put line number in second argument of:
-    	return createWarningMarker(resource,"", start,length,message, "",new HashMap<String, Comparable<?>>());
+        // TODO: Put line number in third argument of:
+    	return createWarningMarker(SoarCorePlugin.PROBLEM_MARKER_ID, resource,"", start,length,message, "",new HashMap<String, Comparable<?>>());
     }
+    
+    public static IMarker createWarningMarker(String markerType, IFile file, int start, int length, String message) throws SoarModelException
+    {
+        // TODO: Put line number in third argument of:
+        return createWarningMarker(markerType, file,"", start,length,message, "",new HashMap<String, Comparable<?>>());
+    }
+    
     /**
      * Create an warning marker on a file.
      *
@@ -312,13 +319,13 @@ public class SoarModelTools
      * @return the marker
      * @throws SoarModelException
      */
-    public static IMarker createWarningMarker(IResource resource, String location, int start, int length, String message, String fixID, HashMap<String, Comparable<?>> map) throws SoarModelException
+    public static IMarker createWarningMarker(String markerType, IResource resource, String location, int start, int length, String message, String fixID, HashMap<String, Comparable<?>> map) throws SoarModelException
     {
         SoarProblem p = SoarProblem.createWarning(message, location, start, length, fixID, map);
 
         try
         {
-            IMarker marker = resource.createMarker(SoarCorePlugin.PROBLEM_MARKER_ID);
+            IMarker marker = resource.createMarker(markerType);
             marker.setAttributes(p.map);
             return marker;
         }
