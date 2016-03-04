@@ -32,6 +32,7 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 
+import com.soartech.soar.ide.core.Logger;
 import com.soartech.soar.ide.core.SoarCorePlugin;
 import com.soartech.soar.ide.core.model.ISoarAgent;
 import com.soartech.soar.ide.core.model.ISoarElement;
@@ -234,8 +235,8 @@ public class SoarHyperlinkDetector implements IHyperlinkDetector
 		{
 		    if(i >= source.length)
 		    {
-		        System.out.println("[SoarHyperlinkDetector]:getStringFromRegion() beginIndex: " + beginIndex + " endIndex: " + endIndex);
-		        System.out.println("[SoarHyperlinkDetector]:getStringFromRegion() ERROR: ArrayOutOfBounds - current string: " + str);
+		        Logger.log("[SoarHyperlinkDetector]:getStringFromRegion() beginIndex: " + beginIndex + " endIndex: " + endIndex);
+		        Logger.log("[SoarHyperlinkDetector]:getStringFromRegion() ERROR: ArrayOutOfBounds - current string: " + str);
 		        break;
 		    }
 		    
