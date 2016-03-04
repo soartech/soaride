@@ -127,7 +127,9 @@ public class GenericCommand extends AbstractSourceReferenceElement implements IE
         //get object which represents the workspace  
         IWorkspace workspace = ResourcesPlugin.getWorkspace();  
         
-        String key = commandName.replace("\"", "") + commandArgs.replace("\"", "") + "-" + filename;
+        String nameAndArgs = commandName + commandArgs;
+        
+        String key = nameAndArgs.replace("\"", "").replace("{", "").replace("}", "") + "-" + filename;
 //        System.out.println("GenericCommand Adding key: " + key);
         
         String ret = soarAgent.getExpandedSourceMap().get(key);
