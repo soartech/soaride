@@ -282,8 +282,8 @@
            id="com.soartech.soar.ide.ui.soar.templates.production"
            name="sp">
         <pattern>
-           sp &quot; ${productionname}
-   ( state&lt;s&gt; ^${state} ${value} )
+           sp&quot; ${productionname}
+   ( state &lt;s&gt; ^${state} ${value} )
 --&gt;
 &quot;
         </pattern>
@@ -297,8 +297,8 @@
            id="com.soartech.soar.ide.ui.soar.templates.CompareOperator"
            name="sp">
         <pattern>
-sp &quot;${problemspace}*compare*${operator}
-   (state&lt;s&gt; ^name ${problemspace}
+sp&quot;${problemspace}*compare*${operator}
+   (state &lt;s&gt; ^name ${problemspace}
               ^operator &lt;op1&gt; +
                         &lt;op2&gt; +)
    (&lt;op1&gt; ^name ${op1})
@@ -317,8 +317,8 @@ sp &quot;${problemspace}*compare*${operator}
            id="com.soartech.soar.ide.ui.soar.templates.ApplyOperator"
            name="sp">
         <pattern>
-sp &quot;${problemspace}*apply*${operator}
-   (state&lt;s&gt; ^operator &lt;op&gt;)
+sp&quot;${problemspace}*apply*${operator}
+   (state &lt;s&gt; ^operator &lt;op&gt;)
    (&lt;op&gt; ^name ${operator})
 --&gt;
    (&lt;s&gt; ^${})
@@ -334,8 +334,8 @@ sp &quot;${problemspace}*apply*${operator}
            id="com.soartech.soar.ide.ui.soar.templates.ElaborateSubstate"
            name="sp">
         <pattern>
-sp &quot;${problemspace}*elaborate-state*substate
-   (state&lt;s&gt; ^name ${problemspace}
+sp&quot;${problemspace}*elaborate-state*substate
+   (state &lt;s&gt; ^name ${problemspace}
               ^superstate.operator &lt;so&gt;)
    (&lt;so&gt; ^name ${superstateoperator})
 --&gt;
@@ -352,8 +352,8 @@ sp &quot;${problemspace}*elaborate-state*substate
            id="com.soartech.soar.ide.ui.soar.templates.ProposeOperator"
            name="sp">
         <pattern>
-sp &quot;${problemspace}*propose*${operator}
-   (state&lt;s&gt; ^name ${problemspace})
+sp&quot;${problemspace}*propose*${operator}
+   (state &lt;s&gt; ^name ${problemspace})
 --&gt;
    (&lt;s&gt; ^operator &lt;op&gt; + =)
    (&lt;op&gt; ^name ${operator})
@@ -369,8 +369,8 @@ sp &quot;${problemspace}*propose*${operator}
            id="com.soartech.soar.ide.ui.soar.templates.ElaborateState"
            name="sp">
         <pattern>
-sp &quot;${problemspace}*elaborate-operator*${operator}
-   (state&lt;s&gt; ^name ${problemspace})
+sp&quot;${problemspace}*elaborate-operator*${operator}
+   (state &lt;s&gt; ^name ${problemspace})
 --&gt;
    (&lt;s&gt; ^${})
 &quot;
