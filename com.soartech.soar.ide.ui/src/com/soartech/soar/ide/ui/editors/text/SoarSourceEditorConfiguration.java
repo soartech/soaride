@@ -113,7 +113,10 @@ public class SoarSourceEditorConfiguration extends SoarSourceViewerConfiguration
 	@Override
 	public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType) 
 	{
-		return new SoarTextHover(this.editor);
+	    SoarTextHover2 hover = new SoarTextHover2();
+	    hover.setEditor(this.editor);
+	    
+	    return hover;
 	}
 
 	/* (non-Javadoc)
