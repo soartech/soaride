@@ -158,6 +158,9 @@ public class ValidateDatamapAction extends Action {
                 
                 boolean hasError = false;
                 
+                String errorPath = "[state";
+                String errorMessage = "Missing in static datamap: \n ";
+                
                 //get the path to this dynamic leaf attribute node
                 List<ISoarDatamapAttribute> nodePath = SoarDatamapTools.getPathToNode(node);
                 //iterate over the ordered list of ISoarDatamapAttribute objects representing the path to this node
@@ -165,6 +168,7 @@ public class ValidateDatamapAction extends Action {
                 {
                     System.out.println("path part: " + attr.getName());
                     currDynamicAttr = attr;
+                    errorPath += "/" + attr.getName();
                     
                     //if there is no staticAttr mapped to this dynamic node path part, then get it from the base level
                     if(currStaticAttr == null)
@@ -174,7 +178,8 @@ public class ValidateDatamapAction extends Action {
                         {
                             System.out.println("Dynamic node " + attr.getName() + " not in static map");
                             hasError = true;
-                            break;
+                            errorMessage = updateErrorMessage(errorMessage, errorPath);
+//                            break;
                         }
                         else
                         {
@@ -190,7 +195,8 @@ public class ValidateDatamapAction extends Action {
                         if(toAttrs == null)
                         {
                             hasError = true;
-                            break;
+                            errorMessage = updateErrorMessage(errorMessage, errorPath);
+//                            break;
                         }
                         else
                         {
@@ -207,7 +213,8 @@ public class ValidateDatamapAction extends Action {
                             {
                                 System.out.println("Dynamic node " + attr.getName() + " not in static map");
                                 hasError = true;
-                                break;
+                                errorMessage = updateErrorMessage(errorMessage, errorPath);
+//                                break;
                             }
                         }
                         
@@ -248,7 +255,8 @@ public class ValidateDatamapAction extends Action {
                             try {
 //                                ISoarSourceRange sourceRange = getEditorLocation(sp);
 //                                createErrorMarker(sp, currDynamicAttr, soarProject);
-                                createErrorMarker(sp, index, length, currDynamicAttr, soarProject);
+//                                errorMessage += "]";
+                                createErrorMarker(sp, errorMessage, index, length, currDynamicAttr, soarProject);
                                 
                             } catch (CoreException e) {
                                 e.printStackTrace();
@@ -258,7 +266,8 @@ public class ValidateDatamapAction extends Action {
                         {
                             try {
 //                                ISoarSourceRange sourceRange = getEditorLocation(sp);
-                                createErrorMarker(sp, currDynamicAttr, soarProject);
+//                                errorMessage += "]";
+                                createErrorMarker(sp, errorMessage, currDynamicAttr, soarProject);
                                 
                             } catch (CoreException e) {
                                 e.printStackTrace();
@@ -282,11 +291,14 @@ public class ValidateDatamapAction extends Action {
         
     }
     
-    private void createErrorMarker(ISoarElement element, ISoarDatamapAttribute attr, ISoarProject soarProject) throws CoreException
+    private String updateErrorMessage(String errorMessage, String errorPath)
     {
-//        IWorkbench workbench = SoarEditorUIPlugin.getDefault().getWorkbench();
-//        IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
-        
+        errorMessage += errorPath + "] \n ";
+        return errorMessage;
+    }
+    
+    private void createErrorMarker(ISoarElement element, String message, ISoarDatamapAttribute attr, ISoarProject soarProject) throws CoreException
+    {
         // Find the resource that contains the element
         IResource resource = element.getContainingResource();
         if(resource == null)
@@ -307,7 +319,6 @@ public class ValidateDatamapAction extends Action {
             return;
         }
         
-//        IEditorPart part = null;
         if(element instanceof ISoarSourceReference)
         {
             ISoarSourceReference sourceRef = (ISoarSourceReference) element;
@@ -334,46 +345,27 @@ public class ValidateDatamapAction extends Action {
             
             if(offsetIntoProduction > 0)
             {
-                SoarModelTools.createWarningMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, range.getOffset() + offsetIntoProduction, attr.getName().length() + lengthAdded, "Attribute " + attr.getName() + " not in static datamap");
+                SoarModelTools.createWarningMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, range.getOffset() + offsetIntoProduction, attr.getName().length() + lengthAdded, message);
+//                SoarModelTools.createErrorMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, range.getOffset() + offsetIntoProduction, attr.getName().length() + lengthAdded, "Attribute " + attr.getName() + " not in static datamap");
             }
             else
             {
-                SoarModelTools.createWarningMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, range.getOffset(), range.getLength(), "Attribute " + attr.getName() + " not in static datamap");
+                SoarModelTools.createWarningMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, range.getOffset(), range.getLength(), message);
+//                SoarModelTools.createErrorMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, range.getOffset(), range.getLength(), "Attribute " + attr.getName() + " not in static datamap");
             }
-            
-            
-            
-//            if (file.getName().endsWith(".soar"))
-//            {
-//                ISoarFile soarFile = soarProject.getSoarFile(file);
-//                if(soarFile != null) 
-//                {
-//                    soarFile.getS
-//                }
-//                
-//            }
-            
-//            SoarModelTools.createErrorMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, range.getOffset(), range.getLength(), "Attribute " + attr.getName() + " not in static datamap");
-//            SoarModelTools.createErrorMarker(file, range.getOffset(), range.getLength(), "Attribute " + attr.getName() + " not in static datamap");
             
             return;
             
-//            AbstractTextEditor editor = (AbstractTextEditor) IDE.openEditor(page, file);
-//            editor.selectAndReveal(range.getOffset(), 0 /* just highlight line, not all text */);
         }
         else
         {
-//            part = IDE.openEditor(page, file);
             return;
         }
     }
     
     
-    private void createErrorMarker(ISoarElement element, int index, int length, ISoarDatamapAttribute attr, ISoarProject soarProject) throws CoreException
+    private void createErrorMarker(ISoarElement element, String message, int index, int length, ISoarDatamapAttribute attr, ISoarProject soarProject) throws CoreException
     {
-//        IWorkbench workbench = SoarEditorUIPlugin.getDefault().getWorkbench();
-//        IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
-        
         // Find the resource that contains the element
         IResource resource = element.getContainingResource();
         if(resource == null)
@@ -398,7 +390,8 @@ public class ValidateDatamapAction extends Action {
 //        System.out.println(" -> with offset " + index + " and length " + length);
         System.out.println("[ValidateDatamapAction]: creating error marker for attr " + attr.getName());
         
-        SoarModelTools.createWarningMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, index, length, "Attribute " + attr.getName() + " not in static datamap");
+        SoarModelTools.createWarningMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, index, length, message);
+//        SoarModelTools.createErrorMarker(SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID, file, index, length, "Attribute " + attr.getName() + " not in static datamap");
     }
     
 }

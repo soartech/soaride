@@ -20,9 +20,11 @@
 package com.soartech.soar.ide.core.model;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -276,6 +278,8 @@ public class SoarModelTools
         {
             IMarker marker = file.createMarker(markerType);
             marker.setAttributes(p.map);
+            marker.setAttribute(IMarker.LINE_NUMBER, getLineNumber(file, start));
+            
             return marker;
         }
         catch (CoreException e)
@@ -294,7 +298,7 @@ public class SoarModelTools
      * @return the marker
      * @throws SoarModelException
      */
-    public static IMarker createWarningMarker(IResource resource, int start, int length, String message) throws SoarModelException
+    public static IMarker createWarningMarker(IFile resource, int start, int length, String message) throws SoarModelException
     {
         // TODO: Put line number in third argument of:
     	return createWarningMarker(SoarCorePlugin.PROBLEM_MARKER_ID, resource,"", start,length,message, "",new HashMap<String, Comparable<?>>());
@@ -319,14 +323,15 @@ public class SoarModelTools
      * @return the marker
      * @throws SoarModelException
      */
-    public static IMarker createWarningMarker(String markerType, IResource resource, String location, int start, int length, String message, String fixID, HashMap<String, Comparable<?>> map) throws SoarModelException
+    public static IMarker createWarningMarker(String markerType, IFile file, String location, int start, int length, String message, String fixID, HashMap<String, Comparable<?>> map) throws SoarModelException
     {
         SoarProblem p = SoarProblem.createWarning(message, location, start, length, fixID, map);
 
         try
         {
-            IMarker marker = resource.createMarker(markerType);
+            IMarker marker = file.createMarker(markerType);
             marker.setAttributes(p.map);
+            marker.setAttribute(IMarker.LINE_NUMBER, getLineNumber(file, start));
             return marker;
         }
         catch (CoreException e)

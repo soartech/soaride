@@ -649,12 +649,12 @@ sp&quot;${problemspace}*elaborate-operator*${operator}
     <initializer class="com.soartech.soar.ide.ui.SoarEditorPluginPreferenceInitializer"/>
  </extension>
  <extension
-       point="org.eclipse.ui.ide.markerResolution">
+    point="org.eclipse.ui.ide.markerResolution">
     <markerResolutionGenerator
           class="com.soartech.soar.ide.ui.editors.text.quickfix.TestResolutionGenerator"
           markerType="com.soartech.soar.ide.problemmarker">
     </markerResolutionGenerator>
- </extension>
+</extension>
  <extension
        point="org.eclipse.jdt.ui.quickAssistProcessors">
     <quickAssistProcessor
@@ -678,6 +678,17 @@ sp&quot;${problemspace}*elaborate-operator*${operator}
           icon="icons/tcl-variable.ico"
           label="Tcl Consoles">
     </consoleFactory>
+ </extension>
+ <extension
+       point="org.eclipse.ui.menus">
+       <menuContribution
+            class="com.soartech.soar.ide.ui.editors.text.quickfix.MarkerContributionFactory"
+            locationURI="popup:#AbstractTextEditorRulerContext?before=additions">
+            <dynamic
+                class="com.soartech.soar.ide.ui.editors.text.quickfix.MarkerMenuContribution"
+                id="com.soartech.soar.ide.ui.editors.text.quickfix.MarkerMenuContribution">
+            </dynamic>
+        </menuContribution>
  </extension>
 
  </plugin>
