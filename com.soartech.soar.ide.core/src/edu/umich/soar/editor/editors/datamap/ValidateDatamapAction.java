@@ -168,7 +168,7 @@ public class ValidateDatamapAction extends Action {
                 {
                     System.out.println("path part: " + attr.getName());
                     currDynamicAttr = attr;
-                    errorPath += "/" + attr.getName();
+                    errorPath += "." + attr.getName();
                     
                     //if there is no staticAttr mapped to this dynamic node path part, then get it from the base level
                     if(currStaticAttr == null)
