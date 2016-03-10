@@ -375,6 +375,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
             jsoarInterp.eval("proc max-chunks { args } { }");
             jsoarInterp.eval("proc svs { args } { }");
             jsoarInterp.eval("proc watch { args } { }");
+            jsoarInterp.eval("proc script { args } { }");
             
             //add the command for spInternal
             jsoarInterp.addCommand("sp", new SpInternalCommand(this.jsoarAgent, this));
