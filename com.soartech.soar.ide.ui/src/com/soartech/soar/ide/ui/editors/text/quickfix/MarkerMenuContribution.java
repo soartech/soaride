@@ -110,7 +110,7 @@ public class MarkerMenuContribution extends ContributionItem
                 String message = marker.getAttribute(IMarker.MESSAGE, "");
                 System.out.println("Fixing " + message);
                 
-                //extract the paths from the marker messge
+                //extract the paths from the marker message
                 Pattern p = Pattern.compile("\\[(.*?)\\]");
                 Matcher m = p.matcher(message);
                 List<String> markerPaths = new ArrayList<String>();
@@ -149,7 +149,7 @@ public class MarkerMenuContribution extends ContributionItem
                                 
                                 for(String markerPathString:markerPaths)
                                 {
-                                    String[] markerPath = markerPathString.split("/");
+                                    String[] markerPath = markerPathString.split("\\.");
 
                                     //attributes at the base level of state
                                     ArrayList<DatamapAttribute> attrsToCheck = attrMap.get(0);
@@ -159,7 +159,7 @@ public class MarkerMenuContribution extends ContributionItem
                                     //follow the marker path starting at index 1 because index 0 is state
                                     for(int i = 1; i < markerPath.length; i++)
                                     {
-                                        //get the attr with the name fron this part of the path
+                                        //get the attr with the name from this part of the path
                                         String attrName = markerPath[i];
                                         currentAttr = getDatamapAttribute(attrName, attrsToCheck);
                                         
