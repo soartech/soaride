@@ -125,6 +125,11 @@ public class ValidateDatamapAction extends Action {
                 
             }
             
+            if(agentToCheck == null) {
+            	System.out.println("ValidateDatamapAction did not find a Soar agent to process.");
+            	return;
+            }
+            
             System.out.println("Processing Soar Agent: " + agentToCheck.getName());
             
             //get the static datamap
