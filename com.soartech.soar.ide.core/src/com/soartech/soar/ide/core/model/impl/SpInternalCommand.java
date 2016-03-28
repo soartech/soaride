@@ -52,28 +52,33 @@ public class SpInternalCommand implements SoarCommand {
              IWorkspace workspace= ResourcesPlugin.getWorkspace();    
              IPath location= Path.fromOSString(filename); 
              IFile ifile= workspace.getRoot().getFileForLocation(location);
-             String procKey = procNameAndArgs.replace("\"", "").replace("{", "").replace("}", "") + "-" + ifile.getFullPath().toOSString();
-//             System.out.println("SpInternalCommand Adding key: " + procKey);
-             
-             String expSource = "";
-             if(soarAgent.getExpandedSourceMap().containsKey(procKey) && 
-                procKey.equals(soarAgent.getPreviousExpandedSourceKey()))
+             if(ifile != null)
              {
-                 //concat to the existing source if we're still adding to the same source key
-                 expSource = soarAgent.getExpandedSourceMap().get(procKey) + "\n"; 
+	             String procKey = procNameAndArgs.replace("\"", "").replace("{", "").replace("}", "") + "-" + ifile.getFullPath().toOSString();
+	//             System.out.println("SpInternalCommand Adding key: " + procKey);
+	             
+	             String expSource = "";
+	             if(soarAgent.getExpandedSourceMap().containsKey(procKey) && 
+	                procKey.equals(soarAgent.getPreviousExpandedSourceKey()))
+	             {
+	                 //concat to the existing source if we're still adding to the same source key
+	                 expSource = soarAgent.getExpandedSourceMap().get(procKey) + "\n"; 
+	             }
+	             
+	             //save the expanded source for this production
+	             soarAgent.getExpandedSourceMap().put(procKey, expSource + args[0] + " \"" + args[1] + "\"");
+	             soarAgent.setPreviousExpandedSourceKey(procKey);
+	             
+	             //save each procedure according to its file
+	             Map<String, List<String>> fileSourceMap = soarAgent.getFileSourceMap();
+	             if(!fileSourceMap.containsKey(filename))
+	             {
+	                 fileSourceMap.put(filename, new ArrayList<String>());
+	             }
+	             fileSourceMap.get(filename).add(procKey);
+             } else {
+            	 System.out.println("SpInternalCommand ignoring null IFile for: " + location);
              }
-             
-             //save the expanded source for this production
-             soarAgent.getExpandedSourceMap().put(procKey, expSource + args[0] + " \"" + args[1] + "\"");
-             soarAgent.setPreviousExpandedSourceKey(procKey);
-             
-             //save each procedure according to its file
-             Map<String, List<String>> fileSourceMap = soarAgent.getFileSourceMap();
-             if(!fileSourceMap.containsKey(filename))
-             {
-                 fileSourceMap.put(filename, new ArrayList<String>());
-             }
-             fileSourceMap.get(filename).add(procKey);
         }
         else
         {
