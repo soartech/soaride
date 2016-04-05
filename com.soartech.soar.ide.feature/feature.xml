@@ -2,7 +2,7 @@
 <feature
       id="com.soartech.soar.ide.feature"
       label="Soar IDE"
-      version="2.0.6"
+      version="2.0.7"
       provider-name="Soar Technology, Inc.">
 
    <description url="https://github.com/soartech/soaride">
