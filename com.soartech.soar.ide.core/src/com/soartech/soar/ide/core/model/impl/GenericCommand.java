@@ -1,6 +1,7 @@
 package com.soartech.soar.ide.core.model.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -129,10 +130,28 @@ public class GenericCommand extends AbstractSourceReferenceElement implements IE
         
         String nameAndArgs = commandName + commandArgs;
         
-        String key = nameAndArgs.replace("\"", "").replace("{", "").replace("}", "") + "-" + filename;
+        String key = nameAndArgs.replace("\"", "").replace("{", "").replace("}", "") + "__" + filename;
 //        System.out.println("GenericCommand Adding key: " + key);
         
         String ret = soarAgent.getExpandedSourceMap().get(key);
+        
+        //try again to get an expanded code from the map
+        //this is a workaround to jsoar sometimes giving the wrong file
+        if(ret == null || ret.length() == 0)
+        {
+            Map<String,String> sourceMap = soarAgent.getExpandedSourceMap();
+            
+            for(String mapKey : sourceMap.keySet())
+            {
+                String tempKey = nameAndArgs.replace("\"", "").replace("{", "").replace("}", "");
+                
+                if(mapKey.contains(tempKey))
+                {
+                    ret = soarAgent.getExpandedSourceMap().get(mapKey);
+                    break;
+                }
+            }
+        }
         
         return ret;
     }
