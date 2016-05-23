@@ -40,7 +40,7 @@ public class DisjunctionRule
      */
     public DisjunctionRule() {
 
-        super( "<<", ">>", new Token(
+        super( "<< ", " >>", new Token(
                 new TextAttribute( SyntaxColorManager.getDisjunctColor(), null, 
                         SWT.ITALIC ) ) );
     }

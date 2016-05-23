@@ -21,6 +21,9 @@ sp "test-tcl-macros-and-variables
 sp {test-disjunction
     # (G)
     (state <s> ^goal << attach retreat >>)
+    (state <s> ^goal <<attach retreat>>)
+    (state <s> ^goal <<attach retreat >>)
+    (state <s> ^<< attach retreat >> << value1 >>)
 -->
     (interrupt)
 }
