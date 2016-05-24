@@ -23,8 +23,10 @@ import java.util.ArrayList;
 
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.IRule;
+import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.Token;
+import org.eclipse.swt.SWT;
 
 import com.soartech.soar.ide.ui.editors.text.rules.ArrowRule;
 import com.soartech.soar.ide.ui.editors.text.rules.BlockCommentRule;
@@ -87,14 +89,16 @@ public class SoarRuleScanner extends RuleBasedScanner {
         );    	
         
         // Add rules to the ruleList
+    	// NOTE: ORDERING MATTERS HERE
         ArrayList<IRule> ruleList = new ArrayList<IRule>();
         ruleList.add( commandRule = new CommandRule() );
         ruleList.add( new BlockCommentRule() );
         // TODO: DisjunctionRule must be added before VariableRule because
         // of some ambiguity issues.  Should probably figure out where
         // the conflict occurs.
-        ruleList.add( new DisjunctionRule() );        
+        ruleList.add( new DisjunctionRule() );
         ruleList.add( variableRule = new VariableRule() );
+        ruleList.add(new MultiLineRule( "${", "}", new Token(new TextAttribute( SyntaxColorManager.getTclVarColor(), null, SWT.NORMAL ) ) ));
         ruleList.add( tclVariableRule = new TclVariableRule() );
         ruleList.add( new InlineCommentRule() );
         ruleList.add( new BraceRule() );

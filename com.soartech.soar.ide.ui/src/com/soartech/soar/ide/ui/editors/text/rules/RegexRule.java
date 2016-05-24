@@ -146,14 +146,6 @@ public class RegexRule implements IRule {
         }
     }
     
-    protected boolean dashDetected( ICharacterScanner scanner ) {
-        
-        int c = scanner.read();
-        if ( c == '-' ) return true;
-        scanner.unread();
-        return false;
-    }
-    
     protected boolean eofDetected( ICharacterScanner scanner ) {
         
         int c = scanner.read();
