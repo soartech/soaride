@@ -69,7 +69,7 @@ public class CommandRule extends KeywordRule {
     
     private static String[] TCL_COMMANDS = new String[] {
     		"echo", "global", "proc", "pushd", "popd", "cd", "puts", 
-            "set", "unset",
+            "set", "unset", "dict",
             "eval", "namespace", "array", "cd", "pwd", "variable",
             "catch", "info",
             "package",

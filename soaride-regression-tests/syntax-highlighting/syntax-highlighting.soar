@@ -16,6 +16,7 @@ sp "test-tcl-macros-and-variables
     (<s> ^$iopath <io>)
     (<s> ^$iopath-foo <io>) #only highlight $iopath not -foo
     (<s> ^${abc-def} <io>) #highlight whole thing
+    dict set clients 1 forenames Joe #Highlight dict keyword
 
 -->
 "
