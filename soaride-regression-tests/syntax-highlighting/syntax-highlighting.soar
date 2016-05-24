@@ -14,6 +14,8 @@ sp "test-tcl-macros-and-variables
     [left-hand-side 1 2 3]
     # (E)
     (<s> ^$iopath <io>)
+    (<s> ^$iopath-foo <io>) #only highlight $iopath not -foo
+    (<s> ^$[iopath-foo] <io>) #highlight whole thing
 -->
 "
 

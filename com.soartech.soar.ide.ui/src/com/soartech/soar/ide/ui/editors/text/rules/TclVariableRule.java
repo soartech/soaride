@@ -44,7 +44,7 @@ public class TclVariableRule extends RegexRule {
      */
     public TclVariableRule() {
     	
-    	super( "([\\w-])+" );
+    	super( "([\\w])+" );
     	this.token = new Token( 
                 new TextAttribute( SyntaxColorManager.getTclVarColor() ) );
     }
@@ -78,7 +78,8 @@ public class TclVariableRule extends RegexRule {
             // TODO: What other characters can 'terminate' a Tcl variable?
             while ( !sequenceDetected( scanner, ")] $\".".toCharArray() ) &&
                     !endOfLineDetected( scanner ) && 
-                    !eofDetected( scanner ) ) {
+                    !eofDetected( scanner ) &&
+                    !dashDetected( scanner ) ) {
                 int c = scanner.read();
                 charsRead.append( (char)c );
             }
