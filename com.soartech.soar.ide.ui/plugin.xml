@@ -255,7 +255,7 @@
      	<page
             class="com.soartech.soar.ide.ui.editors.text.SoarEditorPreferencePage"
             id="com.soartech.soar.ide.ui.preferencepage"
-            name="Soar Editor"/>
+            name="Soar IDE"/>
         <page
            name="Templates"
            class="com.soartech.soar.ide.ui.editors.text.SoarEditorTemplatesPreferencePage"
