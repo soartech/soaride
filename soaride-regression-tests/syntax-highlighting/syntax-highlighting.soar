@@ -20,13 +20,14 @@ sp "test-tcl-macros-and-variables
     # Weird thing where changes won't be applied until that line is edited?
     set x foo
     set y "$foo, bar" # $foo should be highlighted as a tcl variable
-    # TODO:
-    set myVar "<d$tclVar>" # tclVar should be highlighted 
-    variable info; variable debug # Both variable keywords should be highlighted 
+    variable info; variable debug # Both variable keywords should be highlighted
     # Set and incr should be highlighted as keywords
-    for { set i 0 } {$i < 10} { incr i }{
+    for { set i 0 } {$i < 10} { incr i }{  
         # Body
     }
+	# TODO:
+	set myVar "<d$tclVar>" # tclVar should be highlighted  
+	[proc sum {arg1 arg2} {set x;}] # Syntax highlighting should be preserved, not all brown.
 
 
 -->

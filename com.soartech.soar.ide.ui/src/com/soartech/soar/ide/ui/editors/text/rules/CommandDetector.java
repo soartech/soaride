@@ -32,7 +32,8 @@ public class CommandDetector
     extends KeywordDetector {
     
     // must start with a letter
-    private static final String REGEX_START = "(^|[\\n\\r])[a-zA-Z]";
+	//uhhhh....not sure if this is a legitimate fix... 
+    private static final String REGEX_START = "(^|[\\n\\r;{])[a-zA-Z]";
 
     // followed by a letter, a digit, an underscore, a dash, or a dot
     private static final String REGEX_PART = "[\\w\\-\\.]";
