@@ -1,0 +1,254 @@
+##!
+# @file
+#
+# @created bob.marinier 20160603
+
+# The comment block above is automatically created when a new .soar file is created
+
+# Getting help
+# For a general overview, see the Soar IDE help embedded in Eclipse's help system: Help -> Help Contents -> Soar IDE
+# Website: https://github.com/soartech/soaride
+# Contact: Bob Marinier (bob.marinier@soartech.com)
+
+# Setting up a Soar project
+# If all you want is basic syntax highlighting, you don't have to do anything.
+# But to take advantage of more advanced features like auto-complete and Tcl macro expansion, you'll need to do the following:
+# 1. Switch to the Soar Perspective (upper-right corner, may need to click Open Perspective icon)
+# 2. Add Soar support (right-click on the project and select "Add Soar Project Support"
+# 3. Add a .soaragent file (right-click on a folder and select New -> Soar Agent
+# 4. Open your new .soaragent file and select all the files/directories your agent uses and set a start file.
+
+# Soar IDE includes lots of features; this file will give an overview
+
+#
+# Layout of the Soar Perspective
+#
+# Select the Soar Perspective if you haven't already
+# The right side shows an Outline view -- this contains all of the Soar rules, Tcl procs, and commands called in this file
+#   You can click on any of them to jump to that part of the file.
+#   You can sort alphabetically or by order-of-appearance.
+# The top-left has the Soar Explorer, which shows the same information but for entire agents
+#   You can also filter the contents by name and type (Tcl procs and/or Soar productions)
+# The botton-left has the (Dynamic) Soar Datamap -- more on that below
+# The bottom-middle has the Soar Source Viewer, which shows expanded Tcl code -- more on that below
+
+#
+# Agents
+#
+# A project can contain one or more agents. Mutiple agents in a single project are useful if there is some shared code.
+# Agents are represented by .soaragent files, which indicate which files are included in an agent and what the root file is.
+# To add a .soaragent file, right-click on a folder in your project and select New -> Soar Agent
+# When viewing a file, the top will indicate which agent(s) the file belongs to (or if it doesn't belong to any).
+# Shortcuts for opening an associated .soaragent file and for removing the file from an agent is also provided.
+
+#
+# Adding files and folders
+#
+# To add files and folders, you can right-click on a folder and select New -> Soar File or New -> Soar Folder.
+# This will add the required source lines to the load.soar file in that folder.
+# Note that load.soar is the root file in each folder, which is different than other Soar editors, but code from those editors should still be compatible.
+
+
+#
+# Syntax highlighting
+#
+
+# Soar rules
+sp {production-name
+    # inline comments
+    (state <s> ^attribute <variable>
+               ^<< x y z >> 0.0) # disjunction
+-->
+    (<s> ^attribute |this is a string|)
+    (interrupt) # RHS function
+}
+
+# Tcl code
+set tclVar foo
+
+# This is documentation for this proc
+proc myProc { att val } {
+    return "(<s> ^$att $val)"
+}
+
+# Note: you can customize the syntax highlighting colors via Window -> Preferences -> Soar IDE -> Syntax Coloring
+
+#
+# Code folding
+#
+# You can define foldable regions using the region...endregion syntax below.
+# Regions appear in the Outline view.
+# Hovering over the "+" expansion icon for a folded region shows the contents.
+
+#region Example Region
+
+sp "hide-me
+   (state <s> ^superstate nil)
+-->
+   (<s> ^hide me)
+"
+
+#endregion
+
+#
+# Tcl expansion
+#
+# If you use Tcl to generate Soar rules, the Soar Source Viewer will show the resulting Soar code
+
+# Click on this rule and look at the Soar Source Viewer tab (by default located below) to see the resulting raw Soar syntax
+sp "production-name2
+   (state <s> ^superstate nil)
+-->
+   [myProc $tclVar bar]
+"
+
+# Tcl expansion also works for procs that generate multiple rules
+proc generateProposeApply { opName att val } {
+    
+    sp "propose*$opName
+       (state <s> ^superstate nil
+                 -^$att $val)
+    -->
+       (<s> ^operator <o> +)
+       (<o> ^name $opName)
+    "
+
+    sp "apply*$opName
+       (state <s> ^operator.name $opName)
+    -->
+       (<s> ^$att $val)
+    "
+}
+
+# click on these and look in the Soar Source Viewer to see the expansion
+# note it works even if you use Tcl variables or other proc calls as arguments
+generateProposeApply myOperator a 1
+generateProposeApply whatever $tclVar bar
+
+#
+# Hyperlinks
+#
+# You can ctrl+click on Tcl proc calls to jump to the definition of the Tcl proc.
+# Try it on the lines above and in the production-name2 rule above.
+
+#
+# Hover help
+#
+# You can hover over many things to get information about them
+
+# Soar commands: e.g., hover over any of the sp's above to get info about the sp command
+# Here's another command you can hover over
+watch 1
+
+# Tcl hovers
+# Hovering over the name of the proc tells you what the arguments are and any documentation comments it has
+# Hovering over the $tclVar will tell you it's value
+# You can try this in, e.g., the production-name2 rule above
+
+#
+# Content assist
+#
+
+# As you type Soar rules, autocompletion will pop-up with suggested attributes and values based on the code you've already written
+# It can also suggest Soar variables, RHS functions, Soar commands, Tcl variables, Tcl procs, and templates (see below about templates)  
+# You can also trigger it by pressing ctrl+space after a "^", a ".", or an empty line
+# You can also press alt+/ to autocomplete the text under the cursor (repeated hits cycles through the options)
+# For suggested elements that have help available (e.g., commands, Tcl procs, etc.), that help is also displayed
+
+# Try it in various places in this rule
+sp "autocomplete-example
+   (state <s> ^foo bar)
+-->
+   (halt)
+   
+"
+
+#
+# Templates
+#
+
+# Soar IDE comes with several rule templates built-in, and you can add your own
+# To use a rule template, just type "sp" and then ctrl+space to see a list of templates 
+# When a template is selected, it creates the code for you and allows you to tab through various defined slots to fill in missing information
+# To define your own templates, go to Window -> Preferences -> Soar IDE -> Templates
+# Note that custom templates can also be exported/imported, so if you create a useful set, share with your friends!
+
+#
+# Hotkeys
+#
+# ctrl+shift+f: Auto-format the file or selected code
+# ctrl+/: Comment/uncomment the current line or selected text
+# alt+/: Autocompletes the text under the cursor. Repeated hits cycles through the options.
+# ctrl+g: Opens any files that source this one. Also available in context menu (right-click in this file and select "Open Referencing Files")
+
+# try formatting this rule
+sp "format-me
+(state <s> ^a b)
+-->
+(<s> ^c d)
+"
+                           
+#
+# Dynamic and Static Datamaps
+#
+# Soar IDE supports two kinds of datamaps:
+# Dynamic datamap: Automatically created by analyzing the Soar code included in every .soaragent file
+# Static datamap: Authored by user (essentially the same as capability from Visual Soar and Soar Editor)
+
+# Dynamic datamap
+# Located in lower-left corner
+# For each agent in the project, shows the working memory structures referenced, and which rules create and/or test them
+# The document/arrow icon allows you to limit what's shown to only the current file vs. the entire agent
+
+# Static datamap
+# Can create one or more of these by right-click on a folder in the project and select New -> Soar Datamap
+# The UI is the same as described in the Soar Tutorial
+# If a .soaragent file includes a datamap file, then any structures that are created or tested but not defined in
+#    the datamap(s) will be flagged as a warning
+# To see the datamap warnings for this file, edit the myAgent.soaragent file to include the myAgent.dm file.
+# Warnings can be autofixed (right-click on warning marker to add the missing structure to the datamap)
+# The way that ids within the datamap file are generated has been modified such that it should be more source-control friendly
+#    than datamaps from past editors (i.e., it should be possible to merge changes from multiple users) 
+# Note: There are currently several limitations which we plan to address in the future:
+#    Only checks attributes, not values.
+#    If there are multiple datamaps in a single agent, which one gets updated with an autofix is arbitrary
+#    Source control friendliness is not tested
+#    Not yet integrated with autocomplete
+#    Datamap file needs to be explicitly listed in the text of the .soaragent file to be processed (listing just the parent folder doesn't work)
+
+
+#
+# Errors and warnings
+#
+# Syntax errors will automatically be marked and appear in the Problems list below.
+# Warnings, such as missing static datamap entries or unreachable files will also be marked and shown in the Problems list.
+
+sp "error-example
+   (<s> ^foo bar)
+-->
+   (halt)
+"
+
+#
+# Known issues
+#
+# There are lots -- edge cases where syntax highlighting or auto-formatting doesn't work properly,
+#   behind-the-scenes errors that occasionally prevent auto-completion or Tcl expansion from working,
+#   spurious errors, etc.
+# Here's some hints to help resolve common problems:
+#
+# A file says it doesn’t belong to any agents
+#   Make sure Include Soar Project Support is selected for the Eclipse project
+#   Make sure there is at least one Soar Agent for that project
+#   Make sure the file is selected in that .soaragent file
+#   If you change any of these things while the file is open, it may not refresh until you close and reopen it
+# The Source Viewer isn’t show the expansion for my Tcl macro
+#   Follow the above steps, making sure the file you are viewing and the file that defines the macro are both members of the agent
+#   Make sure the Tcl expansion is enabled (toggle the icon on the top-right of the Source Viewer)
+#   Make sure there are no outstanding syntax errors in the agent
+#   Make sure you are selecting a call to a Tcl macro, not the Tcl macro definition
+#   You may have to close/reopen the file, clean the agent, or restart Eclipse
+# I don’t see the Source Viewer, Datamap, etc.
+#   Make sure you are in the Soar Perspective
+#   If they have become hidden, you can show individual views via Window->Show View->Other->Soar
+#   You can reset the Soar Perspective (right-click on Soar Perspective -> Reset)
