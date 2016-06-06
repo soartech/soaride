@@ -15,7 +15,8 @@
 		<topic label="Hotkeys" href="html/soar_editor.html#hotkeys"/>
 	</topic>
     <topic label="Soar Agents and the Agent Editor" href="html/agent_editor.html"/>
-    <topic label="Soar Datamap" href="html/soar_datamap.html"/>
+    <topic label="Soar Dynamic Datamap" href="html/soar_datamap.html"/>
+    <topic label="Soar Static Datamap" href="html/soar_static_datamap.html"/>
 	<topic label="Soar Outline" href="html/soar_outline.html"/>
 	<topic label="Soar Explorer" href="html/soar_explorer.html"/>
 	<topic label="Soar Source Viewer" href="html/source_viewer.html"/>
