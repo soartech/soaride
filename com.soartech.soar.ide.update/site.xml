@@ -3,7 +3,7 @@
    <description name="Soar IDE Update Site" url="https://github.com/soartech/soaride/raw/master/com.soartech.soar.ide.update">
       Soar IDE Update Site
    </description>
-   <feature url="features/com.soartech.soar.ide.feature_2.0.7.jar" id="com.soartech.soar.ide.feature" version="2.0.7">
+   <feature url="features/com.soartech.soar.ide.feature_2.0.8.jar" id="com.soartech.soar.ide.feature" version="2.0.8">
       <category name="Soar IDE"/>
    </feature>
    <category-def name="Soar IDE" label="Soar IDE"/>
