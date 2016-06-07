@@ -31,5 +31,43 @@
 		-Xmx512m</p>
 		
 	</div>
+	
+	<br><br>
+	
+	<div class="content">
+        <h3>A file says it doesn't belong to any agents</h3>
+        <ul>
+            <li>Make sure Include Soar Project Support is selected for the Eclipse project</li>
+            <li>Make sure there is at least one Soar Agent for that project</li>
+            <li>Make sure the file is selected in that .soaragent file</li>
+            <li>If you change any of these things while the file is open, it may not refresh until you close and reopen it</li>
+        </ul>
+    </div>
+    
+    <br><br>
+    
+    <div class="content">
+        <h3>The Source Viewer isn't show the expansion for my Tcl macro</h3>
+        <ul>
+            <li>Follow the above steps, making sure the file you are viewing and the file that defines the macro are both members of the agent</li>
+            <li>Make sure the Tcl expansion is enabled (toggle the icon on the top-right of the Source Viewer)</li>
+            <li>Make sure there are no outstanding syntax errors in the agent</li>
+            <li>Make sure you are selecting a call to a Tcl macro, not the Tcl macro definition</li>
+            <li>You may have to close/reopen the file, clean the agent, or restart Eclipse</li>
+        </ul>
+    </div>
+    
+    <br><br>
+    
+    <div class="content">
+        <h3>I don't see the Source Viewer, Datamap, etc</h3>
+        <ul>
+            <li>Make sure you are in the Soar Perspective</li>
+            <li>If they have become hidden, you can show individual views via Window->Show View->Other->Soar</li>
+            <li>You can reset the Soar Perspective (right-click on Soar Perspective -> Reset)</li>
+        </ul>
+    </div>
+    
+    <br><br>
 </body>
 </html>
