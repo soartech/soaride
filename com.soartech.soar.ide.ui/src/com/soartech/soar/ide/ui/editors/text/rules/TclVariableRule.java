@@ -76,7 +76,8 @@ public class TclVariableRule extends RegexRule {
             StringBuffer charsRead = new StringBuffer();
             
             // TODO: What other characters can 'terminate' a Tcl variable?
-            while ( !sequenceDetected( scanner, ")]- >,*$\".".toCharArray() ) &&
+            //#, [, $ cause problems  because they are the identifiers for other rules
+            while ( !sequenceDetected( scanner, "\\{}/`+=;:'~|&^?%@!()][- <>,*$\".".toCharArray() ) &&
                     !endOfLineDetected( scanner ) && 
                     !eofDetected( scanner ) ) {
                 int c = scanner.read();
