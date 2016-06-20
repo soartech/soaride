@@ -59,7 +59,7 @@ To view the list of available perspectives, from the **Window** menu choose **Op
 
 This displays a dialog box asking us to choose a perspective to open. In this case, we will be writing a Soar program, so we will open the Soar Perspective.
 
-Select **Soar Perspective** and click **OK**.
+Select **Soar** and click **OK**.
 
 # Soar Projects
 

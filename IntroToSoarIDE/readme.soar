@@ -251,4 +251,4 @@ sp "error-example
 # I don’t see the Source Viewer, Datamap, etc.
 #   Make sure you are in the Soar Perspective
 #   If they have become hidden, you can show individual views via Window->Show View->Other->Soar
-#   You can reset the Soar Perspective (right-click on Soar Perspective -> Reset)
+#   You can reset the Soar Perspective (right-click on Soar -> Reset)

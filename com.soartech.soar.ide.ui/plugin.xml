@@ -6,7 +6,7 @@
            class="com.soartech.soar.ide.ui.perspectives.SoarPerspective"
            icon="icons/soar.gif"
            id="com.soartech.soar.ide.ui.perspectives.SoarPerspective"
-           name="Soar Perspective">
+           name="Soar">
     	</perspective>
    </extension>
    
