@@ -47,6 +47,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -76,6 +77,7 @@ import com.soartech.soar.ide.core.model.SoarModelTools;
 import com.soartech.soar.ide.core.model.TclExpansionError;
 import com.soartech.soar.ide.core.model.datamap.ISoarDatamap;
 import com.soartech.soar.ide.core.model.impl.datamap.SoarDatamap;
+//import com.soartech.soar.ide.ui.editors.text;
 
 import tcl.lang.RelocatableTclInterpreter;
 
@@ -368,15 +370,15 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         try {
             // Adding some stubs proc's to the JSoar TCL interp to avoid errors
             // for commands that are in CSoar but not JSoar
-            // TODO: Seems like this needs to be hooked up to the preferences information
-            // (isn't this info stored in preferences)
-            jsoarInterp.eval("proc cli { args } { }");
-            jsoarInterp.eval("proc indifferent-selection { args } { }");
-            jsoarInterp.eval("proc max-chunks { args } { }");
-            jsoarInterp.eval("proc svs { args } { }");
-            jsoarInterp.eval("proc watch { args } { }");
-            jsoarInterp.eval("proc script { args } { }");
-            
+
+            String prefs = Platform.getPreferencesService().getString("com.soartech.soar.ide.ui", "keywords", "", null);
+            String[] prefsArr = prefs.split(";");
+            for (int i = 0; i < prefsArr.length; ++i)
+            {
+                System.out.println("PROC CREATED FOR: " + prefsArr[i]);
+                jsoarInterp.eval("proc " + prefsArr[i] + " { args } { }");
+            }
+
             //add the command for spInternal
             jsoarInterp.addCommand("sp", new SpInternalCommand(this.jsoarAgent, this));
             

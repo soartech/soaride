@@ -22,11 +22,13 @@ package com.soartech.soar.ide.ui;
 import java.io.IOException;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
@@ -62,6 +64,15 @@ public class SoarEditorUIPlugin extends AbstractUIPlugin
     private ContributionContextTypeRegistry contextRegistry;
 
     private FormColors formColors;
+    
+    public static final String DEFAULT_CMDS = "";
+    //These are the default commands that will show up in the list...if we want everything to show, just retrieve all keywords and .join
+    //"cli;indifferent-selection;max-chunks;svs;watch;script;gp;gp-max;pbreak;verbose;max-dc-time;max-goal-depth;"
+    //+ "max-memory-usage;predict;wma;select;set-stop-phase;relay-input;capture-input";
+    
+    public static final String KEYWORDS_PREFERENCE = "keywords";
+    
+    public static final String PREFERENCE_DELIMITER = ";";
 
     /**
      * The constructor.
@@ -78,6 +89,7 @@ public class SoarEditorUIPlugin extends AbstractUIPlugin
         {
             resourceBundle = null;
         }
+        
     }
 
     /**
@@ -203,5 +215,64 @@ public class SoarEditorUIPlugin extends AbstractUIPlugin
             formColors.markShared();
         }
         return formColors;
+    }
+    
+    
+    /***********************For adding custom commands**********************/
+    
+    public void initializeDefaultPreferences(IPreferenceStore store)
+    {
+        store.setDefault(KEYWORDS_PREFERENCE, DEFAULT_CMDS);
+    }
+    /**
+     * Return the keywords preference default
+     * as an array of Strings.
+     * @return String[]
+     */
+    public String[] getDefaultKeywordsPreference() {
+        return convert(
+            getPreferenceStore().getDefaultString(KEYWORDS_PREFERENCE));
+    }
+
+    /**
+     * Return the keywords preference as an array of
+     * Strings.
+     * @return String[]
+     */
+    public String[] getKeywordsPreference() {
+        
+        return convert(getPreferenceStore().getString(KEYWORDS_PREFERENCE));
+    }
+
+    /**
+     * Convert the supplied PREFERENCE_DELIMITER delimited
+     * String to a String array.
+     * @return String[]
+     */
+    private String[] convert(String preferenceValue) {
+        StringTokenizer tokenizer =
+            new StringTokenizer(preferenceValue, PREFERENCE_DELIMITER);
+        int tokenCount = tokenizer.countTokens();
+        String[] elements = new String[tokenCount];
+
+        for (int i = 0; i < tokenCount; i++) {
+            elements[i] = tokenizer.nextToken();
+        }
+
+        return elements;
+    }
+
+    /**
+     * Set the commands preference
+     * @param String [] elements - the Strings to be 
+     *  converted to the preference value
+     */
+    public void setKeywordsPreference(String[] elements) {
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < elements.length; i++) {
+            buffer.append(elements[i]);
+            buffer.append(PREFERENCE_DELIMITER);
+        }
+        getPreferenceStore().setValue(KEYWORDS_PREFERENCE, buffer.toString());
     }
 }

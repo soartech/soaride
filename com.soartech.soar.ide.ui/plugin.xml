@@ -256,6 +256,12 @@
             class="com.soartech.soar.ide.ui.editors.text.SoarEditorPreferencePage"
             id="com.soartech.soar.ide.ui.preferencepage"
             name="Soar IDE"/>
+      <page
+            category="com.soartech.soar.ide.ui.preferencepage"
+            class="com.soartech.soar.ide.ui.editors.text.SoarEditorKeywordListPreferencePage"
+            id="com.soartech.soar.ide.ui.keywordpreferencepage"
+            name="Keyword List">
+      </page>
         <page
            name="Templates"
            class="com.soartech.soar.ide.ui.editors.text.SoarEditorTemplatesPreferencePage"

@@ -52,17 +52,21 @@ import com.soartech.soar.ide.ui.editors.text.rules.VariableRule;
 public class SoarRuleScanner extends RuleBasedScanner {
 
     private CommandRule commandRule = null;
-    private VariableRule variableRule = null;
+    private VariableRule variableRule = new VariableRule();
     private TclVariableRule tclVariableRule = null;
+    private SoarSourceViewerConfiguration config;
     
     /**
      * Constructor for a <code>SoarRuleScanner</code> object.
      * @param The associated <code>SoarSourceEditorConfiguration</code>
      */
-    public SoarRuleScanner() {
+    public SoarRuleScanner(SoarSourceViewerConfiguration config) {
 
         super();
+        this.config = config;
         initializeRules();
+        
+                
     }
 
     /**

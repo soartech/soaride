@@ -19,9 +19,16 @@
  */
 package com.soartech.soar.ide.ui.editors.text.rules;
 
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-
+import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
+import com.soartech.soar.ide.ui.editors.text.SoarRuleScanner;
+import com.soartech.soar.ide.ui.editors.text.SoarSourceEditorConfiguration;
+import com.soartech.soar.ide.ui.editors.text.SoarSourceViewerConfiguration;
+//import com.soartech.soar.ide.ui.editors.text.SoarRuleScanner;
 import com.soartech.soar.ide.ui.editors.text.SyntaxColorManager;
 
 /**
@@ -34,7 +41,7 @@ import com.soartech.soar.ide.ui.editors.text.SyntaxColorManager;
  * @author annmarie.steichmann@soartech.com
  * @version $Revision: 578 $ $Date: 2009-06-22 13:05:30 -0400 (Mon, 22 Jun 2009) $
  */
-public class CommandRule extends KeywordRule {
+public class CommandRule extends KeywordRule implements IPropertyChangeListener{
     
     // commands from the Soar8 Manual
     
@@ -92,17 +99,35 @@ public class CommandRule extends KeywordRule {
             "alias", "soarnews", "time", "version"
     };
     
+    //Array of strings for commands added through preferences.
+    
+    private static String[] CUSTOM_COMMANDS = SoarEditorUIPlugin.getDefault().getKeywordsPreference();
+    //Alternate way to retrieve keywords store. Left as comment because may come in useful in the future.
+    //            Platform.getPreferencesService()           
+    //            .getString(SoarEditorUIPlugin.PLUGIN_ID, SoarEditorUIPlugin.KEYWORDS_PREFERENCE, SoarEditorUIPlugin.DEFAULT_CMDS, null)
+    //            .split(SoarEditorUIPlugin.PREFERENCE_DELIMITER);
+    
     public static String[][] ALL_COMMANDS = new String[][] {
             BASIC_COMMANDS, MEMORY_COMMANDS, DEBUG_COMMANDS, RUNTIME_COMMANDS, 
-            SYSTEM_COMMANDS, TCL_COMMANDS, IO_COMMANDS, MISC_COMMANDS     
+            SYSTEM_COMMANDS, TCL_COMMANDS, IO_COMMANDS, MISC_COMMANDS, 
+            CUSTOM_COMMANDS  
     };
+    
+    private SoarSourceViewerConfiguration config;
 
     /**
      * Constructor for a <code>CommandRule</code> object.
      */
-    public CommandRule() {
+    public CommandRule(SoarSourceViewerConfiguration config) {
 
         super( new CommandDetector() );
+        
+        this.config = config; 
+        
+        SoarEditorUIPlugin
+        .getDefault()
+        .getPreferenceStore()
+        .addPropertyChangeListener(this);
     }
 
     @Override
@@ -122,10 +147,30 @@ public class CommandRule extends KeywordRule {
     
         return SWT.BOLD;
     }
+    
 
     @Override
     protected String[][] getAllKeywords() {
-
         return ALL_COMMANDS;
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.core.runtime.Preferences.IPropertyChangeListener#propertyChange(org.eclipse.core.runtime.Preferences.PropertyChangeEvent)
+     */
+    @Override
+    public void propertyChange(PropertyChangeEvent event)
+    {
+        //This block is triggered whenever "ok" is clicked from the preferences window
+        System.out.println("PROPERTY CHANGE");
+        //Set the arrays of custom commands to the keywords store.
+        CUSTOM_COMMANDS = SoarEditorUIPlugin.getDefault().getKeywordsPreference();
+        
+        //Makes scrollbar appear somehow        
+        config.reinitializeScanner();
+        
+//        for (String cmd: CUSTOM_COMMANDS)
+//        {
+//            System.out.println(cmd);
+//        }
     }
 }
