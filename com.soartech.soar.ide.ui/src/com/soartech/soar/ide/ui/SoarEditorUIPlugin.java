@@ -64,11 +64,12 @@ public class SoarEditorUIPlugin extends AbstractUIPlugin
     private ContributionContextTypeRegistry contextRegistry;
 
     private FormColors formColors;
-    
-    public static final String DEFAULT_CMDS = "";
+    //Add any keywords you want showing up in the list and not to be duplicated here...but a separate proc call will be created too....
+    public static final String DEFAULT_CMDS = "cli;indifferent-selection;max-chunks;svs;watch;script;gp;gp-max;pbreak;verbose;max-dc-time;max-goal-depth;"
+            + "max-memory-usage;predict;wma;select;set-stop-phase;relay-input;capture-input";
     //These are the default commands that will show up in the list...if we want everything to show, just retrieve all keywords and .join
-    //"cli;indifferent-selection;max-chunks;svs;watch;script;gp;gp-max;pbreak;verbose;max-dc-time;max-goal-depth;"
-    //+ "max-memory-usage;predict;wma;select;set-stop-phase;relay-input;capture-input";
+//    "cli;indifferent-selection;max-chunks;svs;watch;script;gp;gp-max;pbreak;verbose;max-dc-time;max-goal-depth;"
+//    + "max-memory-usage;predict;wma;select;set-stop-phase;relay-input;capture-input";
     
     public static final String KEYWORDS_PREFERENCE = "keywords";
     
@@ -222,7 +223,7 @@ public class SoarEditorUIPlugin extends AbstractUIPlugin
     
     public void initializeDefaultPreferences(IPreferenceStore store)
     {
-        store.setDefault(KEYWORDS_PREFERENCE, DEFAULT_CMDS);
+        store.setDefault(KEYWORDS_PREFERENCE, "");
     }
     /**
      * Return the keywords preference default

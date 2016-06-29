@@ -166,7 +166,7 @@ public class CommandRule extends KeywordRule implements IPropertyChangeListener{
         CUSTOM_COMMANDS = SoarEditorUIPlugin.getDefault().getKeywordsPreference();
         
         //Makes scrollbar appear somehow        
-        config.reinitializeScanner();
+        //config.reinitializeScanner();
         
 //        for (String cmd: CUSTOM_COMMANDS)
 //        {

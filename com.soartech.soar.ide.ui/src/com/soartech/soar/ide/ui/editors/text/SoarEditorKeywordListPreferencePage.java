@@ -11,8 +11,6 @@ package com.soartech.soar.ide.ui.editors.text;
 import org.eclipse.swt.layout.GridLayout;
 
 import java.util.Collection;
-import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.eclipse.jface.preference.PreferencePage;
@@ -25,6 +23,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
 import com.soartech.soar.ide.ui.SoarEditorUIPlugin;
+import com.soartech.soar.ide.ui.editors.text.rules.CommandRule;
 
 /**
  * @author preetom.chakraborty
@@ -38,8 +37,16 @@ public class SoarEditorKeywordListPreferencePage
     private List keywordList;
     //The newEntryText is the text where new keywords are specified
     private Text newEntryText;
-    //ordered set to prevent duplicate words being added to the command list
-    private Collection<String> commandSet = new TreeSet<String>();
+    
+    //This set contains all the keywords added by the user. Used to prevent duplicates.
+    //The keywords in this set are the only ones synced with the preference store and have empty proc
+    //calls made for them in SoarAgent.java
+    private Collection<String> newKeywordSet = new TreeSet<String>();
+    
+    //This set contains all the original JSoar keywords. Prevents the user from duplicating one of the 
+    //JSoar commands and overwriting it with an empty proc call. 
+    //Not synced with the preferences store, just pulled from the static arrays in CommandRule.java.
+    private Collection<String> oldKeywordSet = new TreeSet<String>();
 
     /**
      * 
@@ -48,6 +55,21 @@ public class SoarEditorKeywordListPreferencePage
     {
         setPreferenceStore( SoarEditorUIPlugin.getDefault()
                             .getPreferenceStore() );
+        
+        System.out.println("CTOR CALLED");
+        
+        //Initialize each set separately
+
+        //Copy only the original keywords into the old keyword map
+        //We don't want to include the custom commands array, so we only take the first 8
+        for (int i = 0; i < 8; ++i)
+        {
+            initializeSet(oldKeywordSet, CommandRule.ALL_COMMANDS[i]);
+        }
+        //Initialize the ordered set to all words in the store as well.
+        String[] commandList = SoarEditorUIPlugin.getDefault().getKeywordsPreference();
+        initializeSet(newKeywordSet, commandList);
+        
     }
 
     /* (non-Javadoc)
@@ -57,7 +79,6 @@ public class SoarEditorKeywordListPreferencePage
     public void init(IWorkbench workbench)
     {
         setPreferenceStore(SoarEditorUIPlugin.getDefault().getPreferenceStore());
-      
     }
    
     /**
@@ -67,17 +88,17 @@ public class SoarEditorKeywordListPreferencePage
      */
     protected void performDefaults() {
         //Turn the list into the list of defaults
-        System.out.println("PERFORM DEFAULTS CALLED, HASH CLEARED");
+        System.out.println("PERFORM DEFAULTS CALLED, SET CLEARED");
+        //Reset default preferences; empty by default
         SoarEditorUIPlugin.getDefault().initializeDefaultPreferences(SoarEditorUIPlugin.getDefault().getPreferenceStore());
         if (keywordList != null)
         {
-            keywordList.setItems(SoarEditorUIPlugin.getDefault().getDefaultKeywordsPreference());
+            //Needs to take items from oldKeywordSet only
+            keywordList.setItems(oldKeywordSet.toArray(new String[newKeywordSet.size()]));
         }
-        //Reset ordered set to contain standard items
-        String[] commandList = SoarEditorUIPlugin.getDefault().getDefaultKeywordsPreference();
-        commandSet.clear();
+        //Clear the set containing all the user added commands.
+        newKeywordSet.clear();
         
-        initializeSet(commandList);
     }
     /** 
      * Method declared on IPreferencePage. Save the
@@ -85,18 +106,30 @@ public class SoarEditorKeywordListPreferencePage
      */
     public boolean performOk() {
         System.out.println("PERFORM OK CALLED");
-        SoarEditorUIPlugin.getDefault().setKeywordsPreference(keywordList.getItems());
+        //Only takes the items from the newKeywordSet to set the preference store
+        SoarEditorUIPlugin.getDefault().setKeywordsPreference(newKeywordSet.toArray(new String[newKeywordSet.size()]));
         return super.performOk();
     }
     
-    private void initializeSet(String[] commandList)
+    //Method to easily create a set from an array of strings
+    private void initializeSet(Collection<String> set, String[] commandList)
     {
         //Add to ordered set
         for (String cmd: commandList)
         {
-            commandSet.add(cmd);
+            set.add(cmd);
         }
     }
+    
+    //Method that concatenates two string arrays into one and returns it.
+    private String[] concatStrArr(String[] a, String[] b) {
+        int aLen = a.length;
+        int bLen = b.length;
+        String[] result = new String[aLen+bLen];
+        System.arraycopy(a, 0, result, 0, aLen);
+        System.arraycopy(b, 0, result, aLen, bLen);
+        return result;
+     }
     
 
     /* (non-Javadoc)
@@ -122,13 +155,12 @@ public class SoarEditorKeywordListPreferencePage
         new Label(entryTable,SWT.NONE);
 
         keywordList = new List(entryTable, SWT.BORDER | SWT.V_SCROLL);
-
-        keywordList.setItems(SoarEditorUIPlugin.getDefault().getKeywordsPreference());
         
-        //Initialize the ordered set to all words in the store as well.
-        String[] commandList = SoarEditorUIPlugin.getDefault().getKeywordsPreference();
-        initializeSet(commandList);
-
+        //Create visible from the newKeyword Set + oldKeywordSet
+        String[] fullKeywordList = concatStrArr(newKeywordSet.toArray((new String[newKeywordSet.size()])), 
+                                                oldKeywordSet.toArray(new String[oldKeywordSet.size()]));
+        keywordList.setItems(fullKeywordList);
+        
         //Create a data that takes up the extra space in the dialog and spans both columns.
         data = new GridData(GridData.FILL_BOTH);
         keywordList.setLayoutData(data);
@@ -149,12 +181,12 @@ public class SoarEditorKeywordListPreferencePage
         addButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 String text = newEntryText.getText();
-                //Only add words that are not empty and are not already in the command list.
-                if (!text.trim().isEmpty() && !commandSet.contains(text)){
+                //Only add words that are not empty and are not already in either command list.
+                if (!text.trim().isEmpty() && !newKeywordSet.contains(text) && !oldKeywordSet.contains(text)){
                     keywordList.add(newEntryText.getText(), keywordList.getItemCount());
-                    commandSet.add(text);
-                    //Set the keywords to include the recently added command
-                    SoarEditorUIPlugin.getDefault().setKeywordsPreference(commandSet.toArray(new String[commandSet.size()]));
+                    newKeywordSet.add(text);
+                    //Set the keywords store to include the recently added command
+                    SoarEditorUIPlugin.getDefault().setKeywordsPreference(newKeywordSet.toArray(new String[newKeywordSet.size()]));
                     newEntryText.setText("");
                 }
             }
@@ -166,21 +198,34 @@ public class SoarEditorKeywordListPreferencePage
         data.grabExcessHorizontalSpace = true;
         newEntryText.setLayoutData(data);
         
-        
         Button removeButton = new Button(buttonComposite, SWT.PUSH | SWT.CENTER);
 
         removeButton.setText("Remove Selection"); //$NON-NLS-1$
         removeButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                System.out.println("ordered set REMOVE:");
-                System.out.println(keywordList.getItem(keywordList.getSelectionIndex()));
-                //Remove the discarded command from the command list hash
-                commandSet.remove(keywordList.getItem(keywordList.getSelectionIndex()));
-                keywordList.remove(keywordList.getSelectionIndex());
-                //Set the keywords to not have the recently deleted command
-                SoarEditorUIPlugin.getDefault().setKeywordsPreference(commandSet.toArray(new String[commandSet.size()]));
+                String toDelete = keywordList.getItem(keywordList.getSelectionIndex());
+                //Check to make sure they aren't deleting a JSoar keyword and selected a value from the list
+                if (keywordList.getSelectionIndex() >= 0 && newKeywordSet.contains(toDelete))
+                {
+                    System.out.println("ordered set REMOVE:");
+                    System.out.println(toDelete);
+                    //Remove the discarded command from the user keyword list set
+                    newKeywordSet.remove(keywordList.getItem(keywordList.getSelectionIndex()));
+                    keywordList.remove(keywordList.getSelectionIndex());
+                    //Set the keywords to not have the recently deleted command
+                    SoarEditorUIPlugin.getDefault().setKeywordsPreference(newKeywordSet.toArray(new String[newKeywordSet.size()]));
+                }
             }
         });
+        //Export button?
+//        Button exportButton= new Button(buttonComposite, SWT.PUSH);
+//        exportButton.setText("Export...");
+//        exportButton.addListener(SWT.Selection, new Listener() {
+//            public void handleEvent(Event e) {
+//                export();
+//            }
+//        });
+
         data = new GridData();
         data.horizontalSpan = 2;
         removeButton.setLayoutData(data);
