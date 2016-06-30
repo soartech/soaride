@@ -546,12 +546,16 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
 
         IFile oldStartFile = startFile;
         startFile = null;
-        members.clear();
+        if (members != null)
+            members.clear();
 
-        // If the file doesn't exist or is empty, then the agent is empty.
-        if (!file.exists() || file.getLocation().toFile().length() == 0)
+        if (file != null)
         {
-            return;
+            // If the file doesn't exist or is empty, then the agent is empty.
+            if (!file.exists() || file.getLocation().toFile().length() == 0)
+            {
+                return;
+            }
         }
 
         InputStream input = null;
