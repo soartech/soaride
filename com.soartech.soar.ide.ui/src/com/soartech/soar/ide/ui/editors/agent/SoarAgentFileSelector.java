@@ -201,22 +201,26 @@ class SoarAgentFileSelector implements ITreeViewerListener, ICheckStateListener,
      */
     private void updateTreeElementCheckState(IContainer container, boolean force)
     {
-        if(!getAgent().contains(container))
+        //None
+        if(!getAgent().containsAnyChildrenOf(container))
         {
             // If there are any children of the container in the agent, then mark
             // the container as grey. 
             final boolean containsAnyChildrenOf = getAgent().containsAnyChildrenOf(container);
             treeViewer.setGrayChecked(container, containsAnyChildrenOf);
         }
+        //Some
         else if(!getAgent().containsAllChildrenOf(container))
         {
             // If the container is contained, but all children are not contained
             // then mark the container as grey.
             treeViewer.setGrayChecked(container, true);
         }
+        //All
         else
         {
             // All children are contained. Check the container.
+        	//If you select a parent folder that was unchecked before
             treeViewer.setChecked(container, true);
             treeViewer.setGrayed(container, false);
         }
