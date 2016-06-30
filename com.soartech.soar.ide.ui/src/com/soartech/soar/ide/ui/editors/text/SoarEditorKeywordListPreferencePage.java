@@ -91,14 +91,14 @@ public class SoarEditorKeywordListPreferencePage
         System.out.println("PERFORM DEFAULTS CALLED, SET CLEARED");
         //Reset default preferences; empty by default
         SoarEditorUIPlugin.getDefault().initializeDefaultPreferences(SoarEditorUIPlugin.getDefault().getPreferenceStore());
+        //Clear the set containing all the user added commands. 
+        //Reintialize to kinda new commands here. Then change keywordList to be a combiantion again
+        newKeywordSet.clear();
         if (keywordList != null)
         {
             //Needs to take items from oldKeywordSet only
-            keywordList.setItems(oldKeywordSet.toArray(new String[newKeywordSet.size()]));
+            keywordList.setItems(oldKeywordSet.toArray(new String[oldKeywordSet.size()]));
         }
-        //Clear the set containing all the user added commands.
-        newKeywordSet.clear();
-        
     }
     /** 
      * Method declared on IPreferencePage. Save the
@@ -144,25 +144,28 @@ public class SoarEditorKeywordListPreferencePage
         Composite entryTable = new Composite(parent, SWT.NULL);
 
         //Create a data that takes up the extra space in the dialog .
-        GridData data = new GridData(GridData.FILL_BOTH);
+        GridData data = new GridData(SWT.FILL, SWT.FILL, true, false);
         data.grabExcessHorizontalSpace = true;
         entryTable.setLayoutData(data);
 
         GridLayout layout = new GridLayout();
         entryTable.setLayout(layout);
         
+        Label header = new Label(entryTable, SWT.NONE);
+        header.setText("Here you can add or delete custom keywords for SoarIDE."+
+                       "\nPlease take note that SoarIDE must be restarted for changes to take effect.");
         //Add in a dummy label for spacing
         new Label(entryTable,SWT.NONE);
 
         keywordList = new List(entryTable, SWT.BORDER | SWT.V_SCROLL);
         
         //Create visible from the newKeyword Set + oldKeywordSet
-        String[] fullKeywordList = concatStrArr(newKeywordSet.toArray((new String[newKeywordSet.size()])), 
-                                                oldKeywordSet.toArray(new String[oldKeywordSet.size()]));
+        String[] fullKeywordList = concatStrArr(oldKeywordSet.toArray(new String[oldKeywordSet.size()]), 
+                                                newKeywordSet.toArray(new String[newKeywordSet.size()]));
         keywordList.setItems(fullKeywordList);
         
         //Create a data that takes up the extra space in the dialog and spans both columns.
-        data = new GridData(GridData.FILL_BOTH);
+        data = new GridData(450,350);
         keywordList.setLayoutData(data);
         
         Composite buttonComposite = new Composite(entryTable,SWT.NULL);
