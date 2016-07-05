@@ -468,7 +468,7 @@ public class SoarFile extends AbstractSoarOpenable implements ISoarFile
             workingCopy = new SoarFile(this, owner);
             ++workingCopyCount;
             
-            System.out.println("Created working copy from '" + this + "', count=" + workingCopyCount);
+            System.out.println("Created working copy from '" + this.getPath() + "', count=" + workingCopyCount);
             
             return workingCopy;
         }
@@ -493,7 +493,7 @@ public class SoarFile extends AbstractSoarOpenable implements ISoarFile
                 {
                     primary.workingCopy = null;
                 }
-                System.out.println("Removed working copy from '" + primary + "', count=" + primary.workingCopyCount);
+                System.out.println("Removed working copy from '" + primary.getPath() + "', count=" + primary.workingCopyCount);
             }
         }
     }

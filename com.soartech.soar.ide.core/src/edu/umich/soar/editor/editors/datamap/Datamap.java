@@ -622,7 +622,7 @@ public class Datamap implements ITreeContentProvider
 
     public static Datamap read(IFile file)
     {
-        System.out.println("Datamap.read, file: " + file);
+        System.out.println("Datamap.read, file: " + file.getFullPath());
         if (filesToDatamaps.containsKey(file))
         {
             Datamap datamap = filesToDatamaps.get(file);

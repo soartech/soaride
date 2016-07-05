@@ -163,7 +163,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         this.name = fileName.substring(0, dotIndex != -1 ? dotIndex : fileName
                 .length());
         
-        System.out.println("Constructed " + this);
+        System.out.println("Constructed " + this.getPath());
 
         makeConsistent(new NullProgressMonitor());
     }
@@ -181,7 +181,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         this.members = new LinkedHashSet<IResource>(primary.members);
         this.datamap.setAgent(this);
         
-        System.out.println("Constructed working copy for " + this);
+        System.out.println("Constructed working copy for " + this.getPath());
     }
     
     /**
@@ -651,7 +651,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
             IResource resource = container.findMember(new Path(path));
             if (resource != null)
             {
-                System.out.println("[SoarAgent] Resource '" + resource + "' added to agent " + name);
+                System.out.println("[SoarAgent] Resource '" + resource.getFullPath() + "' added to agent " + name);
                 
                 members.add(resource);
                 SoarModelTools.getPathRelativeToContainer(file.getParent(),
@@ -823,7 +823,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
 
             members.add(file);
 
-            System.out.println("[SoarAgent] File '" + file + "' added to agent " + name);
+            System.out.println("[SoarAgent] File '" + file.getFullPath() + "' added to agent " + name);
         }
     }
 
@@ -860,7 +860,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
 
             members.add(folder);
 
-            System.out.println("Folder '" + folder + "' added to agent " + name);
+            System.out.println("Folder '" + folder.getFullPath() + "' added to agent " + name);
         }
     }
 
@@ -994,7 +994,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
                 primary.workingCopy = null;
                 detach();
             }
-            System.out.println("Removed working copy from '" + primary
+            System.out.println("Removed working copy from '" + primary.getPath()
                     + "', count=" + primary.workingCopyCount);
         }
 
@@ -1200,7 +1200,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         {
             if(!isWorkingCopyChanged())
             {
-                System.out.println(file + " is unchanged. Not saving.");
+                System.out.println(file.getFullPath() + " is unchanged. Not saving.");
                 return false;
             }
             
