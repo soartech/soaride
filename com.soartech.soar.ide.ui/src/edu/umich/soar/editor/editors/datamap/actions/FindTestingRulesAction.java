@@ -102,7 +102,7 @@ public class FindTestingRulesAction extends Action implements ISearchQuery
             // get the project from the datamap file
             soarProject = SoarCorePlugin.getDefault().getInternalSoarModel().createSoarProject(datamapIFile.getProject());
             
-            System.out.println("Processing SoarProject: " + soarProject.toString());
+            System.out.println("Processing SoarProject: " + soarProject.getPath());
             
             //get the agent to check by getting a soar file next to the .dm file
             ISoarAgent agentToCheck = null;
