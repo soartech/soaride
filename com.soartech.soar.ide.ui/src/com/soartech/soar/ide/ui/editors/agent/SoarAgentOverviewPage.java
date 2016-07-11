@@ -24,7 +24,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -33,6 +36,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 //import org.eclipse.ui.dialogs.ResourceListSelectionDialog;
 import org.eclipse.ui.forms.IManagedForm;
@@ -113,6 +117,7 @@ public class SoarAgentOverviewPage extends FormPage
         //ScrolledForm form = managedForm.getForm();
         FormToolkit toolkit = managedForm.getToolkit();
         
+        final SoarAgentOverviewPage that = this;
         
         toolkit.createLabel(body, "Start file:");
         startFileText = toolkit.createText(body, getStartFileString());
@@ -129,6 +134,23 @@ public class SoarAgentOverviewPage extends FormPage
             {
                 commitStartFileText();
             }});
+        
+        startFileText.addKeyListener(new KeyListener()
+        {
+            //This class listens for key presses in the text box
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                //Not necessary to implement, but stub is necessary
+            }
+            
+            @Override
+            public void keyPressed(KeyEvent e)
+            {
+                //Set the text box to dirty as soon as someone presses a key
+                editor.setDirty(true);
+            }
+        });
         
         Button button = toolkit.createButton(body, " ... ", SWT.NONE);
         button.addSelectionListener(new SelectionAdapter() {
@@ -257,7 +279,7 @@ public class SoarAgentOverviewPage extends FormPage
         IProject project = agent.getSoarProject().getProject();
         
         final String text = startFileText.getText().trim();
-        
+
         // Clearing the text box clears the start file
         if(text.length() == 0)
         {
@@ -268,7 +290,11 @@ public class SoarAgentOverviewPage extends FormPage
         IPath path = new Path(text);
         if(!path.isValidPath(text))
         {
-            startFileText.setText(getStartFileString());
+            //startFileText.setText(getStartFileString());
+            startFileText.setText(text);
+            MessageDialog.openError(new Shell(), "Invalid Soar Path",
+                                    "The file path you provided as the start file is not a valid file path.\n"
+                                    + "Please select a valid file name and try again, as your changes have not been saved.");
             return;
         }
         
@@ -276,14 +302,21 @@ public class SoarAgentOverviewPage extends FormPage
         IResource resource = SoarModelTools.getEclipseResource(path);
         if(resource == null || !(resource instanceof IFile))
         {
-            startFileText.setText(getStartFileString());
+            startFileText.setText(text);
+            MessageDialog.openError(new Shell(), "Invalid Soar File Name",
+                                  "The file name you provided as the start file does not refer to an Eclipse file resource.\n"
+                                  + "Please select a valid file and try again, as your changes have not been saved.");
             return;
         }
         
         // Make sure it's in the same project as the agent
         if(resource.getProject() != project)
         {
-            startFileText.setText(getStartFileString());
+            //startFileText.setText(getStartFileString());
+            startFileText.setText(text);
+            MessageDialog.openError(new Shell(), "Invalid Soar File Name",
+                                    "The file path you provided as the start file is not in the same project as the agent.\n"
+                                    + "Please select a valid file and try again, as your changes have not been saved.");
             return;
         }
         
@@ -293,16 +326,22 @@ public class SoarAgentOverviewPage extends FormPage
         {
             if(agent.getSoarModel().getFile(file) == null)
             {
-                startFileText.setText(getStartFileString());
+                //startFileText.setText(getStartFileString());
+                startFileText.setText(text);
+                MessageDialog.openError(new Shell(), "Invalid File",
+                                        "The file path you provided as the start file is not a valid Soar file.\n"
+                                        + "Please select a valid Soar file and try again, as your changes have not been saved.");
                 return;
             }
         }
         catch (SoarModelException e)
         {
-            startFileText.setText(getStartFileString());
+            //startFileText.setText(getStartFileString());
+            startFileText.setText(text);
             return;
         }
         
         setStartFile(file);
+        
     }    
 }
