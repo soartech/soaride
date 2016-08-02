@@ -255,7 +255,7 @@
      	<page
             class="com.soartech.soar.ide.ui.editors.text.SoarEditorPreferencePage"
             id="com.soartech.soar.ide.ui.preferencepage"
-            name="Soar IDE"/>
+            name="Soar"/>
       <page
             category="com.soartech.soar.ide.ui.preferencepage"
             class="com.soartech.soar.ide.ui.editors.text.SoarEditorKeywordListPreferencePage"
