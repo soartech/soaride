@@ -27,5 +27,10 @@ proc tclTest { one two } {
 }
 
 tclTest $myVar $myVar
+proc myProc { w x { y myDefault } {z 42} } { }
+
+
+sp "test
+
 
 

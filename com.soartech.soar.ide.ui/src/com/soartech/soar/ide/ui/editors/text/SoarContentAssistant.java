@@ -21,6 +21,7 @@ package com.soartech.soar.ide.ui.editors.text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,7 +37,6 @@ import org.eclipse.jface.text.templates.TemplateCompletionProcessor;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-
 import com.soartech.soar.editor.docs.SoarDocs;
 import com.soartech.soar.ide.core.model.IExpandedTclCode;
 import com.soartech.soar.ide.core.model.ISoarAgent;
@@ -180,6 +180,7 @@ extends TemplateCompletionProcessor {
                 if (node != null && node.getType() == TclAstNode.COMMAND)
                 {
                     List<TclAstNode> words = node.getWordChildren();
+                    
                     if (words.size() >= 2)
                     {
                         TclAstNode nameWord = words.get(0);
@@ -328,16 +329,19 @@ extends TemplateCompletionProcessor {
 
     private ProposalInfo[][] getTclProcedureProposals(ISoarAgent agent) throws SoarModelException
     {
-        TreeSet<String> procedureNames = new TreeSet<String>();
+        TreeMap<String, String> procedureNames = new TreeMap<String, String>();
+        
         for (ITclProcedure procedure : agent.getAllProcedures())
         {
-            procedureNames.add(procedure.getProcedureName());            
+            procedureNames.put(procedure.getProcedureName(), procedure.getArgumentList());            
         }
         
         ProposalInfo[] procedures = new ProposalInfo[procedureNames.size()];
         int i = 0;
-        for (String name : procedureNames)
+        for (String name : procedureNames.keySet())
         {
+            System.out.println("Procdure names");
+            System.out.println(name);
             ITclHelpModel helpModel = agent.getSoarModel().getTclHelpModel();
             ITclProcedureHelp help = helpModel.getHelp(name, agent.getSoarProject(), agent);
             
@@ -346,9 +350,9 @@ extends TemplateCompletionProcessor {
             
             // Update the context information panel property store
             // with the information we've found
-            SoarDocs.getInstance().setProperty(name, helpText);
-            
-            String replacementText = "[" + name + " ";
+            SoarDocs.getInstance().setProperty(name, helpText); 
+            //TODO: Jacob's most requested - change this to have keyword args
+            String replacementText = "[" + name + " " + procedureNames.get(name).trim() + "]";
             procedures[i++] = new ProposalInfo(replacementText, name, helpText);
         }
         
