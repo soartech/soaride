@@ -149,6 +149,7 @@ extends TemplateCompletionProcessor {
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeCompletionProposals(org.eclipse.jface.text.ITextViewer,
      *      int)
      */
+    //TODO: Find out what files the autocomplete is indexing
     public ICompletionProposal[] computeCompletionProposals( ITextViewer viewer, int offset )
     {
         synchronized(configuration.getEditor().getWorkingCopyLock())
@@ -170,7 +171,7 @@ extends TemplateCompletionProcessor {
                 
                 if(agent != null)
                 {
-                    proposals.addAll(getProposals(offset, last, getTclProcedureProposals(agent), SoarEditorPluginImages.get(SoarEditorPluginImages.IMG_PROCEDURE)));
+                    proposals.addAll(getProposals(offset, last, getTclProcedureProposals(last, agent), SoarEditorPluginImages.get(SoarEditorPluginImages.IMG_PROCEDURE)));
                 }
 
                 
@@ -327,7 +328,7 @@ extends TemplateCompletionProcessor {
         return SoarContentAssistAttributeFinder.getPossibleAttributes(datamap, info.source, info.localOffset);
     }
 
-    private ProposalInfo[][] getTclProcedureProposals(ISoarAgent agent) throws SoarModelException
+    private ProposalInfo[][] getTclProcedureProposals(String last, ISoarAgent agent) throws SoarModelException
     {
         TreeMap<String, String> procedureNames = new TreeMap<String, String>();
         
@@ -352,7 +353,17 @@ extends TemplateCompletionProcessor {
             // with the information we've found
             SoarDocs.getInstance().setProperty(name, helpText); 
             //TODO: Jacob's most requested - change this to have keyword args
-            String replacementText = "[" + name + " " + procedureNames.get(name).trim() + "]";
+            String replacementText;
+            //Have different replacement text if the user has already typed a bracket or not
+            //Also necessary for having tclProc autocomplete suggestions outside of []
+            if (last.startsWith("["))
+            {
+                replacementText = "[" + name + " " + procedureNames.get(name).trim() + "]";
+            }
+            else
+            {
+                replacementText = name + " " + procedureNames.get(name).trim();
+            }
             procedures[i++] = new ProposalInfo(replacementText, name, helpText);
         }
         
@@ -455,6 +466,7 @@ extends TemplateCompletionProcessor {
         {
             for( ProposalInfo rule : rules )
             {
+                //Skip any rules that dont start with the chars typed so far
                 if (rule.replacementValue.toLowerCase().indexOf(last) != 0) continue;
 
                 // Add any keywords that start with the characters of the current word being typed
