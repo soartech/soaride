@@ -54,18 +54,15 @@ public class SoarRuleScanner extends RuleBasedScanner {
     private CommandRule commandRule = null;
     private VariableRule variableRule = new VariableRule();
     private TclVariableRule tclVariableRule = null;
-    private SoarSourceViewerConfiguration config;
     
     /**
      * Constructor for a <code>SoarRuleScanner</code> object.
      * @param The associated <code>SoarSourceEditorConfiguration</code>
      */
-    public SoarRuleScanner(SoarSourceViewerConfiguration config) {
+    public SoarRuleScanner() {
 
         super();
-        this.config = config;
         initializeRules();
-        
                 
     }
 
@@ -96,6 +93,8 @@ public class SoarRuleScanner extends RuleBasedScanner {
     	// NOTE: ORDERING MATTERS HERE
         ArrayList<IRule> ruleList = new ArrayList<IRule>();
         ruleList.add( commandRule = new CommandRule() );
+        
+        
         ruleList.add( new BlockCommentRule() );
         // TODO: DisjunctionRule must be added before VariableRule because
         // of some ambiguity issues.  Should probably figure out where

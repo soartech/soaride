@@ -113,16 +113,14 @@ public class CommandRule extends KeywordRule implements IPropertyChangeListener{
             CUSTOM_COMMANDS  
     };
     
-    private SoarSourceViewerConfiguration config;
+//    private SoarSourceViewerConfiguration config;
 
     /**
      * Constructor for a <code>CommandRule</code> object.
      */
-    public CommandRule(SoarSourceViewerConfiguration config) {
+    public CommandRule() {
 
         super( new CommandDetector() );
-        
-        this.config = config; 
         
         SoarEditorUIPlugin
         .getDefault()
