@@ -113,8 +113,7 @@ public class SoarElementSourceViewer extends ViewPart
                 //turn on tcl expansion by default
                 expandTcl.setChecked(true);
             }
-            
-            if(checked.equals("true"))
+            else if(checked.equals("true"))
             {
                 expandTcl.setChecked(true);
             }
