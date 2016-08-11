@@ -284,6 +284,13 @@ public class SoarModelTools
         }
         catch (CoreException e)
         {
+        	// ignore resource errors
+        	// you'd think I'd be able to directly check for the exception type, but getCause() returns null
+        	if(e.getMessage().contains("Resource is out of sync"))
+        	{
+        		return null;
+        	}
+        	
             throw new SoarModelException(e);
         }
     }
@@ -336,6 +343,13 @@ public class SoarModelTools
         }
         catch (CoreException e)
         {
+        	// ignore resource errors
+        	// you'd think I'd be able to directly check for the exception type, but getCause() returns null
+        	if(e.getMessage().contains("Resource is out of sync"))
+        	{
+        		return null;
+        	}
+        	
             throw new SoarModelException(e);
         }
     }
