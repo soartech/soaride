@@ -377,7 +377,10 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         {
 			try {
 				System.out.println("PROC CREATED FOR: " + prefsArr[i]);
-				jsoarInterp.eval("proc " + prefsArr[i] + " { args } { }");
+				//The list will be empty if the user hasn't added any custom commands, so we avoid creating
+				//an error with the proc call
+				if (prefsArr[i] != "")
+				    jsoarInterp.eval("proc " + prefsArr[i] + " { args } { }");
 			} catch (SoarException e) {
 				System.out.println(e.getMessage());
 			}
