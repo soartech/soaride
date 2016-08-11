@@ -367,24 +367,24 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     
     private void initCommands(SoarCommandInterpreter jsoarInterp)
     {
-        try {
-            // Adding some stubs proc's to the JSoar TCL interp to avoid errors
-            // for commands that are in CSoar but not JSoar
+        // Adding some stubs proc's to the JSoar TCL interp to avoid errors
+        // for commands that are in CSoar but not JSoar
 
-            String prefs = Platform.getPreferencesService().getString("com.soartech.soar.ide.ui", "keywords", "", null);
-            String[] prefsArr = prefs.split(";");
-            for (int i = 0; i < prefsArr.length; ++i)
-            {
-                System.out.println("PROC CREATED FOR: " + prefsArr[i]);
-                jsoarInterp.eval("proc " + prefsArr[i] + " { args } { }");
-            }
-
-            //add the command for spInternal
-            jsoarInterp.addCommand("sp", new SpInternalCommand(this.jsoarAgent, this));
-            
-        } catch (SoarException e) {
-            System.out.println(e.getMessage());
+        String prefs = Platform.getPreferencesService().getString("com.soartech.soar.ide.ui", "keywords", "", null);
+        System.out.println("SoarAgent.initCommands: prefs: " + prefs);
+        String[] prefsArr = prefs.split(";");
+        for (int i = 0; i < prefsArr.length; ++i)
+        {
+			try {
+				System.out.println("PROC CREATED FOR: " + prefsArr[i]);
+				jsoarInterp.eval("proc " + prefsArr[i] + " { args } { }");
+			} catch (SoarException e) {
+				System.out.println(e.getMessage());
+			}
         }
+        
+        //add the command for spInternal
+        jsoarInterp.addCommand("sp", new SpInternalCommand(this.jsoarAgent, this));
     }
     
     SoarModelTclInterpreter getInterpreter()
