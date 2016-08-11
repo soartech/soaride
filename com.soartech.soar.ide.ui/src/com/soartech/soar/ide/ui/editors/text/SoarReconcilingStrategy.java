@@ -104,6 +104,14 @@ public class SoarReconcilingStrategy implements IReconcilingStrategy, IReconcili
                 e.printStackTrace();
             }
             
+            // if somehow the agents aren't availble yet, just return
+            // this is, after all, just a reconciler, which is used to update the internal model between saves
+            // it will be called again soon
+            if(agentToCheck == null)
+            {
+            	return;
+            }
+            
             //delete any datamap problem markers
             SoarModelTools.deleteMarkers(workingCopy.getFile(), SoarCorePlugin.DATAMAP_PROBLEM_MARKER_ID);
             
