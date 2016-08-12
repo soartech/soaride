@@ -489,6 +489,10 @@ public class SoarBuilder extends IncrementalProjectBuilder
         {
             return null;
         }
+        if(!file.isAccessible()) // file could be deleted and not yet refreshed
+        {
+        	return null;
+        }
         
         SoarProject project = getSoarProject();
         return project.getOrCreateSoarAgent(file);
