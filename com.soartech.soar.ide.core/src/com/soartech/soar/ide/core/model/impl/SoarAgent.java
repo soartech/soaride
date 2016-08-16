@@ -386,6 +386,15 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
 			}
         }
         
+        // some commands should be ignored, because they aren't important for Soar IDE's functionality but can fail in this environment
+        // which causes problems
+        // FIXME: this should be rolled into a more general command-ignoring capability, as most commands probably should be ignored
+        try {
+        	jsoarInterp.eval("proc script { args } { }");
+        } catch (SoarException e) {
+        	System.out.println(e.getMessage());
+        }
+        
         //add the command for spInternal
         jsoarInterp.addCommand("sp", new SpInternalCommand(this.jsoarAgent, this));
     }
