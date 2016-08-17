@@ -438,6 +438,33 @@ To fix the problem, change the values to match the following:
 *   If they have become hidden, you can show individual views via Window->Show View->Other->Soar
 *   You can reset the Soar Perspective (right-click on Soar Perspective -> Reset)
 
+# Building and Releasing Soar IDE
+
+If you are a developer and want to release a new version of Soar IDE, follow these instructions:
+
+1. Do a pull on the repo to get the latest changes.
+1. Open Soar IDE in Eclipse. 
+	1. In the **core**, **ui**, and **help** packages, change the MANIFEST.MF so the field "Bundle-Version" field reflects the new version.
+	1. In the **feature** package, change the feature.xml file the "version" field reflects the newest version.
+1. Commit the changes so far. The commit message should be "Update version to <new version number> for release."
+1. Navigate to the **update** package. 
+	1. Open site.xml
+	1. In the box, expand the Soar IDE dropdown. You should see an item with the current version number in its title. Right click this item and select Remove.
+	1. Select the Soar IDE dropdown. Click the "Add Feature" button on the right.
+	1. From the list, select the item with the version number you just updated all the other packages to. Click ok.
+	1. Select the new feature you just added under Soar IDE. Click "Build" on the right.
+1. Go to SourceTree (or whatever your git tool is). Stage the following files:
+	1. artifacts.jar
+	1. content.jar
+	1. site.xml
+	1. com.soartech.soar.ide.feature_<new version number>.jar
+	1. com.soartech.soar.ide.help_<new version number>.jar
+	1. com.soartech.soar.ide.ui_<new version number>.jar
+	1. com.soartech.soar.ide _<new version number>.jar
+1. Commit these files. The commit message should be "Soar IDE version <new version number> release."
+
+If you ever get confused, you can always look back at previous release commits to see what was changed. Other than that, it's pretty straightforward.
+
 --------------
 
 # License
