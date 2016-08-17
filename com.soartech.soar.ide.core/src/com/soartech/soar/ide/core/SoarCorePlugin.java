@@ -19,6 +19,9 @@
  */
 package com.soartech.soar.ide.core;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -98,6 +101,12 @@ public class SoarCorePlugin extends Plugin {
     {
 		super.start(context);
 
+		for(IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()){
+			if(project.isOpen() && project.hasNature("com.soartech.soar.ide.nature")) {
+				project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+			}
+        }
+		
         modelAdapters.register();
 
         getSoarModel().open(new NullProgressMonitor());
