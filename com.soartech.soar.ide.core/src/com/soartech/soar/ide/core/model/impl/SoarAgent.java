@@ -1348,7 +1348,7 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     public IExpandedTclCode expandTclString(String namespace, String input,
             int offset)
     {
-        System.out.println("[SoarAgent] expandTclString()");
+        //System.out.println("[SoarAgent] expandTclString()");
         
         synchronized (getLock())
         {            
