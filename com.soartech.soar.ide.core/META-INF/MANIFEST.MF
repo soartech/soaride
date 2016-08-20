@@ -11,7 +11,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.core.resources,
  org.eclipse.ltk.core.refactoring,
- org.eclipse.text
+ org.eclipse.text,
+ org.eclipse.jdt.core;bundle-version="3.11.2"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: soareditor.jar,
  lib/commons-beanutils-1.8.3.jar,
