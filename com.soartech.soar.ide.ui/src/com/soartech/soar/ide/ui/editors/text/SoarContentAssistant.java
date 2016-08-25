@@ -341,7 +341,7 @@ extends TemplateCompletionProcessor {
         int i = 0;
         for (String name : procedureNames.keySet())
         {
-            System.out.println("Procdure names");
+            System.out.println("Procedure names");
             System.out.println(name);
             ITclHelpModel helpModel = agent.getSoarModel().getTclHelpModel();
             ITclProcedureHelp help = helpModel.getHelp(name, agent.getSoarProject(), agent);
