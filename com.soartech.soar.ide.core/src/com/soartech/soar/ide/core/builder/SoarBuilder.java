@@ -645,9 +645,6 @@ public class SoarBuilder extends IncrementalProjectBuilder
                 {
                     IProject project = getProject();
                     
-                    ClassLoader cl = getProjectClassLoader(project);
-                    UrlTools.setClasspathResourceResolverClassLoader(cl);
-                    
                     // Clean up all markers on the project
                     SoarModelTools.deleteMarkers(project, SoarCorePlugin.PROBLEM_MARKER_ID);
                     SoarModelTools.deleteMarkers(project, SoarCorePlugin.TASK_MARKER_ID);
@@ -687,25 +684,6 @@ public class SoarBuilder extends IncrementalProjectBuilder
                 monitor.done();
             }
         }
-
-		private ClassLoader getProjectClassLoader(IProject project) throws CoreException, JavaModelException {
-			IJavaProject javaProject = (IJavaProject)project.getNature(JavaCore.NATURE_ID);
-			IClasspathEntry[] resolvedClasspath = javaProject.getResolvedClasspath(true);
-			
-			List<URL> urls = new ArrayList<URL>();
-			for(IClasspathEntry cpe : resolvedClasspath)
-			{
-				try {
-					urls.add(cpe.getPath().toFile().toURI().toURL());
-				} catch (MalformedURLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			
-			URLClassLoader cl = new URLClassLoader(urls.toArray(new URL[0]));
-			return cl;
-		}
 
         public boolean isIncremental()
         {

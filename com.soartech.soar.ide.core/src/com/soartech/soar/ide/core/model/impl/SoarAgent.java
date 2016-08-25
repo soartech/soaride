@@ -25,6 +25,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,6 +44,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -49,6 +53,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -60,6 +68,7 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.tcl.SoarTclInterfaceFactory;
 import org.jsoar.util.SourceLocation;
+import org.jsoar.util.UrlTools;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 
 import com.soartech.soar.ide.core.SoarCorePlugin;
@@ -137,6 +146,8 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
     private ScheduledExecutorService tclExecutorService = null;
     private Agent jsoarAgent;
     
+    private ClassLoader classLoader;
+    
     public SoarAgent(SoarProject soarProject, IFile file)
             throws SoarModelException
     {
@@ -164,7 +175,14 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
                 .length());
         
         System.out.println("Constructed " + this.getPath());
-
+        
+		try {
+			this.classLoader = getAgentClassLoader(soarProject.getProject());
+			UrlTools.setClasspathResourceResolverClassLoader(this.classLoader);
+		} catch (CoreException e) {
+			throw new SoarModelException(e);
+		}
+        
         makeConsistent(new NullProgressMonitor());
     }
     
@@ -1628,4 +1646,23 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
             SoarCorePlugin.log(e);
         }
     }
+    
+    private ClassLoader getAgentClassLoader(IProject project) throws CoreException, JavaModelException {
+		IJavaProject javaProject = (IJavaProject)project.getNature(JavaCore.NATURE_ID);
+		IClasspathEntry[] resolvedClasspath = javaProject.getResolvedClasspath(true);
+		
+		List<URL> urls = new ArrayList<URL>();
+		for(IClasspathEntry cpe : resolvedClasspath)
+		{
+			try {
+				urls.add(cpe.getPath().toFile().toURI().toURL());
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		URLClassLoader cl = new URLClassLoader(urls.toArray(new URL[0]));
+		return cl;
+	}
 }
