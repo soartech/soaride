@@ -20,6 +20,7 @@
 package com.soartech.soar.ide.core.model.impl;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.jsoar.util.UrlTools;
 
 import com.soartech.soar.ide.core.model.ISoarBuffer;
 import com.soartech.soar.ide.core.model.ISoarProblemReporter;
@@ -255,16 +257,13 @@ class TclFileReferenceBuilder implements ITclFileReferenceConstants
     {
         IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         
+        boolean wrongType = false;
+        
         // See if the file exists in Eclipse...
         IResource eclipseResource = root.findMember(path);
         boolean eclipseExists = eclipseResource != null && eclipseResource.exists();
         
-        // See if the file exists externally....
-        File externalFile = path.toFile();
-        boolean externalExists = externalFile.exists();
-        
         // Check for the wrong type of argument (directory vs. file)
-        boolean wrongType = false;
         if(eclipseExists)
         {
             if(dir && !(eclipseResource instanceof IContainer))
@@ -276,9 +275,35 @@ class TclFileReferenceBuilder implements ITclFileReferenceConstants
                 wrongType = true;
             }
         }
-        else if(externalExists)
+        
+        // See if the file exists externally....
+        boolean externalExists = false;
+        
+        if(UrlTools.isClassPath(path.toPortableString()))
         {
-            if(dir && !externalFile.isDirectory())
+        	try
+        	{
+        		// Check for existence
+				URL url = UrlTools.lookupClassPathURL(path.toPortableString());
+				if(url != null)
+				{
+					externalExists = true;
+				}
+				
+				// TODO: Check for the wrong type of argument (directory vs. file); set wrongType=false if it's wrong
+				
+			} catch (Exception e) {
+				externalExists = false;
+			}
+        }
+        else
+        {
+        	// Check for existence
+        	File externalFile = path.toFile();
+        	externalExists = externalFile.exists();
+        	
+        	// Check for the wrong type of argument (directory vs. file)
+        	if(dir && !externalFile.isDirectory())
             {
                 wrongType = true;
             }
@@ -286,8 +311,9 @@ class TclFileReferenceBuilder implements ITclFileReferenceConstants
             {
                 wrongType = true;
             }
+        	
         }
-        
+
         // Report errors
         if(wrongType)
         {
