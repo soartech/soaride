@@ -1475,6 +1475,24 @@ public class SoarAgent extends AbstractSoarElement implements ISoarAgent
         }
         return super.getAdapter(adapter);
     }
+    
+    /**
+     * Gets the ClassLoader for this specific agent (e.g., includes maven dependencies, etc.)
+     * @return
+     */
+    public ClassLoader getClassLoader()
+    {
+    	// if this hasn't been initialized yet, try initializing
+    	if(this.classLoader == null) {
+    		try {
+				this.classLoader = getAgentClassLoader(this.getSoarProject().getProject());
+			} catch (CoreException e) {
+				// ignore, we'll just return null
+			}
+    	}
+    	
+    	return this.classLoader;
+    }
 
     /*
      * (non-Javadoc)

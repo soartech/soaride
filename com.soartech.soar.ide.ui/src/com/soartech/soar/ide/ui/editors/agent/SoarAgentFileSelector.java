@@ -65,8 +65,8 @@ import com.soartech.soar.ide.ui.SoarUiTools;
 class SoarAgentFileSelector implements ITreeViewerListener, ICheckStateListener, ISelectionChangedListener, IDoubleClickListener
 {
     private SoarAgentEditor editor;
-    private final ITreeContentProvider treeContentProvider = new WorkbenchContentProvider();
-    private final IStructuredContentProvider listContentProvider = new WorkbenchContentProvider();
+    private final ITreeContentProvider treeContentProvider;
+    private final IStructuredContentProvider listContentProvider;
     private final ILabelProvider treeLabelProvider = WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider();
     private final ILabelProvider listLabelProvider = WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider();
     private CheckboxTreeViewer treeViewer;
@@ -75,6 +75,8 @@ class SoarAgentFileSelector implements ITreeViewerListener, ICheckStateListener,
     public SoarAgentFileSelector(SoarAgentEditor editor, Composite parent)
     {
         this.editor = editor;
+        this.treeContentProvider = new SoarAgentContentProvider(editor.getAgent());
+        this.listContentProvider = new SoarAgentContentProvider(editor.getAgent());
         
         Composite composite = createComposite(parent);
         

@@ -264,5 +264,11 @@ public interface ISoarAgent extends ISoarElement
      * @return The interpreter's result.
      */
     String executeString(String command);
+    
+    /**
+     * Gets the ClassLoader for this specific agent (e.g., includes maven dependencies, etc.)
+     * @return
+     */
+    ClassLoader getClassLoader();
 
 }

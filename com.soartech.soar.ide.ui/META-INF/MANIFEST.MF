@@ -31,3 +31,4 @@ Export-Package: com.soartech.soar.ide.ui,
  com.soartech.soar.ide.ui.editors.text.rules,
  com.soartech.soar.ide.ui.perspectives,
  edu.umich.soar.editor.editors.datamap
+Import-Package: com.google.common.collect
